@@ -43,15 +43,16 @@ const HistoryFolios = ({historyFolios}) => {
         })
     }
 
-    return (<> 
-        <List bulleted>
-            {
-                historyFolios.map((item) => {
-                    return (<List.Item key={'hs-'+item._id} href='#' onClick={(e) => {getFolioMessages(item._id);}} title={item.createdAt}>#{item._id}</List.Item>);
-                })
-            }
-        </List>
-
+    return (<>
+        <div style={{maxheight:250, overflowY:'scroll'}}>
+            <List bulleted>
+                {
+                    historyFolios.map((item) => {
+                        return (<List.Item key={'hs-'+item._id} href='#' onClick={(e) => {getFolioMessages(item._id);}} title={item.createdAt}>#{item._id}</List.Item>);
+                    })
+                }
+            </List>
+        </div>
         <Modal
             open={openModal}
             header={titleModal}
