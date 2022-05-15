@@ -141,6 +141,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             <Accordion.Content active={indexPane === 1}>
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
             </Accordion.Content>
+            {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
                 <Icon name='box' />
                 Historial de Folios
@@ -148,8 +149,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             <Accordion.Content active={indexPane === 5}>
                 < HistoryFolios historyFolios={historyFolios}/>
             </Accordion.Content>
+            {/* ------------ */}
             {
-                folio.folio && ( !folio.folio.fromInbox && (<>
+                folio && (<>
                     <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
                         <Icon name='exchange' />
                         Transferir Folio
@@ -157,9 +159,10 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     <Accordion.Content active={indexPane === 6}>
                         <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
                     </Accordion.Content>
-                </>))
+                </>)
             }
             
+            {/* ------------ */}
             {
                 folio && folio.folio.channel !== 'call' && (<>
                     <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
@@ -178,7 +181,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 </>)
             }
             
-
+            {/* ------------ */}
             <Accordion.Title index={3} active={indexPane === 3} onClick={openPane}>
                 <Icon name='ticket' />
                 Tickets
@@ -196,7 +199,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>
                 </p>
             </Accordion.Content>
-
+            {/* ------------ */}
             <Accordion.Title index={4} active={indexPane === 4} onClick={openPane}>
                 <Icon name='cloud' />
                 Archivos en la nube

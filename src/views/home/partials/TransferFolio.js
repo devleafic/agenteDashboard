@@ -8,6 +8,8 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 
 const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
+    
+
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
 
