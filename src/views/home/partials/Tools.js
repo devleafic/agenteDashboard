@@ -139,7 +139,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 CRM
             </Accordion.Title>
             <Accordion.Content active={indexPane === 1}>
+                
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
+                
             </Accordion.Content>
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
@@ -170,6 +172,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         Respuestas Rápidas
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 2}>
+                        <div style={{height:250, overflowY:'scroll'}}>
                         {
                             quicklyAnswer.map((item) => {
                                 return <a key={item._id} href='#' onClick={e => {
@@ -177,6 +180,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                                 }}>{item.text}</a>
                             })
                         }
+                        </div>
                     </Accordion.Content>
                 </>)
             }
@@ -187,13 +191,15 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 Tickets
             </Accordion.Title>
             <Accordion.Content active={indexPane === 3}>
-                <List bulleted>
-                {
-                    tickets.map((item) => {
-                        return (<List.Item key={item._id} href='#' onClick={(e) => {setTicketSelected(item._id);setOpenViewTicket(true);}}>#{item._id}</List.Item>);
-                    })
-                }
-                </List>
+                <div style={{height:250, overflowY:'scroll'}}>
+                    <List bulleted>
+                    {
+                        tickets.map((item) => {
+                            return (<List.Item key={item._id} href='#' onClick={(e) => {setTicketSelected(item._id);setOpenViewTicket(true);}}>#{item._id}</List.Item>);
+                        })
+                    }
+                    </List>
+                </div>
                 <p>
                     <Button color='teal' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>

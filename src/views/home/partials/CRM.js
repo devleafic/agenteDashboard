@@ -28,26 +28,30 @@ const CRM = ({template, folio, setRefresh}) => {
     },[folio]);
 
     return ( <>
-        <Form key={'form-crm-'+folio}>
-            {
-                template.map((item) => {
-                    return (
-                        <Form.Field key={'field-'+item._id}>
-                            <label>{item.name}</label>
-                            <input key={item._id} placeholder={item.name} value={folio.folio.person.fields ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
-                                if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                                if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                                folio.folio.person.fields[item._id] = e.target.value;
-                                setRefresh(Math.random());
-                            }}/>
-                        </Form.Field>
-                    )
-                })
-            }
-            <div style={{textAlign:'right'}}>
-                <Button color='green' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
-            </div>
-        </Form>
+        
+            <Form key={'form-crm-'+folio}>
+                <div style={{height:250, overflowY:'scroll'}}>
+                {
+                    template.map((item) => {
+                        return (
+                            <Form.Field key={'field-'+item._id}>
+                                <label>{item.name}</label>
+                                <input key={item._id} placeholder={item.name} value={folio.folio.person.fields ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
+                                    if(!folio.folio.person.fields){folio.folio.person.fields={}}
+                                    if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
+                                    folio.folio.person.fields[item._id] = e.target.value;
+                                    setRefresh(Math.random());
+                                }}/>
+                            </Form.Field>
+                        )
+                    })
+                }
+                </div>
+                <div style={{textAlign:'right'}}>
+                    <Button color='green' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
+                </div>
+            </Form>
+        
     </> );
 }
  
