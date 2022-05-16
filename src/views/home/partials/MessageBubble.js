@@ -12,7 +12,7 @@ const Message = ({message}) => {
             case 'text':
                 return (<>{content}</>);
             case 'document':
-                return (<a target='blank' href={content}><Icon name='folder open'></Icon>{caption}</a>);
+                return (<a target='blank' href={content}><Icon name='folder open'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
                 return (<><a href={content} target='_blank'><Image src={content} size='medium' />{caption && <p >{caption}</p>}</a></>);
             case 'sticker':
