@@ -94,9 +94,20 @@ const Home = () => {
         connectToSocket : () => {
             socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket'], reconnect : true,  });
 
-            socketC.connection.on('reconnect', () => {
-                alert('reconectado');
+            socketC.connection.on('disconnect', () => {
+                setOpen(true);
+                setMessage('Se rompio la conexión con el servidor, intente en unos minutos nuevamente.');
             });
+
+            socketC.connection.on('connect', () => {
+                if(isReady){
+                    window.location.reload(false);
+                }
+                console.log('conectando');
+                // setOpen(true);
+                // setMessage('Se rompio la conexión con el servidor, intente en unos minutos nuevamente.');
+            });
+
 
             socketC.connection.emit('handShakeToSocket', {
                 token : window.localStorage.getItem('sdToken')
