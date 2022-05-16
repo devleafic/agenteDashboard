@@ -5,6 +5,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import {Device} from 'twilio-client';
 import { ToastContainer, toast } from 'react-toastify';
+import { Modal, Header, Icon, Button } from 'semantic-ui-react';
 
 /* Contexto */
 import ListFoliosContext from './../../controladores/FoliosContext';
@@ -34,6 +35,9 @@ const Home = () => {
 
     const [onConnect, setOnConnect] = useState(true);
     const [isInbound, setIsUnbound] = useState(true);
+
+    const [open,setOpen] = useState(false);
+    const [message,setMessage] = useState('');
 
     const CallController = {
         setup : (token) => {
@@ -107,6 +111,9 @@ const Home = () => {
                             //CallController.setup(data.token);
                         }
                     });
+                }else{
+                    setOpen(true);
+                    setMessage(data.message);
                 }
             });
 
@@ -183,6 +190,21 @@ const Home = () => {
             }
         </div>
         <ToastContainer />
+
+
+        <Modal
+            basic
+            open={open}
+            size='small'
+            >
+            <Header icon>
+                <Icon name='unlinkify' />
+                Error
+            </Header>
+            <Modal.Content>
+                <center>{message}</center>
+            </Modal.Content>
+            </Modal>
     </> );
 }
  
