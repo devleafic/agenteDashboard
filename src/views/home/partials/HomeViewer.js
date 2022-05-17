@@ -11,6 +11,7 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
   const listFolios = useContext(ListFoliosContext);
   const [ messageToSend, setMessageToSend] = useState('');
   const [panesView, setPanesView] = useState([]);
+  const [currentTab, setCurrentTab ] = useState(0);
   
 
   // listFolios.current = listFolios.current ? listFolios.current : {current : {}}
@@ -87,7 +88,9 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
     {
       Object.keys(listFolios.current).length > 0 ? (
         <div style={{padding:40, height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
-          <Tab menu={{ pointing:true, color: 'green'}} panes={panesView} defaultActiveIndex={0}/>
+          <Tab menu={{ pointing:true, color: 'green'}} panes={panesView} defaultActiveIndex={0} activeIndex={currentTab} onTabChange={(e) => {
+            setCurrentTab(e.target.value)
+          }}/>
         </div>) : <div style={{margin : 40}}><Message
       icon='flag checkered'
       header='Sin mensajes nuevos'
