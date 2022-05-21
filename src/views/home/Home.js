@@ -115,6 +115,12 @@ const Home = () => {
                 if(data.success){
                     toast.success('Se ha conectado al servidor correctamente');
                     setUserInfo(data.user);
+                    // socketC.connection.emit('changeActivity', {
+                    //     token : window.localStorage.getItem('sdToken'),
+                    //     activity : {_id : 1, isConnect : true}
+                    // }, (result) => {
+                    //     alert('Listo');
+                    // });
                     socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
                         if(data.success){
                             

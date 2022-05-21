@@ -12,6 +12,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
     const [showBlankFolio, setShowBlankFolio] = useState(false);
     const [infoBlankFolio, seteInfoBlankFolio] = useState(null);
 
+    const [activities, setActivities] = useState([]);
+
     const iniatilaze = {
         anchor : null,
         channel : null,
@@ -90,7 +92,18 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
                 }
             });
             setListFilesOubounds(tmpList);
+            
         }
+
+        setActivities([{
+            key: 1,
+            value: 1,
+            text: 'Conectado'
+          }, {
+            key: 2,
+            value: 2,
+            text: 'Desconectado'
+          }]);
         
     },[isInbound]);
 
@@ -106,6 +119,22 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             }
             console.timeEnd('asignando')
         });
+    }
+
+    const changeActivity = async (e, {value}) => {
+        let activities = [{_id : 1, isConnect : true}, {_id : 2, isConnect : false}]
+        
+        let activityObj = activities.find((x) => {
+            return x._id === value;
+        });
+
+        socketC.connection.emit('changeActivity', {
+            token : window.localStorage.getItem('sdToken'),
+            activity : activityObj
+        }, (result) => {
+            alert('Listo');
+        })
+        
     }
 
     return (
@@ -126,6 +155,14 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             {
                 !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection}/>
             }
+                <Dropdown
+                    style={{marginLeft:20}}
+                    placeholder='Actividades'
+                    selection
+                    options={activities}
+                    defaultValue={1}
+                    onChange={changeActivity}
+                />
             {
                 showBlankFolio && infoBlankFolio && (<>
                     <Modal
