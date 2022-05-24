@@ -38,6 +38,7 @@ const Home = () => {
 
     const [open,setOpen] = useState(false);
     const [message,setMessage] = useState('');
+    
 
     const CallController = {
         setup : (token) => {
@@ -90,6 +91,12 @@ const Home = () => {
         Notification.requestPermission();
     }
 
+    const showMessage = (message) => {
+        if(window.localStorage.getItem('tabIsActive') === 'true'){return false;}
+        var notification = new Notification(message);
+        notification.onclick = function(){window.focus();this.close();}
+    }
+
     const SocketActions = {
         connectToSocket : () => {
             socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket'], reconnect : true,  });
@@ -115,15 +122,8 @@ const Home = () => {
                 if(data.success){
                     toast.success('Se ha conectado al servidor correctamente');
                     setUserInfo(data.user);
-                    // socketC.connection.emit('changeActivity', {
-                    //     token : window.localStorage.getItem('sdToken'),
-                    //     activity : {_id : 1, isConnect : true}
-                    // }, (result) => {
-                    //     alert('Listo');
-                    // });
                     socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
                         if(data.success){
-                            
                             setIsReady(true);
                             //CallController.setup(data.token);
                         }
@@ -140,9 +140,10 @@ const Home = () => {
                     CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                 }
 
-                var notification = new Notification('Nuevo Folio Asignado #'+data.body.folio._id);
-                notification.onclick = function(){window.focus();this.close();}
-                setRefresh(Math.random())
+                setRefresh(Math.random());
+                showMessage('Nuevo Folio Asignado #'+data.body.folio._id);
+                
+                
             });
 
             socketC.connection.on('newMessage', (data) => {
@@ -150,9 +151,10 @@ const Home = () => {
                 if(!copyFolio.folio){return false;}
                 copyFolio.folio.message.push(data.lastMessage);
                 listFolios.current = {...listFolios.current, [data.folio] : copyFolio};
+
                 setRefresh(Math.random());
-                var notification = new Notification('Nuevo Mensaje de #'+data.folio);
-                notification.onclick = function(){window.focus();this.close();}
+                showMessage('Nuevo Mensaje de #'+data.folio);
+                
             });
 
             
@@ -162,7 +164,15 @@ const Home = () => {
         }
     }
 
+    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);console.log('activada')};
+    
+    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('desactivada')};
+
     useEffect(() => {
+        window.addEventListener("focus", onFocus);
+        window.addEventListener("blur", onBlur);
+        onFocus();
+
         async function loadData(){
             try{
                 const result = await axios(process.env.REACT_APP_CENTRALITA+'/agent/me/service');

@@ -44,8 +44,8 @@ const HistoryFolios = ({historyFolios}) => {
     }
 
     return (<>
-        <div style={{maxheight:250, overflowY:'scroll'}}>
-            <List bulleted>
+        <div style={{height:250, overflowY:'scroll'}}>
+            <List >
                 {
                     historyFolios.map((item) => {
                         return (<List.Item key={'hs-'+item._id} href='#' onClick={(e) => {getFolioMessages(item._id);}} title={item.createdAt}>#{item._id}</List.Item>);

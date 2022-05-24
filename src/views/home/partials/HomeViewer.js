@@ -12,8 +12,9 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
   const [ messageToSend, setMessageToSend] = useState('');
   const [panesView, setPanesView] = useState([]);
   const [currentTab, setCurrentTab ] = useState(0);
-  
 
+  const [currentKeysFolios, setCurrentKeysFolios] = useState(null);
+  const [vFolio, setVFolio] = useState(null);
   // listFolios.current = listFolios.current ? listFolios.current : {current : {}}
   // delete listFolios.current.current;
   const [toolsOpen, setToolsOpen] = useState(true);
@@ -35,11 +36,27 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
   useEffect(() => {
     const renderPanesViews = () => {
       
+      
+      setCurrentKeysFolios(Object.keys(listFolios.current));
+      const showDefaultTab = 0;
+      if(vFolio){
+        let isExist = Object.keys(listFolios.current).indexOf(vFolio);
+        if(isExist <= -1){
+          setVFolio(Object.keys(listFolios.current)[0])
+          setCurrentTab(0);
+        }else{
+          setCurrentTab(isExist);
+        }
+      }else{
+        setVFolio(Object.keys(listFolios.current)[0])
+        setCurrentTab(0);
+      }
+      
 
       const tempPanes = Object.keys(listFolios.current).map((index) => {
         const item = listFolios.current[index];
         return {
-          menuItem : item.folio.person.anchor+' (#'+item.folio._id+')',
+          menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', }, 
           render : () => {return (
             <Tab.Pane attached={false}>  
               <Grid style={{height:'calc(100vh - 184px)'}}>
@@ -82,14 +99,15 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
     }
     return renderPanesViews();
 
-  }, [refresh, messageToSend]);
+  }, [refresh, messageToSend, vFolio]);
 
   return ( <>
     {
       Object.keys(listFolios.current).length > 0 ? (
         <div style={{padding:40, height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
-          <Tab menu={{ pointing:true, color: 'green'}} panes={panesView} defaultActiveIndex={0} activeIndex={currentTab} onTabChange={(e) => {
-            setCurrentTab(e.target.value)
+          <Tab menu={{ pointing:true, color: 'green'}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+            setVFolio(currentKeysFolios[activeIndex]);
+            // setCurrentTab(activeIndex);
           }}/>
         </div>) : <div style={{margin : 40}}><Message
       icon='flag checkered'
