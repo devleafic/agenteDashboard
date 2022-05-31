@@ -138,7 +138,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     <Form reply style={{textAlign:'right'}}>
                         <Form.TextArea key={'msg-'+folio._id} style={{height:100}} onChange={(e) => {
                             setMessageToSend(e.target.value)
-                        }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {if(e.key==='Enter'){prepareMessage()}}}/>
+                        }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
+                            
+                            if(e.shiftKey && e.key==='Enter'){prepareMessage()}
+                        }}/>
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
