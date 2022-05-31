@@ -27,13 +27,20 @@ const Message = ({message}) => {
         }
     }
     
+    const getNameAuthor = (element) => {
+        if(!element){return '';}
+        
+        return element.agent ? element.agent 
+            : (element.sys ? element.sys : '');
+    }
+
 
     return ( <>
     {
         message.direction === 'out' ? (<div key={message._id}>
             <div style={{float:'right'}}>
                 <p className='from-me'>{convertContent(message)}</p>
-                <p className='from-me-meta' style={{minWidth:150}}>{moment(message.createdAt).fromNow()} - {message.origin ? message.origin.agent.user : ''}</p>
+                <p className='from-me-meta' style={{minWidth:150}}>{moment(message.createdAt).fromNow()} - {getNameAuthor(message.origin)}</p>
             </div>
         </div>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)}</p>

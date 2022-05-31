@@ -13,6 +13,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
     const [infoBlankFolio, seteInfoBlankFolio] = useState(null);
 
     const [activities, setActivities] = useState([]);
+    const [fullActivities, setFullActivities ] = useState([]);
 
     const iniatilaze = {
         anchor : null,
@@ -95,17 +96,33 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             
         }
 
-        setActivities([{
-            key: 1,
-            value: 1,
-            text: 'Conectado'
-          }, {
-            key: 2,
-            value: 2,
-            text: 'Desconectado'
-          }]);
+
+        // setActivities([{
+        //     key: 1,
+        //     value: 1,
+        //     text: 'Conectado'
+        //   }, {
+        //     key: 2,
+        //     value: 2,
+        //     text: 'Desconectado'
+        //   }]);
         
     },[isInbound]);
+
+    useEffect(() => {
+        const loadActivities = async () => {
+            const resService = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id);
+            const acti = resService.data.body.service.activities;
+            const toActivities = acti.map((x) => {
+                return {key : x._id, value : x._id, text : x.label}
+            });
+
+            setFullActivities(acti);
+            setActivities(toActivities);
+        }
+        if(userInfo)
+            loadActivities();
+    }, [isReady]);
 
     const requestItemList = async (e, {value}) => {
         console.time('asignando')
@@ -122,9 +139,9 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
     }
 
     const changeActivity = async (e, {value}) => {
-        let activities = [{_id : 1, isConnect : true}, {_id : 2, isConnect : false}]
+        //let activities = [{_id : 1, isConnect : true}, {_id : 2, isConnect : false}]
         
-        let activityObj = activities.find((x) => {
+        let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
 
@@ -132,7 +149,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             token : window.localStorage.getItem('sdToken'),
             activity : activityObj
         }, (result) => {
-            alert('Listo');
+            toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
         })
         
     }
@@ -155,14 +172,19 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             {
                 !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection}/>
             }
-                <Dropdown
-                    style={{marginLeft:20}}
-                    placeholder='Actividades'
-                    selection
-                    options={activities}
-                    defaultValue={1}
-                    onChange={changeActivity}
-                />
+            {
+                isReady && (
+                    <Dropdown
+                        style={{marginLeft:20}}
+                        placeholder='Actividades'
+                        selection
+                        options={activities}
+                        defaultValue={1}
+                        onChange={changeActivity}
+                    />
+                )
+            }
+                
             {
                 showBlankFolio && infoBlankFolio && (<>
                     <Modal
