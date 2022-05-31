@@ -29,13 +29,13 @@ code {
   /* background:#F9F9F9; */
   overflow-x:hidden;
   flex:1;
-  border-right: 1px solid #F2F2F4;
+  /* border-right: 1px solid #F2F2F4; */
 }
 .contentDashboard{
   margin-left: 60px;
   min-width: 550px;
   background: #dde1e7;
-  height: calc(100vh);
+  height: calc(100vh - 10px);
 }
 
 .vertical-center {
@@ -294,3 +294,11 @@ h2 {
 .ui.toggle.checkbox input:checked~.box:before,.ui.toggle.checkbox input:checked~label:before {
   background-color: #00b5ad !important
 }
+
+.statusBar{
+  background:#FF1744;
+  height: 10px;
+}
+
+.statusBarGreen{background:#3EBD61; height: 10px;}
+.statusBarOff{background:#EF9400; height: 10px;}

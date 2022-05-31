@@ -5,7 +5,7 @@ import Tools from './Tools';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) => {
+const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo}) => {
   
   
   const listFolios = useContext(ListFoliosContext);
@@ -101,6 +101,29 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
 
   }, [refresh, messageToSend, vFolio]);
 
+  const getMessageEmpty = () => {
+    switch(isConnected){
+      case -1:
+        return (<div style={{margin : 40}}><Message
+          icon='user cancel'
+          header='Aun no estas conectado, selecciona una actividad para conectarte'
+          negative
+        /></div>)
+      case 1:
+        return (<div style={{margin : 40}}><Message
+          icon='flag checkered'
+          header='Sin mensajes nuevos'
+          positive
+        /></div>)
+      case 2:
+          return (<div style={{margin : 40}}><Message
+            icon='clock outline'
+            header='Estas en linea sin embargo no recibirás mensajes'
+            warning
+          /></div>)
+    }
+  }
+
   return ( <>
     {
       Object.keys(listFolios.current).length > 0 ? (
@@ -109,11 +132,7 @@ const HomeViewer = ({show, refresh, setRefresh, onCall, setOnCall, userInfo}) =>
             setVFolio(currentKeysFolios[activeIndex]);
             // setCurrentTab(activeIndex);
           }}/>
-        </div>) : <div style={{margin : 40}}><Message
-      icon='flag checkered'
-      header='Sin mensajes nuevos'
-      positive
-    /></div>
+        </div>) : getMessageEmpty()
     }
       
   </> );

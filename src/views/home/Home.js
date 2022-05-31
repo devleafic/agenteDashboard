@@ -38,6 +38,8 @@ const Home = () => {
 
     const [open,setOpen] = useState(false);
     const [message,setMessage] = useState('');
+
+    const [isConnected, setIsConnected] = useState(-1);
     
 
     const CallController = {
@@ -168,6 +170,19 @@ const Home = () => {
     
     const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('desactivada')};
 
+    const getColorStatusBar = () => {
+        switch (isConnected){
+            case -1:
+                return 'statusBar';
+            case 1:
+                return 'statusBarGreen';
+            case 2:
+                return 'statusBarOff';
+            default:
+                return 'statusBar';
+        }
+    }
+
     useEffect(() => {
         window.addEventListener("focus", onFocus);
         window.addEventListener("blur", onBlur);
@@ -204,13 +219,14 @@ const Home = () => {
     }
 
     return ( <>
+        <div className={getColorStatusBar()}></div>
         <div className='sideBar'>
             <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect}/>
         </div>
         <div className='contentDashboard'>
-            <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady}/>
+            <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected}/>
             {
-                component.home && <HomeViewer userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall}/>

@@ -5,7 +5,7 @@ import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 
-const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
+const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected}) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
     const socketC = useContext(SocketContext);
@@ -96,24 +96,15 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             
         }
 
-
-        // setActivities([{
-        //     key: 1,
-        //     value: 1,
-        //     text: 'Conectado'
-        //   }, {
-        //     key: 2,
-        //     value: 2,
-        //     text: 'Desconectado'
-        //   }]);
-        
     },[isInbound]);
 
     useEffect(() => {
         const loadActivities = async () => {
             const resService = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id);
             const acti = resService.data.body.service.activities;
-            const toActivities = acti.map((x) => {
+
+            const availableAc = acti.filter((x) => {return x.status === true});
+            const toActivities = availableAc.map((x) => {
                 return {key : x._id, value : x._id, text : x.label}
             });
 
@@ -138,9 +129,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
         });
     }
 
-    const changeActivity = async (e, {value}) => {
-        //let activities = [{_id : 1, isConnect : true}, {_id : 2, isConnect : false}]
-        
+    const changeActivity = async (e, {value}) => {       
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
@@ -149,6 +138,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady}) => {
             token : window.localStorage.getItem('sdToken'),
             activity : activityObj
         }, (result) => {
+            setIsConnected(activityObj.isConnect ? 1 : 2);
             toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
         })
         
