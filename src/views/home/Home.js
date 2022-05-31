@@ -125,10 +125,10 @@ const Home = () => {
                     toast.success('Se ha conectado al servidor correctamente');
                     setUserInfo(data.user);
                     socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
-                        if(data.success){
+                        //if(data.success){
                             setIsReady(true);
                             //CallController.setup(data.token);
-                        }
+                        //}
                     });
                 }else{
                     setOpen(true);
