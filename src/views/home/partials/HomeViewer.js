@@ -59,7 +59,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
           menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', }, 
           tabular:true,
           render : () => {return (
-            <Tab.Pane attached={false}>  
+            <Tab.Pane attached={true}>  
               <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
                     <Comments
@@ -129,7 +129,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     {
       Object.keys(listFolios.current).length > 0 ? (
         <div style={{height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
-          <Tab className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+          <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
           }}/>
         </div>) : getMessageEmpty()
