@@ -10,7 +10,7 @@ const Message = ({message}) => {
 
         switch(type){
             case 'text':
-                return (<>{content}</>);
+                return (<div style={{whiteSpace:'pre-line'}}>{content}</div>);
             case 'document':
                 return (<a target='blank' href={content}><Icon name='folder open'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
