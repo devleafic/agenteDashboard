@@ -22,6 +22,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [isEndingFolio, setIsEndingFolio] = useState(false);
     const [listClassification, setListClassification] = useState([]);
     const [classification, setClassification] = useState(-1);
+
+    const [message, setMessage] = useState(null);
+    const [isOpenError, setIsOpenError] = useState(false);
     
     const prepareMessage = async () => {
         
@@ -78,6 +81,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             actionClose,
             classification
         }, (result) => {
+            console.log(result)
+            if(!result.success){
+                setMessage(result.message);
+                setIsOpenError(true);
+                return false;
+            }
+
             delete listFolios.current[folio._id];
             setRefresh(Math.random());
             setOpenModal(false);
@@ -145,8 +155,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar Folio</Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button>
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar</Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
                     </Form>
                 )
             }
@@ -181,6 +191,21 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 </Modal>
             )
         }
+
+
+        <Modal
+            basic
+            open={isOpenError}
+            size='small'
+            >
+            <Header icon>
+                <Icon name='unlinkify' />
+                Error
+            </Header>
+            <Modal.Content>
+                <center>{message}</center>
+            </Modal.Content>
+        </Modal>
 
     </> );
 }

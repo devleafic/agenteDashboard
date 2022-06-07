@@ -57,9 +57,10 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         const item = listFolios.current[index];
         return {
           menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', }, 
+          tabular:true,
           render : () => {return (
             <Tab.Pane attached={false}>  
-              <Grid style={{height:'calc(100vh - 184px)'}}>
+              <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
                     <Comments
                       person={item.folio.person}
@@ -127,10 +128,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   return ( <>
     {
       Object.keys(listFolios.current).length > 0 ? (
-        <div style={{padding:40, height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
-          <Tab menu={{ pointing:true, color: 'green'}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+        <div style={{height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
+          <Tab className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
-            // setCurrentTab(activeIndex);
           }}/>
         </div>) : getMessageEmpty()
     }

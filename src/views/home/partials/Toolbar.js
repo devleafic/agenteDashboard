@@ -129,7 +129,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
     }
 
-    const changeActivity = async (e, {value}) => {       
+    const changeActivity = async (e) => {       
+        let value = e.target.value;
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
@@ -164,14 +165,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             }
             {
                 isReady && (
-                    <Dropdown
-                        style={{marginLeft:20}}
-                        placeholder='Actividades'
-                        selection
-                        options={activities}
-                        defaultValue={1}
-                        onChange={changeActivity}
-                    />
+                    <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
+                        <option value={-1}>Selecciona una actividad</option>
+                        {
+                            activities.map((x) => {return <option value={x.value} key={x.key}>{x.text}</option>})
+                        }
+                    </select>
                 )
             }
                 

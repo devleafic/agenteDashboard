@@ -112,9 +112,6 @@ const Home = () => {
                 if(isReady){
                     window.location.reload(false);
                 }
-                console.log('conectando');
-                // setOpen(true);
-                // setMessage('Se rompio la conexión con el servidor, intente en unos minutos nuevamente.');
             });
 
 

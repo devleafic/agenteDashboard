@@ -95,7 +95,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
     };
     return (<>            
         <Button
-            content={nameFile ? nameFile : 'Seleccione un archivo'}
+            content={nameFile ? nameFile : 'Archivo'}
             labelPosition="left"
             icon="file"
             disabled={onUpload}
