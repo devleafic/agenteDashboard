@@ -47,8 +47,8 @@ const CRM = ({template, folio, setRefresh}) => {
                     })
                 }
                 </div>
-                <div style={{textAlign:'right'}}>
-                    <Button color='green' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
+                <div>
+                    <Button color='teal' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
                 </div>
             </Form>
         

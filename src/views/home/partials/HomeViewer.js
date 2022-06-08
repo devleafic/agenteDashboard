@@ -128,7 +128,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   return ( <>
     {
       Object.keys(listFolios.current).length > 0 ? (
-        <div style={{height: 'calc(100vh - 58px)', display: show ? 'block' : 'none'}}>
+        <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
           }}/>

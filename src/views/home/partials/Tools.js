@@ -107,16 +107,6 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
         })
     }
 
-    // const prepareCloseFolio = (tClose) => {
-    //     if(tClose === 'save'){
-    //         setTypeClose('guardar');
-    //     }
-    //     if(tClose === 'end'){
-    //         setTypeClose('finalizar');
-    //     }
-    //     setOpenModal(true);
-    // }
-
     useEffect(() => {
         const loadListClassifications = () => {
             const tmpClass = [];
