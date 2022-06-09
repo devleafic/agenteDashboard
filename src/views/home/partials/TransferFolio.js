@@ -23,7 +23,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
 
-    const chectToSend = () => {
+    const checkToSend = () => {
 
         if(!queueToSend.queue){
             toast.error('Selecciona el queue al cual se transferira el folio.');
@@ -79,7 +79,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
-            <Button color='teal' onClick={() => chectToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
+            <Button color='teal' onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
         </div>
 
         <Modal

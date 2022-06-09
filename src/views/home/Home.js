@@ -124,7 +124,7 @@ const Home = () => {
                     socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
                         //if(data.success){
                             setIsReady(true);
-                            //CallController.setup(data.token);
+                            
                         //}
                     });
                 }else{
@@ -136,6 +136,10 @@ const Home = () => {
             socketC.connection.on('newFolio', (data) => {
                 listFolios.current = {...listFolios.current, [data.body.folio._id] : data.body};
                 if(data.body.folio.channel.name === 'call'){
+                    if(Object.keys(callC.connection).length <= 0){
+                        CallController.setup(data.token);
+                    }
+                    
                     CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                 }
 
