@@ -145,8 +145,20 @@ const Home = () => {
 
                 setRefresh(Math.random());
                 showMessage('Nuevo Folio Asignado #'+data.body.folio._id);
-                
-                
+            });
+
+            socketC.connection.on('infoAck', (data) => {
+                let msgAck = data.result;
+                let copyFolio = {...listFolios.current[msgAck.folio]};
+                for(let i = 0 ; i < copyFolio.folio.message.length; i++){
+                    if(copyFolio.folio.message[i]._id === msgAck.message._id){
+                        copyFolio.folio.message[i] = msgAck.message;
+                        break;
+                    }
+                }
+                listFolios.current = {...listFolios.current, [msgAck.folio] : copyFolio};
+                setRefresh(Math.random());
+                console.log(data);
             });
 
             socketC.connection.on('newMessage', (data) => {

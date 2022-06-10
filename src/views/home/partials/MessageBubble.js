@@ -3,6 +3,12 @@ import { Image, Icon } from 'semantic-ui-react';
 
 const Message = ({message}) => {
 
+    const equivalenciasAck = {
+        'deliveryToServers' : 'Enviado',
+        'deliveryToRecipeint' : 'Entregado',
+        'readByRecipeint' : 'Leído'
+    }
+
     const convertContent = (msg) => {
         const type = msg.class;
         const content = msg.content;
@@ -40,6 +46,12 @@ const Message = ({message}) => {
             : (element.sys ? element.sys : '');
     }
 
+    const getAck = (ack) => {
+        if(!ack){return '';}
+
+        const lastEvent = Object.keys(ack)[Object.keys(ack).length-1];
+        return (equivalenciasAck[lastEvent] ? '- '+equivalenciasAck[lastEvent] : '')
+    }
 
     return ( <>
     {
@@ -48,10 +60,11 @@ const Message = ({message}) => {
                 <p className='from-me'>{convertContent(message)}</p>
             </div>
         </div>
-        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} <br/> {getNameAuthor(message.origin)}</p>
+        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getAck(message.ack)}<br/> {getNameAuthor(message.origin)}</p>
         </>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)}</p>
             <p className='from-them-meta'>{moment(message.createdAt).fromNow()}</p>
+            
         </div>)
     }
     </> );
