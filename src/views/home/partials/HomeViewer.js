@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { Tab, Grid, Message, Button } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo}) => {
+const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo}) => {
   
   
   const listFolios = useContext(ListFoliosContext);
@@ -56,9 +56,11 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = Object.keys(listFolios.current).map((index) => {
         const item = listFolios.current[index];
         return {
-          menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', }, 
+          menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', icon : (unRead[item.folio._id] ? 'circle' : false)}, 
           tabular:true,
-          render : () => {return (
+          render : () => {
+            
+            return (
             <Tab.Pane attached={true}>  
               <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
@@ -131,6 +133,10 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
+            window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
+            let copyUnread = {...unRead};
+            delete copyUnread[currentKeysFolios[activeIndex]]
+            setUnRead(copyUnread);
           }}/>
         </div>) : getMessageEmpty()
     }

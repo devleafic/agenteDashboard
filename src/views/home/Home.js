@@ -41,6 +41,8 @@ const Home = () => {
 
     const [isConnected, setIsConnected] = useState(-1);
     
+    const [unRead, setUnRead ] = useState({});
+    
 
     const CallController = {
         setup : (token) => {
@@ -167,6 +169,10 @@ const Home = () => {
                 copyFolio.folio.message.push(data.lastMessage);
                 listFolios.current = {...listFolios.current, [data.folio] : copyFolio};
 
+                if(window.localStorage.getItem('vFolio') != data.folio){
+                    setUnRead({...unRead, [data.folio] : true});
+                }
+                
                 setRefresh(Math.random());
                 showMessage('Nuevo Mensaje de #'+data.folio);
                 
@@ -239,7 +245,7 @@ const Home = () => {
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected}/>
             {
-                component.home && <HomeViewer isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall}/>
