@@ -151,7 +151,7 @@ const Home = () => {
                 let msgAck = data.result;
                 let copyFolio = {...listFolios.current[msgAck.folio]};
                 for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
-                    if(copyFolio.folio.message[i].externalId === msgAck.message.externalId){
+                    if(copyFolio.folio.message[i]._id === msgAck.message._id){
                         copyFolio.folio.message[i] = msgAck.message;
                         break;
                     }
