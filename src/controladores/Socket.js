@@ -31,6 +31,7 @@ export const connectToSocket = (listFolios, setRefresh) => {
         }
         copyFolio.folio.message.push(data.lastMessage);
         listFolios = {...listFolios, [data.folio] : copyFolio};
+
         setRefresh(Math.random())
         scrollToBottom();
     });

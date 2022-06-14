@@ -42,45 +42,32 @@ const Home = () => {
     const [isConnected, setIsConnected] = useState(-1);
     
     const [unRead, setUnRead ] = useState({});
+
+    const [sidCall, setSidCall] = useState(null);
     
 
     const CallController = {
         setup : (token) => {
-            callC.connection = new Device();
-            callC.connection.setup(token, {
-                sounds: {
-                    outgoing: process.env.REACT_APP_CENTRALITA+'/cdn/sound/beepCalling.mp3',
-                }
-            });
+            return new Promise((resolve, reject) => {
+                socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
 
-            callC.connection.on('ready',() => {
-                console.log('Usuario listo para recibir llamadas');
-                toast.success('Listo para recibir llamadas.');
-            });
+                    if(!data.success){
+                        toast.error(data.message);
+                        return false;
+                    }
 
-            callC.connection.on('connect',() => {
-                setOnCall('connect')
-            });
+                    callC.connection = new Device();
+                    callC.connection.setup(data.token, {
+                        sounds: {
+                            outgoing: process.env.REACT_APP_CENTRALITA+'/cdn/sound/beepCalling.mp3',
+                        }
+                    });
 
-            callC.connection.on('disconnect',() => {
-                console.log('disconnect');
-                setOnCall('disconnect');
-            });
+                    resolve(true);
+                })
 
-            callC.connection.on('error',(err) => {
-                console.log('error',err);
-                alert('Ocurrio un error');
+                
             });
-
-            callC.connection.on('incoming',(conn) => {
-                setOnCall('incoming');
-                conn.accept();
-            });
-
-            callC.connection.on('offline',() => {
-                alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
-            });
-            
         },
         answercall : (sid) => {
             socketC.connection.emit('answerCall', {sid, token : window.localStorage.getItem('sdToken')}, (data) =>{
@@ -123,26 +110,55 @@ const Home = () => {
                 if(data.success){
                     toast.success('Se ha conectado al servidor correctamente');
                     setUserInfo(data.user);
-                    socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
-                        //if(data.success){
-                            setIsReady(true);
-                            
-                        //}
-                    });
+                    setIsReady(true);
                 }else{
                     setOpen(true);
                     setMessage(data.message);
                 }
             });
 
-            socketC.connection.on('newFolio', (data) => {
+            socketC.connection.on('newFolio', async (data) => {
                 listFolios.current = {...listFolios.current, [data.body.folio._id] : data.body};
                 if(data.body.folio.channel.name === 'call'){
                     if(Object.keys(callC.connection).length <= 0){
-                        CallController.setup(data.token);
+                        await CallController.setup(data.token);
+
+                        callC.connection.on('ready',() => {
+                            console.log('Usuario listo para recibir llamadas');
+                            toast.success('Listo para recibir llamadas.');
+                            setRefresh(Math.random());
+                        });
+        
+                        callC.connection.on('connect',() => {
+                            setOnCall('connect')
+                            setRefresh(Math.random());
+                        });
+        
+                        callC.connection.on('disconnect',() => {
+                            console.log('disconnect');
+                            setOnCall('disconnect');
+                            setRefresh(Math.random());
+                        });
+        
+                        callC.connection.on('error',(err) => {
+                            console.log('error',err);
+                            alert('Ocurrio un error');
+                            setRefresh(Math.random());
+                        });
+        
+                        callC.connection.on('incoming',(conn) => {
+                            setOnCall('incoming');
+                            conn.accept();
+                            setRefresh(Math.random());
+                        });
+        
+                        callC.connection.on('offline',() => {
+                            alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
+                        });
                     }
-                    
+                    setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                     CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
+                    
                 }
 
                 setRefresh(Math.random());
@@ -171,6 +187,11 @@ const Home = () => {
 
                 if(window.localStorage.getItem('vFolio') != data.folio){
                     setUnRead({...unRead, [data.folio] : true});
+                }
+
+                if(data.lastMessage.class === 'call'){
+                    CallController.answercall(data.lastMessage.externalId);
+                    setSidCall(data.lastMessage.externalId);
                 }
                 
                 setRefresh(Math.random());
@@ -245,7 +266,7 @@ const Home = () => {
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected}/>
             {
-                component.home && <HomeViewer unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer sidCall={sidCall} setSidCall={setSidCall} unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall}/>

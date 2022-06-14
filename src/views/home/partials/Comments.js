@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider} from 'semantic-ui-react';
 
 import SocketContext from './../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
@@ -8,7 +8,7 @@ import Call from './Call';
 import UploadFile from './UploadFile';
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +127,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
             {
                 channel === 'call' ? (<>
-                    <Call currentFolio={listFolios.current[currentFolio].folio} onCall={onCall} setOnCall={setOnCall}/>    
+                    <Call currentFolio={listFolios.current[currentFolio].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
                     <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id='boxMessage' className='imessage' ref={boxMessage}>
                         {
@@ -143,7 +143,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
             {
                 channel === 'call' ? (
-                    <></>
+                    <Form reply style={{textAlign:'right', marginTop:50}}>
+                        <Divider/>
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar</Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
+                    </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
                         <Form.TextArea key={'msg-'+folio._id} style={{height:100}} onChange={(e) => {

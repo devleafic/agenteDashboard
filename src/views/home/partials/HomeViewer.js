@@ -5,7 +5,7 @@ import Tools from './Tools';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo}) => {
+const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall}) => {
   
   
   const listFolios = useContext(ListFoliosContext);
@@ -75,6 +75,8 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
                       onCall={onCall}
                       setOnCall={setOnCall}
                       setRefresh={setRefresh}
+                      sidCall={sidCall}
+                      setSidCall={setSidCall}
                     />
                     <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
               </Grid.Column>

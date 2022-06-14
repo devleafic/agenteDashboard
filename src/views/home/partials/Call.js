@@ -6,10 +6,8 @@ import CallContext from '../../../controladores/CallContext';
 import { useEffect } from 'react/cjs/react.development';
 
 
-const Call = ({currentFolio, onCall, setOnCall}) => {
+const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
     
-
-    const [sidCall] = useState(currentFolio.message[currentFolio.message.length -1].externalId);
     const [onCalling, setOnCalling] = useState(false);
 
     const callC = useContext(CallContext);
@@ -19,7 +17,7 @@ const Call = ({currentFolio, onCall, setOnCall}) => {
     
 
     const hangUp = () => {
-        socket.connection.emit('hangUp', {sidCall}, (data) => {
+        socket.connection.emit('hangUp', {sidCall : sidCall/*currentFolio.message[currentFolio.message.length -1].externalId*/}, (data) => {
             console.log('llamada terminanda');
         });
     }
@@ -36,10 +34,12 @@ const Call = ({currentFolio, onCall, setOnCall}) => {
     const makeCall = () => {
         setOnCalling(true);
         setOnCall('calling');
+        setRefresh(Math.random());
         
         socket.connection.emit('makeCall', {folio : currentFolio._id, token : window.localStorage.getItem('sdToken')}, (data) => {
+            setSidCall(data.call.sid);
             setOnCall('calling');
-            console.log('llamada terminanda');
+            setRefresh(Math.random());
         });
     }
 
@@ -63,7 +63,7 @@ const Call = ({currentFolio, onCall, setOnCall}) => {
         <Card style={{marginLeft : 'auto', marginRight : 'auto', width:'50%'}}>
             <Card.Content>
                 <Card.Header>{currentFolio.person.anchor}</Card.Header>
-                <Card.Meta><Icon name='phone'/> 00:00</Card.Meta>
+                {/* <Card.Meta><Icon name='phone'/> 00:00</Card.Meta> */}
             </Card.Content>
             <Card.Content extra>
                 <div className='ui three buttons'>
