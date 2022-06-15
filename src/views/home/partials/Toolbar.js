@@ -15,6 +15,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [activities, setActivities] = useState([]);
     const [fullActivities, setFullActivities ] = useState([]);
     const [currentActivity, setCurrentActivity] = useState(1);
+    const [outboundAva, setOutboundAva] = useState(false);
 
     const iniatilaze = {
         anchor : null,
@@ -84,6 +85,9 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
 
     useEffect(async () => {
+
+        
+
         if(userInfo && !isInbound){
             const responseOutbounds = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id+'/outbound/list');
             console.log(responseOutbounds.data);
@@ -101,7 +105,23 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             
         }
 
+        
+
     },[isInbound]);
+
+    useEffect(() => {
+        const getPlugin = async () => {
+            
+            const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available')
+            console.log(resPlugin);
+            const outboundPlugin = resPlugin.data.plugins.find((x) => {
+                return x.id === 'outbound';
+            });
+            if(outboundPlugin){setOutboundAva(true)}
+        }
+
+        return getPlugin();
+    })
 
     useEffect(() => {
         const loadActivities = async () => {
@@ -144,6 +164,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             token : window.localStorage.getItem('sdToken'),
             activity : activityObj
         }, (result) => {
+            if(!result.success){
+                toast.error('La actividad no es valida');
+                return false;
+            }
             setIsConnected(activityObj.isConnect ? 1 : 2);
             setCurrentActivity(value);
             toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
@@ -154,20 +178,20 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     return (
         <div className="toolbar" style={{textAlign:'right'}}>
             {
-                isReady && !isInbound && (<><Button basic color='green' onClick={getToFolioBlank}>Folio en Blanco</Button><Dropdown
-                    button
-                    className='icon'
-                    floating
-                    labeled
-                    icon='list alternate outline'
-                    options={listFilesOubounds}
-                    search
-                    text='Listas de Outbounds'
-                    style={{marginRight : 20}}
-                /></>)
+                // isReady && !isInbound && (<><Button basic color='green' onClick={getToFolioBlank}>Folio en Blanco</Button><Dropdown
+                //     button
+                //     className='icon'
+                //     floating
+                //     labeled
+                //     icon='list alternate outline'
+                //     options={listFilesOubounds}
+                //     search
+                //     text='Listas de Outbounds'
+                //     style={{marginRight : 20}}
+                // /></>)
             }
             {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/>
+                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
             }
             {
                 isReady && (
