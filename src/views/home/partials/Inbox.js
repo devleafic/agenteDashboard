@@ -79,7 +79,7 @@ const Inbox = () => {
                     )
                 }
                 {
-                    inboxes.map((x) => {
+                    inboxes.filter((x) => {return x.folio.status === 3 ? false : true}).map((x) => {
                         return (
                             <Table.Row key={x._id}>
                                 <Table.Cell>{x.folio._id}</Table.Cell>

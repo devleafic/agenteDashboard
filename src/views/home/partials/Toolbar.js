@@ -5,7 +5,7 @@ import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 
-const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected}) => {
+const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
     const socketC = useContext(SocketContext);
@@ -14,6 +14,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
 
     const [activities, setActivities] = useState([]);
     const [fullActivities, setFullActivities ] = useState([]);
+    const [currentActivity, setCurrentActivity] = useState(1);
 
     const iniatilaze = {
         anchor : null,
@@ -37,6 +38,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
 
     const changeConnection = () => {
+        if(isConnected === -1){
+            return false
+        }
+
         const value = !isInbound;
         setIsUnbound(value);
         toast.success('Se cambio el tipo de conexión a '+(isInbound ? 'Outbound' : 'Inbound'));
@@ -123,7 +128,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             list : value
         }, (responseItem) => {
             if(!responseItem.success){
-                toast.error(ERRORS[responseItem.codeError]);
+                toast.error((ERRORS[responseItem.codeError]||responseItem.message));
             }
             console.timeEnd('asignando')
         });
@@ -140,6 +145,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             activity : activityObj
         }, (result) => {
             setIsConnected(activityObj.isConnect ? 1 : 2);
+            setCurrentActivity(value);
             toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
         })
         
@@ -161,14 +167,14 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 /></>)
             }
             {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection}/>
+                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/>
             }
             {
                 isReady && (
                     <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
-                        <option value={-1}>Selecciona una actividad</option>
+                        <option value={-1} selected={currentActivity === -1}>Selecciona una actividad</option>
                         {
-                            activities.map((x) => {return <option value={x.value} key={x.key}>{x.text}</option>})
+                            activities.map((x) => {return <option value={x.value} key={x.key} selected={currentActivity === x.key}>{x.text}</option>})
                         }
                     </select>
                 )
