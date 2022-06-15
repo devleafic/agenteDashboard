@@ -217,6 +217,12 @@ const Home = () => {
                 
             });
 
+            socketC.connection.on('newInbox', (data) => {
+                toast.warning('Nuevo Inbox del folio #'+data.folio);
+                showMessage('Nuevo Inbox del folio #'+data.folio);
+            })
+            
+
             
         },
         sendMessage : () => {
@@ -287,7 +293,7 @@ const Home = () => {
                 component.home && <HomeViewer sidCall={sidCall} setSidCall={setSidCall} unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
-                component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall}/>
+                component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent}/>
             }
         </div>
         <ToastContainer />
