@@ -3,10 +3,17 @@ import { Image, Icon } from 'semantic-ui-react';
 
 const Message = ({message}) => {
 
+    // const equivalenciasAck = {
+    //     'deliveryToServers' : 'Enviado',
+    //     'deliveryToRecipeint' : 'Entregado',
+    //     'readByRecipeint' : 'Leído'
+    // }
+
     const equivalenciasAck = {
         'deliveryToServers' : 'Enviado',
-        'deliveryToRecipeint' : 'Entregado',
-        'readByRecipeint' : 'Leído'
+        'deliveryToRecipient' : 'Entregado',
+        'readByRecipient' : 'Leído',
+        'failedDelivery' : 'Sin enviar'
     }
 
     const convertContent = (msg) => {

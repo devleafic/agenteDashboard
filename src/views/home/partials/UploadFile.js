@@ -127,7 +127,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 </Message>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setShowModal(false); setOnUpload(false); setNameFile('Seleccione una archivo')}} loading={onPushFile} disabled={onPushFile}>
+                <Button basic color='red' inverted onClick={() => {setShowModal(false); setOnUpload(false); setNameFile('Archivo')}} loading={onPushFile} disabled={onPushFile}>
                 <Icon name='remove' /> No
                 </Button>
                 <Button color='green' inverted onClick={sendFileMessage} loading={onPushFile} disabled={onPushFile}>
