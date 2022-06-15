@@ -44,6 +44,9 @@ const Home = () => {
     const [unRead, setUnRead ] = useState({});
 
     const [sidCall, setSidCall] = useState(null);
+    const [connCall, setConnCall] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [openInComingCall, setOpenInComingCall] = useState(false);
     
 
     const CallController = {
@@ -89,6 +92,17 @@ const Home = () => {
     }
 
     const SocketActions = {
+        acceptCall : () => {
+            connCall.accept();
+            setOpenInComingCall(false);
+        },
+        rejectCall : () => {
+            connCall.reject();
+            setOnCall('disconnect')
+            setConnCall(null);
+            setOpenInComingCall(false);
+            setRefresh(Math.random());
+        },
         connectToSocket : () => {
             socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket'], reconnect : true,  });
 
@@ -137,6 +151,7 @@ const Home = () => {
                         callC.connection.on('disconnect',() => {
                             console.log('disconnect');
                             setOnCall('disconnect');
+                            setConnCall(null);
                             setRefresh(Math.random());
                         });
         
@@ -148,7 +163,10 @@ const Home = () => {
         
                         callC.connection.on('incoming',(conn) => {
                             setOnCall('incoming');
-                            conn.accept();
+                            setConnCall(conn);
+                            setPhoneNumber(conn.parameters.From);
+                            setOpenInComingCall(true)
+                            //conn.accept();
                             setRefresh(Math.random());
                         });
         
@@ -287,6 +305,30 @@ const Home = () => {
             <Modal.Content>
                 <center>{message}</center>
             </Modal.Content>
+            </Modal>
+
+        <Modal
+            basic
+            open={openInComingCall}
+            size='small'
+            >
+            <Header icon>
+                <Icon name='phone volume' />
+                ¿Deseas Contestar la Llamada de {phoneNumber}?
+            </Header>
+            <Modal.Content>
+                
+            </Modal.Content>
+            <Modal.Actions>
+                <Button basic color='red' inverted onClick={() => {
+                    SocketActions.rejectCall()
+                }}>
+                    <Icon name='remove' /> Colgar
+                </Button>
+                <Button color='green' inverted onClick={() => {SocketActions.acceptCall()}}>
+                    <Icon name='checkmark'/> Contestar
+                </Button>
+            </Modal.Actions>
             </Modal>
     </> );
 }

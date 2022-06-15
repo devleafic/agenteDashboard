@@ -17,13 +17,15 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
     
 
     const hangUp = () => {
-        socket.connection.emit('hangUp', {sidCall : sidCall/*currentFolio.message[currentFolio.message.length -1].externalId*/}, (data) => {
+        socket.connection.emit('hangUp', {sidCall : sidCall}, (data) => {
             console.log('llamada terminanda');
+            setOnCall('disconnect');
+            setRefresh(Math.random());
         });
     }
 
     useEffect(() => {
-        if(onCall === 'connect'){
+        if(onCall === 'connect' || onCall === 'disconnect'){
             beep.pause();
         }else if(onCall === 'calling'){
             beep.play();
