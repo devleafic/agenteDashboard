@@ -47,6 +47,7 @@ const Home = () => {
     const [connCall, setConnCall] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(null);
     const [openInComingCall, setOpenInComingCall] = useState(false);
+    const [unReadMessages, setUnReadMessages] = useState(false);
     
 
     const CallController = {
@@ -118,6 +119,8 @@ const Home = () => {
             });
 
 
+
+
             socketC.connection.emit('handShakeToSocket', {
                 token : window.localStorage.getItem('sdToken')
             },(data) => {
@@ -125,6 +128,16 @@ const Home = () => {
                     toast.success('Se ha conectado al servidor correctamente');
                     setUserInfo(data.user);
                     setIsReady(true);
+
+                    socketC.connection.emit('loadInbox', {
+                        token : window.localStorage.getItem('sdToken')
+                    },(data) => {         
+                        let hasUnread = data.inboxes.find((x) => {
+                            return x.status === 1 ? true : false;
+                        })
+                        setUnReadMessages(hasUnread?true:false);
+                    });
+        
                 }else{
                     setOpen(true);
                     setMessage(data.message);
@@ -215,11 +228,13 @@ const Home = () => {
                 setRefresh(Math.random());
                 showMessage('Nuevo Mensaje de #'+data.folio);
                 
+                
             });
 
             socketC.connection.on('newInbox', (data) => {
-                toast.warning('Nuevo Inbox del folio #'+data.folio);
-                showMessage('Nuevo Inbox del folio #'+data.folio);
+                toast.warning('Nuevo Inbox de '+data.anchor);
+                showMessage('Nuevo Inbox de '+data.anchor);
+                setUnReadMessages(true);
             })
             
 
@@ -230,9 +245,9 @@ const Home = () => {
         }
     }
 
-    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);console.log('activada')};
+    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);};
     
-    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('desactivada')};
+    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);};
 
     const getColorStatusBar = () => {
         switch (isConnected){
@@ -285,7 +300,7 @@ const Home = () => {
     return ( <>
         <div className={getColorStatusBar()}></div>
         <div className='sideBar'>
-            <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect}/>
+            <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect} unReadMessages={unReadMessages}/>
         </div>
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
@@ -293,7 +308,7 @@ const Home = () => {
                 component.home && <HomeViewer sidCall={sidCall} setSidCall={setSidCall} unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
-                component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent}/>
+                component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
         </div>
         <ToastContainer />

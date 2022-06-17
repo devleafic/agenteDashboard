@@ -1,16 +1,31 @@
-import { Button, Popup, Image } from 'semantic-ui-react';
+import { Button, Popup, Image, Icon } from 'semantic-ui-react';
 
 /* Recursos */
 import avatar from './../../../img/ico.png';
 import { Link } from "react-router-dom";
 
-const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect}) => {
+const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMessages}) => {
 
     const closeSession = () => {
         window.localStorage.removeItem('sdToken');
         window.localStorage.removeItem('myName');
         window.location = '/login'
     }
+
+    const getButton = () => {
+        if(unReadMessages){
+            return (
+                <Button icon={<Icon.Group>
+                    <Icon name='inbox' />
+                    <Icon corner name='circle' color='red'/>
+                </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null} />
+            )
+        }else{
+            return <Button icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null}/>
+        }
+        
+    }
+
 
     return (<>
         <div style={{marginTop:20, textAlign:'center'}}>
@@ -26,7 +41,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect}) => {
                     <Popup content='Inicio' trigger={<Button icon='home' onClick={() => selectedComponent('home')} color={page === 'home' ? 'teal' : null}/>} position='right center'/>
                 </div>
                 <div className='mb-3'>
-                    <Popup content='Inbox' trigger={<Button icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null}/>} position='right center'/>
+                    <Popup content='Inbox' trigger={getButton()} position='right center'/>
                 </div>
                 {/* <div className='mb-3'>
                     <Popup content='Informes' trigger={<Button icon='chart bar' onClick={() => selectedComponent('reports')} color={page === 'reports' ? 'teal' : null}/>} position='right center'/>

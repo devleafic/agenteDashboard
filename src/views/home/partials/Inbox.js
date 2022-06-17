@@ -3,7 +3,7 @@ import { Container, Table, Label, Header, Icon, Button } from 'semantic-ui-react
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 
-const Inbox = ({selectedComponent}) => {
+const Inbox = ({selectedComponent, setUnReadMessages}) => {
     const socketC = useContext(SocketContext);
     const [inboxes, setInboxes ] = useState([]);
     const [isLoadInbox, setIsLoadInbox ] = useState(false);
@@ -17,9 +17,15 @@ const Inbox = ({selectedComponent}) => {
             socketC.connection.emit('loadInbox', {
                 token : window.localStorage.getItem('sdToken')
             },(data) => {
-                console.log('inbox', data);
+                
                 setIsLoadInbox(false);
                 setInboxes(data.inboxes);
+                
+                let hasUnread = data.inboxes.find((x) => {
+                    return x.status === 1 ? true : false;
+                })
+
+                setUnReadMessages(hasUnread?true:false);
             });
         }
         return loadInbox();
@@ -96,6 +102,7 @@ const Inbox = ({selectedComponent}) => {
                                         x.folio.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                             <Button color='olive' onClick={() => {
                                                 openItemInbox(x.folio, x);
+                                                setUnReadMessages(false)
                                             }}>Abrir</Button>
                                         </>)
                                     }

@@ -121,7 +121,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         }
 
         return getPlugin();
-    })
+    },[])
 
     useEffect(() => {
         const loadActivities = async () => {

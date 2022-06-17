@@ -1,13 +1,14 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import { Tab, Grid, Message, Button, Icon } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
+
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
 const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall}) => {
   
-  
+  const boxMessage = useRef();
   const listFolios = useContext(ListFoliosContext);
   const [ messageToSend, setMessageToSend] = useState('');
   const [panesView, setPanesView] = useState([]);
@@ -74,9 +75,11 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
                       messageToSend={messageToSend}
                       onCall={onCall}
                       setOnCall={setOnCall}
+                      refresh={refresh}
                       setRefresh={setRefresh}
                       sidCall={sidCall}
                       setSidCall={setSidCall}
+                      boxMessage={boxMessage}
                     />
                     <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
               </Grid.Column>
@@ -129,6 +132,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
     }
   }
 
+
   return ( <>
     {
       Object.keys(listFolios.current).length > 0 ? (
@@ -139,6 +143,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
             let copyUnread = {...unRead};
             delete copyUnread[currentKeysFolios[activeIndex]]
             setUnRead(copyUnread);
+            
           }}/>
         </div>) : getMessageEmpty()
     }

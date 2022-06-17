@@ -6,13 +6,14 @@ import MessageBubble from './MessageBubble';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
 import UploadFile from './UploadFile';
+import { toast } from 'react-toastify';
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
-    const boxMessage = useRef();
+    
     const [currentFolio, setCurrentFolio] = useState(null);
     const [channel, setChannel] = useState(null);
 
@@ -40,14 +41,19 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             message : messageToSend,
             class : 'text'
         }, (result) => {
+
+            if(!result.body.success){
+                toast.error(result.body.message);
+                return false;
+            }
             listFolios.current[folio._id].folio.message.push(result.body.lastMessage);
-            
             setIsLoading(false);
             setMessageToSend('');
-            boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+            
         });
-        
     }
+
 
     const prepareCloseFolio = (tClose) => {
         if(tClose === 'save'){
@@ -114,9 +120,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         if(channel != 'call'){
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
         }
-
+        listFolios.currentBox = boxMessage.current;
         return loadListClassifications();
     }, []);
+
+    useEffect(() => {
+        boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+    });
 
     return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
@@ -129,14 +139,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 channel === 'call' ? (<>
                     <Call currentFolio={listFolios.current[currentFolio].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
-                    <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id='boxMessage' className='imessage' ref={boxMessage}>
-                        {
-                            folio.message.map((msg) => {
-                                return (
-                                    <MessageBubble key={msg._id} message={msg}/>
-                                );
-                            })
-                        }
+                    <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
                     </div>
                 ) 
             }
