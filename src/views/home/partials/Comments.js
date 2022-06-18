@@ -125,7 +125,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }, []);
 
     useEffect(() => {
-        boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+        if(channel != 'call'){
+            boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+        }
+        
     });
 
     return ( <>
