@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message} from 'semantic-ui-react';
 
 import SocketContext from './../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
@@ -124,6 +124,26 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         return loadListClassifications();
     }, []);
 
+    const getLabelQueue = () => {
+
+
+        if(folio.isGlobalQueue){
+            let name = folio.service.globalQueues.find((x) => {
+                return x._id === folio.queue;
+            });
+
+            return name.name
+        }else{
+            let chan = folio.service.channels.find((x) => {
+                return x._id === folio.channel._id
+            });
+            let queu = chan.queues.find((x) => {
+                return x._id === folio.queue;
+            })
+            return queu.name;
+        }
+    }
+
     useEffect(() => {
         if(channel != 'call'){
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
@@ -136,6 +156,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             <Header as='h3' dividing>
                 {(channel === 'call' ? 'Llamada ' : 'Mensajes ')}
                 <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label>
+                {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
+                <Label>Servicio : {folio.service.name}</Label>
+                <Label>Canal : {folio.channel.title}</Label>
+                <Label>Queue : {getLabelQueue()}</Label>
             </Header>
             
             {

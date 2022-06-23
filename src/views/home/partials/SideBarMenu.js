@@ -12,6 +12,11 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
         window.location = '/login'
     }
 
+    const parseName = (fullName) => {
+        if(!fullName){return '';}
+        return fullName.split(' ')[0]
+    }
+
     const getButton = () => {
         if(unReadMessages){
             return (
@@ -30,7 +35,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
     return (<>
         <div style={{marginTop:20, textAlign:'center'}}>
             <Image src={avatar} alt='Leaf' centered style={{height:25}}/>
-            {/* <div>{parseName(window.localStorage.getItem('myName'))}</div> */}
+            <div>{parseName(window.localStorage.getItem('myName'))}</div>
         </div>
         <div style={{height:'100%',position: 'relative'}}>
             <div className='vertical-center'>
