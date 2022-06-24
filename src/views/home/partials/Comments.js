@@ -7,6 +7,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
 import UploadFile from './UploadFile';
 import { toast } from 'react-toastify';
+import ClassificationForm from './Classification.From';
 
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh}) => {
@@ -23,9 +24,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [isEndingFolio, setIsEndingFolio] = useState(false);
     const [listClassification, setListClassification] = useState([]);
     const [classification, setClassification] = useState(-1);
+    const [formClassification, setFormClassification] = useState({});
 
     const [message, setMessage] = useState(null);
     const [isOpenError, setIsOpenError] = useState(false);
+
+    const [infoForm, setInfoForm] = useState(null);
     
     const prepareMessage = async () => {
         
@@ -72,6 +76,43 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             return false;
         }
 
+        let validate;
+        if(infoForm){
+            let fRequire = infoForm.form.filter((x) => {return x.require});
+            validate = fRequire.map((xField) => {
+                let findContent = Object.keys(formClassification).find((x) => {return x === xField._id});
+                if(!findContent){
+                    return {success : false, id : xField, message : 'Agregue un valor al campo "'+xField.label+'"'}
+                }
+
+                console.log(findContent)
+
+                if(xField.require){
+                    switch(xField.rtype){
+                        case 'text':
+                            return formClassification[xField._id].trim() === '' ? {success : false, id : xField, message : 'Agregue un valor al campo "'+xField.label+'"'} : {success:true}
+                        break;
+                        case 'number':
+                            return formClassification[xField._id].trim() === '' ? {success : false, id : xField, message : 'Agregue un valor al campo "'+xField.label+'"'} : {success:true}
+                        break;
+                    }
+                }else{
+                    return true;
+                }
+            })
+
+            let localV = true;
+            for(let i = 0; i < validate.length;i++){
+                if(!validate[i].success){
+                    alert(validate[i].message);
+                    localV = false;
+                    break;
+                }
+            }
+
+            if(!localV){return false;}
+        }
+
         setIsEndingFolio(true);
         let actionClose = '';
         if(typeClose === 'guardar'){
@@ -85,7 +126,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             folio : folio._id,
             token : window.localStorage.getItem('sdToken'),
             actionClose,
-            classification
+            classification,
+            formClassification
         }, (result) => {
             console.log(result)
             if(!result.success){
@@ -142,6 +184,54 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             })
             return queu.name;
         }
+    }
+
+    const changeClassification = (idClass) => {
+        const tmpClass = fullFolio.clasifications.find((x) => {
+            return x._id === idClass;
+        });
+
+        if(tmpClass.form.length > 0){
+            setInfoForm(tmpClass);
+        }else{
+            setInfoForm(null);
+            setFormClassification({})
+        }
+
+        setClassification(idClass)
+        
+    }
+
+
+    const renderForm = (formData) => {
+        const render = formData.form.map((x) => {
+            switch(x.rtype){
+                case 'text':
+                    return (<Form.Field key={x._id}  width={6}>
+                    <label>{x.label} {x.require && <Label size='mini' color='red' basic pointing='left'>Obligatorio</Label>}</label>
+                    <input placeholder={x.lanel} type='text' onChange={(e) => {
+                        const copy = {...formClassification, [x._id] : e.target.value} 
+                        setFormClassification(copy);
+                    }} value={formClassification[x._id]}/>
+                  </Form.Field>)
+                break;
+                case 'number':
+                    return (<Form.Field key={x._id} width={6}>
+                    <label>{x.label} {x.require && <Label size='mini' color='red' basic pointing='left'>Obligatorio</Label>}</label>
+                    <input placeholder={x.lanel} type='number' onChange={(e) => {
+                        const copy = {...formClassification, [x._id] : e.target.value}
+                        setFormClassification(copy);
+                    }} value={formClassification[x._id]}/>
+                  </Form.Field>)
+                break;
+                default : 
+                    return 'Item no soportado'
+                    break
+            }
+            
+        })
+
+        return <Form><p>Ingrese los datos del formulario</p>{render}</Form>;
     }
 
     useEffect(() => {
@@ -210,13 +300,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         Selecciona una clasificación para el folio :
                         <div style={{marginTop:15}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
-                                setClassification(value)
+                                changeClassification(value);
                             }}/>
                         </div>
                         
+                        {infoForm && renderForm(infoForm)}
                     </Modal.Content>
                     <Modal.Actions>
-                    <Button negative onClick={e=> setOpenModal(false)} disabled={isEndingFolio} >
+                    <Button negative onClick={e=> {setOpenModal(false); setInfoForm(null)}} disabled={isEndingFolio} >
                         Cancelar
                     </Button>
                     <Button positive onClick={closeFolio} disabled={isEndingFolio} loading={isEndingFolio}>
