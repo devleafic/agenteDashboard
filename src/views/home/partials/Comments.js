@@ -95,6 +95,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         case 'number':
                             return formClassification[xField._id].trim() === '' ? {success : false, id : xField, message : 'Agregue un valor al campo "'+xField.label+'"'} : {success:true}
                         break;
+                        case 'select':
+                            return formClassification[xField._id] === -1 ? {success : false, id : xField, message : 'Seleccione una opción en "'+xField.label+'"'} : {success:true}
+                        break;
                     }
                 }else{
                     return true;
@@ -105,6 +108,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             for(let i = 0; i < validate.length;i++){
                 if(!validate[i].success){
                     alert(validate[i].message);
+                    //toast.error(validate[i].message)
                     localV = false;
                     break;
                 }
@@ -224,9 +228,25 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     }} value={formClassification[x._id]}/>
                   </Form.Field>)
                 break;
+                case 'select':
+                    return (<Form.Field key={x._id} width={6}>
+                    <label>{x.label} {x.require && <Label size='mini' color='red' basic pointing='left'>Obligatorio</Label>}</label>
+                    <select className='selectActivity' style={{marginLeft:0}} onChange={(e) => {
+                        const copy = {...formClassification, [x._id] : e.target.value}
+                        setFormClassification(copy);
+                    }}>
+                        <option value={-1} >Selecciona una opción</option>
+                        {
+                            x.options.map((opt) => {
+                                return <option value={opt.value} >{opt.label}</option>
+                            })
+                        }
+                    </select>
+                  </Form.Field>)
+                break;
                 default : 
                     return 'Item no soportado'
-                    break
+                break;
             }
             
         })

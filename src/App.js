@@ -4,7 +4,7 @@ import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import Login from "./views/Login";
 import Home from './views/home/Home';
 import ResponseTicket from './views/tickets/ResponseTicket';
-
+import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 
 axios.interceptors.request.use((req) => {
@@ -14,7 +14,7 @@ axios.interceptors.request.use((req) => {
 );
 
 function App() {
-  return (
+  return (<>
     <Router>
       <Switch>
           <Route path="/login">
@@ -29,8 +29,8 @@ function App() {
           
       </Switch>
     </Router>
-    
-  );
+    <ToastContainer />
+  </>);
 }
 
 export default App;

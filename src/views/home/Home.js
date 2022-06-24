@@ -298,6 +298,7 @@ const Home = () => {
     }
 
     return ( <>
+        
         <div className={getColorStatusBar()}></div>
         <div className='sideBar'>
             <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect} unReadMessages={unReadMessages}/>
@@ -311,7 +312,7 @@ const Home = () => {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
         </div>
-        <ToastContainer />
+        
 
 
         <Modal
