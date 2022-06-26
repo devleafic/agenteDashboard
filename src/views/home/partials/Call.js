@@ -77,7 +77,7 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
                         <Icon name='stop'/>
                         Colgar
                     </Button>
-                    <Button color='green' disabled={!(onCall === 'disconnect')} onClick={makeCall}>
+                    <Button color='blue' disabled={!(onCall === 'disconnect')} onClick={makeCall}>
                         <Icon name='phone'/>
                         Llamar
                     </Button>

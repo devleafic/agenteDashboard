@@ -254,7 +254,7 @@ const Home = () => {
             case -1:
                 return 'statusBar';
             case 1:
-                return 'statusBarGreen';
+                return 'statusBarblue';
             case 2:
                 return 'statusBarOff';
             default:

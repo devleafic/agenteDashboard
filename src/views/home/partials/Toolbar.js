@@ -175,7 +175,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         
     }
 
-    //<Button basic color='green' onClick={getToFolioBlank}>Folio en Blanco</Button>
+    //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
         <div className="toolbar" style={{textAlign:'right'}}>
             {
@@ -192,7 +192,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 /></>)
             }
             {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
+                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='blue' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
             }
             {
                 isReady && (

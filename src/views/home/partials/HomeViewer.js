@@ -81,7 +81,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
                       setSidCall={setSidCall}
                       boxMessage={boxMessage}
                     />
-                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
+                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='blue' onClick={hideTools}/>
               </Grid.Column>
               <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none'}}>
                     <Tools setMessageToSend={setMessageToSend} messageToSend={messageToSend}
@@ -113,20 +113,20 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
     switch(isConnected){
       case -1:
         return (<div style={{margin : 40}}><Message
-          icon='user cancel'
+          icon='plug'
           header='Aun no estas conectado, selecciona una actividad para conectarte'
           negative
         /></div>)
       case 1:
         return (<div style={{margin : 40}}><Message
-          icon='flag checkered'
-          header='Sin mensajes nuevos'
+          icon='envelope open outline'
+          header='Listo para recibir nuevos mensajes o llamadas. Sin nuevas actividades por ahora.'
           positive
         /></div>)
       case 2:
           return (<div style={{margin : 40}}><Message
             icon='clock outline'
-            header='Estas en linea sin embargo no recibirás mensajes'
+            header='Continuas conectado, pero no recibiras nuevos mensajes o llamadas.'
             warning
           /></div>)
     }
@@ -137,7 +137,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
     {
       Object.keys(listFolios.current).length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+          <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
             let copyUnread = {...unRead};

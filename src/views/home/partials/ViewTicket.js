@@ -52,7 +52,7 @@ const ViewTicket = ({ticket, setOpenViewTicket}) => {
         if(diffTime <= 0){
             return <Label as='a' color='red' tag>Fuera de tiempo</Label>;
         }else if(diffTime > 0){
-            return <Label as='a' color='green' tag>En tiempo</Label>;
+            return <Label as='a' color='blue' tag>En tiempo</Label>;
         }
     }
 
