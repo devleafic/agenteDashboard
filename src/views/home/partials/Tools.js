@@ -165,9 +165,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         <div style={{height:250, overflowY:'scroll'}}>
                         {
                             quicklyAnswer.map((item) => {
-                                return <a key={item._id} href='#' onClick={e => {
+                                return <div><a key={item._id} href='#' onClick={e => {
                                     setMessageToSend(item.text);
-                                }}>{item.text}</a>
+                                }}>{item.text}</a></div>
                             })
                         }
                         </div>
