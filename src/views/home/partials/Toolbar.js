@@ -113,7 +113,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         const getPlugin = async () => {
             
             const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available')
-            console.log(resPlugin);
+            
             const outboundPlugin = resPlugin.data.plugins.find((x) => {
                 return x.id === 'outbound';
             });

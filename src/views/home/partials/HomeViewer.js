@@ -1,7 +1,8 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import { Tab, Grid, Message, Button, Icon } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon, Image } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
+import axios from 'axios';
 
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -20,6 +21,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
   // delete listFolios.current.current;
   const [toolsOpen, setToolsOpen] = useState(true);
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
+  const [availableCh, setAvailableCh] = useState(null);
 
   const hideTools = () => {
     if(toolsOpen){
@@ -32,10 +34,21 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
       setRefresh(Math.random())
     }
   }
+
+  const getIconChannel = ({anchor, channel, alias}) => {
+    let ch = availableCh.find((x) => {
+      return x.id === channel.name
+    });
+    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {alias ? alias : anchor}</>
+  }
  
 
   useEffect(() => {
-    const renderPanesViews = () => {
+    const renderPanesViews = async () => {
+      if(!availableCh){
+        const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available');
+        setAvailableCh(resPlugin.data.plugins);
+      }
       
       
       setCurrentKeysFolios(Object.keys(listFolios.current));
@@ -57,7 +70,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
       const tempPanes = Object.keys(listFolios.current).map((index) => {
         const item = listFolios.current[index];
         return {
-          menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', icon : (unRead[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : null}), icon : (unRead[item.folio._id] ? 'circle' : false)}, 
           tabular:true,
           render : () => {
             
