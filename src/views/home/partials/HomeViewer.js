@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall}) => {
+const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios}) => {
   
   const boxMessage = useRef();
   const listFolios = useContext(ListFoliosContext);
@@ -70,7 +70,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
       const tempPanes = Object.keys(listFolios.current).map((index) => {
         const item = listFolios.current[index];
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : null}), icon : (unRead[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : null}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
           tabular:true,
           render : () => {
             
@@ -153,10 +153,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
           <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
-            let copyUnread = {...unRead};
-            delete copyUnread[currentKeysFolios[activeIndex]]
-            setUnRead(copyUnread);
-            
+            dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})
           }}/>
         </div>) : getMessageEmpty()
     }
