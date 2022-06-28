@@ -59,7 +59,8 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             actionClose,
             classification
         }, (result) => {
-            delete listFolios.current[folio.folio._id];
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id});
+            delete listFolios.current[index];
             setRefresh(Math.random());
             setOpenModal(false);
             setIsEndingFolio(false);

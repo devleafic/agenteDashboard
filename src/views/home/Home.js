@@ -160,8 +160,8 @@ const Home = () => {
             });
 
             socketC.connection.on('newFolio', async (data) => {
-                listFolios.current = {...listFolios.current, [data.body.folio._id] : data.body};
-
+                
+                listFolios.current.push(data.body);
                 if(window.localStorage.getItem('vFolio') != data.body.folio._id){
                     dispatch({type : 'unRead', folio : data.body.folio._id});
                 }
@@ -218,24 +218,30 @@ const Home = () => {
 
             socketC.connection.on('infoAck', (data) => {
                 let msgAck = data.result;
-                let copyFolio = {...listFolios.current[msgAck.folio]};
+                
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
+                let copyFolio = listFolios.current[index];
+
                 for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
                     if(copyFolio.folio.message[i]._id === msgAck.message._id){
                         copyFolio.folio.message[i] = msgAck.message;
                         break;
                     }
                 }
-                listFolios.current = {...listFolios.current, [msgAck.folio] : copyFolio};
+                
+                listFolios.current[index] = copyFolio;
                 setRefresh(Math.random());
                 console.log(data);
             });
 
             socketC.connection.on('newMessage', (data) => {
-                let copyFolio = {...listFolios.current[data.folio]};
+                
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === data.folio});
+                let copyFolio = listFolios.current[index];
                 if(!copyFolio.folio){return false;}
                 copyFolio.folio.message.push(data.lastMessage);
-                listFolios.current = {...listFolios.current, [data.folio] : copyFolio};
-
+                
+                listFolios.current[index] = copyFolio;
                 if(window.localStorage.getItem('vFolio') != data.folio){
                     dispatch({type : 'unRead', folio : data.folio});
                 }

@@ -50,7 +50,8 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 toast.error(result.message);
 
             }else{
-                delete listFolios.current[folio.folio._id];
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id})
+                listFolios.current.splice(index,1);
             }
 
             
