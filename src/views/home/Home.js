@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useReducer} from 'react';
 import SideBarMenu from "./partials/SideBarMenu";
 import Toolbar from './partials/Toolbar';
 import io from 'socket.io-client';
@@ -22,6 +22,21 @@ const Home = () => {
         Inbox : false
     };
 
+    function reducer(state, action) {
+        switch (action.type) {
+          case 'unRead':
+            return {...state, [action.folio] : true}
+          case 'read':
+            let copy = {...state}
+            delete copy[action.folio];
+            return copy;
+          default:
+            throw new Error();
+        }
+      }
+
+    const [unReadFolios, dispatch] = useReducer(reducer, {});
+
     const [component, setComponent] = useState(initializeComponent);
     const [page, setPage] = useState('home');
     const [ refresh, setRefresh ] = useState(0);
@@ -41,7 +56,7 @@ const Home = () => {
 
     const [isConnected, setIsConnected] = useState(-1);
     
-    const [unRead, setUnRead ] = useState({});
+    //const [unRead, setUnRead ] = useState({});
 
     const [sidCall, setSidCall] = useState(null);
     const [connCall, setConnCall] = useState(null);
@@ -146,6 +161,11 @@ const Home = () => {
 
             socketC.connection.on('newFolio', async (data) => {
                 listFolios.current = {...listFolios.current, [data.body.folio._id] : data.body};
+
+                if(window.localStorage.getItem('vFolio') != data.body.folio._id){
+                    dispatch({type : 'unRead', folio : data.body.folio._id});
+                }
+
                 if(data.body.folio.channel.name === 'call'){
                     if(Object.keys(callC.connection).length <= 0){
                         await CallController.setup(data.token);
@@ -217,7 +237,7 @@ const Home = () => {
                 listFolios.current = {...listFolios.current, [data.folio] : copyFolio};
 
                 if(window.localStorage.getItem('vFolio') != data.folio){
-                    setUnRead({...unRead, [data.folio] : true});
+                    dispatch({type : 'unRead', folio : data.folio});
                 }
 
                 if(data.lastMessage.class === 'call'){
@@ -306,7 +326,7 @@ const Home = () => {
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
             {
-                component.home && <HomeViewer sidCall={sidCall} setSidCall={setSidCall} unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer dispatch={dispatch} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
