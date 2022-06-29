@@ -146,9 +146,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             });
             
             listFolios.current.splice(index,1)
-
+            // Se limpian los formularios  del form de tipificación
+            setFormClassification({})
             setRefresh(Math.random());
             setOpenModal(false);
+            setInfoForm(null);
             setIsEndingFolio(false);
         });
     }
