@@ -50,7 +50,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 toast.error(result.body.message);
                 return false;
             }
-            listFolios.current[folio._id].folio.message.push(result.body.lastMessage);
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
             setIsLoading(false);
             setMessageToSend('');
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
@@ -140,7 +141,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 return false;
             }
 
-            delete listFolios.current[folio._id];
+            let index = listFolios.current.findIndex((x) => {
+                return x.folio._id === folio._id
+            });
+            
+            listFolios.current.splice(index,1)
+
             setRefresh(Math.random());
             setOpenModal(false);
             setIsEndingFolio(false);
@@ -274,7 +280,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
             {
                 channel === 'call' ? (<>
-                    <Call currentFolio={listFolios.current[currentFolio].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
+                    <Call currentFolio={listFolios.current[listFolios.current.findIndex((x) => {return x.folio._id === currentFolio})].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
                     <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
