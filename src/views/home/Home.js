@@ -17,8 +17,7 @@ import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 
 const Home = () => {
-    window.localStorage.setItem('tabIsActive',false);
-    
+        
     const initializeComponent = {
         home : false,
         Inbox : false
@@ -103,9 +102,9 @@ const Home = () => {
         Notification.requestPermission();
     }
 
-    const showMessage = (message) => {
+    const showMessage = (message, ignore) => {
         console.log('------------',window.localStorage.getItem('tabIsActive'));
-        if(window.localStorage.getItem('tabIsActive') === 'true'){return false;}
+        if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
         var notification = new Notification(message);
         console.log('se envió el mensaje al navegador '+ message)
         notification.onclick = function(){window.focus();this.close();}
@@ -154,7 +153,7 @@ const Home = () => {
                     toast.success('Se ha conectado al servidor correctamente');
                     
                     if(window.localStorage.getItem('event')){
-                        showMessage('Selecciona una actividad nuevamente');
+                        showMessage('Selecciona una actividad nuevamente', true);
                         window.localStorage.removeItem('event');
                     }
 
