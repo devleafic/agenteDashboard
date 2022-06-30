@@ -17,6 +17,8 @@ import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 
 const Home = () => {
+    window.localStorage.setItem('tabIsActive',false);
+    
     const initializeComponent = {
         home : false,
         Inbox : false
@@ -102,8 +104,10 @@ const Home = () => {
     }
 
     const showMessage = (message) => {
+        console.log('------------',window.localStorage.getItem('tabIsActive'));
         if(window.localStorage.getItem('tabIsActive') === 'true'){return false;}
         var notification = new Notification(message);
+        console.log('se envió el mensaje al navegador '+ message)
         notification.onclick = function(){window.focus();this.close();}
     }
 
@@ -120,11 +124,11 @@ const Home = () => {
             setRefresh(Math.random());
         },
         connectToSocket : () => {
-            socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket'], reconnect : true,  });
+            socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket']});
 
             socketC.connection.on('disconnect', () => {
                 setOpen(true);
-                setMessage('Se rompio la conexión con el servidor, intente en unos minutos nuevamente.');
+                setMessage('Se rompio la conexión con el servidor o fuiste desconectado por el supervisor, intente en unos minutos nuevamente.');
             });
 
             socketC.connection.on('connect', () => {
@@ -133,14 +137,27 @@ const Home = () => {
                 }
             });
 
-
-
+            socketC.connection.io.on("reconnect", () => {
+                toast.info('Reconectando con el servidor');
+                window.localStorage.setItem('event','reconnect');
+                
+                
+                setTimeout(() => {
+                    window.location.reload();
+                },2000)
+            });
 
             socketC.connection.emit('handShakeToSocket', {
                 token : window.localStorage.getItem('sdToken')
             },(data) => {
                 if(data.success){
                     toast.success('Se ha conectado al servidor correctamente');
+                    
+                    if(window.localStorage.getItem('event')){
+                        showMessage('Selecciona una actividad nuevamente');
+                        window.localStorage.removeItem('event');
+                    }
+
                     setUserInfo(data.user);
                     setIsReady(true);
 
@@ -271,9 +288,9 @@ const Home = () => {
         }
     }
 
-    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);};
+    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);console.log('Ventana activa')};
     
-    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);};
+    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('Ventana desactivada')};
 
     const getColorStatusBar = () => {
         switch (isConnected){
@@ -291,6 +308,7 @@ const Home = () => {
     useEffect(() => {
         window.addEventListener("focus", onFocus);
         window.addEventListener("blur", onBlur);
+        window.localStorage.setItem('tabIsActive', false)
         onFocus();
 
         async function loadData(){
