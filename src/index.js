@@ -10,7 +10,7 @@ import SocketContext from './controladores/SocketContext';
 import CallContext from './controladores/CallContext';
 
 ReactDOM.render(
-  <ListFoliosContext.Provider value={{current:{}}}>
+  <ListFoliosContext.Provider value={{current:[]}}>
     <SocketContext.Provider value={{connection:{}}}>
       <CallContext.Provider value={{connection:{}}}>
         <App />

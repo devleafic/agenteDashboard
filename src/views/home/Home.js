@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useReducer} from 'react';
 import SideBarMenu from "./partials/SideBarMenu";
 import Toolbar from './partials/Toolbar';
 import io from 'socket.io-client';
@@ -17,10 +17,26 @@ import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 
 const Home = () => {
+        
     const initializeComponent = {
         home : false,
         Inbox : false
     };
+
+    function reducer(state, action) {
+        switch (action.type) {
+          case 'unRead':
+            return {...state, [action.folio] : true}
+          case 'read':
+            let copy = {...state}
+            delete copy[action.folio];
+            return copy;
+          default:
+            throw new Error();
+        }
+      }
+
+    const [unReadFolios, dispatch] = useReducer(reducer, {});
 
     const [component, setComponent] = useState(initializeComponent);
     const [page, setPage] = useState('home');
@@ -41,7 +57,7 @@ const Home = () => {
 
     const [isConnected, setIsConnected] = useState(-1);
     
-    const [unRead, setUnRead ] = useState({});
+    //const [unRead, setUnRead ] = useState({});
 
     const [sidCall, setSidCall] = useState(null);
     const [connCall, setConnCall] = useState(null);
@@ -86,9 +102,11 @@ const Home = () => {
         Notification.requestPermission();
     }
 
-    const showMessage = (message) => {
-        if(window.localStorage.getItem('tabIsActive') === 'true'){return false;}
+    const showMessage = (message, ignore) => {
+        console.log('------------',window.localStorage.getItem('tabIsActive'));
+        if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
         var notification = new Notification(message);
+        console.log('se envió el mensaje al navegador '+ message)
         notification.onclick = function(){window.focus();this.close();}
     }
 
@@ -105,11 +123,11 @@ const Home = () => {
             setRefresh(Math.random());
         },
         connectToSocket : () => {
-            socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket'], reconnect : true,  });
+            socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket']});
 
             socketC.connection.on('disconnect', () => {
                 setOpen(true);
-                setMessage('Se rompio la conexión con el servidor, intente en unos minutos nuevamente.');
+                setMessage('Se rompio la conexión con el servidor o fuiste desconectado por el supervisor, intente en unos minutos nuevamente.');
             });
 
             socketC.connection.on('connect', () => {
@@ -118,14 +136,27 @@ const Home = () => {
                 }
             });
 
-
-
+            socketC.connection.io.on("reconnect", () => {
+                toast.info('Reconectando con el servidor');
+                window.localStorage.setItem('event','reconnect');
+                
+                
+                setTimeout(() => {
+                    window.location.reload();
+                },2000)
+            });
 
             socketC.connection.emit('handShakeToSocket', {
                 token : window.localStorage.getItem('sdToken')
             },(data) => {
                 if(data.success){
                     toast.success('Se ha conectado al servidor correctamente');
+                    
+                    if(window.localStorage.getItem('event')){
+                        showMessage('Selecciona una actividad nuevamente', true);
+                        window.localStorage.removeItem('event');
+                    }
+
                     setUserInfo(data.user);
                     setIsReady(true);
 
@@ -145,7 +176,12 @@ const Home = () => {
             });
 
             socketC.connection.on('newFolio', async (data) => {
-                listFolios.current = {...listFolios.current, [data.body.folio._id] : data.body};
+                
+                listFolios.current.push(data.body);
+                if(window.localStorage.getItem('vFolio') != data.body.folio._id){
+                    dispatch({type : 'unRead', folio : data.body.folio._id});
+                }
+
                 if(data.body.folio.channel.name === 'call'){
                     if(Object.keys(callC.connection).length <= 0){
                         await CallController.setup(data.token);
@@ -198,26 +234,32 @@ const Home = () => {
 
             socketC.connection.on('infoAck', (data) => {
                 let msgAck = data.result;
-                let copyFolio = {...listFolios.current[msgAck.folio]};
+                
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
+                let copyFolio = listFolios.current[index];
+
                 for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
                     if(copyFolio.folio.message[i]._id === msgAck.message._id){
                         copyFolio.folio.message[i] = msgAck.message;
                         break;
                     }
                 }
-                listFolios.current = {...listFolios.current, [msgAck.folio] : copyFolio};
+                
+                listFolios.current[index] = copyFolio;
                 setRefresh(Math.random());
                 console.log(data);
             });
 
             socketC.connection.on('newMessage', (data) => {
-                let copyFolio = {...listFolios.current[data.folio]};
+                
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === data.folio});
+                let copyFolio = listFolios.current[index];
                 if(!copyFolio.folio){return false;}
                 copyFolio.folio.message.push(data.lastMessage);
-                listFolios.current = {...listFolios.current, [data.folio] : copyFolio};
-
+                
+                listFolios.current[index] = copyFolio;
                 if(window.localStorage.getItem('vFolio') != data.folio){
-                    setUnRead({...unRead, [data.folio] : true});
+                    dispatch({type : 'unRead', folio : data.folio});
                 }
 
                 if(data.lastMessage.class === 'call'){
@@ -245,9 +287,9 @@ const Home = () => {
         }
     }
 
-    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);};
+    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);console.log('Ventana activa')};
     
-    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);};
+    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('Ventana desactivada')};
 
     const getColorStatusBar = () => {
         switch (isConnected){
@@ -265,6 +307,7 @@ const Home = () => {
     useEffect(() => {
         window.addEventListener("focus", onFocus);
         window.addEventListener("blur", onBlur);
+        window.localStorage.setItem('tabIsActive', false)
         onFocus();
 
         async function loadData(){
@@ -306,7 +349,7 @@ const Home = () => {
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
             {
-                component.home && <HomeViewer sidCall={sidCall} setSidCall={setSidCall} unRead={unRead} setUnRead={setUnRead} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer dispatch={dispatch} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>

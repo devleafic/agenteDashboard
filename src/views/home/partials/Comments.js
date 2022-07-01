@@ -50,7 +50,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 toast.error(result.body.message);
                 return false;
             }
-            listFolios.current[folio._id].folio.message.push(result.body.lastMessage);
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
             setIsLoading(false);
             setMessageToSend('');
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
@@ -140,9 +141,16 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 return false;
             }
 
-            delete listFolios.current[folio._id];
+            let index = listFolios.current.findIndex((x) => {
+                return x.folio._id === folio._id
+            });
+            
+            listFolios.current.splice(index,1)
+            // Se limpian los formularios  del form de tipificación
+            setFormClassification({})
             setRefresh(Math.random());
             setOpenModal(false);
+            setInfoForm(null);
             setIsEndingFolio(false);
         });
     }
@@ -273,8 +281,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             </Header>
             
             {
-                channel === 'call' ? (<>
-                    <Call currentFolio={listFolios.current[currentFolio].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
+                channel === 'call' && fullFolio ? (<>
+                    <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
                     <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
@@ -283,7 +291,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             }
             
             {
-                channel === 'call' ? (
+                channel === 'call' && fullFolio ? (
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>

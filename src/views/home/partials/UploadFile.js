@@ -42,7 +42,8 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             caption : nameFile,
             class : urlFileType
         }, (result) => {
-            listFolios.current[folio].folio.message.push(result.body.lastMessage);
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
             setShowModal(false);
             setRefresh(Math.random());
             setOnUpload(false);

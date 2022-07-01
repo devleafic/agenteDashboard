@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import { Tab, Grid, Message, Button, Icon } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon, Image } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
+import axios from 'axios';
 
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall}) => {
+const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios}) => {
   
   const boxMessage = useRef();
   const listFolios = useContext(ListFoliosContext);
@@ -16,10 +17,10 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
 
   const [currentKeysFolios, setCurrentKeysFolios] = useState(null);
   const [vFolio, setVFolio] = useState(null);
-  // listFolios.current = listFolios.current ? listFolios.current : {current : {}}
-  // delete listFolios.current.current;
+  
   const [toolsOpen, setToolsOpen] = useState(true);
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
+  const [availableCh, setAvailableCh] = useState(null);
 
   const hideTools = () => {
     if(toolsOpen){
@@ -32,32 +33,44 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
       setRefresh(Math.random())
     }
   }
+
+  const getIconChannel = ({anchor, channel, alias}) => {
+    let ch = availableCh.find((x) => {
+      return x.id === channel.name
+    });
+    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {alias ? alias : anchor}</>
+  }
  
 
   useEffect(() => {
-    const renderPanesViews = () => {
+    const renderPanesViews = async () => {
+      if(!availableCh){
+        const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available');
+        setAvailableCh(resPlugin.data.plugins);
+      }
       
+      let array = listFolios.current.map((x) => {return x.folio._id});
       
-      setCurrentKeysFolios(Object.keys(listFolios.current));
+      setCurrentKeysFolios(array);
       const showDefaultTab = 0;
       if(vFolio){
-        let isExist = Object.keys(listFolios.current).indexOf(vFolio);
+        let isExist = array.indexOf(vFolio);
         if(isExist <= -1){
-          setVFolio(Object.keys(listFolios.current)[0])
+          setVFolio(array[0])
           setCurrentTab(0);
         }else{
           setCurrentTab(isExist);
         }
       }else{
-        setVFolio(Object.keys(listFolios.current)[0])
+        setVFolio(array[0])
         setCurrentTab(0);
       }
       
 
-      const tempPanes = Object.keys(listFolios.current).map((index) => {
-        const item = listFolios.current[index];
+      const tempPanes = listFolios.current.map((index) => {
+        const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: item.folio.person.anchor+' (#'+item.folio._id+')', icon : (unRead[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : null}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
           tabular:true,
           render : () => {
             
@@ -69,7 +82,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
                       person={item.folio.person}
                       messages={item.folio.message}
                       folio={item.folio}
-                      fullFolio={listFolios.current[item.folio._id]}
+                      fullFolio={index}
                       style={{height: '100%'}}
                       setMessageToSend={setMessageToSend}
                       messageToSend={messageToSend}
@@ -85,7 +98,7 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
               </Grid.Column>
               <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none'}}>
                     <Tools setMessageToSend={setMessageToSend} messageToSend={messageToSend}
-                      folio={listFolios.current[item.folio._id]}
+                      folio={item}
                       quicklyAnswer={item.QuicklyAnswer}
                       crm={item.folio.service.crm}
                       tickets={item.tickets}
@@ -135,15 +148,12 @@ const HomeViewer = ({unRead, setUnRead, isConnected, show, refresh, setRefresh, 
 
   return ( <>
     {
-      Object.keys(listFolios.current).length > 0 ? (
+      listFolios.current.length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
-            let copyUnread = {...unRead};
-            delete copyUnread[currentKeysFolios[activeIndex]]
-            setUnRead(copyUnread);
-            
+            dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})
           }}/>
         </div>) : getMessageEmpty()
     }
