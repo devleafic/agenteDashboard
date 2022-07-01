@@ -1,9 +1,9 @@
 import {Message, Card, Button, Icon } from 'semantic-ui-react';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 //import CallContext from '../../controladores/CallContext';
 import CallContext from '../../../controladores/CallContext';
-import { useEffect } from 'react/cjs/react.development';
+
 
 
 const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
