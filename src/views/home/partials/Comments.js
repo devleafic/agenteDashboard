@@ -281,8 +281,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             </Header>
             
             {
-                channel === 'call' ? (<>
-                    <Call currentFolio={listFolios.current[listFolios.current.findIndex((x) => {return x.folio._id === currentFolio})].folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
+                channel === 'call' && fullFolio ? (<>
+                    <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
                     <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
@@ -291,7 +291,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             }
             
             {
-                channel === 'call' ? (
+                channel === 'call' && fullFolio ? (
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
