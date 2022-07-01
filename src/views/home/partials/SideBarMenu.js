@@ -22,7 +22,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
             return (
                 <Button icon={<Icon.Group>
                     <Icon name='inbox' />
-                    <Icon corner name='circle' color='red'/>
+                    <Icon corner name='envelope' color='red'/>
                 </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
             )
         }else{
