@@ -41,7 +41,11 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
     let aliasName = alias ? alias.substr(0,13) : anchor;
     for(let i = aliasName.length ; i < 13; i++){
-      aliasName = aliasName+'_';
+      if (i == 12){
+        aliasName = aliasName+'-';}
+      else {
+        aliasName = aliasName+' ';}
+        
     }
     return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
   }
