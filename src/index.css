@@ -104,7 +104,7 @@ code {
 
 p.from-me {
   align-self: flex-end;
-  background-color: #00b5ad;
+  background-color: #66CDAA;
   color: #fff; 
   float : right;
   text-align: right;
@@ -132,7 +132,7 @@ p.from-them-meta:hover, p.from-me-meta:hover{color:#000}
 
 p.from-me::before {
   border-bottom-left-radius: 0.8rem 0.7rem;
-  border-right: 1rem solid #00b5ad;
+  border-right: 1rem solid #66CDAA;
   right: -0.35rem;
   transform: translate(0, -0.1rem);
 }
@@ -301,7 +301,7 @@ h2 {
   height: 10px;
 }
 
-.statusBarGreen{background:#3EBD61; height: 10px;}
+.statusBarblue{background:#3EBD61; height: 10px;}
 .statusBarOff{background:#EF9400; height: 10px;}
 
 
@@ -341,3 +341,16 @@ h2 {
   cursor:default;
 }
 
+.inboxcolor_rose {
+  color: #C45FAC
+}
+
+.inboxcolor_blue {
+  color : #4d55a5
+}
+
+
+.ui.colorblue.button {
+  background-color:  #4d55a5;
+  color: #fff;
+}

@@ -274,7 +274,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header as='h3' dividing>
                 {(channel === 'call' ? 'Llamada ' : 'Mensajes ')}
-                <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label>
+                <Label as='a' tag color='blue' style={{marginLeft:30}}>#{folio._id}</Label>
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
                 <Label>Servicio : {folio.service.name}</Label>
                 <Label>Canal : {folio.channel.title}</Label>
@@ -296,7 +296,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Finalizar</Button>
+                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Finalizar</Button>
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
@@ -307,10 +307,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }}/>
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
+                        <Button color='blue' content='Enviar' labelPosition='left' icon='paper plane'   onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
+                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
                     </Form>
                 )
             }
