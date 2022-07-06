@@ -150,7 +150,12 @@ const Home = () => {
                 token : window.localStorage.getItem('sdToken')
             },(data) => {
                 if(data.success){
-                    toast.success('Se ha conectado al servidor correctamente');
+                    toast.success('Se ha conectado al servidor',{
+                        position: "top-right",
+                        autoClose: 2500,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        });
                     
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
@@ -188,7 +193,7 @@ const Home = () => {
 
                         callC.connection.on('ready',() => {
                             console.log('Usuario listo para recibir llamadas');
-                            toast.success('Listo para recibir llamadas.');
+                            toast.success('Listo para recibir llamadas');
                             setRefresh(Math.random());
                         });
         

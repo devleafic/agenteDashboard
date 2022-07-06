@@ -170,7 +170,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             }
             setIsConnected(activityObj.isConnect ? 1 : 2);
             setCurrentActivity(value);
-            toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
+            toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
+                position: "top-right",
+                autoClose: 2500,
+                closeOnClick: true,
+                pauseOnHover: false,
+                });
         })
         
     }

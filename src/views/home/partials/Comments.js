@@ -306,7 +306,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }}/>
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        <Button content='Responder' labelPosition='left' icon='edit' color='blue' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
+                        <Button content='Enviar' labelPosition='left' icon='paper plane' color='blue' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar</Button>
                         <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
