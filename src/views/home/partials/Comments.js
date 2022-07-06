@@ -355,7 +355,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>
