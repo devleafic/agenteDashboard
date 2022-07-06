@@ -38,7 +38,12 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     let ch = availableCh.find((x) => {
       return x.id === channel.name
     });
-    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {alias ? alias : anchor}</>
+
+    let aliasName = alias ? alias.substr(0,13) : anchor;
+    for(let i = aliasName.length ; i < 13; i++){
+      aliasName = aliasName+'_';
+    }
+    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
   }
  
 
@@ -70,7 +75,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : null}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
           tabular:true,
           render : () => {
             
