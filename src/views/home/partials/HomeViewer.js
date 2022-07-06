@@ -35,23 +35,30 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   }
 
   const getIconChannel = ({anchor, channel, alias}) => {
-    let ch = availableCh.find((x) => {
+    let ch;
+    
+    if(availableCh){ch = availableCh.find((x) => {
       return x.id === channel.name
-    });
+    });}else{
+      let plug = JSON.parse(window.localStorage.getItem('plugins'))
+      ch = plug.find((x) => {
+        return x.id === channel.name
+      });
+    }
 
     let aliasName = alias ? alias.substr(0,13) : anchor;
     for(let i = aliasName.length ; i < 13; i++){
       aliasName = aliasName+'_';
     }
     return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
-  }
- 
+  } 
 
   useEffect(() => {
     const renderPanesViews = async () => {
       if(!availableCh){
         const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available');
         setAvailableCh(resPlugin.data.plugins);
+        window.localStorage.setItem('plugins', JSON.stringify(resPlugin.data.plugins));
       }
       
       let array = listFolios.current.map((x) => {return x.folio._id});

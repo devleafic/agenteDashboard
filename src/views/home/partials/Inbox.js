@@ -92,14 +92,14 @@ const Inbox = ({selectedComponent, setUnReadMessages}) => {
                     }).map((x) => {
                         return (
                             <Table.Row key={x._id}>
-                                <Table.Cell>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio._id}</Table.Cell>
+                                <Table.Cell>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio?._id}</Table.Cell>
                                 <Table.Cell>{x.item}</Table.Cell>
                                 <Table.Cell>{x.anchor}</Table.Cell>
                                 <Table.Cell>{x.channel}</Table.Cell>
                                 <Table.Cell>{x.queue}</Table.Cell>
                                 <Table.Cell textAlign='right'>
                                     {
-                                        x.folio.status === 3 ? (<label>Folio finalizado</label>) : (<>
+                                        x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                             <Button color='olive' onClick={() => {
                                                 openItemInbox(x.folio, x);
                                                 setUnReadMessages(false)
