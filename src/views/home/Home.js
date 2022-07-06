@@ -370,7 +370,7 @@ const Home = () => {
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>
