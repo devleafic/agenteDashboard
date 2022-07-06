@@ -79,7 +79,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red dot circle' : false)}, 
           tabular:true,
           render : () => {
             
