@@ -106,7 +106,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             
             <div {...getRootProps()} className='dnd'>
                 <input {...getInputProps()} />
-                <p>Presiona o arrastra aqui tu archivo a enviar.</p>
+                <p>Clic o arrastra tu archivo a enviar.</p>
             </div>
             
         )}

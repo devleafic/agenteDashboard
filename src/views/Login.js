@@ -32,7 +32,7 @@ const Login = () => {
             window.localStorage.setItem('myName', resLogin.data.body.name);
             return window.location.href = '/';
         }catch(err){
-            setMsgError('Ocurrio un error al intentar iniciar sesión, intente mas tarde.\n'+err.message);
+            setMsgError('Ocurrio un error al intentar iniciar sesión, intente mas tarde.\n\n'+err.message);
             setOnLoading(false);
         }
         
@@ -75,7 +75,7 @@ const Login = () => {
                                 onChange={(e)=> {setPassword(e.target.value); setMsgError('')}}
                             />
                             
-                            <Button color='blue' fluid size='large' loading={onLoading} disabled={onLoading}>
+                            <Button class="ui colorblue button" loading={onLoading} disabled={onLoading}>
                                 Iniciar Sesión
                             </Button>
                         </Form>

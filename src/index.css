@@ -341,3 +341,16 @@ h2 {
   cursor:default;
 }
 
+.inboxcolor_rose {
+  color: #C45FAC
+}
+
+.inboxcolor_blue {
+  color : #4d55a5
+}
+
+
+.ui.colorblue.button {
+  background-color:  #4d55a5;
+  color: #fff;
+}

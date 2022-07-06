@@ -80,7 +80,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
-            <Button color='blue' onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
+            <Button class="ui colorblue button" onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
         </div>
 
         <Modal

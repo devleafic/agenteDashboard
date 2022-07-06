@@ -192,7 +192,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </List>
                 </div>
                 <p>
-                    <Button color='blue' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
+                    <Button class="ui colorblue button" onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>
                 </p>
             </Accordion.Content>
