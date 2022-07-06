@@ -1,13 +1,14 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
 import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message} from 'semantic-ui-react';
 
+
 import SocketContext from './../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
 import UploadFile from './UploadFile';
 import { toast } from 'react-toastify';
-import ClassificationForm from './Classification.From';
+// import ClassificationForm from './Classification.From';
 
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh}) => {

@@ -1,12 +1,13 @@
-import React, {useRef, useState, useContext} from 'react';
+import React, {useRef, useState, useContext, useCallback} from 'react';
 import { Icon, Button, Image, Modal, Header, Message } from 'semantic-ui-react';
 import axios, {post} from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
+import Dropzone  from 'react-dropzone';
 
 
 const UploadFile = ({folio, channel, setRefresh}) => {
-    
+
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
 
@@ -94,8 +95,23 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             
         });
     };
-    return (<>            
-        <Button
+    return (<>
+        <Dropzone maxFiles={2} onDrop={acceptedFiles => {
+            console.log(acceptedFiles);
+            setNameFile(acceptedFiles[0].name);
+            setToUpload(acceptedFiles[0])
+            fileUpload(acceptedFiles[0]);
+        }} >
+        {({getRootProps, getInputProps}) => (
+            
+            <div {...getRootProps()} className='dnd'>
+                <input {...getInputProps()} />
+                <p>Presiona o arrastra aqui tu archivo a enviar.</p>
+            </div>
+            
+        )}
+        </Dropzone>
+        {/* <Button
             content={nameFile ? nameFile : 'Archivo'}
             labelPosition="left"
             icon="file"
@@ -109,7 +125,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             hidden
             onChange={fileChange}
             multiple={false}
-        />
+        /> */}
 
         <Modal
         basic
