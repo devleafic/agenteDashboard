@@ -43,7 +43,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
                     <Popup content='Conectar' trigger={<Button icon='code branch' onClick={() => {setOnConnect(!onConnect)}} color={page === 'code branch' ? 'blue' : null}/>} position='right center'/>
                 </div> */}
                 <div className='mb-3'>
-                    <Popup content='Inicio' trigger={<Button icon='home' onClick={() => selectedComponent('home')} color={page === 'home' ? 'class="ui colorblue button"' : null}/>} position='right center'/>
+                    <Popup content='Inicio' trigger={<Button icon='home' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
                 </div>
                 <div className='mb-3'>
                     <Popup content='Inbox' trigger={getButton()} position='right center'/>

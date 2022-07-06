@@ -48,7 +48,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 }
                 </div>
                 <div>
-                    <Button class="ui colorblue button" onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
+                    <Button color='blue' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
                 </div>
             </Form>
         

@@ -75,7 +75,7 @@ const Login = () => {
                                 onChange={(e)=> {setPassword(e.target.value); setMsgError('')}}
                             />
                             
-                            <Button class="ui colorblue button" loading={onLoading} disabled={onLoading}>
+                            <Button color='blue' loading={onLoading} disabled={onLoading}>
                                 Iniciar Sesión
                             </Button>
                         </Form>
