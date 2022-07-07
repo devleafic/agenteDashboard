@@ -201,7 +201,7 @@ const Home = () => {
                         closeOnClick: true,
                         pauseOnHover: false,
 
-                    
+                    });
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
                         window.localStorage.removeItem('event');
