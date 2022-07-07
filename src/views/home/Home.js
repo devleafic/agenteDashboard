@@ -317,6 +317,16 @@ const Home = () => {
         window.localStorage.setItem('tabIsActive', false)
         onFocus();
 
+        function getLocalStream() {
+            navigator.mediaDevices.getUserMedia({video: false, audio: true}).then( stream => {
+                window.localStream = stream; // A
+                window.localAudio.srcObject = stream; // B
+                window.localAudio.autoplay = true; // C
+            }).catch( err => {
+                console.log("u got an error:" + err)
+            });
+        }
+        getLocalStream();
         async function loadData(){
             try{
                 const result = await axios(process.env.REACT_APP_CENTRALITA+'/agent/me/service');
