@@ -148,14 +148,59 @@ const Home = () => {
 
             socketC.connection.emit('handShakeToSocket', {
                 token : window.localStorage.getItem('sdToken')
-            },(data) => {
+            },async (data) => {
                 if(data.success){
+
+                    toast.success('Se ha conectado al servidor correctamente');
+
+                    // let pulgins = window.localStorage.getItem('plugins')
+                    // let chCall = pulgins.find((x) => {
+                    //     return x.id === 'call'
+                    // })
+
+                    await CallController.setup(data.token);
+                    callC.connection.on('ready',() => {
+                        console.log('Usuario listo para recibir llamadas');
+                        toast.success('Listo para recibir llamadas.');
+                        setRefresh(Math.random());
+                    });
+    
+                    callC.connection.on('connect',() => {
+                        setOnCall('connect')
+                        setRefresh(Math.random());
+                    });
+    
+                    callC.connection.on('disconnect',() => {
+                        console.log('disconnect');
+                        setOnCall('disconnect');
+                        setConnCall(null);
+                        setRefresh(Math.random());
+                    });
+    
+                    callC.connection.on('error',(err) => {
+                        console.log('error',err);
+                        alert('Ocurrio un error');
+                        setRefresh(Math.random());
+                    });
+    
+                    callC.connection.on('incoming',(conn) => {
+                        setOnCall('incoming');
+                        setConnCall(conn);
+                        setPhoneNumber(conn.parameters.From);
+                        setOpenInComingCall(true)
+                        setRefresh(Math.random());
+                    });
+    
+                    callC.connection.on('offline',() => {
+                        alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
+                    });
+
                     toast.success('Se ha conectado al servidor',{
                         position: "top-right",
                         autoClose: 2500,
                         closeOnClick: true,
                         pauseOnHover: false,
-                        });
+
                     
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
@@ -189,44 +234,8 @@ const Home = () => {
 
                 if(data.body.folio.channel.name === 'call'){
                     if(Object.keys(callC.connection).length <= 0){
-                        await CallController.setup(data.token);
+                        // await CallController.setup(data.token);
 
-                        callC.connection.on('ready',() => {
-                            console.log('Usuario listo para recibir llamadas');
-                            toast.success('Listo para recibir llamadas');
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('connect',() => {
-                            setOnCall('connect')
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('disconnect',() => {
-                            console.log('disconnect');
-                            setOnCall('disconnect');
-                            setConnCall(null);
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('error',(err) => {
-                            console.log('error',err);
-                            alert('Ocurrio un error');
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('incoming',(conn) => {
-                            setOnCall('incoming');
-                            setConnCall(conn);
-                            setPhoneNumber(conn.parameters.From);
-                            setOpenInComingCall(true)
-                            //conn.accept();
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('offline',() => {
-                            alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
-                        });
                     }
                     setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                     CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
