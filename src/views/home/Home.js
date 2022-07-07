@@ -150,6 +150,7 @@ const Home = () => {
                 token : window.localStorage.getItem('sdToken')
             },async (data) => {
                 if(data.success){
+
                     toast.success('Se ha conectado al servidor correctamente');
 
                     // let pulgins = window.localStorage.getItem('plugins')
@@ -193,6 +194,13 @@ const Home = () => {
                     callC.connection.on('offline',() => {
                         alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
                     });
+
+                    toast.success('Se ha conectado al servidor',{
+                        position: "top-right",
+                        autoClose: 2500,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+
                     
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
@@ -228,7 +236,6 @@ const Home = () => {
                     if(Object.keys(callC.connection).length <= 0){
                         // await CallController.setup(data.token);
 
-                        
                     }
                     setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                     CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
@@ -303,7 +310,7 @@ const Home = () => {
             case -1:
                 return 'statusBar';
             case 1:
-                return 'statusBarGreen';
+                return 'statusBarblue';
             case 2:
                 return 'statusBarOff';
             default:
@@ -372,7 +379,7 @@ const Home = () => {
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>

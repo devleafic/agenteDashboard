@@ -80,7 +80,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
-            <Button color='teal' onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
+            <Button color='blue' onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
         </div>
 
         <Modal
@@ -102,7 +102,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 <Button basic color='red' inverted onClick={() => {setOpen(false); }} loading={onLoading} disabled={onLoading}>
                     <Icon name='remove' /> No
                 </Button>
-                <Button color='green' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
+                <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
                     <Icon name='checkmark' /> Transferir
                 </Button>
             </Modal.Actions>
