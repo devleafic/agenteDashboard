@@ -274,7 +274,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header as='h3' dividing>
                 {(channel === 'call' ? 'Llamada ' : 'Mensajes ')}
-                <Label as='a' tag color='blue' style={{marginLeft:30}}>#{folio._id}</Label>
+                {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */}
+                <Label as='a' color='blue'>
+                    #{folio._id}
+                    <Label.Detail>{folio.person.anchor}</Label.Detail>
+                </Label>
+
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
                 <Label>Servicio : {folio.service.name}</Label>
                 <Label>Canal : {folio.channel.title}</Label>
