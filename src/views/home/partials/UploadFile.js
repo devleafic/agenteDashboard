@@ -106,7 +106,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             
             <div {...getRootProps()} className='dnd'>
                 <input {...getInputProps()} />
-                <p>Presiona o arrastra aqui tu archivo a enviar.</p>
+                <a class="camera icon">Arrastra un archivo o Clic</a>
             </div>
             
         )}
@@ -147,7 +147,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 <Button basic color='red' inverted onClick={() => {setShowModal(false); setOnUpload(false); setNameFile('Archivo')}} loading={onPushFile} disabled={onPushFile}>
                 <Icon name='remove' /> No
                 </Button>
-                <Button color='green' inverted onClick={sendFileMessage} loading={onPushFile} disabled={onPushFile}>
+                <Button color='blue' inverted onClick={sendFileMessage} loading={onPushFile} disabled={onPushFile}>
                 <Icon name='checkmark'  /> Enviar
                 </Button>
             </Modal.Actions>
