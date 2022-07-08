@@ -38,6 +38,7 @@ const Home = () => {
 
     const [unReadFolios, dispatch] = useReducer(reducer, {});
 
+
     const [component, setComponent] = useState(initializeComponent);
     const [page, setPage] = useState('home');
     const [ refresh, setRefresh ] = useState(0);
@@ -57,7 +58,7 @@ const Home = () => {
 
     const [isConnected, setIsConnected] = useState(-1);
     
-    //const [unRead, setUnRead ] = useState({});
+    
 
     const [sidCall, setSidCall] = useState(null);
     const [connCall, setConnCall] = useState(null);
@@ -164,6 +165,7 @@ const Home = () => {
 
                     setUserInfo(data.user);
                     setIsReady(true);
+                    window.localStorage.setItem('autoAccept', false);
 
                     socketC.connection.emit('loadInbox', {
                         token : window.localStorage.getItem('sdToken')
@@ -210,19 +212,27 @@ const Home = () => {
                             setOnCall('disconnect');
                             setConnCall(null);
                             setRefresh(Math.random());
+                            window.localStorage.setItem('autoAccept', false);
                         });
         
                         callC.connection.on('error',(err) => {
                             console.log('error',err);
                             alert('Ocurrio un error');
                             setRefresh(Math.random());
+                            window.localStorage.setItem('autoAccept', false);  
+                            
                         });
         
                         callC.connection.on('incoming',(conn) => {
                             setOnCall('incoming');
                             setConnCall(conn);
                             setPhoneNumber(conn.parameters.From);
-                            setOpenInComingCall(true)
+                            if(window.localStorage.getItem('autoAccept') === 'false' || !window.localStorage.getItem('autoAccept')){
+                                setOpenInComingCall(true)
+                            }else{
+                                conn.accept();
+                            }
+                            
                             setRefresh(Math.random());
                         });
         
