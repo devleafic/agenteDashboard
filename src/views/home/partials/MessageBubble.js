@@ -13,7 +13,8 @@ const Message = ({message}) => {
         'deliveryToServers' : 'Enviado',
         'deliveryToRecipient' : 'Entregado',
         'readByRecipient' : 'Leído',
-        'failedDelivery' : 'Sin enviar'
+        'failedDelivery' : 'Sin enviar',
+        'failedOutofWindows' : 'Sin enviar. Han pasado más de 24 horas desde el cliente ha enviado el mensaje. Usa una plantilla para contactar al cliente.',
     }
 
     const convertContent = (msg) => {
