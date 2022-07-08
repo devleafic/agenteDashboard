@@ -17,6 +17,7 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
     
 
     const hangUp = () => {
+        window.localStorage.setItem('autoAccept', false);
         socket.connection.emit('hangUp', {sidCall : sidCall}, (data) => {
             console.log('llamada terminanda');
             setOnCall('disconnect');
@@ -37,6 +38,8 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
         setOnCalling(true);
         setOnCall('calling');
         setRefresh(Math.random());
+
+        window.localStorage.setItem('autoAccept', true);
         
         socket.connection.emit('makeCall', {folio : currentFolio._id, token : window.localStorage.getItem('sdToken')}, (data) => {
             setSidCall(data.call.sid);
