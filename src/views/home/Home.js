@@ -104,10 +104,10 @@ const Home = () => {
     }
 
     const showMessage = (message, ignore) => {
-        console.log('------------',window.localStorage.getItem('tabIsActive'));
+        //console.log('------------',window.localStorage.getItem('tabIsActive'));
         if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
         var notification = new Notification(message);
-        console.log('se envió el mensaje al navegador '+ message)
+        //console.log('se envió el mensaje al navegador '+ message)
         notification.onclick = function(){window.focus();this.close();}
     }
 

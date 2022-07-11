@@ -265,7 +265,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(() => {
         if(channel != 'call'){
-            boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+            
+            let fullHeight = boxMessage.current.scrollHeight;
+            let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+
+            if(pcPosition>=80){
+                boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+            }
+            
         }
         
     });
