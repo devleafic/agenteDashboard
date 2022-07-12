@@ -59,6 +59,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setIsLoading(false);
             setMessageToSend('');
             textArea.current.value='';
+            textArea.current.focus();
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
             
         });
@@ -302,7 +303,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
-            //textArea.current.focus();
             
         }
     });
