@@ -302,7 +302,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
-            textArea.current.focus();
+            //textArea.current.focus();
             
         }
     });
