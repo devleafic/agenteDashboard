@@ -11,13 +11,15 @@ import { toast } from 'react-toastify';
 // import ClassificationForm from './Classification.From';
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh, vFolio}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh, vFolio, countunReadMsg, dispatchCount}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
     
     const [currentFolio, setCurrentFolio] = useState(null);
     const [channel, setChannel] = useState(null);
+
+    const textArea = useRef(null);
 
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
@@ -31,6 +33,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [isOpenError, setIsOpenError] = useState(false);
 
     const [infoForm, setInfoForm] = useState(null);
+    const [showBtnUn, setShowBtnUn] = useState(false);
     
     const prepareMessage = async () => {
         
@@ -55,6 +58,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             listFolios.current[index].folio.message.push(result.body.lastMessage);
             setIsLoading(false);
             setMessageToSend('');
+            textArea.current.value='';
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
             
         });
@@ -179,6 +183,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
+            
         }
         listFolios.currentBox = boxMessage.current;
         return loadListClassifications();
@@ -276,15 +281,44 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }, [vFolio]);
 
     useEffect(() => {
+        boxMessage.current.addEventListener(
+            'scroll',() => {
+                let fullHeight = boxMessage.current.scrollHeight;
+                let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+                if(pcPosition>=90){
+                    setShowBtnUn(false);
+                    
+                }
+            })
+    },[])
+
+    useEffect(() => {
         if(channel != 'call'){
+            showButton()
+            
             let fullHeight = boxMessage.current.scrollHeight;
             let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
 
             if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
+            textArea.current.focus();
+            
         }
     });
+
+    const showButton = () =>{
+        if(!boxMessage.current){return null}
+
+        let fullHeight = boxMessage.current.scrollHeight;
+        let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+
+        if(pcPosition<=90 && folio._id === window.localStorage.getItem('lastMessage')){
+            setShowBtnUn(true);
+        }
+    }
+
+    
 
     return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
@@ -305,7 +339,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 channel === 'call' && fullFolio ? (<>
                     <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
-                    <div style={{height:'calc(100% - 203px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 250px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
                     </div>
                 ) 
@@ -320,12 +354,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
-                        <Form.TextArea key={'msg-'+folio._id} style={{height:100}} onChange={(e) => {
+                        <div style={{textAlign: 'center', marginBottom : 10, height : 36}}>{showBtnUn && <Button circular icon='arrow circle down' color='orange' label='Nuevos mensajes'/>}</div>
+                        <textArea key={'msg-'+folio._id} ref={textArea} style={{height:100}} onChange={(e) => {
                             setMessageToSend(e.target.value)
                         }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
-                            
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
-                        }}/>
+                        }} />
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
