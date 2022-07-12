@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 // import ClassificationForm from './Classification.From';
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh, vFolio}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -173,7 +173,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
         
         if(channel != 'call'){
-            boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+            let fullHeight = boxMessage.current.scrollHeight;
+            let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+
+            if(pcPosition>=80){
+                boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+            }
         }
         listFolios.currentBox = boxMessage.current;
         return loadListClassifications();
@@ -265,16 +270,20 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(() => {
         if(channel != 'call'){
-            
+            boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
+        }
+        
+    }, [vFolio]);
+
+    useEffect(() => {
+        if(channel != 'call'){
             let fullHeight = boxMessage.current.scrollHeight;
             let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
 
             if(pcPosition>=80){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
-            
         }
-        
     });
 
     return ( <>

@@ -105,6 +105,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       sidCall={sidCall}
                       setSidCall={setSidCall}
                       boxMessage={boxMessage}
+                      vFolio={vFolio}
                     />
                     <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
               </Grid.Column>
