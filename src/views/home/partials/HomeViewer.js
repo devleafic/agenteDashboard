@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios}) => {
+const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount}) => {
   
   const boxMessage = useRef();
   const listFolios = useContext(ListFoliosContext);
@@ -110,6 +110,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       setSidCall={setSidCall}
                       boxMessage={boxMessage}
                       vFolio={vFolio}
+                      countunReadMsg={countunReadMsg}
+                      dispatchCount={dispatchCount}
                     />
                     <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='blue' onClick={hideTools}/>
               </Grid.Column>

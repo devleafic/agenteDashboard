@@ -38,6 +38,21 @@ const Home = () => {
 
     const [unReadFolios, dispatch] = useReducer(reducer, {});
 
+    function countMessage(state, action){
+        switch (action.type) {
+            case 'unRead':
+                let copyC = !state[action.folio] ? (action.init ? action.init : 0 ) : state[action.folio];
+                return {...state, [action.folio] : copyC+1}
+            case 'read':
+                let copy = {...state}
+                delete copy[action.folio];
+                return copy;
+            default:
+            throw new Error();
+        }
+    } 
+    const [countunReadMsg, dispatchCount ] = useReducer(countMessage, {});
+
 
     const [component, setComponent] = useState(initializeComponent);
     const [page, setPage] = useState('home');
@@ -186,6 +201,7 @@ const Home = () => {
             socketC.connection.on('newFolio', async (data) => {
                 
                 listFolios.current.push(data.body);
+                dispatchCount({type : 'unRead', folio : data.body.folio._id, init : 0});
                 if(window.localStorage.getItem('vFolio') != data.body.folio._id){
                     dispatch({type : 'unRead', folio : data.body.folio._id});
                 }
@@ -287,10 +303,13 @@ const Home = () => {
                     CallController.answercall(data.lastMessage.externalId);
                     setSidCall(data.lastMessage.externalId);
                 }
+
+                window.localStorage.setItem('lastMessage', data.folio)
                 
                 setRefresh(Math.random());
                 showMessage('Nuevo Mensaje de #'+data.folio);
-                
+                console.log(countunReadMsg)
+                dispatchCount({type : 'unRead', folio : data.folio});
                 
             });
 
@@ -308,9 +327,9 @@ const Home = () => {
         }
     }
 
-    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);console.log('Ventana activa')};
+    const onFocus = () => {window.localStorage.setItem('tabIsActive', true);/*console.log('Ventana activa')*/};
     
-    const onBlur = () => {window.localStorage.setItem('tabIsActive', false);console.log('Ventana desactivada')};
+const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*console.log('Ventana desactivada')*/};
 
     const getColorStatusBar = () => {
         switch (isConnected){
@@ -380,7 +399,7 @@ const Home = () => {
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
             {
-                component.home && <HomeViewer dispatch={dispatch} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer dispatch={dispatch} countunReadMsg={countunReadMsg} dispatchCount={dispatchCount} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
                 component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
