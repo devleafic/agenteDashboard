@@ -354,7 +354,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
-                        <div style={{textAlign: 'center', marginBottom : 10, height : 36}}>{showBtnUn && <Button circular icon='arrow circle down' color='orange' label='Nuevos mensajes'/>}</div>
+                        <div style={{textAlign: 'center', marginBottom : 10, height : 36}}>{showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}</div>
                         <textArea key={'msg-'+folio._id} ref={textArea} style={{height:100}} onChange={(e) => {
                             setMessageToSend(e.target.value)
                         }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
