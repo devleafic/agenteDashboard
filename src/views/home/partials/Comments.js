@@ -176,7 +176,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             let fullHeight = boxMessage.current.scrollHeight;
             let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
 
-            if(pcPosition>=80){
+            if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
         }
@@ -280,7 +280,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             let fullHeight = boxMessage.current.scrollHeight;
             let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
 
-            if(pcPosition>=80){
+            if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
         }
