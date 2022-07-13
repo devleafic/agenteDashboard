@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Image, Icon } from 'semantic-ui-react';
 
-const Message = ({message}) => {
+const Message = ({message, responseToMessage}) => {
 
     // const equivalenciasAck = {
     //     'deliveryToServers' : 'Enviado',
@@ -70,7 +70,8 @@ const Message = ({message}) => {
         <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getAck(message.ack)}<br/> {getNameAuthor(message.origin)}</p>
         </>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)}</p>
-            <p className='from-them-meta'>{moment(message.createdAt).fromNow()}</p>
+            {/* Boton para poder hacer reply */}
+            {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
             
         </div>)
     }
