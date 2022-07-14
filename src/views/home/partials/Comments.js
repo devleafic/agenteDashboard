@@ -34,7 +34,25 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     const [infoForm, setInfoForm] = useState(null);
     const [showBtnUn, setShowBtnUn] = useState(false);
+
+
+    const [showResponseTo, setShowResponseTo] = useState(null);
+    const [messageToResponse, setMessageToResponse] = useState('');
+    const responseToMessage = (idMessage) => {
+
+        let message = folio.message.find((x) => {
+            return x._id === idMessage;
+        })
+
+        setShowResponseTo(message.externalId);
+        setMessageToResponse('Estas respondiendo el mensaje '+ message.content);
+    }
     
+    const removeResponseTo = () =>{
+        setShowResponseTo(null);
+        setMessageToResponse(null);
+    }
+
     const prepareMessage = async () => {
         
         if(messageToSend.trim() === ''){
@@ -47,6 +65,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             token : window.localStorage.getItem('sdToken'),
             folio : folio._id,
             message : messageToSend,
+            responseTo : showResponseTo,
             class : 'text'
         }, (result) => {
 
@@ -60,6 +79,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToSend('');
             textArea.current.value='';
             textArea.current.focus();
+            setShowResponseTo(null);
+            setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
             
         });
@@ -340,8 +361,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 channel === 'call' && fullFolio ? (<>
                     <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>) : (
-                    <div style={{height:'calc(100% - 250px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
-                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg}/>);})}
+                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}/>);})}
                     </div>
                 ) 
             }
@@ -355,8 +376,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
-                        <div style={{textAlign: 'center', marginBottom : 10, height : 36}}>{showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}</div>
-                        <textArea key={'msg-'+folio._id} ref={textArea} style={{height:100}} onChange={(e) => {
+                        <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
+                            {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
+                            {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
+                        </div>
+                        
+                        <textArea key={'msg-'+folio._id} ref={textArea} style={{height:100, marginBottom:10}} onChange={(e) => {
                             setMessageToSend(e.target.value)
                         }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
