@@ -25,8 +25,6 @@ const Message = ({message, responseToMessage, allMsg}) => {
             case 'text':
                 return <Label>{originaMsg.content}</Label>;
         }
-
-        
     }
 
     const convertContent = (msg) => {
