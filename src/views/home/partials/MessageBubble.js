@@ -26,16 +26,16 @@ const Message = ({message}) => {
             case 'text':
                 return (<div style={{whiteSpace:'pre-line'}}>{content}</div>);
             case 'document':
-                return (<a target='blank' href={content}><Icon name='folder open'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
+                return (<a target='blank' href={content}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
-               return (<><a href={content} target='_blank'><Image src={content} size='medium' />{caption && <p >{caption}</p>}</a></>);
+               return (<><a href={content} target='_blank'><Image style={{borderRadius: '15px'}} src={content}  />{caption && <p >{caption}</p>}</a></>);
             case 'sticker':
-                return (<><a href={content} target='_blank'><Image src={content} size='small' />{caption && <p >{caption}</p>}</a></>);
+                return (<><a href={content} target='_blank'><Image src={content} style={{borderRadius: '15px'}} size='small' />{caption && <p >{caption}</p>}</a></>);
             case 'video':
-                return (<video controls><source src={content} type='video/mp4' reload='auto'/></video>)
+                return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'location':
                 const apikeyMAP = 'AIzaSyAEGyCAtnDP9muoGUr2gJm04cW6XD2dbAA';
-                return (<><Image src={'https://maps.googleapis.com/maps/api/staticmap?center='+content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+content} /> {caption && <div style={{marginTop:15,marginBottom:15}}>{caption}</div>}</>);
+                return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+content} /> {caption && <div style={{marginTop:15,marginBottom:15}}>{caption}</div>}</>);
             case 'ptt':
             case 'audio':
             case 'voice':
