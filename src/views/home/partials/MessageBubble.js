@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Image, Icon } from 'semantic-ui-react';
+import { Image, Icon, Dropdown } from 'semantic-ui-react';
 
 const Message = ({message, responseToMessage}) => {
 
@@ -72,7 +72,15 @@ const Message = ({message, responseToMessage}) => {
             <p className='from-them'>{convertContent(message)}</p>
             {/* Boton para poder hacer reply */}
             {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
-            
+            <p className='from-them-meta'>
+                {moment(message.createdAt).fromNow()}
+                <Dropdown text='' style={{marginLeft : 15}}>
+                    <Dropdown.Menu>
+                        <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
+                        <Dropdown.Item text='Reaccionar' />
+                    </Dropdown.Menu>
+                </Dropdown>
+            </p>
         </div>)
     }
     </> );
