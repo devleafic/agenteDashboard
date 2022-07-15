@@ -35,7 +35,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
 
         switch(type){
             case 'text':
-                return (<div style={{whiteSpace:'pre-line'}}>{!msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {content}</div>);
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {content}</div>);
             case 'document':
                 return (<a target='blank' href={content}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
