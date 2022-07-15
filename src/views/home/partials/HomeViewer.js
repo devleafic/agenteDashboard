@@ -46,9 +46,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,13) : anchor;
-    for(let i = aliasName.length ; i < 13; i++){
-      if (i == 12){
+    let aliasName = alias ? alias.substr(0,15) : anchor;
+    for(let i = aliasName.length ; i < 15; i++){
+      if (i == 15){
         aliasName = aliasName+'-';}
       else {
         aliasName = aliasName+' ';}
@@ -86,7 +86,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red radio' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red radio' : 'gray radio')}, 
           tabular:true,
           render : () => {
             

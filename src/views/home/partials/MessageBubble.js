@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Image, Icon, Dropdown, Label } from 'semantic-ui-react';
+import { Image, Icon, Dropdown, Label , Divider } from 'semantic-ui-react';
 
 const Message = ({message, responseToMessage, allMsg}) => {
 
@@ -21,10 +21,52 @@ const Message = ({message, responseToMessage, allMsg}) => {
         let originaMsg = allMsg.find((x) => {
             return x.externalId === id;
         })
+        if (!originaMsg){
+            let nocontent = "El mensaje referenciado no se pudo recuperar o no se encuentra e el folio en curso"
+            return    <Label style={{background : '#0b93f6'}}>{nocontent}</Label> 
+        } else{
+            switch(originaMsg.class){
+                case 'text':
+                    return  <Label>{originaMsg.content}</Label> 
+                case 'image':
+                    return <Image src={originaMsg.content} size='tiny' />;
+                case 'audio':
+                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/></audio>)
+                case 'video':  
+                    return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
+                case 'document':
+                    return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                case 'location':
+                    const apikeyMAP = process.env.MAPS_APIKEY;
+                    return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
+                }
+        }
+    }
 
-        switch(originaMsg.class){
-            case 'text':
-                return <Label>{originaMsg.content}</Label>;
+    const getResponseFrom = (id) => {
+        console.log(id)
+        let originaMsg = allMsg.find((x) => {
+            return x.externalId === id;
+        })
+        if (!originaMsg){
+            let nocontent = "El mensaje referenciado no se encuentra en el folio en curso"
+            return <Label style={{background : '#0b93f6', color :'#FFF' }}>{nocontent}</Label>;
+        } else{
+            switch(originaMsg.class){
+                case 'text':
+                    return <Label style={{background : '#0b93f6', color :'#FFF'}} >{originaMsg.content}</Label>;
+                case 'image':
+                      return <Image  src={originaMsg.content} size='tiny' />
+                case 'audio':
+                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/></audio>)
+                case 'video':  
+                    return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
+                case 'document':
+                    return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                case 'location':
+                    const apikeyMAP = process.env.MAPS_APIKEY;
+                    return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
+                }
         }
     }
 
@@ -35,7 +77,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
 
         switch(type){
             case 'text':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {content}</div>);
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
             case 'document':
                 return (<a target='blank' href={content}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
