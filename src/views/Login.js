@@ -53,8 +53,8 @@ const Login = () => {
                 <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         <Form size='large' onSubmit={onSubmitForm}>
-                            <Header as='h1'>Inicio de Sesión</Header>
-                            <p>Inbox Central 3.0 - Ingresa tus credenciales para poder acceder</p>
+                            <Header as='h1'>Bienvenido a Inbox Central 3.0</Header>
+                            <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
                                 <p>{msgError}</p>
                             </Message>)}

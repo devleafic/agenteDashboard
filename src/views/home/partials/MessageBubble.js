@@ -31,9 +31,9 @@ const Message = ({message, responseToMessage, allMsg}) => {
                 case 'image':
                     return <Image src={originaMsg.content} size='tiny' />;
                 case 'audio':
-                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/></audio>)
+                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/><source src={originaMsg.content} type='audio/mpeg' />  </audio>)
                 case 'video':  
-                    return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
+                    return (<video controls><source src={originaMsg.content } type='video/mp4'/></video>) 
                 case 'document':
                     return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
                 case 'location':
@@ -58,7 +58,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
                 case 'image':
                       return <Image  src={originaMsg.content} size='tiny' />
                 case 'audio':
-                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/></audio>)
+                    return (<audio controls><source src={originaMsg.content} type='audio/ogg'/><source src={originaMsg.content} type='audio/mpeg' />  </audio>)
                 case 'video':  
                     return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
                 case 'document':
@@ -92,9 +92,13 @@ const Message = ({message, responseToMessage, allMsg}) => {
             case 'ptt':
             case 'audio':
             case 'voice':
-                return (<audio controls><source src={content} type='audio/ogg'/></audio>)
+                return (<audio controls >   
+                    <source src={content} type='audio/ogg' />   
+                    <source src={content} type='audio/mpeg' />   
+                </audio>)
+
             case 'errors':
-                return (<>[{type}] - {content}</>);      
+            return (<>[{type}] - {content}</>);      
             default:
                 return (<>[Class {type} undefined] - {content}</>);
         }
