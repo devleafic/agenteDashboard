@@ -104,7 +104,7 @@ code {
 
 p.from-me {
   align-self: flex-end;
-  background-color: #66CDAA;
+  background-color: #2294fb;
   color: #fff; 
   float : right;
   text-align: right;
@@ -132,7 +132,7 @@ p.from-them-meta:hover, p.from-me-meta:hover{color:#000}
 
 p.from-me::before {
   border-bottom-left-radius: 0.8rem 0.7rem;
-  border-right: 1rem solid #66CDAA;
+  border-right: 1rem solid #2294fb;
   right: -0.35rem;
   transform: translate(0, -0.1rem);
 }
