@@ -288,7 +288,7 @@ const Home = () => {
                 
                 let index = listFolios.current.findIndex((x) => {return x.folio._id === data.folio});
                 let copyFolio = listFolios.current[index];
-                if(!copyFolio.folio){return false;}
+                if(!copyFolio || !copyFolio.folio){return false;}
                 copyFolio.folio.message.push(data.lastMessage);
                 
                 listFolios.current[index] = copyFolio;
