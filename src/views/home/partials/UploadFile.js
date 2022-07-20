@@ -1,5 +1,5 @@
 import React, {useRef, useState, useContext, useCallback} from 'react';
-import { Icon, Button, Image, Modal, Header, Message } from 'semantic-ui-react';
+import { Icon, Loader, Button, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
 import axios, {post} from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -61,6 +61,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
 
     const fileUpload = file => {
         setOnUpload(true);
+        setShowModal(true);
         const url = process.env.REACT_APP_CENTRALITA+'/sendFile/'+channel+'/'+folio;
         const formData = new FormData();
         formData.append("file", file);
@@ -70,13 +71,15 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             "Content-type": "multipart/form-data"
           }
         };
-        
+        setOnPushFile(true);
         return post(url, formData, config).then((data) => {
             
-            setToUpload(null)
+            setToUpload(null);
+            setOnPushFile(false);
             setNameFileSend(data.data.file.originalFilename)
             setUrlFile(data.data.url);
             let classFile = data.data.file.mimetype.split('/');
+            
 
             if(classFile[0] === 'image'){
                 setUrlFileType(classFile[0]);
@@ -90,7 +93,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 setContentShow(<a color='blue'target='blank' href={data.data.url}><Icon name='folder open'></Icon>{data.data.file.originalFilename}</a>)
             }
             
-            setShowModal(true)
+            // setShowModal(true)
 
             
         });
@@ -135,11 +138,14 @@ const UploadFile = ({folio, channel, setRefresh}) => {
         size='small'
         >
             <Header icon>
-                <Icon name='archive' />
-                ¿Quiere enviar el archivo "{nameFileSend}" ?
+                <Icon name={onPushFile ? 'cloud upload' : 'archive'} />
+                {onPushFile ? 'Cargando Archivo...' : '¿Quiere enviar el archivo "'+nameFileSend+'"?' }
             </Header>
             <Modal.Content>
-                <Message>
+                <Message style={{height:100}}>
+                {onPushFile && <Dimmer active inverted>
+                    <Loader inverted>Cargando Archivo</Loader>
+                </Dimmer>}
                 {contentShow}
                 </Message>
             </Modal.Content>
