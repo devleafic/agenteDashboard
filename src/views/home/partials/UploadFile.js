@@ -143,7 +143,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 {onPushFile ? 'Cargando Archivo...' : '¿Quiere enviar el archivo "'+nameFileSend+'"?' }
             </Header>
             <Modal.Content>
-                <Message style={{height:onPushFile ? 100 : 'auto'}}>
+                <Message style={{minHeight : 100}}>
                 {onPushFile && <Dimmer active inverted>
                     <Loader inverted>Cargando Archivo</Loader>
                 </Dimmer>}
