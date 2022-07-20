@@ -353,8 +353,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
                 <Label>{folio.service.name}</Label>
-                <Label>Canal: {folio.channel.title}</Label>
-                <Label>Bandeja: {getLabelQueue()}</Label>
+                <Label> <Icon name='box' />{folio.channel.title}</Label>
+                <Label> <Icon name='inbox' />{getLabelQueue()}</Label>
             </Header>
             
             {

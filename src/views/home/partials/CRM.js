@@ -1,4 +1,4 @@
-import { Button, Form, Label } from 'semantic-ui-react';
+import { Button, Form, Label, Icon} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -30,11 +30,14 @@ const CRM = ({template, folio, setRefresh}) => {
     return ( <>
         
             <Form key={'form-crm-'+folio}>
-                <div>
-                    <Label as='a' color='blue' floating='true' pointing='true' >
-                        <Label.Detail>{folio.folio.person.aliasId ? folio.folio.person.aliasId : 'Anónimo'}</Label.Detail>
-                    </Label>
+
+                <div>    
                     <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inbox.sfo3.digitaloceanspaces.com/assets/noprofilepic.jpeg' } alt="profile" className='profilePic' />
+                </div>
+                <div className='label-t'> 
+                    <Label as='a' color='blue'>  <Icon name='user circle' />
+                        <Label.Detail>{folio.folio.person.aliasId ? folio.folio.person.aliasId.substr(0,20) : 'Anónimo'}</Label.Detail>
+                    </Label>
                 </div>
                 <div style={{height:250, overflowY:'scroll'}}>
                 {
