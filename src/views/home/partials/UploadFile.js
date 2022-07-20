@@ -61,6 +61,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
 
     const fileUpload = file => {
         setOnUpload(true);
+        setContentShow(null);
         setShowModal(true);
         const url = process.env.REACT_APP_CENTRALITA+'/sendFile/'+channel+'/'+folio;
         const formData = new FormData();
@@ -142,7 +143,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 {onPushFile ? 'Cargando Archivo...' : '¿Quiere enviar el archivo "'+nameFileSend+'"?' }
             </Header>
             <Modal.Content>
-                <Message style={{height:100}}>
+                <Message style={{height:onPushFile ? 100 : 'auto'}}>
                 {onPushFile && <Dimmer active inverted>
                     <Loader inverted>Cargando Archivo</Loader>
                 </Dimmer>}
