@@ -136,7 +136,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             </Accordion.Content>
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
-                <Icon name='box' />
+                <Icon name='archive' />
                 Historial de Folios
             </Accordion.Title>
             <Accordion.Content active={indexPane === 5}>

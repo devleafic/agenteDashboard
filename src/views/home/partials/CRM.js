@@ -35,8 +35,8 @@ const CRM = ({template, folio, setRefresh}) => {
                     <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inbox.sfo3.digitaloceanspaces.com/assets/noprofilepic.jpeg' } alt="profile" className='profilePic' />
                 </div>
                 <div className='label-t'> 
-                    <Label as='a' color='blue'>  <Icon name='user circle' />
-                        <Label.Detail>{folio.folio.person.aliasId ? folio.folio.person.aliasId.substr(0,20) : 'Anónimo'}</Label.Detail>
+                    <Label as='a' pointing>  
+                        {folio.folio.person.aliasId ? folio.folio.person.aliasId.substr(0,20) : 'Anónimo'}
                     </Label>
                 </div>
                 <div style={{height:250, overflowY:'scroll'}}>
