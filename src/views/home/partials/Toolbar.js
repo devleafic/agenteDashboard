@@ -170,12 +170,17 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             }
             setIsConnected(activityObj.isConnect ? 1 : 2);
             setCurrentActivity(value);
-            toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
+            toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
+                position: "top-right",
+                autoClose: 2500,
+                closeOnClick: true,
+                pauseOnHover: false,
+                });
         })
         
     }
 
-    //<Button basic color='green' onClick={getToFolioBlank}>Folio en Blanco</Button>
+    //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
         <div className="toolbar" style={{textAlign:'right'}}>
             {
@@ -192,7 +197,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 /></>)
             }
             {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
+                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='blue' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
             }
             {
                 isReady && (

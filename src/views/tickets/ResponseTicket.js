@@ -44,7 +44,7 @@ const ResponseTicket = () => {
         if(diffTime <= 0){
             return <Label as='a' color='red' tag>Fuera de tiempo</Label>;
         }else if(diffTime > 0){
-            return <Label as='a' color='green' tag>En tiempo</Label>;
+            return <Label as='a' color='blue' tag>En tiempo</Label>;
         }
     }
 
@@ -92,7 +92,7 @@ const ResponseTicket = () => {
                                     return (
                                         <Comment key={item._id}>
                                             <Comment.Content>
-                                                <Label as='a' color={item.from === 'agent' ? 'teal' : 'orange'}>{item.from === 'agent' ? item.agent.profile.name : item.producer}</Label>
+                                                <Label as='a' color={item.from === 'agent' ? 'blue' : 'orange'}>{item.from === 'agent' ? item.agent.profile.name : item.producer}</Label>
                                                 <Comment.Metadata>
                                                     <div style={{fontSize:12}}>{moment(item.createdAt).fromNow()}</div>
                                                 </Comment.Metadata>

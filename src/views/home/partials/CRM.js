@@ -1,4 +1,4 @@
-import { Button, Form } from 'semantic-ui-react';
+import { Button, Form, Label, Icon} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -30,10 +30,19 @@ const CRM = ({template, folio, setRefresh}) => {
     return ( <>
         
             <Form key={'form-crm-'+folio}>
+
+                <div>    
+                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inbox.sfo3.digitaloceanspaces.com/assets/noprofilepic.jpeg' } alt="profile" className='profilePic' />
+                </div>
+                <div className='label-t'> 
+                    <Label as='a' pointing>  
+                        {folio.folio.person.aliasId ? folio.folio.person.aliasId.substr(0,20) : 'Anónimo'}
+                    </Label>
+                </div>
                 <div style={{height:250, overflowY:'scroll'}}>
                 {
                     template.map((item) => {
-                        return (
+                        return ( 
                             <Form.Field key={'field-'+item._id}>
                                 <label>{item.name}</label>
                                 <input key={item._id} placeholder={item.name} value={folio.folio.person.fields ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
@@ -48,7 +57,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 }
                 </div>
                 <div>
-                    <Button color='teal' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
+                    <Button color='blue' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
                 </div>
             </Form>
         
