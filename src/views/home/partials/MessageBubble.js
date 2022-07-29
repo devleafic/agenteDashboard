@@ -131,7 +131,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
             {/* Boton para poder hacer reply */}
             {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
             <p className='from-them-meta'>
-                <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 15}}>
+                <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
                     <Dropdown.Menu>
                         <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
                         <Dropdown.Item text='Reaccionar' />
