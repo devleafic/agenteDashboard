@@ -45,7 +45,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         })
 
         setShowResponseTo(message.externalId);
-        setMessageToResponse('Estas respondiendo el mensaje '+ message.content);
+        setMessageToResponse('Respondiendo al mensajes: '+ message.content);
     }
     
     const removeResponseTo = () =>{
@@ -350,10 +350,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     #{folio._id}
                     <Label.Detail>{folio.person.anchor}</Label.Detail>
                 </Label>
+
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
-                <Label>Servicio : {folio.service.name}</Label>
-                <Label>Canal : {folio.channel.title}</Label>
-                <Label>Queue : {getLabelQueue()}</Label>
+                <Label>{folio.service.name}</Label>
+                <Label> <Icon name='box' />{folio.channel.title}</Label>
+                <Label> <Icon name='inbox' />{getLabelQueue()}</Label>
             </Header>
             
             {
@@ -371,7 +372,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Finalizar</Button>
+                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
@@ -387,10 +388,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         }} />
 
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
+                        <Button color='blue' content='Enviar' labelPosition='left' icon='paper plane'   onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
+
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+
                     </Form>
                 )
             }
@@ -435,7 +438,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>

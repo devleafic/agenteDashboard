@@ -46,9 +46,13 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,13) : anchor;
-    for(let i = aliasName.length ; i < 13; i++){
-      aliasName = aliasName+'_';
+    let aliasName = alias ? alias.substr(0,15) : anchor;
+    for(let i = aliasName.length ; i < 15; i++){
+      if (i == 15){
+        aliasName = aliasName+'-';}
+      else {
+        aliasName = aliasName+' ';}
+        
     }
     return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
   } 
@@ -82,7 +86,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red bell' : 'gray circle outline')}, 
           tabular:true,
           render : () => {
             
@@ -109,7 +113,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       countunReadMsg={countunReadMsg}
                       dispatchCount={dispatchCount}
                     />
-                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
+                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='blue' onClick={hideTools}/>
               </Grid.Column>
               <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none'}}>
                     <Tools setMessageToSend={setMessageToSend} messageToSend={messageToSend}
@@ -141,20 +145,20 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     switch(isConnected){
       case -1:
         return (<div style={{margin : 40}}><Message
-          icon='user cancel'
+          icon='plug'
           header='Aun no estas conectado, selecciona una actividad para conectarte'
           negative
         /></div>)
       case 1:
         return (<div style={{margin : 40}}><Message
-          icon='flag checkered'
-          header='Sin mensajes nuevos'
+          icon='envelope open outline'
+          header='Listo para recibir nuevos mensajes o llamadas. Sin nuevas actividades por ahora.'
           positive
         /></div>)
       case 2:
           return (<div style={{margin : 40}}><Message
             icon='clock outline'
-            header='Estas en linea sin embargo no recibirás mensajes'
+            header='Continuas conectado, pero no recibiras nuevos mensajes o llamadas.'
             warning
           /></div>)
     }
@@ -165,7 +169,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     {
       listFolios.current.length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+          <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
             dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})

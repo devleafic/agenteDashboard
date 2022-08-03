@@ -136,7 +136,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             </Accordion.Content>
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
-                <Icon name='box' />
+                <Icon name='archive' />
                 Historial de Folios
             </Accordion.Title>
             <Accordion.Content active={indexPane === 5}>
@@ -192,7 +192,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </List>
                 </div>
                 <p>
-                    <Button color='teal' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
+                    <Button color='blue' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>
                 </p>
             </Accordion.Content>
@@ -211,7 +211,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
         <div>
             {/* <Button key={'btnsave-'+folio} fluid color='orange' basic style={{marginBottom:15, marginTop: 15}} onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar Folio</Button>
-            <Button key={'btnend-'+folio} fluid color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
+            <Button key={'btnend-'+folio} fluid color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
         </div> 
 
                 {
