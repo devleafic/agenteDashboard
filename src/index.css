@@ -271,6 +271,13 @@ h2 {
   padding: 0;
 }
 
+.heightText{height: 100px !important}
+
+@media screen and (max-width: 1030px) {
+  .heightText{height: 70px !important;margin-bottom:10px ;}
+  .hideText{display: none;}
+}
+
 @media screen and (max-width: 800px) {
   body {
     margin: 0 0.5rem;
@@ -290,6 +297,9 @@ h2 {
   .imessage p {
     margin: 0.5rem 0;
   }
+
+  
+
 }
 
 .ui.toggle.checkbox input:checked~.box:before,.ui.toggle.checkbox input:checked~label:before {
@@ -340,4 +350,3 @@ h2 {
   float: left;
   cursor:default;
 }
-
