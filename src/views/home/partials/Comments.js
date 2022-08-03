@@ -381,16 +381,19 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
                         
-                        <textArea key={'msg-'+folio._id} ref={textArea} style={{height:100, marginBottom:10}} onChange={(e) => {
+                        <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
                             setMessageToSend(e.target.value)
                         }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }} />
+
                         <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         <Button color='blue' content='Enviar' labelPosition='left' icon='paper plane'   onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
                         
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar</Button>
+
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+
                     </Form>
                 )
             }
