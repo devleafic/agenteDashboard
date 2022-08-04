@@ -86,7 +86,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red bell' : 'gray circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red bell' : 'circle outline')}, 
           tabular:true,
           render : () => {
             
@@ -152,7 +152,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       case 1:
         return (<div style={{margin : 40}}><Message
           icon='envelope open outline'
-          header='Listo para recibir nuevos mensajes o llamadas. Sin nuevas actividades por ahora.'
+          header='Listo para recibir nuevos mensajes o llamadas. Sin nueva actividad por ahora.'
           positive
         /></div>)
       case 2:
