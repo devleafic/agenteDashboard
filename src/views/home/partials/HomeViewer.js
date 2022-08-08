@@ -22,6 +22,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
   const [availableCh, setAvailableCh] = useState(null);
 
+  
+
   const hideTools = () => {
     if(toolsOpen){
       setSizeCols({a:16,b:0});
@@ -171,6 +173,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
+            setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
             dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})
           }}/>

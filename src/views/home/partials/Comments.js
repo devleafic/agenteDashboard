@@ -315,6 +315,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     },[])
 
     useEffect(() => {
+        
+        textArea.current.value= messageToSend;
         if(channel != 'call'){
             showButton()
             
@@ -383,7 +385,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         
                         <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
                             setMessageToSend(e.target.value)
-                        }} value={messageToSend} disabled={isLoading} onKeyDown={(e) => {
+                        }} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }} />
 
