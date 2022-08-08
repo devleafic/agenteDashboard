@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {List, Accordion, Icon, Button, Modal, Select, Form } from 'semantic-ui-react';
+import {List, Accordion, Icon, Button, Modal, Select, Form, Divider } from 'semantic-ui-react';
 
 // Contextos
 import SocketContext from './../../../controladores/SocketContext';
@@ -168,7 +168,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                             quicklyAnswer.map((item) => {
                                 return <div><a key={item._id} href='#' onClick={e => {
                                     setMessageToSend(item.text);
-                                }}>{item.text}</a></div>
+                                }}>{item.text}</a><Divider/></div>
                             })
                         }
                         </div>

@@ -167,6 +167,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
+            setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
             dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})
           }}/>
