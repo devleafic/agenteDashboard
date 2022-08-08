@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {List, Accordion, Icon, Button, Modal, Select, Form, Divider } from 'semantic-ui-react';
+import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input } from 'semantic-ui-react';
 
 // Contextos
 import SocketContext from './../../../controladores/SocketContext';
@@ -30,6 +30,8 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     const [openViewTicket, setOpenViewTicket] = useState(false);
     const [ticketSelected, setTicketSelected] = useState(null);
     const [openFindTicket, setOpenFindTicket] = useState(false);
+
+    const [allQA, setAllQA] = useState([]);
 
     const initializeTicket = {
         area : null,
@@ -108,7 +110,23 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
         })
     }
 
+    const [textFilter, setTextFilter]= useState('');
+    const findQA = (filter) => {
+        setTextFilter(filter)
+        if(filter.length <= 3){
+            setAllQA(quicklyAnswer);
+            return false;
+        }
+
+        const filterValues = quicklyAnswer.filter((x) => {
+            return x.text.toLowerCase().includes(filter.toLowerCase());
+        });
+        setAllQA(filterValues)
+
+    }
+
     useEffect(() => {
+        
         const loadListClassifications = () => {
             const tmpClass = [];
             for(let item of folio.clasifications){
@@ -118,7 +136,8 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     text: item.name
                 })
             }
-            setListClassification(tmpClass)
+            setListClassification(tmpClass);
+            setAllQA(quicklyAnswer)
         }
         return loadListClassifications();
     }, []);
@@ -163,9 +182,12 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         Respuestas Rápidas
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 2}>
+                        <div style={{margin:5, marginBottom : 20}}>
+                            <Input placeholder='Buscar' fluid onChange={(e) => {findQA(e.target.value)}} action={{ icon: 'close', onClick : () => {findQA(''); setTextFilter('')} }} value={textFilter}/>
+                        </div>
                         <div style={{height:250, overflowY:'scroll'}}>
                         {
-                            quicklyAnswer.map((item) => {
+                            allQA.map((item) => {
                                 return <div><a key={item._id} href='#' onClick={e => {
                                     setMessageToSend(item.text);
                                 }}>{item.text}</a><Divider/></div>

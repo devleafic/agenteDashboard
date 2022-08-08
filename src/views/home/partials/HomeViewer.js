@@ -22,6 +22,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
   const [availableCh, setAvailableCh] = useState(null);
 
+  
+
   const hideTools = () => {
     if(toolsOpen){
       setSizeCols({a:16,b:0});
