@@ -416,6 +416,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
                             }}/>
+                            {/* {typeClose === 'guardar' && <label>toggle aqui</label>} */}
                         </div>
                         
                         {infoForm && renderForm(infoForm)}
