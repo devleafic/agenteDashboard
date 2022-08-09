@@ -87,7 +87,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
             case 'video':
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'location':
-                const apikeyMAP = process.env.MAPS_APIKEY;
+                const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                 return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+content} /> {caption && <div style={{marginTop:15,marginBottom:15}}>{caption}</div>}</>);
             case 'ptt':
             case 'audio':
