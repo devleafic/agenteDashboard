@@ -53,7 +53,7 @@ const Login = () => {
                 <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         <Form size='large' onSubmit={onSubmitForm}>
-                            <Header as='h1'>Bienvenido a Inbox Central</Header>
+                            <Header as='h1'>App Agente - Inbox Central</Header>
                             <Header as='h4'>Versión {process.env.REACT_APP_SYSTEM_VERSION}</Header>
                             <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
