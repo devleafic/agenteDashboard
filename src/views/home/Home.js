@@ -15,6 +15,7 @@ import CallContext from '../../controladores/CallContext';
 /* Componentes */
 import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
+import { off } from 'process';
 
 window.mobileAndTabletCheck = function() {
     let check = false;
@@ -213,6 +214,15 @@ const Home = () => {
             });
 
             socketC.connection.on('newFolio', async (data) => {
+
+                const isOpenFolio = listFolios.current.find((x) => {
+                    return x.folio._id === data.body.folio._id;
+                })
+
+                if(isOpenFolio){
+                    toast.info('El folio ya se encuentra abierto');
+                    return false;
+                }
                 
                 listFolios.current.push(data.body);
                 dispatchCount({type : 'unRead', folio : data.body.folio._id, init : 0});
