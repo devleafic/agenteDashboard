@@ -426,11 +426,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 >
                     <Modal.Header>¿Deseas {typeClose} el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
-                        <div style={{marginTop:5}}>
-                        {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox -'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
+                        <div style={{textAlign: 'center', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
                         </div>
                         Selecciona una clasificación para el folio :
-                        <div style={{marginTop:15}}>
+                        <div style={{marginTop:20}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
                             }}/>
