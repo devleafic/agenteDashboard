@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message, Checkbox} from 'semantic-ui-react';
 
 
 import SocketContext from './../../../controladores/SocketContext';
@@ -28,6 +28,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [listClassification, setListClassification] = useState([]);
     const [classification, setClassification] = useState(-1);
     const [formClassification, setFormClassification] = useState({});
+    const [isFolioAttachedAgent, setIsFolioAttachedAgent ] = useState(false); // Para saber si el folio esta asignado a un agente a su Inbox
 
     const [message, setMessage] = useState(null);
     const [isOpenError, setIsOpenError] = useState(false);
@@ -103,7 +104,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             alert('Selecciona una clasificación');
             return false;
         }
-
+       
         let validate;
         if(infoForm){
             let fRequire = infoForm.form.filter((x) => {return x.require});
@@ -147,6 +148,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         setIsEndingFolio(true);
         let actionClose = '';
+        let _channel = fullFolio.folio.channel.title //Para cuando se va a mandar a Inbox
+        let _queue = fullFolio.folio.queue.name //Para cuando se va a mandar a Inbox
+        let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
+        let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
         if(typeClose === 'guardar'){
             actionClose = 'save';
         }
@@ -159,7 +164,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             token : window.localStorage.getItem('sdToken'),
             actionClose,
             classification,
-            formClassification
+            formClassification,
+            isFolioAttachedAgent,
+            _channel,
+            _queue,
+            _anchorPerson,
+            _fromInbox
         }, (result) => {
             console.log(result)
             if(!result.success){
@@ -179,6 +189,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setOpenModal(false);
             setInfoForm(null);
             setIsEndingFolio(false);
+            setIsFolioAttachedAgent(false);
         });
     }
 
@@ -411,12 +422,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 >
                     <Modal.Header>¿Deseas {typeClose} el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
+                        <div style={{marginTop:5}}>
+                        {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox -'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
+                        </div>
                         Selecciona una clasificación para el folio :
                         <div style={{marginTop:15}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
                             }}/>
-                            {/* {typeClose === 'guardar' && <label>toggle aqui</label>} */}
                         </div>
                         
                         {infoForm && renderForm(infoForm)}
