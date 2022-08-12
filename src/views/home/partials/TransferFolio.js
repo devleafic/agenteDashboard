@@ -66,7 +66,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
     return ( <>
         {
-            queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen queues configurados'/>
+            queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen otras bandejas configurados'/>
         }
         <Label>Selecciona el queue a transferir</Label>
         <Dropdown placeholder='Escoge un queue' valie={queueToSend.queue} error={errorQueueField} selection fluid options={queues.map((x) => {

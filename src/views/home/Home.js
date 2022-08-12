@@ -338,8 +338,8 @@ const Home = () => {
             });
 
             socketC.connection.on('newInbox', (data) => {
-                toast.warning('Nuevo Inbox de '+data.anchor);
-                showMessage('Nuevo Inbox de '+data.anchor);
+                toast.warning('Nuevo Inbox de '+data.aliasId + ' #'+data.anchor);
+                showMessage('Nuevo Inbox de  '+data.aliasId + ' #'+data.anchor);
                 setUnReadMessages(true);
             })
             
