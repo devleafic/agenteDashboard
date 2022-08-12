@@ -8,6 +8,7 @@ const Inbox = ({selectedComponent, setUnReadMessages}) => {
     const [inboxes, setInboxes ] = useState([]);
     const [isLoadInbox, setIsLoadInbox ] = useState(false);
 
+    const [isLoadInboxFolio, setIsLoadInboxFolio ] = useState(false);
 
 
     useEffect(() => {
@@ -32,13 +33,15 @@ const Inbox = ({selectedComponent, setUnReadMessages}) => {
     }, []);
 
     const openItemInbox = (folio, item) => {
-        console.time('openItemInbox')
+        console.time('openItemInbox');
+        setIsLoadInboxFolio(true)
         socketC.connection.emit('openItemInbox', {
             token : window.localStorage.getItem('sdToken'),
             folio : folio,
             item
         },(data) => {
             toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
+            setIsLoadInboxFolio(false);
             if(!data.success){
                 toast.error(data.message);
                 return false;
@@ -103,7 +106,7 @@ const Inbox = ({selectedComponent, setUnReadMessages}) => {
                                             <Button color='olive' onClick={() => {
                                                 openItemInbox(x.folio, x);
                                                 setUnReadMessages(false)
-                                            }}>Abrir</Button>
+                                            }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Abrir</Button>
                                         </>)
                                     }
                                     

@@ -22,7 +22,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
   const [availableCh, setAvailableCh] = useState(null);
 
-  
+  const [loadPage, setLoadPage] = useState(false);
 
   const hideTools = () => {
     if(toolsOpen){
@@ -61,14 +61,17 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
   useEffect(() => {
     const renderPanesViews = async () => {
+      
       if(!availableCh){
+        setLoadPage(true);
         const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available');
         setAvailableCh(resPlugin.data.plugins);
+        
         window.localStorage.setItem('plugins', JSON.stringify(resPlugin.data.plugins));
       }
       
       let array = listFolios.current.map((x) => {return x.folio._id});
-      
+      setLoadPage(false);
       setCurrentKeysFolios(array);
       const showDefaultTab = 0;
       if(vFolio){
@@ -169,7 +172,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
   return ( <>
     {
-      listFolios.current.length > 0 ? (
+      !loadPage ? (listFolios.current.length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
@@ -177,7 +180,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
             dispatch({type : 'read', folio : currentKeysFolios[activeIndex]})
           }}/>
-        </div>) : getMessageEmpty()
+        </div>) : getMessageEmpty()) : (<div style={{margin : 40}}><Message content='Cargando Página . . .' icon={<Icon loading name='spinner' />}/></div>)
     }
       
   </> );
