@@ -21,8 +21,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
         if(unReadMessages){
             return (
                 <Button icon={<Icon.Group>
-                    <Icon name='inbox' />
-                    <Icon corner name='envelope' color='red'/>
+                    <Icon loading name='envelope' color='red' />
+                   {/* <Icon name='inbox' />*/}
                 </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
             )
         }else{
