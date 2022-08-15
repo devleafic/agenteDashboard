@@ -149,7 +149,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setIsEndingFolio(true);
         let actionClose = '';
         let _channel = fullFolio.folio.channel.title //Para cuando se va a mandar a Inbox
-        let _queue = fullFolio.folio.queue.name //Para cuando se va a mandar a Inbox
+        let _queue = getLabelQueue() //Para cuando se va a mandar a Inbox
         let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
         let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
         if(typeClose === 'guardar'){
@@ -370,8 +370,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
                 <Label>{folio.service.name}</Label>
-                <Label> <Icon name='box' />{folio.channel.title}</Label>
-                <Label> <Icon name='inbox' />{getLabelQueue()}</Label>
+                <Label className='ui tablet computer large monitor only'> <Icon name='box' />{folio.channel.title}</Label>
+                <Label className='ui tablet computer large monitor only'> <Icon name='inbox'/>{getLabelQueue()}</Label>
             </Header>
             
             {
@@ -404,9 +404,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }} />
 
-                        <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        <Button color='blue' content='Enviar' labelPosition='left' icon='paper plane'   onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
+                        <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
+                        <Button  color='blue' basic onClick={prepareMessage} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
 
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
