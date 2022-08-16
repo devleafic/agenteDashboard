@@ -22,9 +22,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             return (
 
                 <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
-                    <Icon name='inbox' />
-                    <Icon corner name='circle' color='red'/>
-                </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null} />
+                    <Icon loading name='envelope' color='red'  />
+                   {/* <Icon name='inbox' />*/}
+                    </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null} />
             )
         }else{
             return <Button disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null}/>
