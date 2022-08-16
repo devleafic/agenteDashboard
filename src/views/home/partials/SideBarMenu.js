@@ -4,7 +4,7 @@ import { Button, Popup, Image, Icon } from 'semantic-ui-react';
 import avatar from './../../../img/ico.png';
 import { Link } from "react-router-dom";
 
-const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMessages}) => {
+const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
 
     const closeSession = () => {
         window.localStorage.removeItem('sdToken');
@@ -20,13 +20,13 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, onConnect, unReadMe
     const getButton = () => {
         if(unReadMessages){
             return (
-                <Button icon={<Icon.Group>
+                <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
                     <Icon name='inbox' />
                     <Icon corner name='circle' color='red'/>
                 </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null} />
             )
         }else{
-            return <Button icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null}/>
+            return <Button disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'teal' : null}/>
         }
         
     }
