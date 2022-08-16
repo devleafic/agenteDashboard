@@ -69,6 +69,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     <Table.HeaderCell>Folio</Table.HeaderCell>
                     <Table.HeaderCell>Item</Table.HeaderCell>
                     <Table.HeaderCell>Identificador</Table.HeaderCell>
+                    <Table.HeaderCell>AliasId</Table.HeaderCell>
                     <Table.HeaderCell>Canal</Table.HeaderCell>
                     <Table.HeaderCell>Queue</Table.HeaderCell>
                     <Table.HeaderCell></Table.HeaderCell>
@@ -105,6 +106,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 <Table.Cell><b className='showLabel'>Folio </b>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio?._id}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Item </b>{x.item}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Identificador </b>{x.anchor}</Table.Cell>
+                                <Table.Cell><b className='showLabel'>Alias </b>{x.aliasUser ? x.aliasUser : "Sin alias"}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Queue </b>{x.queue}</Table.Cell>
                                 <Table.Cell textAlign='right'>

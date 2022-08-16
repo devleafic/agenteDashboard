@@ -151,6 +151,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         let _channel = fullFolio.folio.channel.title //Para cuando se va a mandar a Inbox
         let _queue = getLabelQueue() //Para cuando se va a mandar a Inbox
         let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
+        let _aliasIdPerson = fullFolio.folio.person.aliasId ///Para cuando se va a mandar a Inbox
         let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
         if(typeClose === 'guardar'){
             actionClose = 'save';
@@ -169,6 +170,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             _channel,
             _queue,
             _anchorPerson,
+            _aliasIdPerson,
             _fromInbox
         }, (result) => {
             console.log(result)

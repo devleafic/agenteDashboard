@@ -296,21 +296,26 @@ const Home = () => {
             });
 
             socketC.connection.on('infoAck', (data) => {
-                let msgAck = data.result;
-                
-                let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
-                let copyFolio = listFolios.current[index];
+                try{   
+                    let msgAck = data.result;
+                    
+                    let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
+                    let copyFolio = listFolios.current[index];
 
-                for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
-                    if(copyFolio.folio.message[i]._id === msgAck.message._id){
-                        copyFolio.folio.message[i] = msgAck.message;
-                        break;
+                    for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
+                        if(copyFolio.folio.message[i]._id === msgAck.message._id){
+                            copyFolio.folio.message[i] = msgAck.message;
+                            break;
+                        }
                     }
-                }
-                
-                listFolios.current[index] = copyFolio;
-                setRefresh(Math.random());
-                console.log(data);
+                    
+                    listFolios.current[index] = copyFolio;
+                    setRefresh(Math.random());
+                    console.log(data);
+
+                }catch(err){
+                   console.log(err);
+                };
             });
 
             socketC.connection.on('newMessage', (data) => {
