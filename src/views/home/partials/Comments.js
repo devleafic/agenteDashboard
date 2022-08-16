@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message, Checkbox} from 'semantic-ui-react';
 
 
 import SocketContext from './../../../controladores/SocketContext';
@@ -28,6 +28,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [listClassification, setListClassification] = useState([]);
     const [classification, setClassification] = useState(-1);
     const [formClassification, setFormClassification] = useState({});
+    const [isFolioAttachedAgent, setIsFolioAttachedAgent ] = useState(false); // Para saber si el folio esta asignado a un agente a su Inbox
 
     const [message, setMessage] = useState(null);
     const [isOpenError, setIsOpenError] = useState(false);
@@ -45,7 +46,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         })
 
         setShowResponseTo(message.externalId);
-        setMessageToResponse('Estas respondiendo el mensaje '+ message.content);
+        setMessageToResponse('Respondiendo al mensajes: '+ message.content);
     }
     
     const removeResponseTo = () =>{
@@ -103,7 +104,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             alert('Selecciona una clasificación');
             return false;
         }
-
+       
         let validate;
         if(infoForm){
             let fRequire = infoForm.form.filter((x) => {return x.require});
@@ -147,6 +148,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         setIsEndingFolio(true);
         let actionClose = '';
+        let _channel = fullFolio.folio.channel.title //Para cuando se va a mandar a Inbox
+        let _queue = getLabelQueue() //Para cuando se va a mandar a Inbox
+        let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
+        let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
         if(typeClose === 'guardar'){
             actionClose = 'save';
         }
@@ -159,7 +164,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             token : window.localStorage.getItem('sdToken'),
             actionClose,
             classification,
-            formClassification
+            formClassification,
+            isFolioAttachedAgent,
+            _channel,
+            _queue,
+            _anchorPerson,
+            _fromInbox
         }, (result) => {
             console.log(result)
             if(!result.success){
@@ -179,6 +189,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setOpenModal(false);
             setInfoForm(null);
             setIsEndingFolio(false);
+            setIsFolioAttachedAgent(false);
         });
     }
 
@@ -356,10 +367,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     #{folio._id}
                     <Label.Detail>{folio.person.anchor}</Label.Detail>
                 </Label>
+
                 {folio.isGlobalQueue ? <Label color='blue'><Icon name='globe' style={{marginRight:0}}/></Label> : null}
-                <Label>Servicio : {folio.service.name}</Label>
-                <Label>Canal : {folio.channel.title}</Label>
-                <Label>Queue : {getLabelQueue()}</Label>
+                <Label>{folio.service.name}</Label>
+                <Label className='ui tablet computer large monitor only'> <Icon name='box' />{folio.channel.title}</Label>
+                <Label className='ui tablet computer large monitor only'> <Icon name='inbox'/>{getLabelQueue()}</Label>
             </Header>
             
             {
@@ -377,7 +389,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Finalizar</Button>
+                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
                 ) : (
                     <Form reply style={{textAlign:'right'}}>
@@ -392,11 +404,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             if(e.shiftKey && e.key==='Enter'){prepareMessage()}
                         }} />
 
-                        <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        <Button content='Responder' labelPosition='left' icon='edit' color='green' onClick={prepareMessage} loading={isLoading} disabled={isLoading}/>
+                        <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
+                        <Button  color='blue' basic onClick={prepareMessage} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
+
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+
                     </Form>
                 )
             }
@@ -412,12 +426,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 >
                     <Modal.Header>¿Deseas {typeClose} el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
+                        <div style={{textAlign: 'center', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
+                        </div>
                         Selecciona una clasificación para el folio :
-                        <div style={{marginTop:15}}>
+                        <div style={{marginTop:20}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
                             }}/>
-                            {/* {typeClose === 'guardar' && <label>toggle aqui</label>} */}
                         </div>
                         
                         {infoForm && renderForm(infoForm)}
@@ -442,7 +458,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>

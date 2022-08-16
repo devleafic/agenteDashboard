@@ -32,7 +32,7 @@ const Login = () => {
             window.localStorage.setItem('myName', resLogin.data.body.name);
             return window.location.href = '/';
         }catch(err){
-            setMsgError('Ocurrio un error al intentar iniciar sesión, intente mas tarde.\n'+err.message);
+            setMsgError('Ocurrio un error al intentar iniciar sesión, intente mas tarde.\n\n'+err.message);
             setOnLoading(false);
         }
         
@@ -53,8 +53,9 @@ const Login = () => {
                 <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         <Form size='large' onSubmit={onSubmitForm}>
-                            <Header as='h1'>Inicio de Sesión</Header>
-                            <p>Bienvenido, Ingresa tus credenciales para poder acceder</p>
+                            <Header as='h1'>App Agente - Inbox Central</Header>
+                            <Header as='h4'>Versión {process.env.REACT_APP_SYSTEM_VERSION}</Header>
+                            <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
                                 <p>{msgError}</p>
                             </Message>)}
@@ -75,7 +76,7 @@ const Login = () => {
                                 onChange={(e)=> {setPassword(e.target.value); setMsgError('')}}
                             />
                             
-                            <Button color='blue' fluid size='large' loading={onLoading} disabled={onLoading}>
+                            <Button color='blue' loading={onLoading} disabled={onLoading}>
                                 Iniciar Sesión
                             </Button>
                         </Form>

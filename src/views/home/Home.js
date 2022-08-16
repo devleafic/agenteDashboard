@@ -183,13 +183,14 @@ const Home = () => {
                 token : window.localStorage.getItem('sdToken')
             },async (data) => {
                 if(data.success){
+
                     toast.success('Se ha conectado al servidor correctamente');
 
                     // let pulgins = window.localStorage.getItem('plugins')
                     // let chCall = pulgins.find((x) => {
                     //     return x.id === 'call'
                     // })
-                    
+
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
                         window.localStorage.removeItem('event');
@@ -239,6 +240,7 @@ const Home = () => {
                             console.log('Usuario listo para recibir llamadas');
                             toast.success('Listo para recibir llamadas.');
 
+
                             setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                             CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                             setRefresh(Math.random());
@@ -285,6 +287,7 @@ const Home = () => {
                     }else{
                         setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                         CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
+
                     }
                 }
 
@@ -337,8 +340,8 @@ const Home = () => {
             });
 
             socketC.connection.on('newInbox', (data) => {
-                toast.warning('Nuevo Inbox de '+data.anchor);
-                showMessage('Nuevo Inbox de '+data.anchor);
+                toast.warning('Nuevo Inbox de '+data.aliasId + ' #'+data.anchor);
+                showMessage('Nuevo Inbox de  '+data.aliasId + ' #'+data.anchor);
                 setUnReadMessages(true);
             })
             
@@ -359,7 +362,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             case -1:
                 return 'statusBar';
             case 1:
-                return 'statusBarGreen';
+                return 'statusBarblue';
             case 2:
                 return 'statusBarOff';
             default:
@@ -438,7 +441,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
                 <center>{message}</center>
