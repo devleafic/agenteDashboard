@@ -241,6 +241,8 @@ h2 {
 }
 
 .heightText{height: 100px !important}
+.showLabel{display: none;}
+.showHeader{display: contents !important;}
 
 @media screen and (max-width: 1030px) {
   .heightText{height: 70px !important;margin-bottom:10px ;}
@@ -251,6 +253,8 @@ h2 {
   body {
     margin: 0 0.5rem;
   }
+  .showLabel{display :block;}
+  .showHeader{display: none !important;}
 
   .container {
     padding: 0.5rem;

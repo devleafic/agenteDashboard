@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 // import ClassificationForm from './Classification.From';
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, refresh, vFolio, countunReadMsg, dispatchCount}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);

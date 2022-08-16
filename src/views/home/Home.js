@@ -87,6 +87,8 @@ const Home = () => {
     const [phoneNumber, setPhoneNumber] = useState(null);
     const [openInComingCall, setOpenInComingCall] = useState(false);
     const [unReadMessages, setUnReadMessages] = useState(false);
+
+    const [vFolio, setVFolio] = useState(null);
     
 
     const CallController = {
@@ -420,10 +422,10 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
         <div className='contentDashboard'>
             <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
             {
-                component.home && <HomeViewer dispatch={dispatch} countunReadMsg={countunReadMsg} dispatchCount={dispatchCount} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
+                component.home && <HomeViewer vFolio={vFolio} setVFolio={setVFolio} dispatch={dispatch} countunReadMsg={countunReadMsg} dispatchCount={dispatchCount} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
             }
             {
-                component.inbox && <Inbox show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
+                component.inbox && <Inbox vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
         </div>
         

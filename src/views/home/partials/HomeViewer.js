@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount}) => {
+const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio}) => {
   
   const boxMessage = useRef();
   const listFolios = useContext(ListFoliosContext);
@@ -16,7 +16,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const [currentTab, setCurrentTab ] = useState(0);
 
   const [currentKeysFolios, setCurrentKeysFolios] = useState(null);
-  const [vFolio, setVFolio] = useState(null);
+  // const [vFolio, setVFolio] = useState(null);
   
   const [toolsOpen, setToolsOpen] = useState(true);
   const [sizeCols, setSizeCols ] = useState({a:12,b:4});
