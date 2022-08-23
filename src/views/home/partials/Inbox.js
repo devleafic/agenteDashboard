@@ -71,7 +71,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     <Table.HeaderCell>Identificador</Table.HeaderCell>
                     <Table.HeaderCell>AliasId</Table.HeaderCell>
                     <Table.HeaderCell>Canal</Table.HeaderCell>
-                    <Table.HeaderCell>Queue</Table.HeaderCell>
+                    <Table.HeaderCell>Bandeja</Table.HeaderCell>
+                    <Table.HeaderCell>Transferido Por</Table.HeaderCell>
                     <Table.HeaderCell></Table.HeaderCell>
                 </Table.Row>
             </Table.Header>
@@ -108,7 +109,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 <Table.Cell><b className='showLabel'>Identificador </b>{x.anchor}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Alias </b>{x.aliasUser ? x.aliasUser : "Sin alias"}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Queue </b>{x.queue}</Table.Cell>
+                                <Table.Cell><b className='showLabel'>Bandeja </b>{x.queue}</Table.Cell>
+                                <Table.Cell><b className='showLabel'>Transferido Por</b>{x.userFromName && x.transferDate? x.userFromName + ' - ' + x.transferDate : "N/A"}</Table.Cell>
                                 <Table.Cell textAlign='right'>
                                     {
                                         x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>

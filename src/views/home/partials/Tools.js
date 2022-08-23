@@ -12,9 +12,10 @@ import ViewTicket from './ViewTicket';
 import FindTicket from './FindTicket';
 import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
+import TransferFolioPrivado from './TranferirFolioPrivado';
 
 const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
-
+    const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
@@ -159,11 +160,11 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 Historial de Folios
             </Accordion.Title>
             <Accordion.Content active={indexPane === 5}>
-                < HistoryFolios historyFolios={historyFolios}/>
+                < HistoryFolios historyFolios={historyFoliosReverse}/>
             </Accordion.Content>
-            {/* ------------ */}
+            {/* ------------ transferencia Folio */}
             {
-                folio && (<>
+                folio  && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
                     <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
                         <Icon name='exchange' />
                         Transferir Folio
@@ -175,7 +176,22 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             }
             
             {/* ------------ */}
+             {/* ------------ transferencia folio privado */}
+             {
+                folio  && folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={7} active={indexPane === 7} onClick={openPane}>
+                        <Icon name='comment outline' />
+                        Transferir Conversación Privada 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 7}>
+                        <TransferFolioPrivado folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            
+            {/* ------------ */}           
             {
+                
                 folio && folio.folio.channel !== 'call' && (<>
                     <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
                         <Icon name='folder open outline' />
