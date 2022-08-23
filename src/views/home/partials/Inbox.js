@@ -1,7 +1,10 @@
 import React, {useEffect, useContext, useState} from 'react';
-import { Container, Table, Label, Header, Icon, Button } from 'semantic-ui-react';
+import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, List } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
+
+import shortParagraph from './../../../img/short-paragraph.png';
+import MessageBubble from './MessageBubble';
 
 const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     const socketC = useContext(SocketContext);
@@ -10,6 +13,29 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
     const [isLoadInboxFolio, setIsLoadInboxFolio ] = useState({});
 
+    //preview modal 
+    const [openModal, setOpenModal] = useState(false);
+    const [titleModal, setTitleModal ] = useState('');
+    const [contentMessage, setContentMessage] = useState(
+        <Segment>
+            <Dimmer active inverted>
+                <Loader inverted>Cargando</Loader>
+            </Dimmer>
+
+            <Image src={shortParagraph} />
+        </Segment>
+    );
+
+    const initLoadModal = () => { //reset values for Modal 
+        setOpenModal(!openModal)
+        setContentMessage(<Segment>
+            <Dimmer active inverted>
+                <Loader inverted>Cargando</Loader>
+            </Dimmer>
+
+            <Image src={shortParagraph} />
+        </Segment>)
+    }
 
     useEffect(() => {
         const loadInbox = () => {
@@ -57,7 +83,28 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             console.timeEnd('openItemInbox')
         });
     }
+    const getFolioMessages = (folio) => {
+        setTitleModal('Vista Previa #'+folio)
+        setOpenModal(!openModal);
 
+        socketC.connection.emit('getMessageHist', {folio}, (res) => {
+            if(res.success){
+                setContentMessage(
+                    <div className='imessage'>
+                        {
+                            res.folio.message.map((msg) => {
+                                return (
+                                    <MessageBubble key={msg._id} message={msg}/>
+                                );
+                            })
+                        }
+                    </div> 
+                )
+            }else{
+
+            }
+        })
+    }
     return ( <div style={{margin : 40}}>
         <Header as='h2'>
             <Icon name='inbox' />
@@ -67,13 +114,14 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             <Table.Header className='showHeader'>
                 <Table.Row >
                     <Table.HeaderCell>Folio</Table.HeaderCell>
-                    <Table.HeaderCell>Item</Table.HeaderCell>
+                    {/*<Table.HeaderCell>Item</Table.HeaderCell> */}
                     <Table.HeaderCell>Identificador</Table.HeaderCell>
                     <Table.HeaderCell>AliasId</Table.HeaderCell>
                     <Table.HeaderCell>Canal</Table.HeaderCell>
                     <Table.HeaderCell>Bandeja</Table.HeaderCell>
                     <Table.HeaderCell>Transferido Por</Table.HeaderCell>
                     <Table.HeaderCell></Table.HeaderCell>
+                    <Table.HeaderCell></Table.HeaderCell>                    
                 </Table.Row>
             </Table.Header>
 
@@ -105,7 +153,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         return (
                             <Table.Row key={x._id}>
                                 <Table.Cell><b className='showLabel'>Folio </b>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio?._id}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Item </b>{x.item}</Table.Cell>
+                               {/* <Table.Cell><b className='showLabel'>Item </b>{x.item}</Table.Cell> */}
                                 <Table.Cell><b className='showLabel'>Identificador </b>{x.anchor}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Alias </b>{x.aliasUser ? x.aliasUser : "Sin alias"}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
@@ -114,23 +162,41 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 <Table.Cell textAlign='right'>
                                     {
                                         x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
-                                            <Button color='olive' onClick={() => {
+                                            <Button circular color='facebook' icon='folder open outline' onClick={() => {
                                                 openItemInbox(x.folio, x);
                                                 setUnReadMessages(false)
                                                 setIsLoadInboxFolio({...isLoadInboxFolio, [x.folio._id] : true});
-                                            }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}>Abrir</Button>
+                                            }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}></Button>
                                         </>)
                                     }
                                     
                                 </Table.Cell>
+                                <Table.Cell textAlign='right' key={'hs-'+x.folio._id} >
+                                    {
+                                            <Button  key={'hs-'+x.folio._id} href='#' circular color='facebook' icon='eye' onClick={() => {
+                                                getFolioMessages(x.folio._id)
+                                            }} ></Button>
+                                    }
+                                </Table.Cell>                               
                             </Table.Row>
                         )
                     })
                 }
             </Table.Body>
         </Table>
-        
+        <Modal
+            onClose={() => initLoadModal()}
+            open={openModal}
+            header={titleModal}
+            scrolling
+            content={contentMessage}
+            actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> {initLoadModal()}}]}
+            />  
     </div> );
+
+
+
+
 }
  
 export default Inbox;
