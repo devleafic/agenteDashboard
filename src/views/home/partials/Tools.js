@@ -13,6 +13,8 @@ import FindTicket from './FindTicket';
 import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
 import TransferFolioPrivado from './TranferirFolioPrivado';
+import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
+import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
 
 const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
@@ -164,7 +166,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             </Accordion.Content>
             {/* ------------ transferencia Folio */}
             {
-                folio  && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                folio  && !folio.folio.fromInbox  && !folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
                     <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
                         <Icon name='exchange' />
                         Transferir Folio
@@ -174,10 +176,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </>)
             }
-            
             {/* ------------ */}
-             {/* ------------ transferencia folio privado */}
-             {
+            {/* ------------ transferencia folio privado */}
+            {
                 folio  && folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
                     <Accordion.Title index={7} active={indexPane === 7} onClick={openPane}>
                         <Icon name='comment outline' />
@@ -188,8 +189,34 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </>)
             }
-            
-            {/* ------------ */}           
+            {/* ------------ */}  
+            {/* ------------ transferencia folio en queue global */}
+            {
+                folio  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={8} active={indexPane === 8} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja Global
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 8}>
+                        <TransferFolioQueueGlobal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ transferencia Folio */}
+            {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={9} active={indexPane === 9} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja de Canal 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 9}>
+                        <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+       
+            {/* ------------ */}                
             {
                 
                 folio && folio.folio.channel !== 'call' && (<>
