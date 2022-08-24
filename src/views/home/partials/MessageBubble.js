@@ -19,6 +19,10 @@ const Message = ({message, responseToMessage, allMsg}) => {
     }
 
     const getResponseTo = (id) => {
+        if (!allMsg) {
+            let nocontent = "El mensaje referenciado no se pudo recuperar o no se encuentra e el folio en curso"
+            return    <Label style={{background : '#0b93f6'}}>{nocontent}</Label> 
+        }
         let originaMsg = allMsg.find((x) => {
             return x.externalId === id;
         })
@@ -46,6 +50,10 @@ const Message = ({message, responseToMessage, allMsg}) => {
 
     const getResponseFrom = (id) => {
         console.log(id)
+        if (!allMsg) {
+            let nocontent = "El mensaje referenciado no se pudo recuperar o no se encuentra e el folio en curso"
+            return    <Label style={{background : '#0b93f6'}}>{nocontent}</Label> 
+        }        
         let originaMsg = allMsg.find((x) => {
             return x.externalId === id;
         })
@@ -65,7 +73,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
                 case 'document':
                     return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
                 case 'location':
-                    const apikeyMAP = process.env.MAPS_APIKEY;
+                    const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                     return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
                 }
         }
