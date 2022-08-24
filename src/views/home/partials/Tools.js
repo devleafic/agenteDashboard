@@ -179,7 +179,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {/* ------------ */}
             {/* ------------ transferencia folio privado */}
             {
-                folio  && folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                folio  && folio.folio.fromInbox && folio.folio.channel  !== 'call' &&  (<>
                     <Accordion.Title index={7} active={indexPane === 7} onClick={openPane}>
                         <Icon name='comment outline' />
                         Transferir Conversación Privada 
@@ -192,7 +192,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {/* ------------ */}  
             {/* ------------ transferencia folio en queue global */}
             {
-                folio  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                folio  && folio.folio.isGlobalQueue && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
                     <Accordion.Title index={8} active={indexPane === 8} onClick={openPane}>
                         <Icon name='exchange' />
                         Transferir a Bandeja Global
