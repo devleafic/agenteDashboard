@@ -14,7 +14,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
 
     const clearQueues = folio.folio.channel.queues.filter((x) => {
-        return userInfo.service.queue === x._id ? false : true;
+        return x.status == 0 || userInfo.service.queue === x._id ? false : true;
     });
     const [queues] = useState(clearQueues);
     const initializeQueue = {queue:null, name: null, folio : folio.folio._id};
