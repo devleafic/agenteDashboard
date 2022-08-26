@@ -109,7 +109,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
             let agentName = agents.find((x) => {
                 return x._id === value;
             })
-            setAgentToSend({...agentToSend, agent : value, name : agentName.user})
+            setAgentToSend({...agentToSend, agent : value, name : agentName.user, folio : folio.folio._id })
             
         }} disabled={agents.length <= 0}/>
         <div style={{marginTop:15}}>

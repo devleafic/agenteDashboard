@@ -90,7 +90,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
             let queueName = queues.find((x) => {
                 return x._id === value;
             })
-            setQueueToSend({...queueToSend, queue : value, name : queueName.name})
+            setQueueToSend({...queueToSend, queue : value, name : queueName.name, folio : folio.folio._id})
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
