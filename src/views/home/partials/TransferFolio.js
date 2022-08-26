@@ -8,7 +8,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 
 const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
-    
+
 
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
@@ -22,6 +22,16 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     const [errorQueueField, setErrorQueueField] = useState(false);
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
+
+    console.log(queueToSend)
+
+    const initLoadModal = () => { //reset values for Modal 
+        console.log(queueToSend)
+        setOpen(!open)
+        setQueueToSend(initializeQueue);
+        console.log(queueToSend)
+    }
+
 
     const checkToSend = () => {
 
@@ -38,9 +48,10 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
         setOnLoading(true);
 
         let actionClose = 'transfer';
-
+        console.log("transferfolio " +folio.folio._id)
+        console.log("transferir folio " +queueToSend.folio)
         socket.connection.emit('transferFolio', {
-            folio : folio._id,
+            folio : folio.folio._id,
             token : window.localStorage.getItem('sdToken'),
             actionClose,
             dataQueue : queueToSend
@@ -50,7 +61,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 toast.error(result.message);
 
             }else{
-                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id})
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id})
                 listFolios.current.splice(index,1);
             }
 
@@ -62,7 +73,10 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(() => {console.log('refrescando componente de transferir')},[])
+    useEffect(() => {
+        setQueueToSend(initializeQueue);
+        console.log('refrescando componente de transferir')},
+    [folio])
 
     return ( <>
         {
@@ -85,6 +99,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
         <Modal
             basic
+            onClose={() => initLoadModal()}
             onOpen={() => setOpen(true)}
             open={open}
             size='small'
@@ -99,7 +114,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 </center>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setOpen(false); }} loading={onLoading} disabled={onLoading}>
+                <Button basic color='red' inverted onClick={() => initLoadModal()}   loading={onLoading} disabled={onLoading}>
                     <Icon name='remove' /> No
                 </Button>
                 <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>

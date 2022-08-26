@@ -12,6 +12,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
     const [agents, setAgents] = useState([]);
     const [agentList, setAgentList ] = useState([]);
     const [isLoadAgentList, setIsLoadAgentList] = useState(false);
+    const initializeQueue = {agent:null, name: null, folio : null};
     
     useEffect(() => {
         const loadAgentList = () => {
@@ -34,11 +35,17 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
         return loadAgentList();
     }, []); //si es arreglo, solo lo ejectuta cuando carga el componente la primera vez
 
-
-
-    const [agentToSend, setAgentToSend ] = useState({agent:null, name: null, folio : folio.folio._id});
+    const [agentToSend, setAgentToSend ] = useState({agent:null, name: null, folio : null});
     const [errorAgentField, setErrorAgentField] = useState(false);
    
+    const initLoadModal = () => { //reset values for Modal 
+        console.log(agentToSend)
+        setOpen(!open)
+        setAgentToSend(initializeQueue);
+        console.log(agentToSend)
+    }
+
+
     /*const [queueToSend, setQueueToSend ] = useState({queue:null, name: null, folio : folio.folio._id});
     const [errorQueueField, setErrorQueueField] = useState(false);*/
     const [open,setOpen] = useState(false);
@@ -62,7 +69,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
         let actionClose = 'transfer';
 
         socket.connection.emit('transferFolioPrivate', {
-            folio : folio._id,
+            folio : folio.folio._id,
             token : window.localStorage.getItem('sdToken'),
             actionClose,
             dataAgent : agentToSend,
@@ -73,7 +80,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
                 toast.error(result.message);
 
             }else{
-                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id})
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id})
                 listFolios.current.splice(index,1);
             }
 
@@ -85,7 +92,10 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(() => {console.log('refrescando componente de transferir')},[])
+    useEffect(() => {
+        setAgentToSend(initializeQueue);
+        console.log('refrescando componente de transferir')},
+    [folio])
 
     return ( <>
         {
@@ -108,6 +118,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
 
         <Modal
             basic
+            onClose={() => initLoadModal()}
             onOpen={() => setOpen(true)}
             open={open}
             size='small'
@@ -122,7 +133,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
                 </center>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setOpen(false); }} loading={onLoading} disabled={onLoading}>
+                <Button basic color='red' inverted onClick={() => initLoadModal()}  loading={onLoading} disabled={onLoading}>
                     <Icon name='remove' /> No
                 </Button>
                 <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>

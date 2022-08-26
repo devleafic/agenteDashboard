@@ -222,7 +222,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
         listFolios.currentBox = boxMessage.current;
         return loadListClassifications();
-    }, []);
+    }, [folio]);
 
     const getLabelQueue = () => {
 
