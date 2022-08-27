@@ -131,6 +131,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       setRefresh={setRefresh}
                       historyFolios={item.historyFolios}
                       userInfo={userInfo}
+                      mtm={item.mtm}
                     />
               </Grid.Column>
              </Grid>

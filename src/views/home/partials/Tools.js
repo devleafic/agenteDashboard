@@ -15,8 +15,9 @@ import TransferFolio from './TransferFolio';
 import TransferFolioPrivado from './TranferirFolioPrivado';
 import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
 import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
+import Mtm from './Mtm'
 
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm}) => {
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(1);
     const socket = useContext(SocketContext);
@@ -164,6 +165,37 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             <Accordion.Content active={indexPane === 5}>
                 < HistoryFolios historyFolios={historyFoliosReverse}/>
             </Accordion.Content>
+            {/* ------------ */}
+            <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
+                <Icon name='file alternate' />
+                Plantillas de mensajes
+            </Accordion.Title>
+            <Accordion.Content active={indexPane === 10}>
+                < Mtm mtm={mtm}/>
+            </Accordion.Content>      
+            {/* ------------ */}  
+            {
+                folio && folio.folio.channel !== 'call' && (<>
+                    <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
+                        <Icon name='edit' />
+                        Respuestas Rápidas
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 2}>
+                        <div style={{margin:5, marginBottom : 20}}>
+                            <Input placeholder='Buscar' fluid onChange={(e) => {findQA(e.target.value)}} action={{ icon: 'close', onClick : () => {findQA(''); setTextFilter('')} }} value={textFilter}/>
+                        </div>
+                        <div style={{height:250, overflowY:'scroll'}}>
+                        {
+                            allQA.map((item) => {
+                                return <div><a key={item._id} href='#' onClick={e => {
+                                    setMessageToSend(item.text);
+                                }}>{item.text}</a><Divider/></div>
+                            })
+                        }
+                        </div>
+                    </Accordion.Content>
+                </>)
+            }
             {/* ------------ transferencia Folio */}
             {
                 folio  && !folio.folio.fromInbox  && !folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
@@ -217,31 +249,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {/* ------------ */}
        
             {/* ------------ */}                
-            {
-                
-                folio && folio.folio.channel !== 'call' && (<>
-                    <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
-                        <Icon name='folder open outline' />
-                        Respuestas Rápidas
-                    </Accordion.Title>
-                    <Accordion.Content active={indexPane === 2}>
-                        <div style={{margin:5, marginBottom : 20}}>
-                            <Input placeholder='Buscar' fluid onChange={(e) => {findQA(e.target.value)}} action={{ icon: 'close', onClick : () => {findQA(''); setTextFilter('')} }} value={textFilter}/>
-                        </div>
-                        <div style={{height:250, overflowY:'scroll'}}>
-                        {
-                            allQA.map((item) => {
-                                return <div><a key={item._id} href='#' onClick={e => {
-                                    setMessageToSend(item.text);
-                                }}>{item.text}</a><Divider/></div>
-                            })
-                        }
-                        </div>
-                    </Accordion.Content>
-                </>)
-            }
-            
-            {/* ------------ */}
+
             <Accordion.Title index={3} active={indexPane === 3} onClick={openPane}>
                 <Icon name='ticket' />
                 Tickets
@@ -264,11 +272,11 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {/* ------------ */}
             <Accordion.Title index={4} active={indexPane === 4} onClick={openPane}>
                 <Icon name='cloud' />
-                Archivos en la nube
+               Catalogo de archivos
             </Accordion.Title>
             <Accordion.Content active={indexPane === 4}>
                 <p>
-                    Aun no hay archivos.
+                    Aun no hay archivos. Solicita a tu supervisor.
                 </p>
             </Accordion.Content>
 
