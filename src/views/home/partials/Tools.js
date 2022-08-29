@@ -167,11 +167,11 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             </Accordion.Content>
             {/* ------------ */}
             <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
-                <Icon name='file alternate' />
+                <Icon name='paste' />
                 Plantillas de mensajes
             </Accordion.Title>
             <Accordion.Content active={indexPane === 10}>
-                < Mtm mtm={mtm}/>
+                < Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio}/>
             </Accordion.Content>      
             {/* ------------ */}  
             {
