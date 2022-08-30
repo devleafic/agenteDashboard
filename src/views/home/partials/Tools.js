@@ -15,7 +15,7 @@ import TransferFolio from './TransferFolio';
 
 const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
 
-    const [indexPane, setIndexPane] = useState(1);
+    const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
     const listFolios = useContext(ListFoliosContext);
@@ -70,7 +70,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     }
 
     const openPane = (e, {index}) => {
-        setIndexPane(index)
+        let newIndex = indexPane === index ? -1 : index;
+        setIndexPane(newIndex)
+        
     }
 
     const createTicket = () => {
