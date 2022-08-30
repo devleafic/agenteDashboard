@@ -88,7 +88,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
             case 'text':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
             case 'mtm':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content} {caption && <p >{caption}</p>}</div>);                
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':
                 return (<a target='blank' href={content}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
@@ -135,7 +135,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
             <div style={{float:'right'}}>
                 <p className='from-me'>{convertContent(message)}</p>
             </div>
-        </div>
+        </div> 
         <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getAck(message.ack)}<br/> {getNameAuthor(message.origin)}</p>
         </>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)}</p>

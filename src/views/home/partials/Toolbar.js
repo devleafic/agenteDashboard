@@ -1,9 +1,10 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment } from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image } from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
+import avatar from './../../../img/avatars/matt.jpg';
 
 const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
 
@@ -16,7 +17,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [fullActivities, setFullActivities ] = useState([]);
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
-
+    const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
+   
     const iniatilaze = {
         anchor : null,
         channel : null,
@@ -42,7 +44,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         if(isConnected === -1){
             return false
         }
-
         const value = !isInbound;
         setIsUnbound(value);
         toast.success('Se cambio el tipo de conexión a '+(isInbound ? 'Outbound' : 'Inbound'));
@@ -104,7 +105,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setListFilesOubounds(tmpList);
             
         }
-
         
 
     },[isInbound]);
@@ -136,8 +136,11 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setFullActivities(acti);
             setActivities(toActivities);
         }
-        if(userInfo)
+        if(userInfo){
+            setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
+            console.log(userDetail)
             loadActivities();
+        }
     }, [isReady]);
 
     const requestItemList = async (e, {value}) => {
@@ -182,8 +185,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
 
     //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
-        <div className="toolbar" style={{textAlign:'right'}}>
-            {
+        <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}}>
+             {
                 isReady && !isInbound && (<><Dropdown
                     button
                     className='icon'
@@ -199,7 +202,9 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             {
                 !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='blue' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
             }
+            
             {
+                
                 isReady && (
                     <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
                         <option value={-1} selected={currentActivity === -1}>Selecciona una actividad</option>
@@ -209,6 +214,21 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                     </select>
                 )
             }
+            {
+
+            isReady && (
+
+
+                    <Popup href="#"
+                    content={userDetail.prefetch}
+                    key={userDetail.name}
+                    header={userDetail.name}
+                    trigger={<Image src={avatar} avatar />}
+                    />
+
+
+            )
+            }   
                 
             {
                 showBlankFolio && infoBlankFolio && (<>

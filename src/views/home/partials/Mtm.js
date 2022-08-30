@@ -9,14 +9,14 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 
 const Mtm = ({mtm, person, setRefresh, folio}) => {
 
-    const initializeMtmToSend= {...mtmToSend, _id : null, name: null, locale: null, service :null, channel :null };
+    const initializeMtmToSend= {...mtmToSend, _id : null, name: null, text : null, locale: null, service :null, channel :null };
     const [openModal, setOpenModal] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
     const [onLoading, setOnLoading] = useState(false);
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
-    const [mtmToSend, setMtmToSend] = useState({_id: null, name: null, locale : null, service : null, channel: null});
+    const [mtmToSend, setMtmToSend] = useState({_id: null, name: null, text : null, locale : null, service : null, channel: null});
 
     const initLoadModal = () => { //reset values for Modal 
         setOpenModal(!openModal);
@@ -30,11 +30,11 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
 
         socket.connection.emit('getMtmDetail', {mtm}, (res) => {
             if(res.success){
-                setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel })
+                setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, text : res.mtm.previewtxt, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel })
                 setContentMessage(
                     <div>
                         {
-                            <Label as='a' color='blue'  pointing='below' >{res.mtm.previewtxt}</Label>
+                            <Label size='big' as='a' color='blue'  pointing='below' >{res.mtm.previewtxt}</Label>
                         }
                     </div> 
                 )
@@ -56,7 +56,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             token : window.localStorage.getItem('sdToken'),
             folio :  folio.folio._id,
             message : mtm.name,
-            caption : mtm.previewtxt,
+            caption : mtm.text,
             responseTo : null,
             locale :  mtm.locale,
             class : 'mtm'
@@ -96,20 +96,20 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             <List >
                 {
                     mtm.map((item) => {
-                        return (<List.Item key={'mtm-'+item._id} href='#' onClick={(e) => {getMtm(item._id);}} title={item.name}>{item.name}</List.Item>);
+                        return (<List.Item key={'mtm-'+item._id} href='#' onClick={(e) => {getMtm(item._id);}} title={item.previewtxt}>{item.name}</List.Item>);
                     })
                 }
             </List>
         </div>
         <Modal
-            
+            basic
             onClose={() => initLoadModal()}
             onOpen={() => setOpenModal(true)}
             open={openModal}
             size='small'
             >
             <Header icon>
-                <Icon name='paste' />
+                <Icon name='paper plane' />
                 Enviar Plantilla
             </Header>
             <Modal.Content>
@@ -123,7 +123,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
                     <Icon name='remove' /> No
                 </Button>
                 <Button color='blue' inverted onClick={() => execSendMtm(mtmToSend)} loading={onLoading} disabled={onLoading}>
-                    <Icon name='checkmark' /> Enviar
+                    <Icon name='paper plane' /> Enviar
                 </Button>
             </Modal.Actions>
             </Modal>

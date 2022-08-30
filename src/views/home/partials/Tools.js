@@ -157,6 +157,15 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
                 
             </Accordion.Content>
+            {/* ------------ */}             
+            <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
+                <Icon name='paper plane' />
+                Plantillas de mensajes
+            </Accordion.Title>
+            <Accordion.Content active={indexPane === 10}>
+                < Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio}/>
+            </Accordion.Content>      
+           
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
                 <Icon name='archive' />
@@ -166,14 +175,6 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 < HistoryFolios historyFolios={historyFoliosReverse}/>
             </Accordion.Content>
             {/* ------------ */}
-            <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
-                <Icon name='paste' />
-                Plantillas de mensajes
-            </Accordion.Title>
-            <Accordion.Content active={indexPane === 10}>
-                < Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio}/>
-            </Accordion.Content>      
-            {/* ------------ */}  
             {
                 folio && folio.folio.channel !== 'call' && (<>
                     <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
