@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image } from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Label } from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
@@ -185,7 +185,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
 
     //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
-        <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}}>
+        <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
              {
                 isReady && !isInbound && (<><Dropdown
                     button
