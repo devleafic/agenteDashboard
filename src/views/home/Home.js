@@ -128,7 +128,12 @@ const Home = () => {
             console.log('Es un mobile');
             return false;
         }
-        Notification.requestPermission();
+        try {
+            Notification.requestPermission();
+        }catch(err){
+            console.log(err)
+            return false
+        }
     }
 
     const showMessage = (message, ignore) => {
@@ -138,9 +143,14 @@ const Home = () => {
         }
         //console.log('------------',window.localStorage.getItem('tabIsActive'));
         if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
-        var notification = new Notification(message);
-        //console.log('se envió el mensaje al navegador '+ message)
-        notification.onclick = function(){window.focus();this.close();}
+        try {
+            var notification = new Notification(message);
+            //console.log('se envió el mensaje al navegador '+ message)
+            notification.onclick = function(){window.focus();this.close();}
+        }catch(err){
+            console.log(err)
+            return false
+        }
     }
 
     const SocketActions = {
