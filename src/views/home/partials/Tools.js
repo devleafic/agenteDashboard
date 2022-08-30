@@ -17,11 +17,9 @@ import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
 import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
 import Mtm from './Mtm'
 
-
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
-    const [indexPane, setIndexPane] = useState(-1);
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm}) => {
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
-
+    const [indexPane, setIndexPane] = useState(1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
     const listFolios = useContext(ListFoliosContext);
@@ -76,9 +74,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     }
 
     const openPane = (e, {index}) => {
-        let newIndex = indexPane === index ? -1 : index;
-        setIndexPane(newIndex)
-        
+        setIndexPane(index)
     }
 
     const createTicket = () => {
