@@ -16,6 +16,7 @@ import CallContext from '../../controladores/CallContext';
 import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 import { off } from 'process';
+import Contacts from './partials/Contacts';
 
 window.mobileAndTabletCheck = function() {
     let check = false;
@@ -27,7 +28,8 @@ const Home = () => {
         
     const initializeComponent = {
         home : false,
-        Inbox : false
+        Inbox : false,
+        contacts :  false
     };
 
     function reducer(state, action) {
@@ -445,6 +447,9 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             {
                 component.inbox && <Inbox  vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
+            {
+                component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
+            }            
         </div>
         
 
