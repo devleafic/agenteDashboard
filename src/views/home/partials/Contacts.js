@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, List } from 'semantic-ui-react';
+import { Input, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Menu } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 
@@ -113,6 +113,27 @@ const Contacts = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => 
             <Icon name='address card' />
             <Header.Content>Contactos</Header.Content>
         </Header>
+        <Menu secondary>
+            <Menu.Item>
+                    <h1 style={{fontWeight:100}}>Opciones</h1>
+            </Menu.Item>
+            <Menu.Item>  
+                 <div style={{marginLeft:20}}>
+                    <Button onClick={e=> {}} animated='vertical'  >
+                        <Button.Content hidden>Nuevo</Button.Content>
+                        <Button.Content visible>
+                            <Icon name='plus' />
+                        </Button.Content>
+                    </Button>
+                </div>
+
+            </Menu.Item>
+            <Menu.Menu position='right'>
+                <Menu.Item>
+                    <Input icon='search' placeholder='Buscar...' />
+                </Menu.Item>
+            </Menu.Menu>
+        </Menu>        
         <Table singleLine color='blue'>
             <Table.Header className='showHeader'>
                 <Table.Row >
@@ -144,7 +165,7 @@ const Contacts = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => 
                         <Table.Row warning={true}>
                             <Table.Cell collapsing={true} colSpan={6}>
                                 <Icon name='mail id card'/>
-                                Este modulo se encuentra en construcción
+                                Este modulo se encuentra en actualizacion, estará disponible en las proximas horas. 
                             </Table.Cell>
                         </Table.Row>
                     )

@@ -35,6 +35,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 }
             case 'contacts':
                 return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
+            case 'calendar':
+                return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
         }
     }
 
@@ -64,6 +66,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 </div>
                 <div className='mb-3'>
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
+                </div>
+                <div className='mb-3'>
+                    <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>
                 </div>
                 {/* <div className='mb-3'>
                     <Popup content='Informes' trigger={<Button icon='chart bar' onClick={() => selectedComponent('reports')} color={page === 'reports' ? 'blue' : null}/>} position='right center'/>

@@ -80,7 +80,15 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
         setMtmToSend(initializeMtmToSend)
         setOnLoading(false);
         //});
+        toast.info('Enviando Plantilla... 📨', {
 
+            position: "bottom-left",
+            autoClose: 2700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: false
+            });
     }
     
     useEffect(() => {
