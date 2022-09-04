@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, List } from 'semantic-ui-react';
+import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 
@@ -106,10 +106,12 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         })
     }
     return ( <div style={{margin : 40}}>
-        <Header as='h2'>
-            <Icon name='inbox' />
-            <Header.Content>Inbox</Header.Content>
-        </Header>
+        <Message
+            attached
+            icon="inbox"
+            header='Inbox'
+            content='Selecciona uno contacto para continuar con la conversación.'
+        />
         <Table singleLine color='blue'>
             <Table.Header className='showHeader'>
                 <Table.Row >

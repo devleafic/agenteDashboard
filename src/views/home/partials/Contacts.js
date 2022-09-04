@@ -1,20 +1,24 @@
-import React, {useEffect, useContext, useState} from 'react';
-import { Input, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Menu } from 'semantic-ui-react';
-import SocketContext from '../../../controladores/SocketContext';
-import { toast } from 'react-toastify';
-
 import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
+import React, {useContext, useState, useEffect} from 'react';
+import axios from 'axios';
+import { Button, Form,  Message, Label, Table, Menu, Icon, Header, Pagination, Input, Segment , Dimmer, Loader, Image, Socket, Modal } from 'semantic-ui-react';
+import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
+import moment from 'moment';
+import { toast } from 'react-toastify';
+import SocketContext from '../../../controladores/SocketContext';
 
-const Contacts = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
-    const socketC = useContext(SocketContext);
-    const [inboxes, setInboxes ] = useState([]);
-    const [isLoadInbox, setIsLoadInbox ] = useState(false);
+const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, userInfo}) => {
+    //console.log(userInfo)
+    //const {serviceId} = useParams();
+    const Socket = useContext(SocketContext);
+    const [report,setReport] = useState(null);
+    const [onLoad, setOnLoad] = useState(false);
+    const [numRows, setNumRows] = useState(10);
+    const [currentPag, setCurrentPag] = useState(1)
+    const [showRows,setShowRows] = useState([]);
+    const [query, setQuery] = useState("");
 
-    const [isLoadInboxFolio, setIsLoadInboxFolio ] = useState({});
-
-    //preview modal 
-    const [openModal, setOpenModal] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(
         <Segment>
@@ -24,73 +28,69 @@ const Contacts = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => 
 
             <Image src={shortParagraph} />
         </Segment>
-    );
+    );    
+    const [open,setOpen] = useState(false);
+    const [onLoading, setOnLoading] = useState(false);
+   
+    const onContactJSON = async (e) => {
 
-    const initLoadModal = () => { //reset values for Modal 
-        setOpenModal(!openModal)
-        setContentMessage(<Segment>
-            <Dimmer active inverted>
-                <Loader inverted>Cargando</Loader>
-            </Dimmer>
+        setReport(null);
+        setOnLoad(true);
+        setShowRows([]);
+        let serviceId = userInfo.service.id
+        const result = await axios.get(process.env.REACT_APP_CENTRALITA+'/searchData/json/'+serviceId,{
+            params : {
+                typeReport : 'r_crmData',
+                query : ''
+               // startDate : '2022-08-02',
+               // endDate : '2022-09-02'
+            }
+        });
+        setOnLoad(false);
+        setReport(result.data.report);
+        setShowRows(result.data.report.result.slice(0,numRows))
+    }
+    
+    const changePage = (e, { activePage, preNumRows }) => {
+        var toShow = [];
+        const nr = preNumRows ? preNumRows : numRows;
 
-            <Image src={shortParagraph} />
-        </Segment>)
+        if(activePage<=1){toShow = report.result.slice(0, nr)}
+        if(activePage>1){
+            toShow = report.result.slice(((nr*(activePage-1))),(activePage*nr))
+        }
+        setShowRows(toShow)
     }
 
     useEffect(() => {
-        const loadInbox = () => {
-            setIsLoadInbox(false);
-            //setInboxes([]);
-            {/*  
-            socketC.connection.emit('loadContacts', {
-                token : window.localStorage.getItem('sdToken')
-            },(data) => {
-                
-                setIsLoadInboxFolio(false);
-                setIsLoadInbox(false);
-                setInboxes(data.inboxes);
-                
-                let hasUnread = data.inboxes.find((x) => {
-                    return x.status === 1 ? true : false;
-                });
+        return console.log('refrescando numRows')
+    },[numRows, showRows]);
 
-                const folioList = {};
-                data.inboxes.map((x) => {
-                    folioList[x.folio._id] = false;
-                    return x.folio._id;
-                });
-                setIsLoadInboxFolio(folioList);
-                setUnReadMessages(hasUnread?true:false);
-            });
-           */} 
-        }
-        return loadInbox();
-    }, []);
+    useEffect(() =>
+    {
+        console.log("Load Contacts")
+        onContactJSON()
+    },[]);
 
-    const openItemInbox = (folio, item) => {
-        console.time('openItemInbox');
-        //setIsLoadInboxFolio(true)
-        socketC.connection.emit('openItemInbox', {
-            token : window.localStorage.getItem('sdToken'),
-            folio : folio,
-            item
-        },(data) => {
-            setVFolio(folio._id)
-            toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
-            //setIsLoadInboxFolio(false);
-            if(!data.success){
-                toast.error(data.message);
-                return false;
-            }
-            selectedComponent('home')
-            console.timeEnd('openItemInbox')
-        });
+    const initLoadModal = () => { //reset values for Modal 
+        setOpen(false)
+        setContentMessage(
+            <Segment>
+                <Dimmer active inverted>
+                    <Loader inverted>Cargando</Loader>
+                </Dimmer>
+    
+                <Image src={shortParagraph} />
+            </Segment>
+        );    
+
     }
-    const getFolioMessages = (folio) => {
-        setTitleModal('Vista Previa #'+folio)
-        setOpenModal(!openModal);
 
-        socketC.connection.emit('getMessageHist', {folio}, (res) => {
+    const getFolioMessages = (folio) => {
+        setOnLoading(true);
+        setTitleModal('Historial de Folio #'+folio)
+        setOpen(true);
+        Socket && Socket.connection && Socket.connection.emit('getMessageHist', {folio}, (res) => {
             if(res.success){
                 setContentMessage(
                     <div className='imessage'>
@@ -104,120 +104,121 @@ const Contacts = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => 
                     </div> 
                 )
             }else{
-
+                setContentMessage(
+                    <Segment>
+                        <Dimmer active inverted>
+                            <Label inverted>No se ha podido consultar el folio. Vuelve a intentarlo.</Label>
+                        </Dimmer>
+            
+                        <Image src={shortParagraph} />
+                    </Segment>
+                );    
             }
         })
+
+
+        setOnLoading(false);
     }
-    return ( <div style={{margin : 40}}>
-        <Header as='h2'>
-            <Icon name='address card' />
-            <Header.Content>Contactos</Header.Content>
-        </Header>
-        <Menu secondary>
-            <Menu.Item>
-                    <h1 style={{fontWeight:100}}>Opciones</h1>
-            </Menu.Item>
-            <Menu.Item>  
-                 <div style={{marginLeft:20}}>
-                    <Button onClick={e=> {}} animated='vertical'  >
-                        <Button.Content hidden>Nuevo</Button.Content>
-                        <Button.Content visible>
-                            <Icon name='plus' />
-                        </Button.Content>
-                    </Button>
-                </div>
-
-            </Menu.Item>
-            <Menu.Menu position='right'>
-                <Menu.Item>
-                    <Input icon='search' placeholder='Buscar...' />
-                </Menu.Item>
-            </Menu.Menu>
-        </Menu>        
-        <Table singleLine color='blue'>
-            <Table.Header className='showHeader'>
-                <Table.Row >
-                    <Table.HeaderCell>id</Table.HeaderCell>
-                    {/*<Table.HeaderCell>Item</Table.HeaderCell> */}
-                    <Table.HeaderCell>Identificador</Table.HeaderCell>
-                    <Table.HeaderCell>AliasId</Table.HeaderCell>
-                    <Table.HeaderCell>Canal</Table.HeaderCell>
-                    <Table.HeaderCell>Extra Info</Table.HeaderCell>
-                    <Table.HeaderCell>Última Atención</Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>                    
-                </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
+    return ( <>
+        <div>
+            <div style={{padding:30}}>
+                <Message
+                    attached
+                    icon="address book"
+                    header='Contactos'
+                    content='Selecciona un contacto para crear o continuar una conversación'
+                />
+                <Form  className='attached fluid segment' >
+                    <Form.Group widths='equal'>
+                        <input style={{marginLeft: 50, marginRight: 50}}
+                        className="search"
+                        placeholder="Buscar..."
+                        onChange={(e) => setQuery(e.target.value.toLowerCase())}
+                        />
+                        <Button color='blue' loading={onLoad} disabled={onLoad} onClick={onContactJSON}>Ver todo</Button>
+                    </Form.Group>
+    
+                </Form>
                 {
-                    isLoadInbox && (
-                        <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
-                                <Icon name='spinner' loading/>
-                                Cargando . . .
-                            </Table.Cell>
-                        </Table.Row>
+                    onLoad  && contentMessage //when loading contacts
+                }
+                {
+                    report && report.result.length <= 0 && (
+                        <Message
+                            icon='warning circle'
+                            header='No se encontraron datos con los criterios seleccionados'
+                            negative
+                        />
                     )
                 }
                 {
-                    !isLoadInbox && inboxes.length === 0 && (
-                        <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
-                                <Icon name='mail id card'/>
-                                Este modulo se encuentra en actualizacion, estará disponible en las proximas horas. 
-                            </Table.Cell>
-                        </Table.Row>
-                    )
-                }
-                {
-                    inboxes.filter((x) => {
-                        return x.status === 3 || x.folio?.status === 3 ? false : true  
-                    }).map((x) => {
-                        return (
-                            <Table.Row key={x._id}>
-                                <Table.Cell><b className='showLabel'>Folio </b>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio?._id}</Table.Cell>
-                               {/* <Table.Cell><b className='showLabel'>Item </b>{x.item}</Table.Cell> */}
-                                <Table.Cell><b className='showLabel'>Identificador </b>{x.anchor}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Alias </b>{x.aliasUser ? x.aliasUser : "Sin alias"}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Bandeja </b>{x.queue}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Transferido Por</b>{x.userFromName && x.transferDate? x.userFromName + ' - ' + x.transferDate : "N/A"}</Table.Cell>
-                                <Table.Cell textAlign='right'>
+                    report && report.result.length > 0 && (
+                        <div style={{marginTop: 40}}>
+                            {/*<Header as='h2'>Resultado</Header> */}
+                            <Table celled>
+                                <Table.Header>
+                                <Table.Row>
                                     {
-                                        x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
-                                            <Button circular color='facebook' icon='folder open outline' onClick={() => {
-                                                openItemInbox(x.folio, x);
-                                                setUnReadMessages(false)
-                                                setIsLoadInboxFolio({...isLoadInboxFolio, [x.folio._id] : true});
-                                            }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}></Button>
-                                        </>)
+                                        Object.keys(report.dictionary).map((x) => {
+                                            return <Table.HeaderCell key={x}>{report.dictionary[x]}</Table.HeaderCell>
+                                        })
                                     }
-                                    
-                                </Table.Cell>
-                                <Table.Cell textAlign='right' key={'hs-'+x.folio._id} >
+                                </Table.Row>
+                                </Table.Header>
+
+                                <Table.Body>
                                     {
-                                            <Button  key={'hs-'+x.folio._id} href='#' circular color='facebook' icon='eye' onClick={() => {
-                                                getFolioMessages(x.folio._id)
-                                            }} ></Button>
+                                        showRows.map((x, i) => {
+                                            return (<Table.Row key={i+'-'+x.folio}>{Object.keys(x).map((row, col) => {
+                                                return row == 'folio' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x.folio+'-'+row} onClick={() => {'getFolioMessages(x.folio)'}}><Icon name='folder open'/>{x[row]}</a></Table.Cell>) :  row == 'profilePic' && x[row].startsWith('https') ? (<Table.Cell key={i+'-'+x.folio+'-'+row}><Image src={x[row]} rounded size='mini' /></Table.Cell>) : (<Table.Cell key={i+'-'+x.folio+'-'+row}>{x[row]}</Table.Cell>)
+                                            })}</Table.Row>)
+                                        })
                                     }
-                                </Table.Cell>                               
-                            </Table.Row>
-                        )
-                    })
+                                </Table.Body>
+
+                                <Table.Footer>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan={Object.keys(report.dictionary).length}>
+                                            <Input icon={<Icon name='check circle' inverted circular link />} placeholder='Registros por página' type='number' value={numRows} onChange={(e) => {
+                                                setNumRows(e.target.value);
+                                                changePage(null, {activePage:0, preNumRows : e.target.value});
+                                            }} min={1}/>
+                                            <Menu floated='right' pagination>
+                                                {
+                                                    <Pagination
+                                                        boundaryRange={2}
+                                                        pointing
+                                                        secondary
+                                                        defaultActivePage={currentPag} totalPages={Math.ceil(report.result.length / numRows)}
+                                                        onPageChange={changePage}
+                                                    />
+                                                }
+                                            </Menu>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
+                            </Table>
+                        </div>
+                    ) 
                 }
-            </Table.Body>
-        </Table>
+                
+                {/* <Message attached='bottom'>
+                
+                
+                </Message> */}
+            </div>
+            
+        </div>
         <Modal
             onClose={() => initLoadModal()}
-            open={openModal}
+            onOpen={() => setOpen(true)}
+            open={open}
             header={titleModal}
             scrolling
             content={contentMessage}
-            actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> {initLoadModal()}}]}
-            />  
-    </div> );
-
+            actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { initLoadModal() } }]} //setOpenModal(!openModal);
+            />        
+    </> );
 
 
 
