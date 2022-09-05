@@ -17,8 +17,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [currentPag, setCurrentPag] = useState(1)
     const [showRows,setShowRows] = useState([]);
     const [query, setQuery] = useState("");
-
+    const [isLoadInboxFolio, setIsLoadInboxFolio] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
+
     const [contentMessage, setContentMessage] = useState(
         <Segment>
             <Dimmer active inverted>
@@ -50,6 +51,29 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setReport(result.data.report);
         console.log(result.data.report.result)
         setShowRows(result.data.report.result.slice(0,numRows))
+    }
+
+    const openSavedFolio = (folio, anchorPerson, aliasIdPerson,channel,queue) => {
+        console.time('openSavedFolio');
+        setIsLoadInboxFolio(true)
+        Socket.connection.emit('openSavedFolio', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio,
+            anchorPerson,
+            aliasIdPerson,
+            channel,
+            queue
+        },(data) => {
+            setVFolio(folio._id)
+            toast.success(<label>Abriendo folio <b>#{folio._id}</b> - <b>{aliasIdPerson}</b></label>);
+            if(!data.success){
+                toast.error(data.message);
+                return false;
+            }
+            selectedComponent('home')
+            console.timeEnd('openSavedFolio')
+            setIsLoadInboxFolio(false)
+        });
     }
     
     const changePage = (e, { activePage, preNumRows }) => {
@@ -104,14 +128,40 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
 
         setOnLoading(false);
     }
-    const getFolioMessages = (folio) => {
+    const getFolioMessages = (folio,anchorPerson,aliasIdPerson,channel,queue) => {
         setOnLoading(true);
-        setTitleModal('Historial de Folio #'+folio)
+        setTitleModal('Historial de Folio #'+folio + " - " + aliasIdPerson)
         setOpen(true);
+       
         Socket && Socket.connection && Socket.connection.emit('getMessageHist', {folio}, (res) => {
             if(res.success){
+                let histFolioStatus = res.folio.status
+                let histFolioFromInbox = res.folio.fromInbox
+                let histFolioFromUser = res.folio.agentAssign ? res.folio.agentAssign.profile.name  : null
+
+                //setIsLoadInboxFolio(res.folio);
                 setContentMessage(
+
                     <div className='imessage'>
+                        {histFolioStatus === 3 ? <Label  as='a' color='red' pointing='below'>Folio Finalizado </Label> : 
+                         histFolioStatus === 2 && !histFolioFromInbox  ? <Button circular color='green' icon='folder open outline' onClick={() => {
+                                openSavedFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will convert saved folio to inbox folio
+                                setUnReadMessages(false);
+                                setOnLoading(true);
+                                setContentMessage(
+                                    <Segment>
+                                        <Dimmer active inverted>
+                                            <Loader inverted>Abriendo la Conversación, espera un momento</Loader>
+                                        </Dimmer>
+                            
+                                        <Image src={shortParagraph} />
+                                    </Segment>
+                                );    
+                            }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Guardado: ¿Continuar Conversación?</Button> : 
+                         histFolioStatus === 2 && histFolioFromInbox  ? <Label  as='a' color='green' pointing='below'>Inbox Privado de Agente: {histFolioFromUser}</Label> :
+                         histFolioStatus === 1 ? <Label  as='a' color='blue' pointing='below'>En Atención por: {histFolioFromUser}</Label>  :
+                         histFolioStatus === 10 ? <Label  as='a' color='blue' pointing='below'>Se encuentra en bandeja de espera:  {queue}</Label>  : ""
+                         } 
                         {
                             res.folio.message.map((msg) => {
                                 return (
@@ -121,6 +171,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                         }
                     </div> 
                 )
+                
             }else{
                 setContentMessage(
                     <Segment>
@@ -190,7 +241,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                                             return (<Table.Row key={i+'-'+x._id}>{Object.keys(x).map((row, col) => {
                                                 return row == '_id' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getPersonDetail(x._id)}><Icon name='address card'/></a></Table.Cell>) :  
                                                 row == 'profilePic' && x[row].startsWith('https') ? (<Table.Cell key={i+'-'+x._id+'-'+row}><Image src={x[row]} rounded size='mini' /></Table.Cell>) : 
-                                                row == 'lastFolio' ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getFolioMessages(x.lastFolio)}><Icon name='folder open'/></a>{x[row]}</Table.Cell>) :(<Table.Cell key={i+'-'+x._id+'-'+row}>{x[row]}</Table.Cell>)
+                                                row == 'lastFolio' ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getFolioMessages(x.lastFolio,x.anchor, x.aliasId, x.channel, x.queue)}><Icon name='folder open'/></a>{x[row]}</Table.Cell>) :(<Table.Cell key={i+'-'+x._id+'-'+row}>{x[row]}</Table.Cell>)
                                             })}</Table.Row>)
                                         })
                                     }
