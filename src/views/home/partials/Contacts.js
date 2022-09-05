@@ -3,7 +3,6 @@ import MessageBubble from './MessageBubble';
 import React, {useContext, useState, useEffect} from 'react';
 import axios from 'axios';
 import { Button, Form,  Message, Label, Table, Menu, Icon, Header, Pagination, Input, Segment , Dimmer, Loader, Image, Socket, Modal } from 'semantic-ui-react';
-import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import SocketContext from '../../../controladores/SocketContext';
