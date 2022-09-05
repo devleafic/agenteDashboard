@@ -15,7 +15,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
         'readByRecipient' : 'Leído',
         'failedDelivery' : 'Sin enviar',
         'failedOutofWindows' : 'Sin enviar. Han pasado más de 24 horas desde el cliente ha enviado el mensaje. Usa una plantilla para contactar al cliente.',
-        'rejectedByAPI' : 'Sin enviar. Puede ser tokens expirados, favor contactar a soporte.'
+        'rejectedByAPI' : 'Sin enviar. El mensaje fue rechazado por el API.'
     }
 
     const getResponseTo = (id) => {
