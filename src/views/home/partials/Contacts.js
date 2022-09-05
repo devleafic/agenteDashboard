@@ -32,22 +32,24 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
    
-    const onContactJSON = async (e) => {
+    const onContactJSON = async () => {
 
         setReport(null);
         setOnLoad(true);
         setShowRows([]);
+
         let serviceId = userInfo.service.id
         const result = await axios.get(process.env.REACT_APP_CENTRALITA+'/searchData/json/'+serviceId,{
             params : {
                 typeReport : 'r_crmData',
-                query : ''
-               // startDate : '2022-08-02',
-               // endDate : '2022-09-02'
+                query : query
+            // startDate : '2022-08-02',
+            // endDate : '2022-09-02'
             }
         });
         setOnLoad(false);
         setReport(result.data.report);
+        console.log(result.data.report.result)
         setShowRows(result.data.report.result.slice(0,numRows))
     }
     
@@ -69,8 +71,8 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     useEffect(() =>
     {
         console.log("Load Contacts")
-        onContactJSON()
-    },[]);
+        if (query.length === 0 || query.length > 2)  onContactJSON();
+    },[query]);
 
     const initLoadModal = () => { //reset values for Modal 
         setOpen(false)
@@ -85,7 +87,24 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         );    
 
     }
+    const getPersonDetail = (id) => {
+        setOnLoading(true);
+        setTitleModal('Contacto  #'+id )
+        setOpen(true);
+    
+                setContentMessage(
+                    <Segment>
+                        <Dimmer active inverted>
+                            <Label inverted>No se ha podido consultar el contacto. Vuelve a intentarlo.</Label>
+                        </Dimmer>
+            
+                        <Image src={shortParagraph} />
+                    </Segment>
+                );    
+            
 
+        setOnLoading(false);
+    }
     const getFolioMessages = (folio) => {
         setOnLoading(true);
         setTitleModal('Historial de Folio #'+folio)
@@ -130,12 +149,12 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                 />
                 <Form  className='attached fluid segment' >
                     <Form.Group widths='equal'>
-                        <input style={{marginLeft: 50, marginRight: 50}}
-                        className="search"
+                        <input  style={{marginLeft: 50, marginRight: 50}}
+                        icon='users' iconPosition='left' 
                         placeholder="Buscar..."
                         onChange={(e) => setQuery(e.target.value.toLowerCase())}
                         />
-                        <Button color='blue' loading={onLoad} disabled={onLoad} onClick={onContactJSON}>Ver todo</Button>
+                        <Button color='blue' icon='search' loading={onLoad} disabled={onLoad} onClick={onContactJSON}></Button>
                     </Form.Group>
     
                 </Form>
@@ -169,8 +188,10 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                                 <Table.Body>
                                     {
                                         showRows.map((x, i) => {
-                                            return (<Table.Row key={i+'-'+x.folio}>{Object.keys(x).map((row, col) => {
-                                                return row == 'folio' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x.folio+'-'+row} onClick={() => {'getFolioMessages(x.folio)'}}><Icon name='folder open'/>{x[row]}</a></Table.Cell>) :  row == 'profilePic' && x[row].startsWith('https') ? (<Table.Cell key={i+'-'+x.folio+'-'+row}><Image src={x[row]} rounded size='mini' /></Table.Cell>) : (<Table.Cell key={i+'-'+x.folio+'-'+row}>{x[row]}</Table.Cell>)
+                                            return (<Table.Row key={i+'-'+x._id}>{Object.keys(x).map((row, col) => {
+                                                return row == '_id' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getPersonDetail(x._id)}><Icon name='address card'/></a></Table.Cell>) :  
+                                                row == 'profilePic' && x[row].startsWith('https') ? (<Table.Cell key={i+'-'+x._id+'-'+row}><Image src={x[row]} rounded size='mini' /></Table.Cell>) : 
+                                                row == 'lastFolio' ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getFolioMessages(x.lastFolio)}><Icon name='folder open'/></a>{x[row]}</Table.Cell>) :(<Table.Cell key={i+'-'+x._id+'-'+row}>{x[row]}</Table.Cell>)
                                             })}</Table.Row>)
                                         })
                                     }
@@ -179,7 +200,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                                 <Table.Footer>
                                     <Table.Row>
                                         <Table.HeaderCell colSpan={Object.keys(report.dictionary).length}>
-                                            <Input icon={<Icon name='check circle' inverted circular link />} placeholder='Registros por página' type='number' value={numRows} onChange={(e) => {
+                                            <Input icon={<Icon name='check circle' inverted circular link />} placeholder='Contactos por página' type='number' value={numRows} onChange={(e) => {
                                                 setNumRows(e.target.value);
                                                 changePage(null, {activePage:0, preNumRows : e.target.value});
                                             }} min={1}/>
