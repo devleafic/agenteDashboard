@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Label } from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Label , Menu} from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
@@ -27,6 +27,27 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
     const [dataToBlank, setDataToBlank] = useState(iniatilaze);
     const [onCreateBlank, setOnCreateBlank] = useState(false);
+
+
+    const [analytics, setAnalytics] = useState({
+        //foliosPerDay : '-',
+        //foliosEndPerDay : '-',
+        //foliosSavePerDay: '-',
+        foliosOnHoldAll: '...'
+    })
+
+    const getAnalytics = () => {
+        
+        if (userInfo) {
+            socketC.connection.emit('getAnalyticsAgent', {
+            proccess : '/folio/all',
+            date : 'today',
+            service : userInfo.service.id
+            },(result) => {
+                setAnalytics(result.data)
+            });
+        }
+    };
 
     const createFolioBlank = () => {
 
@@ -137,8 +158,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setActivities(toActivities);
         }
         if(userInfo){
+            setInterval(getAnalytics, 8000);
             setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
-            console.log(userDetail)
             loadActivities();
         }
     }, [isReady]);
@@ -186,6 +207,17 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
         <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
+            {
+                <div style={{float: 'left'}}  >
+                 <Label >
+                 <Icon name='users' color="blue" />
+                 {analytics.foliosOnHoldAll}                   
+                 <Label.Detail>...en espera</Label.Detail>
+
+                </Label>
+               </div>
+            }
+           
              {
                 isReady && !isInbound && (<><Dropdown
                     button
