@@ -4,7 +4,7 @@ import SocketContext from './../../../controladores/SocketContext';
 //import CallContext from '../../controladores/CallContext';
 import CallContext from '../../../controladores/CallContext';
 
-
+//only twilio call control
 
 const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
     
