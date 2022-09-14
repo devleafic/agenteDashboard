@@ -33,7 +33,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         //foliosPerDay : '-',
         //foliosEndPerDay : '-',
         //foliosSavePerDay: '-',
-        foliosOnHoldAll: '...'
+        foliosOnHoldAll: '°°°'
     })
 
     const getAnalytics = () => {
@@ -209,16 +209,23 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
             {
                 <div style={{float: 'left'}}  >
-                 <Label >
-                 <Icon name='users' color="blue" />
-                 {analytics.foliosOnHoldAll}                   
-                 <Label.Detail>...en espera</Label.Detail>
-
-                </Label>
+                <Button 
+                    size='mini'
+                    basic
+                    color='blue'
+                    content='En espera'
+                    icon='users'
+                    label={{
+                        as: 'a',
+                        basic: true,
+                        color: 'blue',
+                        pointing: 'left',
+                        content:  analytics.foliosOnHoldAll
+                    }}
+                    />
                </div>
             }
-           
-             {
+            {
                 isReady && !isInbound && (<><Dropdown
                     button
                     className='icon'
