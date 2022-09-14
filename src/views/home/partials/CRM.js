@@ -27,6 +27,7 @@ const CRM = ({template, folio, setRefresh}) => {
         setDataPerson(folio.folio.person);
     },[folio]);
 
+
     return ( <>
         
             <Form key={'form-crm-'+folio}>
@@ -36,7 +37,7 @@ const CRM = ({template, folio, setRefresh}) => {
                         return (
                             <Form.Field key={'field-'+item._id}>
                                 <label>{item.name}</label>
-                                <input key={item._id} placeholder={item.name} value={folio.folio.person.fields ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
+                                <input key={item._id} placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
                                     if(!folio.folio.person.fields){folio.folio.person.fields={}}
                                     if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
                                     folio.folio.person.fields[item._id] = e.target.value;
