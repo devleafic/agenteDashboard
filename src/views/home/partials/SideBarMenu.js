@@ -11,10 +11,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         window.localStorage.removeItem('myName');
         window.location = '/login'
     }
-
     const parseName = (fullName) => {
         if(!fullName){return '';}
-        return fullName.split(' ')[0]
+        return fullName.length >= 8 ? fullName.split(' ')[0].substr(0,7) + '...' : fullName.split(' ')[0].substr(0,7)
     }
 
     const getButton = (option) => {
