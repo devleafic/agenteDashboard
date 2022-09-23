@@ -13,7 +13,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     }
     const parseName = (fullName) => {
         if(!fullName){return '';}
-        return fullName.length >= 8 ? fullName.split(' ')[0].substr(0,7) + '...' : fullName.split(' ')[0].substr(0,7)
+        return fullName.length >= 9 ? fullName.split(' ')[0].substr(0,7) + '...' : fullName.split(' ')[0].substr(0,8)
     }
 
     const getButton = (option) => {
