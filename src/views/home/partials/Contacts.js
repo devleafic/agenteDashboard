@@ -144,24 +144,25 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
 
                     <div className='imessage'>
                         {histFolioStatus === 3 ? <Label  as='a' color='red' pointing='below'>Folio Finalizado </Label> : 
-                         histFolioStatus === 2 && !histFolioFromInbox  ? <Button circular color='green' icon='folder open outline' onClick={() => {
-                                openSavedFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will convert saved folio to inbox folio
-                                setUnReadMessages(false);
-                                setOnLoading(true);
-                                setContentMessage(
-                                    <Segment>
-                                        <Dimmer active inverted>
-                                            <Loader inverted>Abriendo la Conversación, espera un momento</Loader>
-                                        </Dimmer>
-                            
-                                        <Image src={shortParagraph} />
-                                    </Segment>
-                                );    
-                            }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Guardado: ¿Continuar Conversación?</Button> : 
-                         histFolioStatus === 2 && histFolioFromInbox  ? <Label  as='a' color='green' pointing='below'>Inbox Privado de Agente: {histFolioFromUser}</Label> :
-                         histFolioStatus === 1 ? <Label  as='a' color='blue' pointing='below'>En Atención por: {histFolioFromUser}</Label>  :
-                         histFolioStatus === 10 ? <Label  as='a' color='blue' pointing='below'>Se encuentra en bandeja de espera:  {queue}</Label>  : ""
-                         } 
+                            (histFolioStatus === 2 && !histFolioFromInbox) || ( histFolioStatus === 1 && !histFolioFromUser )  ? //folio General, or failed folio in attention without agent
+                                <Button circular color='green' icon='folder open outline' onClick={() => {
+                                    openSavedFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will convert saved folio to inbox folio
+                                    setUnReadMessages(false);
+                                    setOnLoading(true);
+                                    setContentMessage(
+                                        <Segment>
+                                            <Dimmer active inverted>
+                                                <Loader inverted>Abriendo la Conversación, espera un momento</Loader>
+                                            </Dimmer>
+                                
+                                            <Image src={shortParagraph} />
+                                        </Segment>
+                                    );    
+                                }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Guardado: ¿Continuar Conversación?</Button> : 
+                            histFolioStatus === 2 && histFolioFromInbox  ? <Label  as='a' color='green' pointing='below'>Inbox Privado de Agente: {histFolioFromUser}</Label> :
+                            histFolioStatus === 1 && histFolioFromUser ? <Label  as='a' color='blue' pointing='below'>En Atención por: {histFolioFromUser}</Label>  :
+                            histFolioStatus === 10 ? <Label  as='a' color='blue' pointing='below'>Se encuentra en bandeja de espera:  {queue}</Label>  : ""
+                        } 
                         {
                             res.folio.message.map((msg) => {
                                 return (
