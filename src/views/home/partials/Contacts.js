@@ -110,9 +110,10 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         );    
 
     }
-    const getPersonDetail = (id) => {
+    const getPersonDetail = (person, template) => {
         setOnLoading(true);
-        setTitleModal('Contacto  #'+id )
+        setTitleModal('Contacto  #'+ person.aliasId )
+        //console.log(template)
         setOpen(true);
     
                 setContentMessage(
@@ -240,7 +241,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                                     {
                                         showRows.map((x, i) => {
                                             return (<Table.Row key={i+'-'+x._id}>{Object.keys(x).map((row, col) => {
-                                                return row == '_id' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getPersonDetail(x._id)}><Icon name='address card'/></a></Table.Cell>) :  
+                                                return row == '_id' && col === 0 ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getPersonDetail(x)}><Icon name='address card'/></a></Table.Cell>) :  
                                                 row == 'profilePic' && x[row].startsWith('https') ? (<Table.Cell key={i+'-'+x._id+'-'+row}><Image src={x[row]} rounded size='mini' /></Table.Cell>) : 
                                                 row == 'lastFolio' ? (<Table.Cell><a href='#' key={i+'-'+x._id+'-'+row} onClick={() => getFolioMessages(x.lastFolio,x.anchor, x.aliasId, x.channel, x.queue)}><Icon name='folder open'/></a>{x[row]}</Table.Cell>) :(<Table.Cell key={i+'-'+x._id+'-'+row}>{x[row]}</Table.Cell>)
                                             })}</Table.Row>)

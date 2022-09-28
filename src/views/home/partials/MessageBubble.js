@@ -111,7 +111,8 @@ const Message = ({message, responseToMessage, allMsg}) => {
                     <source src={content} type='audio/ogg' />   
                     <source src={content} type='audio/mpeg' />   
                 </audio>)
-
+            case 'externalAttachment' :
+                return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'errors':
             return (<>[{type}] - {content}</>);      
             default:
