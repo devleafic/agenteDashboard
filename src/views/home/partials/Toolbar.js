@@ -18,7 +18,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
-    const [automaticActivity, setAutomaticActivity ] = useState({});
+    const [automaticActivity, setAutomaticActivity ] = useState(null);
    
     const iniatilaze = {
         anchor : null,
@@ -184,11 +184,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
 
     useEffect(() => {
-        changeActivity()
+        if (automaticActivity){changeActivity()}
     }, [automaticActivity]);
 
     const changeActivity = async (e) => {    
-        //let automatic = automaticActivity.length >= 0 ? automaticActivity[0].key : ''
         let value = e ?  e.target.value : automaticActivity._id
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
