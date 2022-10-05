@@ -18,6 +18,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
+    const [automaticActivity, setAutomaticActivity ] = useState({});
    
     const iniatilaze = {
         anchor : null,
@@ -154,8 +155,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 return {key : x._id, value : x._id, text : x.label}
             });
 
+            const checkAutomaticActivity = acti.find((x) => {return (x.status === true && x.setAutomaticActivity === true)});
+
+
             setFullActivities(acti);
             setActivities(toActivities);
+            setAutomaticActivity(checkAutomaticActivity)
         }
         if(userInfo){
             setInterval(getAnalytics, 8000);
@@ -178,29 +183,35 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
     }
 
-    const changeActivity = async (e) => {       
-        let value = e.target.value;
+    useEffect(() => {
+        changeActivity()
+    }, [automaticActivity]);
+
+    const changeActivity = async (e) => {    
+        //let automatic = automaticActivity.length >= 0 ? automaticActivity[0].key : ''
+        let value = e ?  e.target.value : automaticActivity._id
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
-
-        socketC.connection.emit('changeActivity', {
-            token : window.localStorage.getItem('sdToken'),
-            activity : activityObj
-        }, (result) => {
-            if(!result.success){
-                toast.error('La actividad no es valida');
-                return false;
-            }
-            setIsConnected(activityObj.isConnect ? 1 : 2);
-            setCurrentActivity(value);
-            toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
-                position: "top-right",
-                autoClose: 2500,
-                closeOnClick: true,
-                pauseOnHover: false,
-                });
-        })
+        if (activityObj) { 
+            socketC.connection.emit('changeActivity', {
+                token : window.localStorage.getItem('sdToken'),
+                activity : activityObj
+            }, (result) => {
+                if(!result.success){
+                    toast.error('La actividad no es valida');
+                    return false;
+                }
+                setIsConnected(activityObj.isConnect ? 1 : 2);
+                setCurrentActivity(value);
+                toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
+                    position: "top-right",
+                    autoClose: 2500,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    });
+            })
+        }
         
     }
 
@@ -266,9 +277,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                     />
 
 
-            )
+                )
             }   
-                
             {
                 showBlankFolio && infoBlankFolio && (<>
                     <Modal

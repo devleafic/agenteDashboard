@@ -75,6 +75,30 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             setIsLoadInboxFolio(false)
         });
     }
+
+    const createNewFolio = (folio, anchorPerson, aliasIdPerson,channel,queue) => { //new folio from a finished folio
+        console.time('createNewFolio');
+        setIsLoadInboxFolio(true)
+        Socket.connection.emit('createNewFolio', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio,
+            anchorPerson,
+            aliasIdPerson,
+            channel,
+            queue
+        },(data) => {
+            setVFolio(folio._id)
+            toast.success(<label>Creando folio <b>#{'folio._id'}</b> - <b>{aliasIdPerson}</b></label>);
+            if(!data.success){
+                toast.error(data.message);
+                return false;
+            }
+            selectedComponent('home')
+            console.timeEnd('createNewFolio')
+            setIsLoadInboxFolio(false)
+        });
+    }
+
     
     const changePage = (e, { activePage, preNumRows }) => {
         var toShow = [];
@@ -144,7 +168,22 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                 setContentMessage(
 
                     <div className='imessage'>
-                        {histFolioStatus === 3 ? <Label  as='a' color='red' pointing='below'>Folio Finalizado </Label> : 
+                        {histFolioStatus === 3 ? 
+                              <Button circular color='red' icon='folder open outline' onClick={() => {
+                                    createNewFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will create a new folio
+                                    setUnReadMessages(false);
+                                    setOnLoading(true);
+                                    setContentMessage(
+                                        <Segment>
+                                            <Dimmer active inverted>
+                                                <Loader inverted>Creando la Conversación, espera un momento</Loader>
+                                            </Dimmer>
+                                
+                                            <Image src={shortParagraph} />
+                                        </Segment>
+                                    );    
+                                }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Finalizdo: ¿Crear nueva conversación?</Button>                         
+                            : 
                             (histFolioStatus === 2 && !histFolioFromInbox) || ( histFolioStatus === 1 && !histFolioFromUser )  ? //folio General, or failed folio in attention without agent
                                 <Button circular color='green' icon='folder open outline' onClick={() => {
                                     openSavedFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will convert saved folio to inbox folio
