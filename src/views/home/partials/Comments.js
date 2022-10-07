@@ -401,16 +401,16 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         </div>
                         
                         <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                            setMessageToSend(e.target.value)
+                            //setMessageToSend(e.target.value)
                         }} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){
-                                //setMessageToSend(e.target.value)
+                                setMessageToSend(e.target.value)
                                 prepareMessage()}
                         }} />
 
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
-                        <Button  color='blue' basic onClick={prepareMessage} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
+                        <Button  color='blue' basic onClick={() => {setMessageToSend(textArea.current.value); prepareMessage()}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
 
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
