@@ -85,10 +85,11 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             anchorPerson,
             aliasIdPerson,
             channel,
-            queue
+            queue,
+            messages : "Outbound Message. You might need to send a message template."
         },(data) => {
-            setVFolio(folio._id)
-            toast.success(<label>Creando folio <b>#{'folio._id'}</b> - <b>{aliasIdPerson}</b></label>);
+            setVFolio(data.folio)
+            toast.success(<label>Creando folio <b>#{data.folio}</b> - <b>{aliasIdPerson}</b></label>);
             if(!data.success){
                 toast.error(data.message);
                 return false;
@@ -99,7 +100,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         });
     }
 
-    
     const changePage = (e, { activePage, preNumRows }) => {
         var toShow = [];
         const nr = preNumRows ? preNumRows : numRows;
@@ -182,7 +182,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                                             <Image src={shortParagraph} />
                                         </Segment>
                                     );    
-                                }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Finalizdo: ¿Crear nueva conversación?</Button>                         
+                                }} loading={isLoadInboxFolio} disabled={isLoadInboxFolio}>Folio Finalizado - ¿Crear nueva conversación?</Button>                         
                             : 
                             (histFolioStatus === 2 && !histFolioFromInbox) || ( histFolioStatus === 1 && !histFolioFromUser )  ? //folio General, or failed folio in attention without agent
                                 <Button circular color='green' icon='folder open outline' onClick={() => {

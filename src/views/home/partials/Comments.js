@@ -403,7 +403,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
                             setMessageToSend(e.target.value)
                         }} disabled={isLoading} onKeyDown={(e) => {
-                            if(e.shiftKey && e.key==='Enter'){prepareMessage()}
+                            if(e.shiftKey && e.key==='Enter'){
+                                //setMessageToSend(e.target.value)
+                                prepareMessage()}
                         }} />
 
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
