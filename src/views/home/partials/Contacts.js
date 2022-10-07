@@ -85,7 +85,8 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             anchorPerson,
             aliasIdPerson,
             channel,
-            queue
+            queue,
+            messages : "Outbound Message. You might need to send a message template."
         },(data) => {
             setVFolio(folio._id)
             toast.success(<label>Creando folio <b>#{'folio._id'}</b> - <b>{aliasIdPerson}</b></label>);
@@ -99,7 +100,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         });
     }
 
-    
     const changePage = (e, { activePage, preNumRows }) => {
         var toShow = [];
         const nr = preNumRows ? preNumRows : numRows;
