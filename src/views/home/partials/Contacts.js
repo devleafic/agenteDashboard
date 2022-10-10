@@ -2,7 +2,7 @@ import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
 import React, {useContext, useState, useEffect} from 'react';
 import axios from 'axios';
-import { Button, Form,  Message, Label, Table, Menu, Icon, Header, Pagination, Input, Segment , Dimmer, Loader, Image, Socket, Modal } from 'semantic-ui-react';
+import { Button, Form,  Message, Label, Table, Menu, Icon, Header, Pagination, Input, Segment , Dimmer, Loader, Image, List, Modal } from 'semantic-ui-react';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import SocketContext from '../../../controladores/SocketContext';
@@ -33,6 +33,27 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [onLoading, setOnLoading] = useState(false);
    
     const onContactJSON = async () => {
+
+        setReport(null);
+        setOnLoad(true);
+        setShowRows([]);
+
+        let serviceId = userInfo.service.id
+        const result = await axios.get(process.env.REACT_APP_CENTRALITA+'/searchData/json/'+serviceId,{
+            params : {
+                typeReport : 'r_crmData',
+                query : query
+            // startDate : '2022-08-02',
+            // endDate : '2022-09-02'
+            }
+        });
+        setOnLoad(false);
+        setReport(result.data.report);
+        console.log(result.data.report.result)
+        setShowRows(result.data.report.result.slice(0,numRows))
+    }
+
+    const newContact = async () => {
 
         setReport(null);
         setOnLoad(true);
@@ -141,16 +162,19 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setOpen(true);
     
                 setContentMessage(
-                    <Segment>
-                        <Dimmer active inverted>
-                            <Label inverted>No se ha podido consultar el contacto. Vuelve a intentarlo.</Label>
-                        </Dimmer>
-            
-                        <Image src={shortParagraph} />
-                    </Segment>
+                    <div style={{textAlign: 'center', marginBottom : 20}}>
+                        <List>
+                        <List.Item>
+                            <List.Icon name='user' />
+                            <List.Content>{person.aliasId}</List.Content>
+                        </List.Item>
+                        <List.Item>
+                            <List.Icon name='pin' />
+                            <List.Content>{person.anchor}</List.Content>
+                        </List.Item>
+                        </List>
+                    </div>
                 );    
-            
-
         setOnLoading(false);
     }
     const getFolioMessages = (folio,anchorPerson,aliasIdPerson,channel,queue) => {
@@ -246,6 +270,8 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                         onChange={(e) => setQuery(e.target.value.toLowerCase())}
                         />
                         <Button color='blue' icon='search' loading={onLoad} disabled={onLoad} onClick={onContactJSON}></Button>
+                        <Button positive icon='address card outline' loading={onLoad} disabled={onLoad} onClick={newContact}></Button>
+                       
                     </Form.Group>
     
                 </Form>

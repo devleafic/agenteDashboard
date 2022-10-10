@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import {Device} from 'twilio-client';
 import { ToastContainer, toast } from 'react-toastify';
-import { Modal, Header, Icon, Button } from 'semantic-ui-react';
+import { Modal, Header, Icon, Button, Popup} from 'semantic-ui-react';
 
 /* Contexto */
 import ListFoliosContext from './../../controladores/FoliosContext';
@@ -93,7 +93,12 @@ const Home = () => {
     const [unReadMessages, setUnReadMessages] = useState(false);
 
     const [vFolio, setVFolio] = useState(null);
-    
+
+    const closeSession = () => {
+        window.localStorage.removeItem('sdToken');
+        window.localStorage.removeItem('myName');
+        window.location = '/login'
+    }
 
     const CallController = {
         setup : (token) => {
@@ -469,7 +474,9 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
                 Aviso
             </Header>
             <Modal.Content>
-                <center>{message}</center>
+                <center>{message} <br></br>
+                <Popup content='Iniciar Sesión con otro usuario' trigger={<Button icon='log out' onClick={closeSession}/>} position='right center'/></center>
+                
             </Modal.Content>
             </Modal>
 
