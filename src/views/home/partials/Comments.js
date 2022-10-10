@@ -46,7 +46,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         })
 
         setShowResponseTo(message.externalId);
-        setMessageToResponse('Respondiendo al mensajes: '+ message.content);
+        setMessageToResponse('Responder al mensaje: '+ message.content);
+        textArea.current.focus();
     }
     
     const removeResponseTo = () =>{
