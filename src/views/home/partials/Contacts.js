@@ -53,27 +53,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setShowRows(result.data.report.result.slice(0,numRows))
     }
 
-    const newContact = async () => {
-
-        setReport(null);
-        setOnLoad(true);
-        setShowRows([]);
-
-        let serviceId = userInfo.service.id
-        const result = await axios.get(process.env.REACT_APP_CENTRALITA+'/searchData/json/'+serviceId,{
-            params : {
-                typeReport : 'r_crmData',
-                query : query
-            // startDate : '2022-08-02',
-            // endDate : '2022-09-02'
-            }
-        });
-        setOnLoad(false);
-        setReport(result.data.report);
-        console.log(result.data.report.result)
-        setShowRows(result.data.report.result.slice(0,numRows))
-    }
-
     const openSavedFolio = (folio, anchorPerson, aliasIdPerson,channel,queue) => {
         console.time('openSavedFolio');
         setIsLoadInboxFolio(true)
@@ -177,6 +156,26 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                 );    
         setOnLoading(false);
     }
+
+    const newContact = (person, template) => {
+        setOnLoading(true);
+        setTitleModal('Crear nuevo Contacto' )
+        //console.log(template)
+        setOpen(true);
+    
+                setContentMessage(
+                    <div style={{textAlign: 'center', marginBottom : 20}}>
+                        <List>
+                        <List.Item>
+                            <List.Icon name='user' />
+                            <List.Content>'Crear contacto se habilitara nuevamente en las proximas horas'</List.Content>
+                        </List.Item>
+                        </List>
+                    </div>
+                );    
+        setOnLoading(false);
+    }
+
     const getFolioMessages = (folio,anchorPerson,aliasIdPerson,channel,queue) => {
         setOnLoading(true);
         setTitleModal('Historial de Folio #'+folio + " - " + aliasIdPerson)
