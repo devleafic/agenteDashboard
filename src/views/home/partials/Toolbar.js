@@ -184,7 +184,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
 
     useEffect(() => {
-        if (automaticActivity){changeActivity()}
+        if (automaticActivity && isInbound ){changeActivity()}
     }, [automaticActivity]);
 
     const changeActivity = async (e) => {    

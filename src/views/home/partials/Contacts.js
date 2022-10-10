@@ -8,8 +8,7 @@ import { toast } from 'react-toastify';
 import SocketContext from '../../../controladores/SocketContext';
 
 const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, userInfo}) => {
-    //console.log(userInfo)
-    //const {serviceId} = useParams();
+    console.log(userInfo)
     const Socket = useContext(SocketContext);
     const [report,setReport] = useState(null);
     const [onLoad, setOnLoad] = useState(false);
@@ -19,6 +18,8 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [query, setQuery] = useState("");
     const [isLoadInboxFolio, setIsLoadInboxFolio] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
+    const [createContact, setCreateContact ] = useState(false);
+    const [formToContact, setFormToContact ] = useState(initialStateForm)
 
     const [contentMessage, setContentMessage] = useState(
         <Segment>
@@ -32,6 +33,22 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
    
+    const initialStateForm = {
+        service : userInfo.service.id,
+        isNew : true,
+        anchorUser : '',
+        alias : '',
+        idChannel : '',
+        idQueue : userInfo.service.queue,
+        createdByAgent : userInfo.id
+    }
+    const [showErrorMsg, setShowErrorMsg] = useState(false);
+    const [messageError, setMessageError] = useState('Todos los campos son requeridos.');
+    
+    const clearForm = () => {
+        setCreateContact(initialStateForm)
+    }
+
     const onContactJSON = async () => {
 
         setReport(null);
@@ -139,7 +156,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setTitleModal('Contacto  #'+ person.aliasId )
         //console.log(template)
         setOpen(true);
-    
                 setContentMessage(
                     <div style={{textAlign: 'center', marginBottom : 20}}>
                         <List>
