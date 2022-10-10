@@ -42,10 +42,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     return (<>
         <div style={{marginTop:20, textAlign:'center'}}>
             <div><b>{parseName(window.localStorage.getItem('myName'))}</b></div>
-               {/*  <div>{process.env.REACT_APP_SYSTEM_VERSION}</div>
-            <Image src={avatar} alt='inbox Central' centered style={{height:25}}/> */} 
-
-            <Popup
+              <Popup
                     content='Inbox Central, powered by BotDynamics.'
                     key={process.env.REACT_APP_SYSTEM_VERSION}
                     header={process.env.REACT_APP_SYSTEM_VERSION}
