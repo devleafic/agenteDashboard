@@ -2,8 +2,7 @@ import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
 import React, {useContext, useState, useEffect} from 'react';
 import axios from 'axios';
-import { Button, Form,  Message, Label, Table, Menu, Icon, Header, Pagination, Input, Segment , Dimmer, Loader, Image, List, Modal } from 'semantic-ui-react';
-import moment from 'moment';
+import { Button, Form,  Message, Label, Table, Menu, Icon, Pagination, Input, Segment , Dimmer, Loader, Image, List, Modal, Select } from 'semantic-ui-react';
 import { toast } from 'react-toastify';
 import SocketContext from '../../../controladores/SocketContext';
 
@@ -18,9 +17,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     const [query, setQuery] = useState("");
     const [isLoadInboxFolio, setIsLoadInboxFolio] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
-    const [createContact, setCreateContact ] = useState(false);
-    const [formToContact, setFormToContact ] = useState(initialStateForm)
-
     const [contentMessage, setContentMessage] = useState(
         <Segment>
             <Dimmer active inverted>
@@ -32,7 +28,8 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     );    
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
-   
+    const [infoService, setInfoService ] = useState({});
+
     const initialStateForm = {
         service : userInfo.service.id,
         isNew : true,
@@ -40,13 +37,31 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         alias : '',
         idChannel : '',
         idQueue : userInfo.service.queue,
-        createdByAgent : userInfo.id
+        createdByAgent : userInfo._id
     }
+
+    const [createContact, setCreateContact ] = useState(false);
+    const [formToContact, setFormToContact ] = useState(initialStateForm)
+    const [showModalContact,setShowModalContact]  =  useState(false);
+    
+
     const [showErrorMsg, setShowErrorMsg] = useState(false);
     const [messageError, setMessageError] = useState('Todos los campos son requeridos.');
-    
+
+    const setDataForm = (e) => {
+        let id = e.target.id;
+        let value = e.target.value;
+        setShowErrorMsg(false);
+        setFormToContact({...formToContact, [id] : value});
+    }
+
+    const setDataFormCombo = (e, {value,id}) => {
+        setShowErrorMsg(false);
+        setFormToContact({...formToContact, [id] : value});
+    }   
+
     const clearForm = () => {
-        setCreateContact(initialStateForm)
+        setFormToContact(initialStateForm)
     }
 
     const onContactJSON = async () => {
@@ -93,7 +108,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         });
     }
 
-    const createNewFolio = (folio, anchorPerson, aliasIdPerson,channel,queue) => { //new folio from a finished folio
+    const createNewFolio = (folio, anchorPerson, aliasIdPerson,channel,queue,fromClosedFolio,personId) => { //new folio from a finished folio
         console.time('createNewFolio');
         setIsLoadInboxFolio(true)
         Socket.connection.emit('createNewFolio', {
@@ -103,7 +118,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             aliasIdPerson,
             channel,
             queue,
-            messages : "Outbound Message. You might need to send a message template."
+            messages : "Outbound Message. You might need to send a message template.",
+            fromClosedFolio,
+            personId
         },(data) => {
             setVFolio(data.folio)
             toast.success(<label>Creando folio <b>#{data.folio}</b> - <b>{aliasIdPerson}</b></label>);
@@ -114,6 +131,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             selectedComponent('home')
             console.timeEnd('createNewFolio')
             setIsLoadInboxFolio(false)
+
+            setCreateContact(false);
+            setShowModalContact(false);
         });
     }
 
@@ -173,25 +193,6 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setOnLoading(false);
     }
 
-    const newContact = (person, template) => {
-        setOnLoading(true);
-        setTitleModal('Crear nuevo Contacto' )
-        //console.log(template)
-        setOpen(true);
-    
-                setContentMessage(
-                    <div style={{textAlign: 'center', marginBottom : 20}}>
-                        <List>
-                        <List.Item>
-                            <List.Icon name='user' />
-                            <List.Content>'Crear contacto se habilitara nuevamente en las proximas horas'</List.Content>
-                        </List.Item>
-                        </List>
-                    </div>
-                );    
-        setOnLoading(false);
-    }
-
     const getFolioMessages = (folio,anchorPerson,aliasIdPerson,channel,queue) => {
         setOnLoading(true);
         setTitleModal('Historial de Folio #'+folio + " - " + aliasIdPerson)
@@ -202,6 +203,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                 let histFolioStatus = res.folio.status
                 let histFolioFromInbox = res.folio.fromInbox
                 let histFolioFromUser = res.folio.agentAssign ? res.folio.agentAssign.profile.name  : null
+                let fromClosedFolio = true;
 
                 //setIsLoadInboxFolio(res.folio);
                 setContentMessage(
@@ -209,7 +211,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                     <div className='imessage'>
                         {histFolioStatus === 3 ? 
                               <Button circular color='red' icon='folder open outline' onClick={() => {
-                                    createNewFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue); //this action will create a new folio
+                                    createNewFolio(res.folio,anchorPerson,aliasIdPerson,channel,queue,fromClosedFolio); //this action will create a new folio
                                     setUnReadMessages(false);
                                     setOnLoading(true);
                                     setContentMessage(
@@ -268,6 +270,114 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
 
         setOnLoading(false);
     }
+
+    const sendForm = async () => {
+        setCreateContact(true)
+        for(let i in formToContact){
+            if(typeof formToContact[i] === 'string' && formToContact[i].trim() === ''){
+                /*if(i === 'passwordNewUser'){
+                    continue;
+                }*/
+
+                /*if(i === 'idChannel' && formToContact.isGlobal){
+                    continue;
+                }*/
+               
+                setCreateContact(false)
+                setShowErrorMsg(true)
+                return false;
+            } 
+            if ((formToContact.anchorUser.length <= 7 || formToContact.anchorUser.length >13) || isNaN(formToContact.anchorUser)){
+                setMessageError("Télefono debe ser solo números, y debe ser mayor a 7 digitos.")
+                setCreateContact(false)
+                setShowErrorMsg(true)
+                return false;              
+            }
+
+            if (formToContact.alias.length <= 2 || formToContact.alias.length >25 ){
+                setMessageError("Debes cologar un nombre mas largo.")
+                setCreateContact(false)
+                setShowErrorMsg(true)
+                return false;                 
+            }
+            
+        }
+
+        try{
+            Socket.connection.emit('createOrGetPerson', {
+                formToContact : formToContact,
+            },(data) => {
+                console.log(data)
+                if(data.body.success){
+                    setCreateContact(true);
+                    setShowModalContact(true);
+                    clearForm();
+                    //create folio and open 
+                    let person = data.body.person
+                    let fromClosedFolio = false
+                    userInfo.service.idChannel = formToContact.idChannel
+                    createNewFolio(userInfo.service,person.anchor,person.aliasId,userInfo.service.id,userInfo.service.queue,fromClosedFolio,person._id); //this action will create a new folio
+                        setUnReadMessages(false);
+                        setOnLoading(true);
+                        setContentMessage(
+                            <Segment>
+                                <Dimmer active inverted>
+                                    <Loader inverted>Creando la Conversación, espera un momento...</Loader>
+                                </Dimmer>
+                    
+                                <Image src={shortParagraph} />
+                            </Segment>
+                        );    
+                }else{
+                    toast.error(data.body.message);
+                    setShowErrorMsg(true);
+                    setMessageError(data.body.message || 'Ocurrio un error al crear el usuario. Intenta mas tarde.')    
+                    setCreateContact(false);
+                    clearForm();
+                }
+
+            });
+        }catch(err){
+            setShowErrorMsg(true)
+            clearForm();
+            setMessageError('Ocurrio un error al crear el usuario. Intenta mas tarde.'+err.message)
+            console.error(err)
+        }
+    }
+
+    useEffect(() => {
+
+        async function getInfoService(){
+            try{
+                const {data} = await axios(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id);
+                if(data.body.success){
+                    setInfoService(data.body.service);
+                   }else{
+                    toast.warning(<label>No se pudo recuperar información, reinicia tu sesión</label>);
+                }
+    
+            }catch(err){
+                toast.warning(<label>No se pudo recuperar información, reinicia tu sesión</label>);
+                //return window.location.href = '/login';
+            }
+        }
+
+        getInfoService();
+
+        return () => {
+            console.log('Componente desmontado')
+        }
+        
+    }, []);
+
+    {/*const isNumber = (evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    } */}
     return ( <>
         <div>
             <div style={{padding:30}}>
@@ -285,8 +395,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                         onChange={(e) => setQuery(e.target.value.toLowerCase())}
                         />
                         <Button color='blue' icon='search' loading={onLoad} disabled={onLoad} onClick={onContactJSON}></Button>
-                        <Button positive icon='address card outline' loading={onLoad} disabled={onLoad} onClick={newContact}></Button>
-                       
+                        <Button icon labelPosition='left' color='green' size='small' disabled={onLoad} onClick={() => { setShowModalContact(!showModalContact); }}>
+                            <Icon name='id badge' /> Nuevo contacto
+                        </Button>  
                     </Form.Group>
     
                 </Form>
@@ -353,12 +464,54 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                             </Table>
                         </div>
                     ) 
+                }                {
+                    showModalContact && (
+                        <Modal
+                            onClose={() => {setShowModalContact(false);clearForm();}}
+                            onOpen={() => {setShowModalContact(true);clearForm();}}
+                            size='tiny'
+                            closeOnEscape={false}
+                            closeOnDimmerClick={false}
+                            open={showModalContact}
+                            >
+                            <Modal.Header>{formToContact.isNew ? 'Crear nuevo Contacto' : 'Editar Contacto'}</Modal.Header>
+                            <Modal.Content>
+                                <Form>
+                                    <Form.Field error={false}>
+                                        <label>Nombre del contacto</label>
+                                        <input placeholder='Nombre del Contacto' id='alias'  value={formToContact.alias} onChange={setDataForm}/>
+                                    </Form.Field>
+                                    <Form.Field error={false}>
+                                        <label>Télefono / Obligatorio código de país y área (50255170000)</label>
+                                        <input placeholder='Télefono'  type='number'  id='anchorUser' value={formToContact.anchorUser} onChange={setDataForm} disabled={!formToContact.isNew }/>
+                                    </Form.Field>
+                                    <Form.Field error={false}>
+                                        <label>Selecciona un canal</label>
+                                        <Select placeholder='Selecciona un canal'id='idChannel' options={infoService.channels.filter((x) => {
+                                            return x.status && x.name.includes("wab",0) 
+                                        }).map((x) => {
+                                            return {key : x._id, value:x._id, text: x.title}
+                                        })} onChange={(e, {value, id}) => {
+                                            setDataFormCombo(e, {value, id})
+                                            //fillQueues(value)
+                                        }} value={formToContact.idChannel} disabled={false}/>
+                                    </Form.Field>
+                                </Form>
+                            <Message
+                                negative
+                                hidden={!showErrorMsg}
+                                icon='ban'
+                                header='¡Error!'
+                                content={messageError}/>
+                            </Modal.Content>
+                            <Modal.Actions>
+                                <Button color='black' onClick={()=>{setShowModalContact(false);clearForm();}} disabled={createContact}>Cancelar</Button>
+                                <Button content="Crear Contacto y Conversar" labelPosition='right' icon='checkmark' positive onClick={sendForm} disabled={createContact} loading={createContact}/>
+                            </Modal.Actions>
+                        </Modal>
+                    )
                 }
-                
-                {/* <Message attached='bottom'>
-                
-                
-                </Message> */}
+
             </div>
             
         </div>
