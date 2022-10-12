@@ -55,18 +55,30 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setMessageToResponse(null);
     }
 
-    const prepareMessage = async () => {
+    const prepareMessage = async (msg) => {
         
-        if(messageToSend.trim() === ''){
-            return false;
+        let _msg = '' 
+         
+        if (msg && typeof msg === 'string') {_msg = msg} 
+
+        if (_msg.trim() === '' ){
+
+            if(messageToSend.trim() === ''){
+                return false;
+            } else { 
+                _msg = messageToSend
+            }
+
         }
+
+
 
         setIsLoading(true);
 
         socket.connection.emit('sendMessage', {
             token : window.localStorage.getItem('sdToken'),
             folio : folio._id,
-            message : messageToSend,
+            message : _msg,//messageToSend,
             responseTo : showResponseTo,
             class : 'text'
         }, (result) => {
@@ -405,13 +417,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                             //setMessageToSend(e.target.value)
                         }} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){
-                                setMessageToSend(e.target.value)
-                                prepareMessage()}
+                                //setMessageToSend(e.target.value)
+                                prepareMessage(e.target.value)}
                         }} />
 
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
-                        <Button  color='blue' basic onClick={() => {setMessageToSend(textArea.current.value); prepareMessage()}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
+                        <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
 
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
