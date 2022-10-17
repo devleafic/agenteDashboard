@@ -342,11 +342,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(() => {
         
-        {/*if(textArea.current){
-            textArea.current.value= messageToSend;
-        } */}
+        if(textArea.current && messageToSend.length > 0){
+            textArea.current.value = messageToSend;
+            setMessageToSend('')
+        } 
     
-
         if(channel != 'call'){
             showButton()
             
