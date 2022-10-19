@@ -5,6 +5,8 @@ import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 
+import ListFoliosContext from '../../../controladores/FoliosContext';
+
 const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
@@ -16,6 +18,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [fullActivities, setFullActivities ] = useState([]);
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
+
+    const listFolios = useContext(ListFoliosContext);
 
     const iniatilaze = {
         anchor : null,
@@ -159,6 +163,11 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
+
+        if(listFolios.current.length > 0 && activityObj.isConnect){
+            toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
+            return false;
+        }
 
         socketC.connection.emit('changeActivity', {
             token : window.localStorage.getItem('sdToken'),
