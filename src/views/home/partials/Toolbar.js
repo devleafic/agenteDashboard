@@ -201,7 +201,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
 
         if (activityObj) { 
           if(listFolios.current.length > 1 && activityObj.isConnect){
-              toast.warning('Finaliza o Guarda los folios en pantalla para poder recibir nuevos',{
+              toast.warning('Finaliza ó Guarda los folios en pantalla para poder cambiar a "'+activityObj.label+'"',{
                 position: "top-right",
                 autoClose: 5000,
                 closeOnClick: true,
