@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Label , Menu} from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image} from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
@@ -25,7 +25,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
 
-
+    //const [lastActivity, setlastActivity] = useState(currentActivity); //save last activity, before change a new one
     const iniatilaze = {
         anchor : null,
         channel : null,
@@ -207,6 +207,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 closeOnClick: true,
                 pauseOnHover: false,
                 });
+                setCurrentActivity(-1)
               return false;
           }
           socketC.connection.emit('changeActivity', {
@@ -214,14 +215,15 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 activity : activityObj
             }, (result) => {
                 if(!result.success){
-                    toast.error('La actividad no es valida');
+                    toast.error('La actividad no es válida');
                     return false;
                 }
                 setIsConnected(activityObj.isConnect ? 1 : 2);
                 setCurrentActivity(value);
+                //setlastActivity(value)
                 toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
                     position: "top-right",
-                    autoClose: 2500,
+                    autoClose: 1500,
                     closeOnClick: true,
                     pauseOnHover: false,
                     });
