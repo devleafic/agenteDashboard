@@ -25,6 +25,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
 
+
     const iniatilaze = {
         anchor : null,
         channel : null,
@@ -197,7 +198,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
-        
+
         if (activityObj) { 
           if(listFolios.current.length > 0 && activityObj.isConnect){
               toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
@@ -221,6 +222,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                     });
             })
         }
+
     }
 
     //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
