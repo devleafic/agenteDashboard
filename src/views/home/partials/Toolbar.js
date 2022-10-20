@@ -20,13 +20,11 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
 
-
     const listFolios = useContext(ListFoliosContext);
-
 
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
-   
+
 
     const iniatilaze = {
         anchor : null,
@@ -201,27 +199,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             return x._id === value;
         });
 
-
-        if(listFolios.current.length > 0 && activityObj.isConnect){
-            toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
-            return false;
-        }
-
-        socketC.connection.emit('changeActivity', {
-            token : window.localStorage.getItem('sdToken'),
-            activity : activityObj
-        }, (result) => {
-            if(!result.success){
-                toast.error('La actividad no es valida');
-                return false;
-            }
-            setIsConnected(activityObj.isConnect ? 1 : 2);
-            setCurrentActivity(value);
-            toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
-        })
-
         if (activityObj) { 
-            socketC.connection.emit('changeActivity', {
+          if(listFolios.current.length > 0 && activityObj.isConnect){
+              toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
+              return false;
+          }
+          socketC.connection.emit('changeActivity', {
                 token : window.localStorage.getItem('sdToken'),
                 activity : activityObj
             }, (result) => {
@@ -240,7 +223,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             })
         }
 
-        
     }
 
     //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
