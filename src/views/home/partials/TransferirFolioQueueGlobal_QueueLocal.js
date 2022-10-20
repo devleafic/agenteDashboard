@@ -6,15 +6,12 @@ import {Label, Message, Icon, Button, Modal, Dropdown, Header } from 'semantic-u
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const TransferFolio = ({folio, setRefresh, userInfo}) => {
-
-
-
+const TransferirFolioQueueGlobal_QueueLocal = ({folio, setRefresh, userInfo}) => {
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
 
     const clearQueues = folio.folio.channel.queues.filter((x) => {
-        return x.status == 0 || userInfo.service.queue === x._id ? false : true;
+        return x.status == 0 ||  userInfo.service.queue === x._id ? false : true;
     });
     const [queues] = useState(clearQueues);
     const initializeQueue = {queue:null, name: null, folio : folio.folio._id};
@@ -23,20 +20,10 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
 
-    console.log(queueToSend)
-
-    const initLoadModal = () => { //reset values for Modal 
-        console.log(queueToSend)
-        setOpen(!open)
-        setQueueToSend(initializeQueue);
-        console.log(queueToSend)
-    }
-
-
     const checkToSend = () => {
 
         if(!queueToSend.queue){
-            toast.error('Selecciona el queue al cual se transferira el folio.');
+            toast.error('Selecciona la bandeja al cual se transferira el folio.');
             setErrorQueueField(true);
             return false;
         }
@@ -48,10 +35,9 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
         setOnLoading(true);
 
         let actionClose = 'transfer';
-        console.log("transferfolio " +folio.folio._id)
-        console.log("transferir folio " +queueToSend.folio)
-        socket.connection.emit('transferFolio', {
-            folio : folio.folio._id,
+
+        socket.connection.emit('transferFromGlobaltoLocal', {
+            folio : folio._id,
             token : window.localStorage.getItem('sdToken'),
             actionClose,
             dataQueue : queueToSend
@@ -61,7 +47,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 toast.error(result.message);
 
             }else{
-                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id})
+                let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id})
                 listFolios.current.splice(index,1);
             }
 
@@ -73,10 +59,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(() => {
-        setQueueToSend(initializeQueue);
-        console.log('refrescando componente de transferir')},
-    [folio])
+    useEffect(() => {console.log('refrescando componente de transferir')},[])
 
     return ( <>
         {
@@ -90,7 +73,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
             let queueName = queues.find((x) => {
                 return x._id === value;
             })
-            setQueueToSend({...queueToSend, queue : value, name : queueName.name, folio : folio.folio._id})
+            setQueueToSend({...queueToSend, queue : value, name : queueName.name})
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
@@ -99,7 +82,6 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
 
         <Modal
             basic
-            onClose={() => initLoadModal()}
             onOpen={() => setOpen(true)}
             open={open}
             size='small'
@@ -114,7 +96,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 </center>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => initLoadModal()}   loading={onLoading} disabled={onLoading}>
+                <Button basic color='red' inverted onClick={() => {setOpen(false); }} loading={onLoading} disabled={onLoading}>
                     <Icon name='remove' /> No
                 </Button>
                 <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
@@ -125,4 +107,4 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     </>);
 }
  
-export default TransferFolio;
+export default TransferirFolioQueueGlobal_QueueLocal;

@@ -12,9 +12,13 @@ import ViewTicket from './ViewTicket';
 import FindTicket from './FindTicket';
 import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
+import TransferFolioPrivado from './TranferirFolioPrivado';
+import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
+import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
+import Mtm from './Mtm'
 
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
-
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm}) => {
+    const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
@@ -155,32 +159,28 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
                 
             </Accordion.Content>
+            {/* ------------ */}             
+            <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
+                <Icon name='paper plane' />
+                Plantillas de mensajes
+            </Accordion.Title>
+            <Accordion.Content active={indexPane === 10}>
+                < Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio}/>
+            </Accordion.Content>      
+           
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
-                <Icon name='box' />
+                <Icon name='archive' />
                 Historial de Folios
             </Accordion.Title>
             <Accordion.Content active={indexPane === 5}>
-                < HistoryFolios historyFolios={historyFolios}/>
+                < HistoryFolios historyFolios={historyFoliosReverse}/>
             </Accordion.Content>
-            {/* ------------ */}
-            {
-                folio && (<>
-                    <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
-                        <Icon name='exchange' />
-                        Transferir Folio
-                    </Accordion.Title>
-                    <Accordion.Content active={indexPane === 6}>
-                        <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
-                    </Accordion.Content>
-                </>)
-            }
-            
             {/* ------------ */}
             {
                 folio && folio.folio.channel !== 'call' && (<>
                     <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
-                        <Icon name='folder open outline' />
+                        <Icon name='edit' />
                         Respuestas Rápidas
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 2}>
@@ -199,8 +199,60 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </>)
             }
-            
+            {/* ------------ transferencia Folio */}
+            {
+                folio  && !folio.folio.fromInbox  && !folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir Folio
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 6}>
+                        <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
             {/* ------------ */}
+            {/* ------------ transferencia folio privado */}
+            {
+                folio  && folio.folio.fromInbox && folio.folio.channel  !== 'call' &&  (<>
+                    <Accordion.Title index={7} active={indexPane === 7} onClick={openPane}>
+                        <Icon name='comment outline' />
+                        Transferir Conversación Privada 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 7}>
+                        <TransferFolioPrivado folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}  
+            {/* ------------ transferencia folio en queue global */}
+            {
+                folio  && folio.folio.isGlobalQueue && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={8} active={indexPane === 8} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja Global
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 8}>
+                        <TransferFolioQueueGlobal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ transferencia Folio */}
+            {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={9} active={indexPane === 9} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja de Canal 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 9}>
+                        <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+       
+            {/* ------------ */}                
+
             <Accordion.Title index={3} active={indexPane === 3} onClick={openPane}>
                 <Icon name='ticket' />
                 Tickets
@@ -216,18 +268,18 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </List>
                 </div>
                 <p>
-                    <Button color='teal' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
+                    <Button color='blue' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>
                 </p>
             </Accordion.Content>
             {/* ------------ */}
             <Accordion.Title index={4} active={indexPane === 4} onClick={openPane}>
                 <Icon name='cloud' />
-                Archivos en la nube
+               Catalogo de archivos
             </Accordion.Title>
             <Accordion.Content active={indexPane === 4}>
                 <p>
-                    Aun no hay archivos.
+                    Aun no hay archivos. Solicita a tu supervisor.
                 </p>
             </Accordion.Content>
 
@@ -235,7 +287,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
         <div>
             {/* <Button key={'btnsave-'+folio} fluid color='orange' basic style={{marginBottom:15, marginTop: 15}} onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar Folio</Button>
-            <Button key={'btnend-'+folio} fluid color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
+            <Button key={'btnend-'+folio} fluid color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
         </div> 
 
                 {
