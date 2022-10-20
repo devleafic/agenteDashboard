@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import {Device} from 'twilio-client';
 import { ToastContainer, toast } from 'react-toastify';
-import { Modal, Header, Icon, Button } from 'semantic-ui-react';
+import { Modal, Header, Icon, Button, Popup} from 'semantic-ui-react';
 
 /* Contexto */
 import ListFoliosContext from './../../controladores/FoliosContext';
@@ -16,6 +16,8 @@ import CallContext from '../../controladores/CallContext';
 import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 import { off } from 'process';
+import Contacts from './partials/Contacts';
+import Calendar from './partials/Calendar';
 
 window.mobileAndTabletCheck = function() {
     let check = false;
@@ -27,7 +29,9 @@ const Home = () => {
         
     const initializeComponent = {
         home : false,
-        Inbox : false
+        Inbox : false,
+        contacts :  false,
+        calendar :  false
     };
 
     function reducer(state, action) {
@@ -89,7 +93,12 @@ const Home = () => {
     const [unReadMessages, setUnReadMessages] = useState(false);
 
     const [vFolio, setVFolio] = useState(null);
-    
+
+    const closeSession = () => {
+        window.localStorage.removeItem('sdToken');
+        window.localStorage.removeItem('myName');
+        window.location = '/login'
+    }
 
     const CallController = {
         setup : (token) => {
@@ -128,7 +137,12 @@ const Home = () => {
             console.log('Es un mobile');
             return false;
         }
-        Notification.requestPermission();
+        try {
+            Notification.requestPermission();
+        }catch(err){
+            console.log(err)
+            return false
+        }
     }
 
     const showMessage = (message, ignore) => {
@@ -138,9 +152,14 @@ const Home = () => {
         }
         //console.log('------------',window.localStorage.getItem('tabIsActive'));
         if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
-        var notification = new Notification(message);
-        //console.log('se envió el mensaje al navegador '+ message)
-        notification.onclick = function(){window.focus();this.close();}
+        try {
+            var notification = new Notification(message);
+            //console.log('se envió el mensaje al navegador '+ message)
+            notification.onclick = function(){window.focus();this.close();}
+        }catch(err){
+            console.log(err)
+            return false
+        }
     }
 
     const SocketActions = {
@@ -183,13 +202,14 @@ const Home = () => {
                 token : window.localStorage.getItem('sdToken')
             },async (data) => {
                 if(data.success){
+
                     toast.success('Se ha conectado al servidor correctamente');
 
                     // let pulgins = window.localStorage.getItem('plugins')
                     // let chCall = pulgins.find((x) => {
                     //     return x.id === 'call'
                     // })
-                    
+
                     if(window.localStorage.getItem('event')){
                         showMessage('Selecciona una actividad nuevamente', true);
                         window.localStorage.removeItem('event');
@@ -239,6 +259,7 @@ const Home = () => {
                             console.log('Usuario listo para recibir llamadas');
                             toast.success('Listo para recibir llamadas.');
 
+
                             setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                             CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                             setRefresh(Math.random());
@@ -285,6 +306,7 @@ const Home = () => {
                     }else{
                         setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
                         CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
+
                     }
                 }
 
@@ -293,21 +315,26 @@ const Home = () => {
             });
 
             socketC.connection.on('infoAck', (data) => {
-                let msgAck = data.result;
-                
-                let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
-                let copyFolio = listFolios.current[index];
+                try{   
+                    let msgAck = data.result;
+                    
+                    let index = listFolios.current.findIndex((x) => {return x.folio._id === msgAck.folio});
+                    let copyFolio = listFolios.current[index];
 
-                for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
-                    if(copyFolio.folio.message[i]._id === msgAck.message._id){
-                        copyFolio.folio.message[i] = msgAck.message;
-                        break;
+                    for(let i = (copyFolio.folio.message.length-1) ; i >= 0 ; i--){
+                        if(copyFolio.folio.message[i]._id === msgAck.message._id){
+                            copyFolio.folio.message[i] = msgAck.message;
+                            break;
+                        }
                     }
-                }
-                
-                listFolios.current[index] = copyFolio;
-                setRefresh(Math.random());
-                console.log(data);
+                    
+                    listFolios.current[index] = copyFolio;
+                    setRefresh(Math.random());
+                    console.log(data);
+
+                }catch(err){
+                   console.log(err);
+                };
             });
 
             socketC.connection.on('newMessage', (data) => {
@@ -337,8 +364,8 @@ const Home = () => {
             });
 
             socketC.connection.on('newInbox', (data) => {
-                toast.warning('Nuevo Inbox de '+data.anchor);
-                showMessage('Nuevo Inbox de '+data.anchor);
+                toast.warning('Nuevo Inbox de '+data.aliasId + ' #'+data.anchor);
+                showMessage('Nuevo Inbox de  '+data.aliasId + ' #'+data.anchor);
                 setUnReadMessages(true);
             })
             
@@ -359,7 +386,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             case -1:
                 return 'statusBar';
             case 1:
-                return 'statusBarGreen';
+                return 'statusBarblue';
             case 2:
                 return 'statusBarOff';
             default:
@@ -427,6 +454,12 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             {
                 component.inbox && <Inbox  vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
+            {
+                component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}  userInfo={userInfo} />
+            } 
+            {
+                component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
+            }                        
         </div>
         
 
@@ -438,10 +471,12 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             >
             <Header icon>
                 <Icon name='unlinkify' />
-                Error
+                Aviso
             </Header>
             <Modal.Content>
-                <center>{message}</center>
+                <center>{message} <br></br>
+                <Popup content='Iniciar Sesión con otro usuario' trigger={<Button icon='log out' onClick={closeSession}/>} position='right center'/></center>
+                
             </Modal.Content>
             </Modal>
 

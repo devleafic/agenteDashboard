@@ -6,23 +6,26 @@ import {Label, Message, Icon, Button, Modal, Dropdown, Header } from 'semantic-u
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const TransferFolio = ({folio, setRefresh, userInfo}) => {
+const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
 
-
+    console.log(folio.folio._id)
+   
 
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
 
-    const clearQueues = folio.folio.channel.queues.filter((x) => {
-        return x.status == 0 || userInfo.service.queue === x._id ? false : true;
+    const clearQueues = folio.folio.service.globalQueues.filter((x) => {
+        return x.status == false || userInfo.service.queue === x._id ? false : true;
     });
-    const [queues] = useState(clearQueues);
-    const initializeQueue = {queue:null, name: null, folio : folio.folio._id};
-    const [queueToSend, setQueueToSend ] = useState({queue:null, name: null, folio : folio.folio._id});
+
+    const [queues] = useState(clearQueues);  
+    const initializeQueue = {queue:null, name: null, folio : null};
+    const [queueToSend, setQueueToSend ] = useState({queue: null, name: null, folio : null});
     const [errorQueueField, setErrorQueueField] = useState(false);
     const [open,setOpen] = useState(false);
     const [onLoading, setOnLoading] = useState(false);
-
+    
+   
     console.log(queueToSend)
 
     const initLoadModal = () => { //reset values for Modal 
@@ -31,7 +34,6 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
         setQueueToSend(initializeQueue);
         console.log(queueToSend)
     }
-
 
     const checkToSend = () => {
 
@@ -82,15 +84,15 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
         {
             queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen otras bandejas configurados'/>
         }
-        <Label>Selecciona el queue a transferir</Label>
-        <Dropdown placeholder='Escoge un queue' value={queueToSend.queue} error={errorQueueField} selection fluid options={queues.map((x) => {
+        <Dropdown placeholder='Escoge un queue' defaultOpen value={queueToSend.queue} error={errorQueueField} selection fluid options={queues.map((x) => {
             return { key: x._id, value: x._id, text: x.name }
         })} onChange={(e,{value}) => {
             setErrorQueueField(false);
+            
             let queueName = queues.find((x) => {
                 return x._id === value;
             })
-            setQueueToSend({...queueToSend, queue : value, name : queueName.name, folio : folio.folio._id})
+            setQueueToSend({...queueToSend, queue : value, name : queueName.name, folio : folio.folio._id })
             
         }} disabled={queues.length <= 0}/>
         <div style={{marginTop:15}}>
@@ -114,7 +116,7 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
                 </center>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => initLoadModal()}   loading={onLoading} disabled={onLoading}>
+                <Button basic color='red' inverted onClick={() => initLoadModal()}   loading={onLoading} disabled={onLoading} >
                     <Icon name='remove' /> No
                 </Button>
                 <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
@@ -125,4 +127,4 @@ const TransferFolio = ({folio, setRefresh, userInfo}) => {
     </>);
 }
  
-export default TransferFolio;
+export default TransferFolioQueueGlobal;

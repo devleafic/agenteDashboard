@@ -1,9 +1,10 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment } from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Label , Menu} from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
+import avatar from './../../../img/avatars/matt.jpg';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
@@ -19,7 +20,13 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
 
+
     const listFolios = useContext(ListFoliosContext);
+
+
+    const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
+    const [automaticActivity, setAutomaticActivity ] = useState(null);
+   
 
     const iniatilaze = {
         anchor : null,
@@ -29,6 +36,27 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
     const [dataToBlank, setDataToBlank] = useState(iniatilaze);
     const [onCreateBlank, setOnCreateBlank] = useState(false);
+
+
+    const [analytics, setAnalytics] = useState({
+        //foliosPerDay : '-',
+        //foliosEndPerDay : '-',
+        //foliosSavePerDay: '-',
+        foliosOnHoldAll: '°°°'
+    })
+
+    const getAnalytics = () => {
+        
+        if (userInfo) {
+            socketC.connection.emit('getAnalyticsAgent', {
+            proccess : '/folio/all',
+            date : 'today',
+            service : userInfo.service.id
+            },(result) => {
+                setAnalytics(result.data)
+            });
+        }
+    };
 
     const createFolioBlank = () => {
 
@@ -46,7 +74,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         if(isConnected === -1){
             return false
         }
-
         const value = !isInbound;
         setIsUnbound(value);
         toast.success('Se cambio el tipo de conexión a '+(isInbound ? 'Outbound' : 'Inbound'));
@@ -108,7 +135,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setListFilesOubounds(tmpList);
             
         }
-
         
 
     },[isInbound]);
@@ -137,11 +163,18 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 return {key : x._id, value : x._id, text : x.label}
             });
 
+            const checkAutomaticActivity = acti.find((x) => {return (x.status === true && x.setAutomaticActivity === true)});
+
+
             setFullActivities(acti);
             setActivities(toActivities);
+            setAutomaticActivity(checkAutomaticActivity)
         }
-        if(userInfo)
+        if(userInfo){
+            setInterval(getAnalytics, 8000);
+            setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
             loadActivities();
+        }
     }, [isReady]);
 
     const requestItemList = async (e, {value}) => {
@@ -158,11 +191,16 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
     }
 
-    const changeActivity = async (e) => {       
-        let value = e.target.value;
+    useEffect(() => {
+        if (automaticActivity && isInbound ){changeActivity()}
+    }, [automaticActivity]);
+
+    const changeActivity = async (e) => {    
+        let value = e ?  e.target.value : automaticActivity._id
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
+
 
         if(listFolios.current.length > 0 && activityObj.isConnect){
             toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
@@ -181,12 +219,51 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setCurrentActivity(value);
             toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
         })
+
+        if (activityObj) { 
+            socketC.connection.emit('changeActivity', {
+                token : window.localStorage.getItem('sdToken'),
+                activity : activityObj
+            }, (result) => {
+                if(!result.success){
+                    toast.error('La actividad no es valida');
+                    return false;
+                }
+                setIsConnected(activityObj.isConnect ? 1 : 2);
+                setCurrentActivity(value);
+                toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
+                    position: "top-right",
+                    autoClose: 2500,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    });
+            })
+        }
+
         
     }
 
-    //<Button basic color='green' onClick={getToFolioBlank}>Folio en Blanco</Button>
+    //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
     return (
-        <div className="toolbar" style={{textAlign:'right'}}>
+        <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
+            {
+                <div style={{float: 'left'}}  >
+                <Button 
+                    size='mini'
+                    basic
+                    color='blue'
+                    content='En espera'
+                    icon='users'
+                    label={{
+                        as: 'a',
+                        basic: true,
+                        color: 'blue',
+                        pointing: 'left',
+                        content:  analytics.foliosOnHoldAll
+                    }}
+                    />
+               </div>
+            }
             {
                 isReady && !isInbound && (<><Dropdown
                     button
@@ -201,9 +278,11 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 /></>)
             }
             {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='green' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
+                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='blue' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
             }
+            
             {
+                
                 isReady && (
                     <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
                         <option value={-1} selected={currentActivity === -1}>Selecciona una actividad</option>
@@ -213,7 +292,21 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                     </select>
                 )
             }
-                
+            {
+
+            isReady && (
+
+
+                    <Popup href="#"
+                    content={userDetail.prefetch}
+                    key={userDetail.name}
+                    header={userDetail.name}
+                    trigger={<Image src={avatar} avatar />}
+                    />
+
+
+                )
+            }   
             {
                 showBlankFolio && infoBlankFolio && (<>
                     <Modal
