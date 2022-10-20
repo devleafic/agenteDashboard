@@ -199,8 +199,13 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
         
         if (activityObj) { 
-          if(listFolios.current.length > 0 && activityObj.isConnect){
-              toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
+          if(listFolios.current.length > 1 && activityObj.isConnect){
+              toast.warning('Finaliza o Guarda los folios en pantalla para poder recibir nuevos',{
+                position: "top-right",
+                autoClose: 5000,
+                closeOnClick: true,
+                pauseOnHover: false,
+                });
               return false;
           }
           socketC.connection.emit('changeActivity', {
