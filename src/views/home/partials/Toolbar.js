@@ -6,6 +6,8 @@ import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 import avatar from './../../../img/avatars/matt.jpg';
 
+import ListFoliosContext from '../../../controladores/FoliosContext';
+
 const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
@@ -17,9 +19,15 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [fullActivities, setFullActivities ] = useState([]);
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
+
+
+    const listFolios = useContext(ListFoliosContext);
+
+
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
    
+
     const iniatilaze = {
         anchor : null,
         channel : null,
@@ -192,6 +200,26 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
         });
+
+
+        if(listFolios.current.length > 0 && activityObj.isConnect){
+            toast.warning('No se puede cambiar la actividad mientras haya folios en pantalla');
+            return false;
+        }
+
+        socketC.connection.emit('changeActivity', {
+            token : window.localStorage.getItem('sdToken'),
+            activity : activityObj
+        }, (result) => {
+            if(!result.success){
+                toast.error('La actividad no es valida');
+                return false;
+            }
+            setIsConnected(activityObj.isConnect ? 1 : 2);
+            setCurrentActivity(value);
+            toast.success('Se cambió la actividad correctamente a "'+activityObj.label+'"');
+        })
+
         if (activityObj) { 
             socketC.connection.emit('changeActivity', {
                 token : window.localStorage.getItem('sdToken'),
@@ -211,6 +239,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                     });
             })
         }
+
         
     }
 
