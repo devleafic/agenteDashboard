@@ -118,7 +118,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
             aliasIdPerson,
             channel,
             queue,
-            messages : "Outbound Message. You might need to send a message template.",
+            messages : "Conversación creada. Para contactar al cliente debes enviar una - Plantilla de Mensaje -. Espera que el cliente responda el mensaje para seguir chateando.",
             fromClosedFolio,
             personId
         },(data) => {
