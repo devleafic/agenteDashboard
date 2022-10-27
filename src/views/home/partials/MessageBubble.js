@@ -10,9 +10,9 @@ const Message = ({message, responseToMessage, allMsg}) => {
     // }
 
     const equivalenciasAck = {
-        'deliveryToServers' : 'Enviado',
-        'deliveryToRecipient' : 'Entregado',
-        'readByRecipient' : 'Leído',
+        'deliveryToServers' : 'Enviado 📨',
+        'deliveryToRecipient' : 'Entregado ✅',
+        'readByRecipient' : 'Leído ✅✅',
         'failedDelivery' : 'Sin enviar',
         'failedOutofWindows' : 'Sin enviar. Han pasado más de 24 horas desde el cliente ha enviado el mensaje. Usa una plantilla para contactar al cliente.',
         'rejectedByAPI' : 'Sin enviar. El mensaje fue rechazado por el API.',
@@ -122,7 +122,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
     
     const getNameAuthor = (element) => {
         if(!element){return '';}
-        
+        if(element.sys && element.sys == 'BOT') {element.sys = '🤖'}
         return element.agent ? element.agent.user 
             : (element.sys ? element.sys : '');
     }
