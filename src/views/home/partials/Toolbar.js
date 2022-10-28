@@ -251,7 +251,22 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                         content:  analytics.foliosOnHoldAll
                     }}
                     />
+                                    <Button 
+                    size='mini'
+                    basic
+                    color='blue'
+                    content='🤖 en Atención'
+                    
+                    label={{
+                        as: 'a',
+                        basic: true,
+                        color: 'blue',
+                        pointing: 'left',
+                        content:  analytics.foliosOnBotAt
+                    }}
+                    />
                </div>
+               
             }
             {
                 isReady && !isInbound && (<><Dropdown
