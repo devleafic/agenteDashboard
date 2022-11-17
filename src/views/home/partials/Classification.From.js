@@ -6,7 +6,7 @@ const ClassificationForm = ({infoForm}) => {
         {/*const formFiltered = form.filter((x) => {
             return x.status === true
         });*/}
-        const render = form.filter((x) =>{return x.status === true}).map((x) => {
+        const render = form.filter((x) =>{return x.status}).map((x) => {
             switch(x.rtype){
                 case 'text':
                     return (<Form.Field  width={6}>
