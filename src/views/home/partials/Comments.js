@@ -120,7 +120,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
        
         let validate;
         if(infoForm){
-            let fRequire = infoForm.form.filter((x) => {return x.require});
+            let fRequire = infoForm.form.filter((x) => {return x.require && x.status});
             validate = fRequire.map((xField) => {
                 let findContent = Object.keys(formClassification).find((x) => {return x === xField._id});
                 if(!findContent){
@@ -275,7 +275,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
 
     const renderForm = (formData) => {
-        const render = formData.form.map((x) => {
+        const render = formData.form.filter((x) =>{return x.status === true}).map((x) => {
             switch(x.rtype){
                 case 'text':
                     return (<Form.Field key={x._id}  width={6}>

@@ -3,7 +3,10 @@ import { Form, Label } from 'semantic-ui-react';
 
 const ClassificationForm = ({infoForm}) => {
     const renderForm = (form) => {
-        const render = form.map((x) => {
+        {/*const formFiltered = form.filter((x) => {
+            return x.status === true
+        });*/}
+        const render = form.filter((x) =>{return x.status}).map((x) => {
             switch(x.rtype){
                 case 'text':
                     return (<Form.Field  width={6}>
