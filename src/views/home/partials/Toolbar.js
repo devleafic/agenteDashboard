@@ -64,7 +64,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 if( analytics.foliosOnHoldAll > 0){
                     return (
                         <Icon.Group>
-                            <Icon name='fork' />
+                            <Icon circular name='fork' />
                             <Icon corner name='circle' color='red'/>
                         </Icon.Group>        
                     )
