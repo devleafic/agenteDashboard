@@ -40,7 +40,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         //foliosPerDay : '-',
         //foliosEndPerDay : '-',
         //foliosSavePerDay: '-',
-        foliosOnHoldAll: '°°°'
+        foliosOnHoldAll: '°°°',
+        foliosOnBotAt: '°°°'
     })
 
     const getAnalytics = () => {
@@ -55,6 +56,26 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             });
         }
     };
+
+    const getIcon = (option) => {
+       
+        switch (option){
+            case 'queue':
+                if( analytics.foliosOnHoldAll > 0){
+                    return (
+                        <Icon.Group>
+                            <Icon name='fork' />
+                            <Icon corner name='circle' color='red'/>
+                        </Icon.Group>        
+                    )
+                }else{
+                    return (
+                        <Icon circular name='fork' />
+                    )
+                }
+          
+        }
+    }    
 
     const createFolioBlank = () => {
 
@@ -237,15 +258,15 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
             {
                 <div style={{float: 'left'}}  >
-                  <Popup trigger={<Icon circular name='fork' />} flowing hoverable>
+                  <Popup trigger={getIcon("queue")} flowing hoverable>
                     <Grid centered divided columns={2}>
                     <Grid.Column textAlign='center'>
-                        <Header as='h4'>En espera</Header>
+                        <Header as='h4'>En pila de espera</Header>
                         <p>
                         <b>{analytics.foliosOnHoldAll}</b> usuarios
                         </p>
                         <p>
-                        <b>Se encuentran en espera de atención.</b>
+                        <b>Pendientes de asignación acumulados en pilas configuradas.</b>
                         </p>
                     </Grid.Column>
                     <Grid.Column textAlign='center'>
@@ -254,7 +275,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                         <b>{analytics.foliosOnBotAt}</b> usuarios
                         </p>
                         <p>
-                        <b>En atención por Bot 🤖.</b>
+                        <b>En atención por Bot 🤖</b>
                         </p>
                     </Grid.Column>
                     </Grid>
