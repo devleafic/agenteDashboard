@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image} from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Grid} from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
@@ -237,34 +237,28 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
             {
                 <div style={{float: 'left'}}  >
-                <Button 
-                    size='mini'
-                    basic
-                    color='blue'
-                    content='En espera'
-                    icon='users'
-                    label={{
-                        as: 'a',
-                        basic: true,
-                        color: 'blue',
-                        pointing: 'left',
-                        content:  analytics.foliosOnHoldAll
-                    }}
-                    />
-                                    <Button 
-                    size='mini'
-                    basic
-                    color='blue'
-                    content='🤖 en Atención'
-                    
-                    label={{
-                        as: 'a',
-                        basic: true,
-                        color: 'blue',
-                        pointing: 'left',
-                        content:  analytics.foliosOnBotAt
-                    }}
-                    />
+                  <Popup trigger={<Icon circular name='fork' />} flowing hoverable>
+                    <Grid centered divided columns={2}>
+                    <Grid.Column textAlign='center'>
+                        <Header as='h4'>En espera</Header>
+                        <p>
+                        <b>{analytics.foliosOnHoldAll}</b> usuarios
+                        </p>
+                        <p>
+                        <b>Se encuentran en espera de atención.</b>
+                        </p>
+                    </Grid.Column>
+                    <Grid.Column textAlign='center'>
+                        <Header as='h4'>Bot</Header>
+                        <p>
+                        <b>{analytics.foliosOnBotAt}</b> usuarios
+                        </p>
+                        <p>
+                        <b>En atención por Bot 🤖.</b>
+                        </p>
+                    </Grid.Column>
+                    </Grid>
+                </Popup>
                </div>
                
             }
