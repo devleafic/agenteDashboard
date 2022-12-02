@@ -10,9 +10,9 @@ const Message = ({message, responseToMessage, allMsg}) => {
     // }
 
     const equivalenciasAck = {
-        'deliveryToServers' : 'Enviado 📨',
-        'deliveryToRecipient' : 'Entregado ✅',
-        'readByRecipient' : 'Leído ✅✅',
+        'deliveryToServers' : <Icon name='telegram plane'/>,
+        'deliveryToRecipient' : <div><Icon name='check'/>  <Icon name='check'/></div>,
+        'readByRecipient' :    <div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div>,
         'failedDelivery' : 'Sin enviar',
         'failedOutofWindows' : 'Sin enviar. Han pasado más de 24 horas desde el cliente ha enviado el mensaje. Usa una plantilla para contactar al cliente.',
         'rejectedByAPI' : 'Sin enviar. El mensaje fue rechazado por el API.',
@@ -131,7 +131,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
         if(!ack){return '';}
 
         const lastEvent = Object.keys(ack)[Object.keys(ack).length-1];
-        return (equivalenciasAck[lastEvent] ? '- '+equivalenciasAck[lastEvent] : '')
+        return (equivalenciasAck[lastEvent] ? equivalenciasAck[lastEvent] : '')
     }
 
     return ( <>
@@ -141,7 +141,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
                 <p className='from-me'>{convertContent(message)}</p>
             </div>
         </div> 
-        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getAck(message.ack)}<br/> {getNameAuthor(message.origin)}</p>
+        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)} </p>
         </>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)}</p>
             {/* Boton para poder hacer reply */}
