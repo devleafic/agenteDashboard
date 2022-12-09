@@ -2,6 +2,7 @@ import React, {useEffect, useContext, useState} from 'react';
 import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
+import moment from 'moment';
 
 import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
@@ -122,6 +123,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     <Table.HeaderCell>Canal</Table.HeaderCell>
                     <Table.HeaderCell>Bandeja</Table.HeaderCell>
                     <Table.HeaderCell>Transferido Por</Table.HeaderCell>
+                    <Table.HeaderCell>Última actual...</Table.HeaderCell>                    
                     <Table.HeaderCell></Table.HeaderCell>
                     <Table.HeaderCell></Table.HeaderCell>                    
                 </Table.Row>
@@ -161,6 +163,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Bandeja </b>{x.queue}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Transferido Por</b>{x.userFromName && x.transferDate? x.userFromName + ' - ' + x.transferDate : "N/A"}</Table.Cell>
+                                <Table.Cell><b className='showLabel'>Última actual..</b>{moment(x.folio.updatedAt).fromNow()}</Table.Cell>
                                 <Table.Cell textAlign='right'>
                                     {
                                         x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
