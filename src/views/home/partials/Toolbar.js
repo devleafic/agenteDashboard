@@ -8,6 +8,8 @@ import avatar from './../../../img/avatars/matt.jpg';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
+import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
+
 const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
@@ -25,6 +27,24 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
 
+    //notification center
+    const {
+        notifications,
+        clear,
+        markAllAsRead,
+        markAsRead,
+        unreadCount
+    } = useNotificationCenter();
+    const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+    const showToast = () => {
+        toast('Hello World', {
+            data: {
+                title: 'Hello World Again',
+                text: 'We are here again with another article'
+            }
+        });
+    };     
+    //notificaction center -----------------
     //const [lastActivity, setlastActivity] = useState(currentActivity); //save last activity, before change a new one
     const iniatilaze = {
         anchor : null,
@@ -73,7 +93,15 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                         <Icon circular name='fork' />
                     )
                 }
-          
+            break;
+            case 'notification': 
+                return (
+                    <Icon.Group>
+                        <Icon circular name='bell' />
+                        <Icon corner name='circle' color='red'   />
+                    </Icon.Group> 
+                )
+            break;
         }
     }    
 
@@ -258,6 +286,28 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
             {
                 <div style={{float: 'left'}}  >
+                  {/*  <Popup trigger={getIcon("notification")} flowing hoverable>
+                        <Grid centered divided columns={2}>
+                        <Grid.Column textAlign='center'>
+                            <Header as='h4'>En pila de espera</Header>
+                            <p>
+                            <b>{analytics.foliosOnHoldAll}</b> usuarios
+                            </p>
+                            <p>
+                            <b>Pendientes de asignación acumulados en pilas configuradas.</b>
+                            </p>
+                        </Grid.Column>
+                        <Grid.Column textAlign='center'>
+                            <Header as='h4'>Bot</Header>
+                            <p>
+                            <b>{analytics.foliosOnBotAt}</b> usuarios
+                            </p>
+                            <p>
+                            <b>En atención por Bot 🤖</b>
+                            </p>
+                        </Grid.Column>
+                        </Grid>
+            </Popup>   */}                 
                   <Popup trigger={getIcon("queue")} flowing hoverable>
                     <Grid centered divided columns={2}>
                     <Grid.Column textAlign='center'>

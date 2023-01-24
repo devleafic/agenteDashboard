@@ -36,7 +36,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -56,7 +56,11 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         aliasName = aliasName+' ';}
         
     }
-    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
+    let folioIcon =  <Icon color='red' name='folder outline' />
+    if (privateInbox){
+      folioIcon =  <Icon color='red' name='inbox' /> 
+    } else {folioIcon =  <Icon color='blue' name='folder' />}
+    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
   } 
 
   useEffect(() => {
@@ -90,8 +94,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
-        return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+        return {  
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
           tabular:true,
           render : () => {
             
