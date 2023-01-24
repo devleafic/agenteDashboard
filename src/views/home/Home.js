@@ -367,6 +367,9 @@ const Home = () => {
                 toast.warning('Nuevo Inbox de '+data.aliasId + ' #'+data.anchor);
                 showMessage('Nuevo Inbox de  '+data.aliasId + ' #'+data.anchor);
                 setUnReadMessages(true);
+                //Automatic assign 
+                console.log("data.fullFolio" , data.fullFolio)
+                openItemInbox(data.fullFolio, data.item)
             })
             
 
@@ -375,6 +378,30 @@ const Home = () => {
         sendMessage : () => {
 
         }
+    }
+    const openItemInbox = (folio, item) => {
+        console.time('openItemInbox');
+        //setIsLoadInboxFolio(true)
+        socketC.connection.emit('openItemInbox', {
+            fromNotification :  true, //trying to open an inbox after notificaction 
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio,
+            item
+        },(data) => {
+           
+            //setIsLoadInboxFolio(false);
+            if(!data.success && data.automaticAssign){
+                toast.error(data.message);
+                return false;
+            } else if (!data.success && !data.automaticAssign){
+                return false;
+            }
+
+            setVFolio(folio._id)
+            toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
+            selectedComponent('home')
+            console.timeEnd('openItemInbox')
+        });
     }
 
     const onFocus = () => {window.localStorage.setItem('tabIsActive', true);/*console.log('Ventana activa')*/};
