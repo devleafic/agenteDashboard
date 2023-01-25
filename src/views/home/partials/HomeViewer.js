@@ -59,7 +59,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     let folioIcon =  <Icon color='red' name='folder outline' />
     if (privateInbox){
       folioIcon =  <Icon color='red' name='inbox' /> 
-    } else {folioIcon =  <Icon color='blue' name='folder' />}
+    } else {folioIcon =  <Icon color='blue' name='folder open' />}
     return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
   } 
 
