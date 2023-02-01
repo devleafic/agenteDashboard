@@ -301,6 +301,8 @@ h2 {
 
 .removeMargin > .menu{
   margin-bottom: 0px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .removeMargin > .tab{
