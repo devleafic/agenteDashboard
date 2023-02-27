@@ -46,8 +46,8 @@ const Login = () => {
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         {/* <Header as='h1' style={{color:'#FFF'}}>Bienvenido a SD.2</Header> */}
                         <Image src={LogoImage}/>
-                        <Header as='h2'>Chatea con tus clientes en una sola plataforma</Header>
-
+                        <Header as='h2'>WhatsApp Business, Facebook Messenger, Instagram, Email, Llamadas y más...</Header>
+                        <Header as='h3'>Combinados en una bandeja de entrada.</Header>
                     </Grid.Column>
                 </Grid>
             </Grid.Column>
@@ -55,7 +55,7 @@ const Login = () => {
                 <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         <Form size='large' onSubmit={onSubmitForm}>
-                            <Header as='h2'>No pierdas ninguna conversación</Header>
+                            <Header as='h2'>Una Bandeja. Todos los Canales.</Header>
                             <Header as='h4'>Versión {process.env.REACT_APP_SYSTEM_VERSION}</Header>
                             <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
