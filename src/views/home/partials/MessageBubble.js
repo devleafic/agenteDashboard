@@ -116,7 +116,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
             case 'errors':
             return (<>[{type}] - {content}</>);      
             default:
-                return (<>[Class {type} undefined] - {content}</>);
+                return (<>[La clase {type} no esta soportada] - {content}</>);
         }
     }
     
@@ -134,16 +134,23 @@ const Message = ({message, responseToMessage, allMsg}) => {
         return (equivalenciasAck[lastEvent] ? equivalenciasAck[lastEvent] : '')
     }
 
+    const getReaction = (reaction) => {
+        if(!reaction){return '';}
+
+        const lastEvent = Object.keys(reaction)[Object.keys(reaction).length-1];
+        return (lastEvent ? lastEvent : '')
+    }
+
     return ( <>
     {
         message.direction === 'out' ? (<><div key={message._id}>
             <div style={{float:'right'}}>
-                <p className='from-me'>{convertContent(message)}</p>
+                <p className='from-me'>{convertContent(message)}</p>  {getReaction(message.reaction)}
             </div>
         </div> 
-        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)} </p>
+        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
         </>) : (<div key={message._id}>
-            <p className='from-them'>{convertContent(message)}</p>
+            <p className='from-them'>{convertContent(message)} </p> {getReaction(message.reaction)}
             {/* Boton para poder hacer reply */}
             {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
             <p className='from-them-meta'>
