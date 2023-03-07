@@ -135,10 +135,11 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg}) => {
     }
 
     const getReaction = (reaction) => {
-        if(!reaction){return '';}
+        if(!reaction || reaction.length === 0){return '';}
 
-        const lastEvent = Object.keys(reaction)[Object.keys(reaction).length-1];
-        return (lastEvent ? lastEvent : '')
+        const lastEvent = reaction[reaction.length-1]
+        return (lastEvent ? lastEvent.event : '')
+        console.log(lastEvent.event)
     }
 
     return ( <>
