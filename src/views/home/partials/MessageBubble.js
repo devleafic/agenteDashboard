@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Image, Icon, Dropdown, Label , Divider } from 'semantic-ui-react';
 
-const Message = ({message, responseToMessage, allMsg}) => {
+const Message = ({message, responseToMessage, reactToMessage, allMsg}) => {
 
     // const equivalenciasAck = {
     //     'deliveryToServers' : 'Enviado',
@@ -157,7 +157,7 @@ const Message = ({message, responseToMessage, allMsg}) => {
                 <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
                     <Dropdown.Menu>
                         <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
-                        <Dropdown.Item text='Reaccionar' />
+                        <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} />
                     </Dropdown.Menu>
                 </Dropdown>
             </p>
