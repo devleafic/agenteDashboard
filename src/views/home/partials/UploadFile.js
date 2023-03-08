@@ -36,10 +36,11 @@ const UploadFile = ({folio, channel, setRefresh}) => {
 
     const sendFileMessage = () => {
         setOnPushFile(true);
+        let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
         socket.connection.emit('sendMessage', {
             token : window.localStorage.getItem('sdToken'),
             folio : folio,
-            message : urlFile,
+            message : urlFixed,
             caption : nameFile,
             class : urlFileType
         }, (result) => {
