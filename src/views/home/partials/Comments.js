@@ -58,7 +58,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const reactToMessage = (idMessage) => {
 
         socket.connection.emit('reactToMessageAgent', {
-            event : "👍",//messageToSend,
+            event : "😖",//messageToSend,
             externalId : idMessage,
         }, (result) => {
 
