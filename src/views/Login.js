@@ -46,8 +46,8 @@ const Login = () => {
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         {/* <Header as='h1' style={{color:'#FFF'}}>Bienvenido a SD.2</Header> */}
                         <Image src={LogoImage}/>
-                        <Header as='h2'>WhatsApp Business, Facebook Messenger, Instagram, Email, Llamadas y más...</Header>
-                        <Header as='h3'>Combinados en una bandeja de entrada.</Header>
+                        <Header as='h2'>WhatsApp Business, Messenger, Instagram, Email, Llamadas y más...</Header>
+                        <Header as='h3'>Combinados en una bandeja para equipos</Header>
                     </Grid.Column>
                 </Grid>
             </Grid.Column>
@@ -56,7 +56,7 @@ const Login = () => {
                     <Grid.Column style={{ maxWidth: 450 }}> 
                         <Form size='large' onSubmit={onSubmitForm}>
                             <Header as='h2'>Una Bandeja. Todos los Canales.</Header>
-                            <Header as='h4'>Versión {process.env.REACT_APP_SYSTEM_VERSION}</Header>
+                            <Header as='h4'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
                             <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
                                 <p>{msgError}</p>
@@ -81,6 +81,7 @@ const Login = () => {
                             <Button color='blue' loading={onLoading} disabled={onLoading}>
                                 Iniciar Sesión
                             </Button>
+                            <Header as='h6'>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</Header>
                         </Form>
                     </Grid.Column>
                 </Grid>

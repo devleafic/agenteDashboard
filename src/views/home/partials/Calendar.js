@@ -1,14 +1,25 @@
-import { Segment, Header, Icon } from "semantic-ui-react";
+import { Image, Grid } from 'semantic-ui-react';
+import React, {useContext,useState, useEffect} from 'react';
+import image from './../../../img/dashboard/empty_service.png';
+import { useParams } from 'react-router-dom';
 const Calendar = () => {
-    return ( <>
-        <Segment placeholder>
-            <Header icon>
-                <Icon name='file code outline' />
-                Estamos construyendo esta función, muy pronto la tendrás disponible. Acá podrás visualizar y crear recordatorios para mejorar la atención a tus clientes.
-            </Header>
-            
-        </Segment>
-    </> );
+
+
+    return (<>
+
+        <div className='contentDashboard'>
+        <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+            <Grid.Column>
+                <div style={{textAlign:'center'}}>
+                    <Image src={image} alt='Sin Servicios' centered size='small'/>
+                    <h2 style={{fontWeight:100}}>No cuentas con acceso</h2>
+                    <p>Puedes solicitar acceso a la creación de recordartorios con tu administrador.</p>
+                </div>
+            </Grid.Column>
+        </Grid>
+        </div>
+    </>);
+    
 }
  
 export default Calendar;
