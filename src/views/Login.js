@@ -47,10 +47,10 @@ const Login = () => {
                         {/* <Header as='h1' style={{color:'#FFF'}}>Bienvenido a SD.2</Header> */}
                         <Image src={LogoImage}/>
                         <Header as='h2'>WhatsApp Business, Messenger, Instagram, Email, Llamadas y más...</Header>
-                        <Header as='h3'>Combinados en una bandeja para equipos</Header>
-                        <a href='https://play.google.com/store/apps/details?id=com.leafm&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible en Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png'      width="150'" 
+                        <Header as='h3'>Combinados en una bandeja para equipos</Header><br></br><br></br>
+                        <a  href='https://play.google.com/store/apps/details?id=com.leafm&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible en Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png'      width="150'" 
      height="auto"/></a>
-                    </Grid.Column>
+                      </Grid.Column>
                 </Grid>
             </Grid.Column>
             <Grid.Column>
