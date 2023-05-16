@@ -113,8 +113,10 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg}) => {
                 </audio>)
             case 'externalAttachment' :
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
+            case 'notify':
+                <Label as='a' color='red' tag>{content}</Label>;           
             case 'errors':
-            return (<>[{type}] - {content}</>);      
+                return (<>[{type}] - {content}</>);      
             default:
                 return (<>[La clase {type} no esta soportada] - {content}</>);
         }
