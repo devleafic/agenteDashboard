@@ -114,7 +114,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg}) => {
             case 'externalAttachment' :
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'notify':
-                <Label as='a' color='red' tag>{content}</Label>;           
+                return <Label color="red"> <Icon name='x' />{content}<Label.Detail>FINALIZA LA CONVERSACIÓN</Label.Detail></Label>          
             case 'errors':
                 return (<>[{type}] - {content}</>);      
             default:
