@@ -397,9 +397,23 @@ const Home = () => {
                 return false;
             }
 
-            setVFolio(folio._id)
+            //setVFolio(folio._id)
             toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
-            selectedComponent('home')
+            //selectedComponent('home')
+            const isOpenFolio = listFolios.current.find((x) => {
+                return x.folio._id === folio._id;
+            })
+
+            if(isOpenFolio){
+                toast.info('El folio ya se encuentra abierto');
+                return false;
+            }
+            
+            listFolios.current.push(folio);
+            dispatchCount({type : 'unRead', folio :folio._id, init : 0});
+            if(window.localStorage.getItem('vFolio') != data.body.folio._id){
+                dispatch({type : 'unRead', folio : data.body.folio._id});
+            }
             console.timeEnd('openItemInbox')
         });
     }
