@@ -227,7 +227,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {/* ------------ */}  
             {/* ------------ transferencia folio en queue global */}
             {
-                folio  && folio.folio.isGlobalQueue && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                folio  && folio.folio.isGlobalQueue &&  !folio.folio.isGlobalDistributor && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
                     <Accordion.Title index={8} active={indexPane === 8} onClick={openPane}>
                         <Icon name='exchange' />
                         Transferir a Bandeja Global
@@ -237,6 +237,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </>)
             }
+
             {/* ------------ transferencia Folio */}
             {
                 folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>

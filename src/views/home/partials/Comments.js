@@ -257,9 +257,22 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
 
         if(folio.isGlobalQueue){
-            let name = folio.service.globalQueues.find((x) => {
-                return x._id === folio.queue;
-            });
+            let name = "Queue"
+            if (folio.isGlobalDistributor)    {
+                
+                name = folio.service.genericQueues.find((x) => {
+                    return x._id === folio.queue;
+                });
+                   
+            } else {
+
+                name = folio.service.globalQueues.find((x) => {
+                    return x._id === folio.queue;
+                });
+
+            }
+
+
 
             return name.name
         }else{
