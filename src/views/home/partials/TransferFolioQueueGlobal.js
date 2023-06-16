@@ -82,7 +82,7 @@ const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
 
     return ( <>
         {
-            queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen otras bandejas configurados'/>
+            queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen otras bandejas configuradas'/>
         }
         <Dropdown placeholder='Escoge un queue' defaultOpen value={queueToSend.queue} error={errorQueueField} selection fluid options={queues.map((x) => {
             return { key: x._id, value: x._id, text: x.name }
@@ -110,7 +110,7 @@ const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
                 <Icon name='exchange' />
                 Transferir
             </Header>
-            <Modal.Content>
+            <Modal.Content>     
                 <center>
                 ¿Deseas transferir el folio <b>#{queueToSend.folio}</b> al queue <b>"{queueToSend.name}"</b> ?
                 </center>
