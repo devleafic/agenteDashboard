@@ -14,6 +14,7 @@ import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
 import TransferFolioPrivado from './TranferirFolioPrivado';
 import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
+import TransferFolioQueueGeneric from './TransferFolioQueueGeneric';
 import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
 import Mtm from './Mtm'
 
@@ -247,6 +248,20 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 9}>
                         <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+
+            {/* ------------ transferencia Folio generic*/}
+            {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={11} active={indexPane === 11} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja Genérica 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 11}>
+                        <TransferFolioQueueGeneric folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
                     </Accordion.Content>
                 </>)
             }
