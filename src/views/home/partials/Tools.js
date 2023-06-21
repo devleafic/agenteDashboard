@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input } from 'semantic-ui-react';
+import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input, Message } from 'semantic-ui-react';
 
 // Contextos
 import SocketContext from './../../../controladores/SocketContext';
@@ -299,7 +299,34 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 </p>
             </Accordion.Content>
 
-        </Accordion>
+                        {/* ------------ salesforce*/}
+                        {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={12} active={indexPane === 12} onClick={openPane}>
+                        <Icon name='skyatlas' />
+                        SalesForce CRM
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 12}>
+                    <   Form error>
+                            <Form.Input label='ID' placeholder='' />
+                            <Form.Input label='Nombre' placeholder='' />
+                            <Form.Input label='Apellido' placeholder='' />
+                            <Form.Input label='Email' placeholder='' />
+                            <Form.Input label='NIT' placeholder='' />
+                            <Message
+                            error
+                            header='Action prohibida'
+                            content='Estamos trabajando para habilitar esta opción, gracias por la paciencia.'
+                            />
+                            <Button>Submit</Button>
+                        </Form>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+
+            </Accordion>
+            
 
         <div>
             {/* <Button key={'btnsave-'+folio} fluid color='orange' basic style={{marginBottom:15, marginTop: 15}} onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar Folio</Button>
