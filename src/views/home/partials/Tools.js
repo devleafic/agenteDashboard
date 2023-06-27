@@ -313,11 +313,13 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                             <Form.Input label='Apellido' placeholder='' />
                             <Form.Input label='Email' placeholder='' />
                             <Form.Input label='NIT' placeholder='' />
-                            <Message
+                            <Form.Input label='Canal' placeholder='' />
+                            <Form.Input label='Origne' placeholder='' />
+                            {/*<Message
                             error
-                            header='Action prohibida'
-                            content='Estamos trabajando para habilitar esta opción, gracias por la paciencia.'
-                            />
+                            header='Conacto de SF'
+                            content=''
+                            />*/}
                             <Button>Submit</Button>
                         </Form>
                     </Accordion.Content>
