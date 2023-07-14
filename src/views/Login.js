@@ -40,25 +40,20 @@ const Login = () => {
     }
 
     return (<>
-        <Grid columns={2} style={{height:'calc(100vh + 14px)'}}>
+        <Grid columns={1} style={{height:'calc(100vh + 14px)'}}>
             <Grid.Column>
                 <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+
+
+
                     <Grid.Column style={{ maxWidth: 450 }}> 
+
+               
                         {/* <Header as='h1' style={{color:'#FFF'}}>Bienvenido a SD.2</Header> */}
-                        <Image src={LogoImage}/>
+                        <Image src={LogoImage}  centered style={{textAlign: 'center', maxWidth: 200}}/>
                         <Header as='h2'>WhatsApp Business, Messenger, Instagram, Livechat, Llamadas y más...</Header>
-                        <Header as='h3'>Combinados en una bandeja para equipos</Header><br></br><br></br>
-                        <a  href='https://play.google.com/store/apps/details?id=com.leafm&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible en Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png'      width="150'" 
-     height="auto"/></a>
-                      </Grid.Column>
-                </Grid>
-            </Grid.Column>
-            <Grid.Column>
-                <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-                    <Grid.Column style={{ maxWidth: 450 }}> 
+                        <Header as='h3'>Combinados en una bandeja para equipos</Header>
                         <Form size='large' onSubmit={onSubmitForm}>
-                            <Header as='h2'>Una Bandeja. Todos los Canales.</Header>
-                            <Header as='h4'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
                             <p>Ingresa tus credenciales para poder acceder</p>
                             {msgError.trim() !== '' &&(<Message negative>
                                 <p>{msgError}</p>
@@ -80,10 +75,13 @@ const Login = () => {
                                 onChange={(e)=> {setPassword(e.target.value); setMsgError('')}}
                             />
                             
-                            <Button color='blue' loading={onLoading} disabled={onLoading}>
+                            <Button color='blue' fluid size='large' loading={onLoading} disabled={onLoading}>
                                 Iniciar Sesión
                             </Button>
+                            <Header as='h4'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
                             <Header as='h6'>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</Header>
+                            <a  href='https://play.google.com/store/apps/details?id=com.leafm&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible en Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png'      width="150'" 
+     height="auto"/></a>
                         </Form>
                     </Grid.Column>
                 </Grid>
