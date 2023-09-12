@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { Image, Icon, Dropdown, Label , Divider } from 'semantic-ui-react';
+import { Image, Icon, Dropdown, Label , Divider, Message, List } from 'semantic-ui-react';
 
-const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) => {
+const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) => {
 
     // const equivalenciasAck = {
     //     'deliveryToServers' : 'Enviado',
@@ -87,7 +87,6 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         const type = msg.class;
         const content = msg.content;
         const caption = msg.caption;
-        const recording = msg.callRecordUrl;
 
         switch(type){
             case 'text':
@@ -111,12 +110,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 return (<audio controls >   
                     <source src={content} type='audio/ogg' />   
                     <source src={content} type='audio/mpeg' />   
-                </audio> )
-            case 'call':   
-            return (  (<audio controls >   
-                <source src={recording} type='audio/ogg' />   
-                <source src={recording} type='audio/mpeg' />   
-            </audio>) )                 
+                </audio>)
             case 'externalAttachment' :
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'notify':
@@ -152,29 +146,58 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         console.log(lastEvent.event)
     }
 
+    const getAttachments = (files) => {
+        if(!files){return '';}
+        const lastEvent = Object.keys(files)[Object.keys(files).length-1];
+        return lastEvent ? lastEvent : 'Sin adjuntos.'
+    }
+
     return ( <>
     {
-        message.direction === 'out' ? (<><div key={message._id}>
-            <div style={{float:'right'}}>
-                <p className='from-me'>{convertContent(message)}</p>  {getReaction(message.reaction)}
-            </div>
-        </div> 
-        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
-        </>) : (<div key={message._id}>
-            <p className='from-them'>{convertContent(message)} </p> {getReaction(message.reaction)}
-            {/* Boton para poder hacer reply */}
-            {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
-            <p className='from-them-meta'>
-                <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
-                    <Dropdown.Menu>
-                        <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
-                        <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} />
-                    </Dropdown.Menu>
-                </Dropdown>
-            </p>
-        </div>)
+        message.direction === 'out' ? 
+            (<><div key={message._id}>
+                <div style={{float:'right'}}>
+                    <Message size='mini' color='blue'
+                        icon='reply'
+                        content={convertContent(message)}
+                    />
+                </div>
+            </div> 
+            <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
+        </>) : 
+            (<div key={message._id}>
+                <div style={{float:'left'}}>
+                    <Message size='mini'
+                        content={convertContent(message)}
+                    />
+                    <Message  size='mini' attached='bottom' warning>
+                        <Icon name='attach' />
+                       
+                        
+                        <List >
+                            {
+                               message.attachments && message.attachments.length > 0 ? message.attachments.map((item) => {
+                                    return (<List.Item  as='a' key={'hs-'+item._id} href={item.contentUrl} target='blank'>{item.name}</List.Item>);
+                                }) : 'Sin adjuntos'
+                            }
+                        </List>
+                        
+                    </Message>
+                </div>
+                {/* Boton para poder hacer reply */}
+                {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
+                <p className='from-them-meta'>
+                
+                    <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
+                        <Dropdown.Menu>
+                            <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
+                            <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} />
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </p>
+            </div>)
     }
     </> );
 }
  
-export default Message;
+export default Mail;

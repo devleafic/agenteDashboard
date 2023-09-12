@@ -8,7 +8,9 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
 import UploadFile from './UploadFile';
 import { toast } from 'react-toastify';
+import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
+
 
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio}) => {
@@ -18,6 +20,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     
     const [currentFolio, setCurrentFolio] = useState(null);
     const [channel, setChannel] = useState(null);
+    const [typeFolio, setTypeFolio] = useState(null);
 
     const textArea = useRef(null);
 
@@ -228,6 +231,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
 
+        setTypeFolio(folio.typeFolio)
+
         const loadListClassifications = () => {
             const tmpClass = [];
             for(let item of fullFolio.clasifications){
@@ -351,22 +356,24 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
 
     useEffect(() => {
-        if(channel != 'call'){
+        if(typeFolio != '_CALL_'){
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
         }
         
     }, [vFolio]);
 
     useEffect(() => {
-        boxMessage.current.addEventListener(
-            'scroll',() => {
-                let fullHeight = boxMessage.current.scrollHeight;
-                let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
-                if(pcPosition>=90){
-                    setShowBtnUn(false);
-                    
-                }
-            })
+        if(typeFolio != '_CALL_'){
+            boxMessage.current.addEventListener(
+                'scroll',() => {
+                    let fullHeight = boxMessage.current.scrollHeight;
+                    let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+                    if(pcPosition>=90){
+                        setShowBtnUn(false);
+                        
+                    }
+                })
+        }    
     },[])
 
     useEffect(() => {
@@ -400,12 +407,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
-    
-
-    return ( <>
+return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header as='h3' dividing>
-                {(channel === 'call' ? 'Llamada ' : 'Mensajes ')}
+                {(typeFolio === '_CALL_' ? 'Llamada ' : 'Conversación ')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */}
                 <Label as='a' color='blue'>
                     #{folio._id}
@@ -417,25 +422,41 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 <Label className='ui tablet computer large monitor only'> <Icon name='box' />{folio.channel.title}</Label>
                 <Label className='ui tablet computer large monitor only'> <Icon name='inbox'/>{getLabelQueue()}</Label>
             </Header>
-            
-            {
-                channel === 'call' && fullFolio ? (<>
+            {/*channel === 'call' && fullFolio ? (<> */}
+            { //bumbles
+                  typeFolio === '_CALL_' && fullFolio ? (<> 
                     <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
-                </>) : (
+                </>)
+                : typeFolio === '_EMAIL_' && fullFolio ? 
+                
+                (
                     <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
-                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message}/>);})}
+                        {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
+                
+                : typeFolio === '_MESSAGES_' && fullFolio ? 
+                
+                (
+                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
+                    </div>
+                ) :
+                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
+                    </div>
+
             }
-            
-            {
-                channel === 'call' && fullFolio ? (
+            {/* channel === 'call' && fullFolio ? ( */}
+            { 
+                // INPUT, TEXT AREA   
+                typeFolio === '_CALL_' && fullFolio ? (
                     <Form reply style={{textAlign:'right', marginTop:50}}>
                         <Divider/>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
                         <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
-                ) : (
+                ) : typeFolio === '_MESSAGES_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
@@ -457,8 +478,54 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
 
-                    </Form>
-                )
+                    </Form> 
+                ) : typeFolio === '_EMAIL_' && fullFolio ? (
+                    <Form reply style={{textAlign:'right'}}>
+                        <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
+                            {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos correos'/>}
+                            {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
+                        </div>
+  
+                        <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
+                            //setMessageToSend(e.target.value)
+                        }} disabled={isLoading} onKeyDown={(e) => {
+                            if(e.shiftKey && e.key==='Enter'){
+                                //setMessageToSend(e.target.value)
+                                prepareMessage(e.target.value)}
+                        }} />
+
+                        <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
+                        
+                        <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
+
+                    </Form> ): 
+                    (
+                        <Form reply style={{textAlign:'right'}}>
+                            <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
+                                {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
+                                {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
+                            </div>
+                            
+                            <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
+                                //setMessageToSend(e.target.value)
+                            }} disabled={isLoading} onKeyDown={(e) => {
+                                if(e.shiftKey && e.key==='Enter'){
+                                    //setMessageToSend(e.target.value)
+                                    prepareMessage(e.target.value)}
+                            }} />
+    
+                            <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
+                            
+                            <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
+    
+                            <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
+                            <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+    
+                        </Form> 
+                    )
             }
             
         </Comment.Group>
