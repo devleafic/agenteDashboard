@@ -410,7 +410,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header as='h3' dividing>
-                {(typeFolio === '_CALL_' ? 'Llamada ' : 'Conversación ')}
+                {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo ' : typeFolio === '_MESSAGES_' ? 'Conversación ' : 'Hilo')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */}
                 <Label as='a' color='blue'>
                     #{folio._id}

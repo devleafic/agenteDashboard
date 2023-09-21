@@ -57,8 +57,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         
     }
     if (!subject) {subject = 'Sin Asunto'}
-    subject = 'Asunto: '+ subject 
-    let displaySubject =  subject ? subject.substr(0,20) : subject;
+ 
+    let displaySubject =  subject ? subject.substr(0,25) : subject;
     for(let i = displaySubject.length ; i < 15; i++){
       if (i == 15){
         displaySubject = displaySubject+'-';}
@@ -77,7 +77,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
     switch (typeFolio) {
       case '_EMAIL_' :
-        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{subject}</>
+        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
       default:
         return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
         
