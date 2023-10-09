@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Image, Icon, Dropdown, Label , Divider } from 'semantic-ui-react';
+import { Image, Icon, Dropdown, Label , Button } from 'semantic-ui-react';
 
 const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) => {
 
@@ -52,6 +52,18 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         }
     }
 
+    const generateButtons = (botones) => {
+        
+        return (
+            <div className='botones-container'>
+              {botones.map((boton) => (
+                <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
+              ))}
+            </div>
+          );
+
+    }
+
     const getResponseFrom = (id) => {
         console.log(id)
         if (!allMsg) {
@@ -67,6 +79,8 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         } else{
             switch(originaMsg.class){
                 case 'text':
+                    return <Label style={{background : '#0b93f6', color :'#FFF'}} >{originaMsg.content}</Label>;
+                case 'buttonreply':
                     return <Label style={{background : '#0b93f6', color :'#FFF'}} >{originaMsg.content}</Label>;
                 case 'image':
                       return <Image  src={originaMsg.content} size='tiny' />
@@ -92,6 +106,10 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         switch(type){
             case 'text':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
+            case 'interactive':
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>[Botón Selección] </b>{content}</div>);
+            case 'buttonreply':
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} {content} {generateButtons(msg.interaction)}</div>);                
             case 'mtm':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':

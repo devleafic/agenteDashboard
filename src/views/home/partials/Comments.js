@@ -119,6 +119,66 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         });
     }
 
+    const prepareButtons = async (msg) => {
+        
+        let _msg = '' 
+         
+        if (msg && typeof msg === 'string') {_msg = msg} 
+
+        if (_msg.trim() === '' ){
+
+            if(messageToSend.trim() === ''){
+                return false;
+            } else { 
+                _msg = messageToSend
+            }
+
+        }
+
+
+
+        setIsLoading(true);
+
+        socket.connection.emit('sendMessage', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio._id,
+            message : _msg,//messageToSend,
+            responseTo : showResponseTo,
+            class : 'buttonreply',
+            interaction :[
+                {
+                  type: 'reply',
+                  reply: {
+                    id: 'opt1',
+                    title: 'First Button’s' 
+                  }
+                },
+                {
+                  type: 'reply',
+                  reply: {
+                    id: 'opt2',
+                    title: 'Second Button’s' 
+                  }
+                }
+              ]
+        }, (result) => {
+
+            if(!result.body.success){
+                toast.error(result.body.message);
+                return false;
+            }
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setIsLoading(false);
+            setMessageToSend('');
+            textArea.current.value='';
+            textArea.current.focus();
+            setShowResponseTo(null);
+            setMessageToResponse(null);
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+            
+        });
+    }
 
     const prepareCloseFolio = (tClose) => {
         if(tClose === 'save'){
@@ -474,7 +534,8 @@ return ( <>
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
                         <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
-
+                        {/*<Button  color='green' basic onClick={() => {prepareButtons(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='button' /><Icon name='mail square' /><label className='hideText'>Enviar Boton</label></Button> */}                        
+               
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
 
@@ -497,7 +558,7 @@ return ( <>
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
                         <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
-
+                      
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
 
@@ -519,8 +580,8 @@ return ( <>
     
                             <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                             
-                            <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
-    
+                            <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
+                      
                             <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                             <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
     
