@@ -54,13 +54,20 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
 
     const generateButtons = (botones) => {
         
-        return (
-            <div className='botones-container'>
-              {botones.map((boton) => (
-                <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
-              ))}
-            </div>
-          );
+        if (botones && botones.length > 0) {
+
+            return (
+                <div className='botones-container'>
+                
+                        {botones.map((boton) => (
+                            <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
+                        ))}
+                    }
+                </div>
+            );
+        } else {
+            return '';
+        }
 
     }
 
