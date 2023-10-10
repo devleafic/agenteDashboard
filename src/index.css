@@ -457,4 +457,8 @@ h2 {
   }
 }
 
-
+.botones-container {
+  display: flex;
+  flex-direction: column; /* Alineación en columna */
+  gap: 10px; /* Espacio entre botones (opcional) */
+}

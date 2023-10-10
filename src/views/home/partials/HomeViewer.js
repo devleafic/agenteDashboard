@@ -36,7 +36,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias, privateInbox}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, typeFolio,subject}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -56,11 +56,32 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         aliasName = aliasName+' ';}
         
     }
-    let folioIcon =  <Icon color='red' name='folder outline' />
+    if (!subject) {subject = 'Sin Asunto'}
+ 
+    let displaySubject =  subject ? subject.substr(0,25) : subject;
+    for(let i = displaySubject.length ; i < 15; i++){
+      if (i == 15){
+        displaySubject = displaySubject+'-';}
+      else {
+        displaySubject = displaySubject+' ';}
+    }
+    let folioIcon 
+
     if (privateInbox){
       folioIcon =  <Icon color='red' name='inbox' /> 
-    } else {folioIcon =  <Icon color='blue' name='folder open' />}
-    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
+    } else {
+        folioIcon = typeFolio == '_EMAIL_' ? <Icon color='blue' name='envelope open' /> : 
+        typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> :
+        typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
+    }
+
+    switch (typeFolio) {
+      case '_EMAIL_' :
+        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
+      default:
+        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
+        
+    }
   } 
 
   useEffect(() => {
@@ -95,7 +116,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox, typeFolio: item.folio.typeFolio, subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
           tabular:true,
           render : () => {
             

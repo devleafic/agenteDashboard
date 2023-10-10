@@ -251,7 +251,7 @@ const Home = () => {
                     dispatch({type : 'unRead', folio : data.body.folio._id});
                 }
 
-                if(data.body.folio.channel.name === 'call'){
+                if(data.body.folio.channel.typeChannel === '_CALL_'){
                     if(Object.keys(callC.connection).length <= 0){
                         await CallController.setup(data.token);
 
