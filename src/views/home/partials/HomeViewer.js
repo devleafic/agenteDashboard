@@ -145,7 +145,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                     />
                     <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='blue' onClick={hideTools}/>
               </Grid.Column>
-              <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none'}}>
+              <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none', height:'100%',}}>
                     <Tools setMessageToSend={setMessageToSend} messageToSend={messageToSend}
                       folio={item}
                       quicklyAnswer={item.QuicklyAnswer}
