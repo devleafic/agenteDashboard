@@ -114,7 +114,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'text':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
             case 'interactive':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>[Botón Selección] </b>{content}</div>);
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  <Button  color='gray' key={msg._id}>{content}</Button></div>);
             case 'buttonreply':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} {content} {generateButtons(msg.interaction)}</div>);                
             case 'mtm':
