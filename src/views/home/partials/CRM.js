@@ -2,6 +2,7 @@ import { Button, Form, Label, Checkbox, Select} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
+import { toast } from 'react-toastify';
 
 const CRM = ({template, folio, setRefresh}) => {
     
@@ -15,11 +16,15 @@ const CRM = ({template, folio, setRefresh}) => {
             setIsLoading(true);
             let toSend = {...folio.folio.person.fields};
             toSend.idPerson = folio.folio.person._id;
+            toSend.token = localStorage.getItem('sdToken');
             socket.connection.emit('saveCrm', toSend, (result) => {
                 setIsLoading(false);
+                toast.success('CRM guardado');
             });
         }catch(err){
             console.log(err)
+            setIsLoading(false);
+            toast.error('Error al guardar CRM');
         }
     }
 
