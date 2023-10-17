@@ -10,8 +10,7 @@ import UploadFile from './UploadFile';
 import { toast } from 'react-toastify';
 import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
-
-
+import VideoCall from './videoCall_vonage';
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio}) => {
     const listFolios = useContext(ListFoliosContext);
@@ -23,6 +22,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [typeFolio, setTypeFolio] = useState(null);
 
     const textArea = useRef(null);
+
 
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
@@ -305,7 +305,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setListClassification(tmpClass)
         }
         
-        if(channel != 'call'){
+        if(channel == 'call' || channel == 'videocall'){}
+        else {
             let fullHeight = boxMessage.current.scrollHeight;
             let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
 
@@ -416,14 +417,16 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
 
     useEffect(() => {
-        if(typeFolio != '_CALL_'){
+        if(typeFolio == '_CALL_' || typeFolio == '_VIDEOCALL_'){}
+        else {
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
         }
         
     }, [vFolio]);
 
     useEffect(() => {
-        if(typeFolio != '_CALL_'){
+        if(typeFolio == '_CALL_' || typeFolio == '_VIDEOCALL_'){}
+        else {
             boxMessage.current.addEventListener(
                 'scroll',() => {
                     let fullHeight = boxMessage.current.scrollHeight;
@@ -443,7 +446,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToSend('')
         } 
     
-        if(channel != 'call'){
+        if(typeFolio == '_CALL_' || typeFolio == '_VIDEOCALL_'){}
+        else {
             showButton()
             
             let fullHeight = boxMessage.current.scrollHeight;
@@ -501,10 +505,15 @@ return ( <>
                     <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
-                ) :
+                ) :  typeFolio === '_VIDEOCALL_' && fullFolio ? (<> 
+                    <VideoCall currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
+                </>)
+                
+                :
                     <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
+                    
 
             }
             {/* channel === 'call' && fullFolio ? ( */}
@@ -516,7 +525,15 @@ return ( <>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
                         <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
-                ) : typeFolio === '_MESSAGES_' && fullFolio ? (
+                ) :
+                typeFolio === '_VIDEOCALL_' && fullFolio ? (
+                    <Form reply style={{textAlign:'right', marginTop:50}}>
+                        <Divider/>
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
+                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
+                    </Form>
+                ) :
+                typeFolio === '_MESSAGES_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}

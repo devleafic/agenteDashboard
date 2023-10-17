@@ -4,9 +4,15 @@ import Comments from './Comments';
 import Tools from './Tools';
 import axios from 'axios';
 
+import './App.css';
+
+//import '@vonage/video-publisher/video-publisher.js';
+//import '@vonage/video-subscribers/video-subscribers.js';
+//import '@vonage/screen-share/screen-share.js';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
+///const OpenTok = require("opentok");
 const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio}) => {
   
   const boxMessage = useRef();
@@ -23,7 +29,65 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const [availableCh, setAvailableCh] = useState(null);
 
   const [loadPage, setLoadPage] = useState(false);
+/*
+  // Get references to Web Components
+  const publisher = useRef(null);
+  const subscribers = useRef(null);
+  const screenshare = useRef(null);
+  //const [searchParams, setSearchParams] = useSearchParams();
+  //const myParam = searchParams.get('session');
 
+  // These values normally come from the backend in a production application, but for this demo, they are hardcoded
+ 
+
+  
+
+  const apiKey = '47794111';
+  const sessionId =
+    '2_MX40Nzc5NDExMX5-MTY5NzQ5NDU2NjkxN345b3I4dXlFVTJZbnJ3S1BlMmhNNUtKZE9-fn4';
+  const token =
+    'T1==cGFydG5lcl9pZD00Nzc5NDExMSZzaWc9YWI0MGQ2YjVmNzBkMzlmYzYzNGIwMDk5NjM0YmYxOGNmZjY1NjMzNjpzZXNzaW9uX2lkPTJfTVg0ME56YzVOREV4TVg1LU1UWTVOelE1TkRVMk5qa3hOMzQ1YjNJNGRYbEZWVEpaYm5KM1MxQmxNbWhOTlV0S1pFOS1mbjQmY3JlYXRlX3RpbWU9MTY5NzUwMjA0MSZub25jZT0wLjM3MTQ2MDcyMDY1NDUzMjYmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTcwMDA5NzY0MCZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ==';
+  
+  const toggleVideo = () => {
+    publisher.current.toggleVideo();
+  };
+
+  const toggleAudio = () => {
+    publisher.current.toggleAudio();
+  };
+  const disconnectVideocall = () => {
+    session.disconnect();
+  };
+  //const OT = window.OT;
+  const OT = require('@opentok/client');
+  // Initialize an OpenTok Session object
+  const session = OT.initSession(apiKey, sessionId);
+  useEffect(() => {
+
+
+    // Set session and token (and optionally properties) for Web Components
+    publisher.current.session = session;
+    publisher.current.token = token;
+    publisher.current.properties = {
+      fitMode: 'cover',
+      height: '100%',
+      resolution: '1920x1080',
+      videoContentHint: 'detail',
+      width: '100%',
+    };
+    subscribers.current.session = session;
+    subscribers.current.token = token;
+    screenshare.current.session = session;
+    screenshare.current.token = token;
+    subscribers.current.properties = {
+      fitMode: 'cover',
+      height: '800',
+      width: '480',
+      videoContentHint: 'detail',
+    };
+
+  });
+  */
   const hideTools = () => {
     if(toolsOpen){
       setSizeCols({a:16,b:0});
@@ -196,8 +260,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   }
 
 
+
   return ( <>
-    {
+        {
       !loadPage ? (listFolios.current.length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
           <Tab attached={true} className='removeMargin' menu={{ color: 'blue',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
@@ -208,6 +273,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
           }}/>
         </div>) : getMessageEmpty()) : (<div style={{margin : 40}}><Message content='Cargando Página . . .' icon={<Icon loading name='spinner' />}/></div>)
     }
+      
       
   </> );
 }
