@@ -53,7 +53,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
         }
         //if parameters 
         let parameters= [], parametersHeader = {}
-        if (mtm.parameters.length > 0){
+    /*if (mtm.parameters.length > 0){
 
         /*}parameters = [
                     {
@@ -66,7 +66,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
                         type: "text",
                         text: "Feliz tarde"
                     }
-        ]*/
+        ]
             parameters =   mtm.parameters.map((item) => {
                 return {type: item.type, text: 'Mi variable' }
             })
@@ -81,8 +81,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             
                
         }
-
-
+        */
         socket.connection.emit('sendMessage', {
             token : window.localStorage.getItem('sdToken'),
             folio :  folio.folio._id,
