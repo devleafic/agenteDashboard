@@ -30,7 +30,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
 
         socket.connection.emit('getMtmDetail', {mtm}, (res) => {
             if(res.success){
-                setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, text : res.mtm.previewtxt, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel })
+                setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, text : res.mtm.previewtxt, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel, parameters: res.mtm.parameters,  parametersHeader: res.mtm.parametersHeader })
                 setContentMessage(
                     <div>
                         {
@@ -51,7 +51,39 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
         if(!mtm.name){
             return false;
         }
+        //if parameters 
+        let parameters= [], parametersHeader = {}
+    /*if (mtm.parameters.length > 0){
 
+        /*}parameters = [
+                    {
+                        type: "text",
+                        text: "Gabriel"
+                    }, {
+                        type: "text",
+                        text: "25OFF"
+                    }, {
+                        type: "text",
+                        text: "Feliz tarde"
+                    }
+        ]
+            parameters =   mtm.parameters.map((item) => {
+                return {type: item.type, text: 'Mi variable' }
+            })
+        } 
+        if (mtm.parametersHeader.length > 0){
+
+            parametersHeader = 
+                        {
+                            headerType: mtm.parametersHeader[0].type,
+                            header: "https://scontent.fgua3-4.fna.fbcdn.net/v/t45.1600-4/387468240_120201219876720170_7656494677333266014_n.jpg?stp=cp0_dst-jpg_q75_s1080x2048_spS444&_nc_cat=110&ccb=1-7&_nc_sid=528f85&_nc_ohc=AFXzlDjq8tsAX8XtEJJ&_nc_ht=scontent.fgua3-4.fna&oh=00_AfDy3UJUr2rcRkmsUFhsIiNFhsRqZduWQWgtmg3mp8TL_w&oe=6537021B"
+                        }
+            
+               
+        }
+
+        
+        */
         socket.connection.emit('sendMessage', {
             token : window.localStorage.getItem('sdToken'),
             folio :  folio.folio._id,
@@ -59,7 +91,11 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             caption : mtm.text,
             responseTo : null,
             locale :  mtm.locale,
-            class : 'mtm'
+            class : 'mtm',
+            interaction : parameters,
+            header : parametersHeader && parametersHeader.header ? parametersHeader.header : null,
+            headerType : parametersHeader &&  parametersHeader.headerType ? parametersHeader.headerType : null,
+            
         }, (result) => {
 
             if(!result.body.success){

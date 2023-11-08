@@ -62,7 +62,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                         {botones.map((boton) => (
                             <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
                         ))}
-                    }
+                    
                 </div>
             );
         } else {
@@ -114,7 +114,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'text':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
             case 'interactive':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>[Botón Selección] </b>{content}</div>);
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  <Button  color='gray' key={msg._id}>{content}</Button></div>);
             case 'buttonreply':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} {content} {generateButtons(msg.interaction)}</div>);                
             case 'mtm':
@@ -145,7 +145,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'externalAttachment' :
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'notify':
-                return <Label color="red"> <Icon name='x' />{content}<Label.Detail>FINALIZA LA CONVERSACIÓN</Label.Detail></Label>          
+                return <Label color="red"> <Icon name='x' />{content}<Label.Detail>FINALIZAR LA CONVERSACIÓN</Label.Detail></Label>          
             case 'errors':
                 return (<>[{type}] - {content}</>);      
             case 'html':

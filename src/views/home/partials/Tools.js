@@ -149,7 +149,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
         return loadListClassifications();
     }, []);
     
-    return ( <>
+    return ( <div style={{maxHeight:'100%', overflowY:'auto', border : '1px solid rgba(34,36,38,.15)'}}>
         <Accordion fluid styled>
             <Accordion.Title index={1} active={indexPane === 1} onClick={openPane}>
                 <Icon name='address book outline' />
@@ -408,7 +408,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
         {
             openFindTicket && <FindTicket setTicketSelected={setTicketSelected} setOpenViewTicket={setOpenViewTicket} setOpenFindTicket={setOpenFindTicket}/>
         }
-    </> );
+    </div> );
 }
  
 export default Tools;
