@@ -71,6 +71,19 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
 
     }
 
+    const responseButton = (id, text) => { //response from the client
+        console.log(text)
+
+        if (text && text.length > 0) {
+
+            return (
+            <div className='botones-container'>
+                <Button  color='green' key={id}>{text}</Button>
+            </div>
+            );
+        }
+    }
+
     const getResponseFrom = (id) => {
         console.log(id)
         if (!allMsg) {
@@ -116,7 +129,9 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'interactive':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  <Button  color='gray' key={msg._id}>{content}</Button></div>);
             case 'buttonreply':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} {content} {generateButtons(msg.interaction)}</div>);                
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} {content} {generateButtons(msg.interaction)}</div>); 
+            case 'button':
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {responseButton(msg.externalId, content)}</div>);                                               
             case 'mtm':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':
