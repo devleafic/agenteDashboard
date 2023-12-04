@@ -38,8 +38,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         </Segment>)
     }
 
-    useEffect(() => {
-        const loadInbox = () => {
+    useEffect ( () => {
+        const loadInbox = async () => {
             setIsLoadInbox(true);
             //setInboxes([]);
             socketC.connection.emit('loadInbox', {
@@ -62,7 +62,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 setUnReadMessages(hasUnread?true:false);
             });
         }
-        return loadInbox();
+        //return
+         loadInbox();
     }, []);
 
     const openItemInbox = (folio, item) => {

@@ -28,7 +28,7 @@ const CRM = ({template, folio, setRefresh}) => {
         }
     }
 
-    useEffect(() => {
+    useEffect( () => {
         setDataPerson(folio.folio.person);
     },[folio]);
 

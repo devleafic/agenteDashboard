@@ -287,13 +287,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         });
     }
 
-    useEffect(() => {
+    useEffect(  () => {
+        
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
 
         setTypeFolio(folio.typeFolio)
 
-        const loadListClassifications = () => {
+        const loadListClassifications = async () => {
             const tmpClass = [];
             for(let item of fullFolio.clasifications){
                 tmpClass.push({
@@ -315,7 +316,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
         }
         listFolios.currentBox = boxMessage.current;
-        return loadListClassifications();
+        console.log('refrescando componente de comentarios')
+         loadListClassifications();
     }, [folio]);
 
     const getLabelQueue = () => {
@@ -415,14 +417,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         return <Form><p>Ingrese los datos del formulario</p>{render}</Form>;
     }
 
-    useEffect(() => {
+    useEffect(  () => {
         if(typeFolio != '_CALL_'){
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
         }
         
     }, [vFolio]);
 
-    useEffect(() => {
+    useEffect( () => {
         if(typeFolio != '_CALL_'){
             boxMessage.current.addEventListener(
                 'scroll',() => {
@@ -436,24 +438,31 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }    
     },[])
 
-    useEffect(() => {
-        
-        if(textArea.current && messageToSend.length > 0){
-            textArea.current.value = messageToSend;
-            setMessageToSend('')
-        } 
-    
-        if(channel != 'call'){
-            showButton()
-            
-            let fullHeight = boxMessage.current.scrollHeight;
-            let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+    useEffect( () => {
 
-            if(pcPosition>=90){
-                boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
-            }
-            
+        async function validations(){
+            if(textArea.current && messageToSend.length > 0){
+                textArea.current.value = messageToSend;
+                setMessageToSend('')
+            } 
+        
+            if(channel != 'call'){
+                showButton()
+                
+                let fullHeight = boxMessage.current.scrollHeight;
+                let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+    
+                if(pcPosition>=90){
+                    boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+                }
+                
+            }   
+        
+        
         }
+         validations()
+        
+ 
     });
 
     const showButton = () =>{
@@ -523,7 +532,7 @@ return ( <>
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
                         
-                        <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
+                        <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
                             //setMessageToSend(e.target.value)
                         }} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){

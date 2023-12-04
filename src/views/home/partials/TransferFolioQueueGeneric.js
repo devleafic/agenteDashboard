@@ -75,7 +75,7 @@ const TransferFolioQueueGeneric = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(() => {
+    useEffect(  () => {
         setQueueToSend(initializeQueue);
         console.log('refrescando componente de transferir')},
     [folio])

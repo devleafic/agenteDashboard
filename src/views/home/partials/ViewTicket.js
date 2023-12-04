@@ -29,8 +29,8 @@ const ViewTicket = ({ticket, setOpenViewTicket}) => {
     }
 
 
-    useEffect(() => {
-        function getTicket (){
+    useEffect(  () => {
+        async function getTicket (){
             setOnLoadingData(true);
             socket.connection.emit('getTicket', {ticket : ticket, token : window.localStorage.getItem('sdToken')}, (result) => {
                 if(!result.success){

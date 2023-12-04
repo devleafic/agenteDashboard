@@ -14,7 +14,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
     const [isLoadAgentList, setIsLoadAgentList] = useState(false);
     const initializeQueue = {agent:null, name: null, folio : null};
     
-    useEffect(() => {
+    useEffect(  () => {
         const loadAgentList = () => {
             setIsLoadAgentList(true);
             socket.connection.emit('loadAgentList', {
@@ -92,7 +92,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(() => {
+    useEffect(  () => {
         setAgentToSend(initializeQueue);
         console.log('refrescando componente de transferir')},
     [folio])

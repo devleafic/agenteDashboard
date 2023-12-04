@@ -59,7 +59,7 @@ const TransferirFolioQueueGlobal_QueueLocal = ({folio, setRefresh, userInfo}) =>
 
     }
 
-    useEffect(() => {console.log('refrescando componente de transferir')},[])
+    useEffect(  () => {console.log('refrescando componente de transferir')},[])
 
     return ( <>
         {

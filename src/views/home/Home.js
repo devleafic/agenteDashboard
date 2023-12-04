@@ -132,7 +132,7 @@ const Home = () => {
         }
     }
 
-    const notificationsSetup = () => {
+    const notificationsSetup = async () => {
         if(window.mobileAndTabletCheck()){
             console.log('Es un mobile');
             return false;
@@ -435,13 +435,10 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
         }
     }
 
-    useEffect(() => {
-        window.addEventListener("focus", onFocus);
-        window.addEventListener("blur", onBlur);
-        window.localStorage.setItem('tabIsActive', false)
-        onFocus();
+    useEffect( () => {
 
-        function getLocalStream() {
+
+        async function getLocalStream () {
             navigator.mediaDevices.getUserMedia({video: false, audio: true}).then( stream => {
                 window.localStream = stream; // A
                 window.localAudio.srcObject = stream; // B
@@ -451,29 +448,48 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             });
         }
         getLocalStream();
-        async function loadData(){
-            try{
-                const result = await axios(process.env.REACT_APP_CENTRALITA+'/agent/me/service');
-                if(result.status === 200 && isInbound){
-                    setComponent({...initializeComponent, home : true});
-                    SocketActions.connectToSocket();
-                }else{
-                    return window.location.href = '/login';   
-                }
-            }catch(err){
-                return window.location.href = '/login';
-            }
-        }
-        if(onConnect){loadData();}
+
+    },[]);    
+    useEffect( () => {
         notificationsSetup()
-        return () => {console.log('desmontando')}
     },[]);
 
-    useEffect(() => {
-        console.log('refrescando');
-        return () => {
-            console.log('desmontando')
+    useEffect( () => {
+
+      async function loadData(){
+            if(onConnect){
+                try{
+                    window.addEventListener("focus", onFocus);
+                    window.addEventListener("blur", onBlur);
+                    window.localStorage.setItem('tabIsActive', false)
+                    onFocus();
+                
+                    const result = await axios(process.env.REACT_APP_CENTRALITA+'/agent/me/service');
+                    if(result.status === 200 && isInbound){
+                        setComponent({...initializeComponent, home : true});
+                        SocketActions.connectToSocket();
+                    }else{
+                        return window.location.href = '/login';   
+                    }
+                }catch(err){
+                    return window.location.href = '/login';
+                }
+            }
         }
+       //loadData();}
+        //
+        loadData();
+        //return   loadData();// () => {console.log('desmontando')}
+    },[]);
+
+    useEffect( () => {
+        async function data () {
+            console.log('refrescando');
+            //return () => {
+                console.log('desmontando not function')
+            //}
+        }
+        data();
     }, [refresh])
 
     const selectedComponent = (option) => {

@@ -132,9 +132,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
     }
 
-    useEffect(() => {
+    useEffect(  () => {
         
-        const loadListClassifications = () => {
+        const loadListClassifications = async () => {
             const tmpClass = [];
             for(let item of folio.clasifications){
                 tmpClass.push({
@@ -146,7 +146,8 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             setListClassification(tmpClass);
             setAllQA(quicklyAnswer)
         }
-        return loadListClassifications();
+        //return 
+        loadListClassifications();
     }, []);
     
     return ( <div style={{maxHeight:'100%', overflowY:'auto', border : '1px solid rgba(34,36,38,.15)'}}>

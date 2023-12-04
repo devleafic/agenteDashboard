@@ -1,4 +1,4 @@
-import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 /* Vistas */
 import Login from "./views/Login";
@@ -15,20 +15,14 @@ axios.interceptors.request.use((req) => {
 
 function App() {
   return (<>
-    <Router>
-      <Switch>
-          <Route path="/login">
-            <Login />
-          </Route>
-          <Route path='/' exact>
-            <Home />
-          </Route>
-          <Route path='/ticket/:idTicket' exact>
-            <ResponseTicket />
-          </Route>
-          
-      </Switch>
-    </Router>
+
+
+    <Routes>
+        <Route path="/login"  element={<Login/>}/>
+        <Route path="/" exact={true} element={<Home/>}/>
+        <Route path="/ticket/:idTicket"  element={<ResponseTicket/>}/>
+     </Routes>   
+
     <ToastContainer />
   </>);
 }
