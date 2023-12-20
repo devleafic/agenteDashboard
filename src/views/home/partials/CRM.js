@@ -1,4 +1,4 @@
-import { Button, Form, Label, Checkbox, Select} from 'semantic-ui-react';
+import { Button, Form, Label, Select} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';

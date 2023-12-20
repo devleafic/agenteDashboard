@@ -162,7 +162,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     const loadPlugins = (x) => {
         switch(x.plugin){
             case 'zohocrm':
-                return (<>
+                return (<div key={`accordion-${x.plugin}`}>
                     <Accordion.Title index={'zohocrm'} active={indexPane === 'zohocrm'} onClick={openPane}>
                         <Icon name='address card outline' />
                         Zoho CRM
@@ -170,7 +170,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     <Accordion.Content active={indexPane === 'zohocrm'}>
                         {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
                     </Accordion.Content>
-                </>)
+                </div>)
                 
             default :
                 return <div>Plugin no soportado</div>
