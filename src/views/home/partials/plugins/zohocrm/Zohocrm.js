@@ -80,8 +80,8 @@ const Zohocrm = ({folio, setRefresh}) => {
 
     const getLastInfo = async () => {
         try{
-            // let tmpPhone = folio.folio.person.anchor;
-            let tmpPhone = '5215550437563';
+            let tmpPhone = folio.folio.person.anchor;
+            // let tmpPhone = '5215550437563';
             setContactRoute(null);
             const {data} = await axios.get(`${process.env.REACT_APP_CENTRALITA}/zoho/findContact?phone=${tmpPhone}&serviceId=${folio.folio.service._id}&channel=${folio.folio.channel._id}`);
             setIsLoading(false)
@@ -150,6 +150,7 @@ const Zohocrm = ({folio, setRefresh}) => {
                 label={x}
                 style={{marginTop : 10, width : '100%'}}
                 value={contact[x]}
+                disabled={isExistContact && x.toUpperCase() === 'ID'}
                 onChange={(e) => {
                     const tmpContact = {...contact};
                     tmpContact[x] = e.target.value;
