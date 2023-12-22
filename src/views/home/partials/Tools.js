@@ -165,7 +165,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 return (<div key={`accordion-${x.plugin}`}>
                     <Accordion.Title index={'zohocrm'} active={indexPane === 'zohocrm'} onClick={openPane}>
                         <Icon name='address card outline' />
-                        Zoho CRM
+                        Zoho CRM (Beta)
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 'zohocrm'}>
                         {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
