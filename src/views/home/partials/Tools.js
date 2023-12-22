@@ -190,6 +190,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {
                 
                 pluginsToTools.map((x) => {
+                    console.log('cargando plugins')
                     return loadPlugins(x);
                     
                 })

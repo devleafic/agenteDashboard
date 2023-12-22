@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 
 const Zohocrm = ({folio, setRefresh}) => {
+    // setRefresh(Math.random());
     const [isLoading, setIsLoading] = useState(true);
     const socket = useContext(SocketContext)
     const [contact,setContact] = useState(null);
@@ -14,8 +15,9 @@ const Zohocrm = ({folio, setRefresh}) => {
     const plugin = folio.folio.service.plugins.find((x) => {return x.plugin === 'zohocrm';});
 
     useEffect(() => {
+        setIsLoading(true)
         getLastInfo();
-    }, []);
+    }, [folio]);
 
     if(!plugin.isActive){
         return false;
@@ -88,6 +90,7 @@ const Zohocrm = ({folio, setRefresh}) => {
 
     const getLastInfo = async () => {
         try{
+            setRefresh(Math.random());
             let tmpPhone = folio.folio.person.anchor;
             // let tmpPhone = '5215550437565';
             setContactRoute(null);
