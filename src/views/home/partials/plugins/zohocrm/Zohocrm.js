@@ -29,6 +29,14 @@ const Zohocrm = ({folio, setRefresh}) => {
         return {...crmIBC};
     }
 
+    const blankCRM = (fields) => {
+        const data = {};
+        fields.forEach((field) => {
+            data[field.label] = '';
+        });
+        return data;
+    }
+
     const upsertContact = async ()  => {
         try{
 
@@ -81,7 +89,7 @@ const Zohocrm = ({folio, setRefresh}) => {
     const getLastInfo = async () => {
         try{
             let tmpPhone = folio.folio.person.anchor;
-            // let tmpPhone = '5215550437563';
+            // let tmpPhone = '5215550437565';
             setContactRoute(null);
             const {data} = await axios.get(`${process.env.REACT_APP_CENTRALITA}/zoho/findContact?phone=${tmpPhone}&serviceId=${folio.folio.service._id}&channel=${folio.folio.channel._id}`);
             setIsLoading(false)
@@ -132,10 +140,15 @@ const Zohocrm = ({folio, setRefresh}) => {
                     })}
                     value={contactRoute}
                     onChange={(e, {value}) => {
+                        const findRoute = plugin.dataConfig.routes.find((x) => x.name === value);
+                        const blankInfo = blankCRM(findRoute.fields)
+
                         const tmpContact = {
                             [plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] : '',
-                            ...contact
+                            ...blankInfo,
+                            // ...contact
                         };
+                        
                         setContact(tmpContact);
                         setContactRoute(value);
                     }}
