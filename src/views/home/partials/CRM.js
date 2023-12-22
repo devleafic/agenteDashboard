@@ -120,7 +120,7 @@ const CRM = ({template, folio, setRefresh}) => {
         
             <Form key={'form-crm-'+folio}>
                 <div>    
-                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inbox.sfo3.digitaloceanspaces.com/assets/noprofilepic.jpeg' } alt="profile" className='profilePic' />
+                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepicture.jpg' } alt="profile" className='profilePic' />
                 </div>
                 <div className='label-t'> 
                     <Label as='a' pointing>  
