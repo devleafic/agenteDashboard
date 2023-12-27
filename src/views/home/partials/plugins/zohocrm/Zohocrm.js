@@ -95,8 +95,8 @@ const Zohocrm = ({folio, setRefresh}) => {
     const getLastInfo = async () => {
         try{
             setRefresh(Math.random());
-            // let tmpPhone = folio.folio.person.anchor;
-            let tmpPhone = '52155504375844';
+             let tmpPhone = folio.folio.person.anchor;
+            //let tmpPhone = '52155504375844';
             setContactRoute(null);
             const {data} = await axios.get(`${process.env.REACT_APP_CENTRALITA}/zoho/findContact?phone=${tmpPhone}&serviceId=${folio.folio.service._id}&channel=${folio.folio.channel._id}`);
             setIsLoading(false)
