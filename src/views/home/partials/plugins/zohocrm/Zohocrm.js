@@ -14,6 +14,8 @@ const Zohocrm = ({folio, setRefresh}) => {
     const [contactRoute, setContactRoute] = useState(null);
     const plugin = folio.folio.service.plugins.find((x) => {return x.plugin === 'zohocrm';});
 
+    const ignoreFields = ['ID', 'Owner Name'.toUpperCase(), 'Owner ID'.toUpperCase(), 'Owner Email'.toUpperCase()];
+
     useEffect(() => {
         setIsLoading(true)
         getLastInfo();
@@ -44,8 +46,10 @@ const Zohocrm = ({folio, setRefresh}) => {
 
             //Validamos que contengan todos los campos del contact al menos un valor
             let isValid = true;
+            
             Object.keys(contact).map((x) => {
-                if(!isExistContact && x.toUpperCase() === 'ID'){
+                if(!isExistContact && ignoreFields.includes(x.toUpperCase())
+                ){
                     return;
                 }
                 if(contact[x].trim() === ''){
@@ -74,7 +78,7 @@ const Zohocrm = ({folio, setRefresh}) => {
             const data = await result.json();
             setIsLoading(false);
             if(data.success){
-                toast.success('CRM guardado');
+                toast.success('CRM guardado, El contacto estará disponible en 30 segundos despues de guardado en Zoho');
                 setIsExistContact(true);
             }else{
                 toast.error(data.message);    
@@ -92,7 +96,7 @@ const Zohocrm = ({folio, setRefresh}) => {
         try{
             setRefresh(Math.random());
             let tmpPhone = folio.folio.person.anchor;
-            // let tmpPhone = '5215550437565';
+            // let tmpPhone = '52155504375890';
             setContactRoute(null);
             const {data} = await axios.get(`${process.env.REACT_APP_CENTRALITA}/zoho/findContact?phone=${tmpPhone}&serviceId=${folio.folio.service._id}&channel=${folio.folio.channel._id}`);
             setIsLoading(false)
@@ -147,7 +151,7 @@ const Zohocrm = ({folio, setRefresh}) => {
                         const blankInfo = blankCRM(findRoute.fields)
 
                         const tmpContact = {
-                            [plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] : '',
+                            [plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] : folio.folio.person.anchor,
                             ...blankInfo,
                             // ...contact
                         };
@@ -165,8 +169,14 @@ const Zohocrm = ({folio, setRefresh}) => {
             return <Input key={`input-zoho-${x}`}
                 label={x}
                 style={{marginTop : 10, width : '100%'}}
-                value={contact[x]}
-                disabled={isExistContact && x.toUpperCase() === 'ID'}
+                value={
+                    contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] && 
+                    contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]].trim() === ''
+                    && plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0] === x ?
+                    folio.folio.person.anchor :
+                    contact[x]
+                }
+                disabled={isExistContact && ignoreFields.includes(x.toUpperCase())}
                 onChange={(e) => {
                     const tmpContact = {...contact};
                     tmpContact[x] = e.target.value;
