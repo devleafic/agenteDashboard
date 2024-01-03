@@ -16,6 +16,8 @@ const Zohocrm = ({folio, setRefresh}) => {
 
     const ignoreFields = ['ID', 'Owner Name'.toUpperCase(), 'Owner ID'.toUpperCase(), 'Owner Email'.toUpperCase()];
 
+    const [fieldsRequired, setFieldsRequired] = useState([]);
+
     useEffect(() => {
         setIsLoading(true)
         getLastInfo();
@@ -48,18 +50,19 @@ const Zohocrm = ({folio, setRefresh}) => {
             let isValid = true;
             
             Object.keys(contact).map((x) => {
-                if(!isExistContact && ignoreFields.includes(x.toUpperCase())
+                if(!isExistContact && fieldsRequired.includes(x.toUpperCase())
                 ){
-                    return;
+                    if(contact[x].trim() === ''){
+                        isValid = false;
+                    }
                 }
-                if(contact[x].trim() === ''){
-                    isValid = false;
-                }
+                return true;
             });
 
             if(!isValid){
                 return toast.error('Todos los campos son requeridos en el plugin de ZOHO');
             }
+
 
             setIsLoading(true);
             const result = await fetch(`${process.env.REACT_APP_CENTRALITA}/zoho/upsertContact`, {
@@ -95,8 +98,13 @@ const Zohocrm = ({folio, setRefresh}) => {
     const getLastInfo = async () => {
         try{
             setRefresh(Math.random());
+<<<<<<< Updated upstream
              let tmpPhone = folio.folio.person.anchor;
             //let tmpPhone = '52155504375844';
+=======
+            let tmpPhone = folio.folio.person.anchor;
+            // let tmpPhone = '52155504375844';
+>>>>>>> Stashed changes
             setContactRoute(null);
             const {data} = await axios.get(`${process.env.REACT_APP_CENTRALITA}/zoho/findContact?phone=${tmpPhone}&serviceId=${folio.folio.service._id}&channel=${folio.folio.channel._id}`);
             setIsLoading(false)
@@ -150,6 +158,9 @@ const Zohocrm = ({folio, setRefresh}) => {
                         const findRoute = plugin.dataConfig.routes.find((x) => x.name === value);
                         const blankInfo = blankCRM(findRoute.fields)
 
+                        const tmpRequired = findRoute.fields.filter((x) => x.required).map((x) => x.label.toUpperCase());
+                        setFieldsRequired(tmpRequired);
+
                         const tmpContact = {
                             [plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] : folio.folio.person.anchor,
                             ...blankInfo,
@@ -167,7 +178,7 @@ const Zohocrm = ({folio, setRefresh}) => {
                 return <></>;
             }
             return <Input key={`input-zoho-${x}`}
-                label={x}
+                label={`${fieldsRequired.includes(x.toUpperCase()) ? ' * ' : ''} ${x}`}
                 style={{marginTop : 10, width : '100%'}}
                 value={
                     contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] && 
