@@ -82,6 +82,11 @@ const Zohocrm = ({folio, setRefresh}) => {
             setIsLoading(false);
             if(data.success){
                 toast.success('CRM guardado, El contacto estará disponible en 30 segundos despues de guardado en Zoho');
+                const idContact = data.data.data[0].details.id;
+                
+                const tmpContact = {...contact};
+                tmpContact['ID'] = idContact;
+                setContact(tmpContact);
                 setIsExistContact(true);
             }else{
                 toast.error(data.message);    
