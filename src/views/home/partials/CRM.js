@@ -38,6 +38,7 @@ const CRM = ({template, folio, setRefresh}) => {
       }
 
     const renderFields = (item) => {
+        
         switch(item.class){
             case 'text':
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
@@ -83,6 +84,7 @@ const CRM = ({template, folio, setRefresh}) => {
                     }}/>
                 </Form.Field>);
             case 'select':
+                
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
                     <label>{item.name}</label>
                     <Select placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} options={item.options.map((op) => {
@@ -97,9 +99,10 @@ const CRM = ({template, folio, setRefresh}) => {
                 </Form.Field>)
                 
             case 'checkbox':
+                // console.log('select',item.value);
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
                 <label>{item.name}</label>
-                <Select multiple selection placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} options={item.options.map((op) => {
+                <Select multiple selection placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : []} options={item.options.map((op) => {
                     return { key: op._id, value: op.value, text: op.label };
                 })} onChange={(e, {value, id}) => {
                     console.log('select',value);
