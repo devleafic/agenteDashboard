@@ -276,6 +276,24 @@ const Zohocrm = ({folio, setRefresh}) => {
                         ></Select>
                     </>
                     break;
+                case 'lookup':
+                    return <Input key={`input-zoho-${x}`}
+                        label={`${fieldsRequired.includes(x.toUpperCase()) ? ' * ' : ''} ${x}`}
+                        style={{marginTop : 10, width : '100%'}}
+                        value={
+                            contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] && 
+                            contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]].trim() === ''
+                            && plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0] === x ?
+                            folio.folio.person.anchor :
+                            contact[x].name
+                        }
+                        disabled={isExistContact && ignoreFields.includes(x.toUpperCase())}
+                        onChange={(e) => {
+                            const tmpContact = {...contact};
+                            tmpContact[x] = e.target.value;
+                            setContact(tmpContact);
+                        }}
+                    />
                 default:
                     return <Input key={`input-zoho-${x}`}
                         label={`${fieldsRequired.includes(x.toUpperCase()) ? ' * ' : ''} ${x}`}
