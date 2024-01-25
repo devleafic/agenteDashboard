@@ -1,4 +1,4 @@
-import { Button, Form, Label, Checkbox, Select} from 'semantic-ui-react';
+import { Button, Form, Label, Select} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -28,7 +28,7 @@ const CRM = ({template, folio, setRefresh}) => {
         }
     }
 
-    useEffect(() => {
+    useEffect( () => {
         setDataPerson(folio.folio.person);
     },[folio]);
 
@@ -38,6 +38,7 @@ const CRM = ({template, folio, setRefresh}) => {
       }
 
     const renderFields = (item) => {
+        
         switch(item.class){
             case 'text':
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
@@ -83,6 +84,7 @@ const CRM = ({template, folio, setRefresh}) => {
                     }}/>
                 </Form.Field>);
             case 'select':
+                
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
                     <label>{item.name}</label>
                     <Select placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} options={item.options.map((op) => {
@@ -97,9 +99,10 @@ const CRM = ({template, folio, setRefresh}) => {
                 </Form.Field>)
                 
             case 'checkbox':
+                // console.log('select',item.value);
                 return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
                 <label>{item.name}</label>
-                <Select multiple selection placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} options={item.options.map((op) => {
+                <Select multiple selection placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : []} options={item.options.map((op) => {
                     return { key: op._id, value: op.value, text: op.label };
                 })} onChange={(e, {value, id}) => {
                     console.log('select',value);
@@ -120,7 +123,7 @@ const CRM = ({template, folio, setRefresh}) => {
         
             <Form key={'form-crm-'+folio}>
                 <div>    
-                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inbox.sfo3.digitaloceanspaces.com/assets/noprofilepic.jpeg' } alt="profile" className='profilePic' />
+                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepicture.jpg' } alt="profile" className='profilePic' />
                 </div>
                 <div className='label-t'> 
                     <Label as='a' pointing>  

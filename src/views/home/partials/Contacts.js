@@ -148,11 +148,11 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         setShowRows(toShow)
     }
 
-    useEffect(() => {
+    useEffect( () => {
         return console.log('refrescando numRows')
     },[numRows, showRows]);
 
-    useEffect(() =>
+    useEffect( () =>
     {
         console.log("Load Contacts")
         if (query.length === 0 || query.length > 2)  onContactJSON();
@@ -345,7 +345,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
         }
     }
 
-    useEffect(() => {
+    useEffect(  () => {
 
         async function getInfoService(){
             try{

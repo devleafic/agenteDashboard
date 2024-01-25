@@ -1,7 +1,7 @@
 import { Image, Grid } from 'semantic-ui-react';
-import React, {useContext,useState, useEffect} from 'react';
+import React from 'react';
 import image from './../../../img/dashboard/empty_service.png';
-import { useParams } from 'react-router-dom';
+
 const Calendar = () => {
 
 

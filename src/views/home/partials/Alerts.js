@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import { Modal, Button, Icon } from 'semantic-ui-react';
 
 const Alerts = ({ message, type, setOpenAlert}) => {
-    useEffect(() => {
+    useEffect(  () => {
         return ()=>{console.log('Eliminando Alerta');}
     });
     return ( <>

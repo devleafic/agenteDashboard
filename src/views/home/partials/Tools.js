@@ -18,7 +18,12 @@ import TransferFolioQueueGeneric from './TransferFolioQueueGeneric';
 import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
 import Mtm from './Mtm'
 
+// Plugins
+import Zohocrm from './plugins/zohocrm/Zohocrm'
+
+
 const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm}) => {
+    console.log(folio);
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
@@ -37,6 +42,10 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     const [openFindTicket, setOpenFindTicket] = useState(false);
 
     const [allQA, setAllQA] = useState([]);
+
+    const pluginsToTools = folio.folio.service.plugins.filter((x) => {
+        return ['zohocrm'].includes(x.plugin) && x.isActive ? true : false;
+    });
 
     const initializeTicket = {
         area : null,
@@ -132,9 +141,9 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
     }
 
-    useEffect(() => {
+    useEffect(  () => {
         
-        const loadListClassifications = () => {
+        const loadListClassifications = async () => {
             const tmpClass = [];
             for(let item of folio.clasifications){
                 tmpClass.push({
@@ -146,8 +155,27 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             setListClassification(tmpClass);
             setAllQA(quicklyAnswer)
         }
-        return loadListClassifications();
+        //return 
+        loadListClassifications();
     }, []);
+
+    const loadPlugins = (x) => {
+        switch(x.plugin){
+            case 'zohocrm':
+                return (<div key={`accordion-${x.plugin}`}>
+                    <Accordion.Title index={'zohocrm'} active={indexPane === 'zohocrm'} onClick={openPane}>
+                        <Icon name='address card outline' />
+                        Zoho CRM (Beta)
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 'zohocrm'}>
+                        {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
+                    </Accordion.Content>
+                </div>)
+                
+            default :
+                return <div>Plugin no soportado</div>
+        }
+    }
     
     return ( <div style={{maxHeight:'100%', overflowY:'auto', border : '1px solid rgba(34,36,38,.15)'}}>
         <Accordion fluid styled>
@@ -156,10 +184,17 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 CRM
             </Accordion.Title>
             <Accordion.Content active={indexPane === 1}>
-                
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
-                
             </Accordion.Content>
+            {/* ----- plugins ----- */}
+            {
+                
+                pluginsToTools.map((x) => {
+                    console.log('cargando plugins')
+                    return loadPlugins(x);
+                    
+                })
+            }
             {/* ------------ */}             
             <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
                 <Icon name='paper plane' />

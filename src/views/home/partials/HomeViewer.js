@@ -84,7 +84,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   } 
 
-  useEffect(() => {
+  useEffect(  () => {
     const renderPanesViews = async () => {
       
       if(!availableCh){
@@ -168,7 +168,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       setPanesView(tempPanes);
       return true;
     }
-    return renderPanesViews();
+    renderPanesViews();
 
   }, [refresh, messageToSend, vFolio]);
 

@@ -127,7 +127,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             });
     }
     
-    useEffect(() => {
+    useEffect( () => {
         setMtmToSend(initializeMtmToSend);
         console.log('refrescando componente de mtm')},
     [person])

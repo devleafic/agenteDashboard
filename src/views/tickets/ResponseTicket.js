@@ -12,15 +12,18 @@ const ResponseTicket = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [isLoading, setIsloading] = useState(false);
 
-    useEffect(async () => {
-        let {data} = await axios.get(process.env.REACT_APP_CENTRALITA+'/ticket/'+idTicket);
-        if(data.body.success){
-            setInfoTicket(data.body.ticket);
-            setOnLoding(false);
-        }else{
-            alert(data.body.message);
+    useEffect( () => {
+        const getTicket = async () => {
+            let {data} = await axios.get(process.env.REACT_APP_CENTRALITA+'/ticket/'+idTicket);
+            if(data.body.success){
+                setInfoTicket(data.body.ticket);
+                setOnLoding(false);
+            }else{
+                alert(data.body.message);
+            }
+            console.log(data);
         }
-        console.log(data);
+        getTicket();
     },[]);
 
     const sendMessage = async () => {

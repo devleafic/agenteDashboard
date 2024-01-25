@@ -25,12 +25,16 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
         });
     }
 
-    useEffect(() => {
-        if(onCall === 'connect' || onCall === 'disconnect'){
-            beep.pause();
-        }else if(onCall === 'calling'){
-            beep.play();
+    useEffect( () => {
+        async function getCall(){
+            if(onCall === 'connect' || onCall === 'disconnect'){
+                beep.pause();
+            }else if(onCall === 'calling'){
+                beep.play();
+            }
         }
+        getCall();
+
     },[onCall]);
 
 

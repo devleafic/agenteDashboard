@@ -162,10 +162,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
     }
 
-    useEffect(async () => {
+    useEffect( () => {
 
         
-
+        async function getInfo (){
         if(userInfo && !isInbound){
             const responseOutbounds = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id+'/outbound/list');
             console.log(responseOutbounds.data);
@@ -182,11 +182,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setListFilesOubounds(tmpList);
             
         }
+        }
         
 
     },[isInbound]);
 
-    useEffect(() => {
+    useEffect( () => {
         const getPlugin = async () => {
             
             const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available')
@@ -197,10 +198,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             if(outboundPlugin){setOutboundAva(true)}
         }
 
-        return getPlugin();
+         getPlugin();
     },[])
 
-    useEffect(() => {
+    useEffect(  () => {
         const loadActivities = async () => {
             const resService = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id);
             const acti = resService.data.body.service.activities;
@@ -216,12 +217,19 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setFullActivities(acti);
             setActivities(toActivities);
             setAutomaticActivity(checkAutomaticActivity)
+
+
+ 
         }
-        if(userInfo){
-            setInterval(getAnalytics, 8000);
-            setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
-            loadActivities();
+        async function validateUser (){
+            if(userInfo){
+                setInterval(getAnalytics, 8000);
+                setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
+                loadActivities();
+            }
         }
+        validateUser()
+
     }, [isReady]);
 
     const requestItemList = async (e, {value}) => {
@@ -238,7 +246,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         });
     }
 
-    useEffect(() => {
+    useEffect( () => {
         if (automaticActivity && isInbound ){changeActivity()}
     }, [automaticActivity]);
 
