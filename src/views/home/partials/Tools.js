@@ -21,8 +21,7 @@ import Mtm from './Mtm'
 // Plugins
 import Zohocrm from './plugins/zohocrm/Zohocrm'
 
-
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm}) => {
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service:infoService}) => {
     console.log(folio);
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
@@ -141,6 +140,21 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
     }
 
+    const sendFile = (e) => {
+        console.log(e)
+        socket.connection.emit('sendMessage', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio.folio._id,
+            message : e.url,
+            caption : e.name,
+            class : e.mimeType === 'application/pdf' ? 'document' : 'image'
+        }, (result) => {
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setRefresh(Math.random());
+        });
+    }
+
     useEffect(  () => {
         
         const loadListClassifications = async () => {
@@ -174,6 +188,19 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 
             default :
                 return <div>Plugin no soportado</div>
+        }
+    }
+
+    const getIcon = (type) => {
+        switch (type) {
+            case 'image/png':
+                return 'image outline'
+            case 'image/jpeg':
+                return 'image outline'
+            case 'application/pdf':
+                return 'file pdf'
+            default:
+                return 'file pdf'
         }
     }
     
@@ -324,15 +351,40 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                 </p>
             </Accordion.Content>
             {/* ------------ */}
+            {folio.folio.typeFolio === '_MESSAGES_' && <>
             <Accordion.Title index={4} active={indexPane === 4} onClick={openPane}>
                 <Icon name='cloud' />
-               Catalogo de archivos
+               Catálogo de archivos
             </Accordion.Title>
-            <Accordion.Content active={indexPane === 4}>
-                <p>
-                    Aun no hay archivos. Solicita a tu supervisor.
-                </p>
-            </Accordion.Content>
+             <Accordion.Content active={indexPane === 4}>
+             <div style={{height:250, overflowY:'scroll'}}>
+                {
+                    infoService.repoFiles && infoService.repoFiles.length > 0 && infoService.repoFiles.map((item) => {
+                        return <div>
+                            <Button
+                                icon='eye'
+                                size='mini'
+                                style={{marginRight:5}}
+                                target='_blank'
+                                href={item.url}
+                            ></Button>
+                            <Button key={item._id}
+                                size='mini'
+                                color='green'
+                                onClick={() => {
+                                    if(window.confirm('¿Deseas enviar el archivo "'+item.name+'"?')){
+                                        sendFile(item)
+                                    }
+                                }}
+                            >
+                                <Icon name={getIcon(item.mimeType)} />
+                                {item.name}
+                            </Button>
+                        <Divider/></div>
+                    })
+                }
+                </div>
+            </Accordion.Content></>}
 
                         {/* ------------ salesforce*/}
                         {
