@@ -370,7 +370,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                             ></Button>
                             <Button key={item._id}
                                 size='mini'
-                                color='green'
+                                color='blue'
                                 onClick={() => {
                                     if(window.confirm('¿Deseas enviar el archivo "'+item.name+'"?')){
                                         sendFile(item)
