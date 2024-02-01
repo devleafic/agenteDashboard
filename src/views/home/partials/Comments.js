@@ -545,8 +545,8 @@ return ( <>
                         <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
                         {/*<Button  color='green' basic onClick={() => {prepareButtons(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='button' /><Icon name='mail square' /><label className='hideText'>Enviar Boton</label></Button> */}                        
                
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sticky note' /><label className='hideText'>Continuar Después</label></Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='folder'  /><label className='hideText'>Finalizar</label></Button>
 
                     </Form> 
                 ) : typeFolio === '_EMAIL_' && fullFolio ? (
@@ -607,11 +607,15 @@ return ( <>
                     dimmer={'blurring'}
                     open={openModal}
                 >
-                    <Modal.Header>¿Deseas {typeClose} el folio #{folio._id}?</Modal.Header>
+                    <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
                         <div style={{textAlign: 'center', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
                         </div>
+                        <div style={{textAlign: 'center', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <Checkbox toggle label='- Enviar a seguimiento - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
+                        </div>
+
                         Selecciona una clasificación para el folio :
                         <div style={{marginTop:20}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
