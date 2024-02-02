@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message, Card, CardGroup, CardContent, CardHeader, CardMeta, CardDescription } from 'semantic-ui-react';
+import { Container, Table, Label, Select, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message, Card, CardGroup, CardContent, CardHeader, CardMeta, CardDescription } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 import moment from 'moment';
@@ -13,6 +13,10 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     const [isLoadInbox, setIsLoadInbox ] = useState(false);
 
     const [isLoadInboxFolio, setIsLoadInboxFolio ] = useState({});
+    const [openModalTransfer, setOpenModalTransfer] = useState(false);
+    const [folioToTransfer, setFolioToTransfer] = useState(null);
+    const [listPipeline, setListPipeline] = useState([]);
+    const [destinyPipeline, setDestinyPipeline] = useState(null);
 
     //preview modal 
     const [openModal, setOpenModal] = useState(false);
@@ -38,10 +42,16 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         </Segment>)
     }
 
+    const transferPipeline = (folio) => {
+        setOpenModalTransfer(true);
+        setFolioToTransfer(folio);
+    }
 
     const sortInboxes = (inb) => {
         let tmpSort = {};
-        inb.map((x) => {
+        inb.filter((x) => {
+            return x.folio.fromPipeline === true;
+        }).map((x) => {
             if(!tmpSort[x.pipelineStage]){
                 tmpSort[x.pipelineStage] = [];
             }
@@ -69,7 +79,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                       <CardHeader>{x.aliasUser}</CardHeader>
                       <CardMeta>{x.folio._id}</CardMeta>
                       <CardDescription>{x.anchor}</CardDescription>
-                        <div style={{width : 80, margin : '10px auto 0px auto'}}>
+                        <div style={{width : 120, margin : '10px auto 0px auto'}}>
                         {
                             x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                 <Button circular color='facebook' icon='folder open outline' onClick={() => {
@@ -84,6 +94,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                     getFolioMessages(x.folio._id)
                                 }} ></Button>
                         }
+                        <Button  key={'ts-'+x.folio._id} href='#' circular color='facebook' icon='arrows alternate horizontal' onClick={() => {
+                            transferPipeline(x)
+                        }}></Button>
                         </div>
                     </CardContent>
                   </Card>
@@ -92,32 +105,33 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         </Card>
     }
 
-    useEffect ( () => {
-        const loadInbox = async () => {
-            setIsLoadInbox(true);
-            //setInboxes([]);
-            socketC.connection.emit('loadInbox', {
-                token : window.localStorage.getItem('sdToken')
-            },(data) => {
-                
-                setIsLoadInbox(false);
-                let sortedInb = sortInboxes(data.inboxes);
-                
-                setInboxes(sortedInb);
-                
-                let hasUnread = data.inboxes.find((x) => {
-                    return x.status === 1 ? true : false;
-                });
-
-                const folioList = {};
-                data.inboxes.map((x) => {
-                    folioList[x.folio._id] = false;
-                    return x.folio._id;
-                });
-                setIsLoadInboxFolio(folioList);
-                setUnReadMessages(hasUnread?true:false);
+    const loadInbox = async () => {
+        setIsLoadInbox(true);
+        //setInboxes([]);
+        socketC.connection.emit('loadInbox', {
+            token : window.localStorage.getItem('sdToken')
+        },(data) => {
+            
+            setIsLoadInbox(false);
+            let sortedInb = sortInboxes(data.inboxes);
+            
+            setInboxes(sortedInb);
+            
+            let hasUnread = data.inboxes.find((x) => {
+                return x.status === 1 ? true : false;
             });
-        }
+
+            const folioList = {};
+            data.inboxes.map((x) => {
+                folioList[x.folio._id] = false;
+                return x.folio._id;
+            });
+            setIsLoadInboxFolio(folioList);
+            setUnReadMessages(hasUnread?true:false);
+        });
+    }
+
+    useEffect ( () => {
         //return
          loadInbox();
     }, []);
@@ -164,6 +178,28 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         })
     }
 
+    const sendTrasnfer = () => {
+        if(!destinyPipeline){
+            toast.error('Selecciona una etapa a transferir');
+            return false;
+        }
+
+        socketC.connection.emit('transferStage', {folio: folioToTransfer, newStage : destinyPipeline}, (res) => {
+            if(res.success){
+                toast.success('Se transfirió el folio correctamente');
+                setOpenModalTransfer(false);
+                setDestinyPipeline(null);
+                setFolioToTransfer(null);
+                setInboxes([]);
+                loadInbox();
+                // loadInbox();
+            }else{
+                toast.error(res.message);
+            }
+        });
+
+    }
+
     
 
     return ( <div style={{padding : 40, overflow: 'auto', height:'calc(100vh - 10px)', background:'#dde1e7'}}>
@@ -196,6 +232,10 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     let infoStage = infoPipe.pipelines.find((y) => {
                         return x === y._id
                     })
+                    console.log(infoPipe.pipelines);
+                    if(listPipeline.length <= 0){
+                        setListPipeline(infoPipe.pipelines)
+                    }
                     return cardPipeline(infoStage, inboxes[x]);
                 })
             }
@@ -208,7 +248,42 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             scrolling
             content={contentMessage}
             actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> {initLoadModal()}}]}
-            />  
+            />
+
+        <Modal
+            // onClose={() => initLoadModal()}
+            open={openModalTransfer}
+            header={'Transferir de etapa.'}
+            size='tiny'
+            content={<div style={{padding:10}}>
+                {folioToTransfer && <><div style={{marginBottom:5}}>Selecciona la etapa a cual será transferido el folio <b>#{folioToTransfer.folio._id}</b></div>
+                <Select placeholder='Selecciona la etapa'
+                    onChange={(e, data) => {
+                        console.log({data});
+                        setDestinyPipeline(data.value)
+                    }}
+                    options={listPipeline.filter((x) => {
+                    return x._id !== folioToTransfer.pipelineStage ? true : false
+                }).map((x) => {
+                    return {
+                        key : x._id,
+                        value : x._id,
+                        text : x.name
+                    }
+                })} /></>}
+            </div>}
+            actions={[
+                { key: 'transfer-Cancelar', content: 'Cancelar', negative: true, onClick: ()=> {
+                    setOpenModalTransfer(false)
+                }},
+                { key: 'transfer-Aceptar', content: 'Aceptar', positive: true, onClick: ()=> {
+                    if(window.confirm('¿Estás seguro de transferir el folio?')){
+                        sendTrasnfer();
+                    }
+                }}
+            ]}
+            />
+
     </div> );
 
 
