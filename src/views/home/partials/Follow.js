@@ -183,14 +183,14 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             toast.error('Selecciona una etapa a transferir');
             return false;
         }
-
+        setOpenModalTransfer(false);
         socketC.connection.emit('transferStage', {folio: folioToTransfer, newStage : destinyPipeline}, (res) => {
             if(res.success){
                 toast.success('Se transfirió el folio correctamente');
-                setOpenModalTransfer(false);
+                
                 setDestinyPipeline(null);
                 setFolioToTransfer(null);
-                setInboxes([]);
+                // setInboxes([]);
                 loadInbox();
                 // loadInbox();
             }else{
@@ -209,14 +209,14 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             header='Pipeline de conversaciones'
             content='Selecciona uno contacto para continuar con la conversación.'
         />
-        {
+        {/* {
             isLoadInbox && (
-                <div>
-                    <Icon name='spinner' loading/>
-                    Cargando . . .
-                </div>
+                // <div>
+                //     <Icon name='spinner' loading/>
+                //     Cargando . . .
+                // </div>
             )
-        }
+        } */}
         <div style={{
             marginTop : 20,
         }}>
@@ -276,7 +276,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 { key: 'transfer-Cancelar', content: 'Cancelar', negative: true, onClick: ()=> {
                     setOpenModalTransfer(false)
                 }},
-                { key: 'transfer-Aceptar', content: 'Aceptar', positive: true, onClick: ()=> {
+                { key: 'transfer-Aceptar', content: 'Transferir', positive: true, onClick: ()=> {
                     if(window.confirm('¿Estás seguro de transferir el folio?')){
                         sendTrasnfer();
                     }
