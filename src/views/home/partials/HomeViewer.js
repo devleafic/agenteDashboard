@@ -125,6 +125,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
               <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
                     <Comments
+                      userInfo={userInfo}
                       person={item.folio.person}
                       messages={item.folio.message}
                       folio={item.folio}

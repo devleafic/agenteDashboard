@@ -13,7 +13,7 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +38,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     const [infoForm, setInfoForm] = useState(null);
     const [showBtnUn, setShowBtnUn] = useState(false);
+
+    const pipelineAssign = userInfo.service.pipeline;;
+    const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
+    const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
+    const [selectedStage, setSelectedStage] = useState(null);   
 
 
     const [showResponseTo, setShowResponseTo] = useState(null);
@@ -609,12 +614,23 @@ return ( <>
                 >
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
-                        <div style={{textAlign: 'center', marginBottom : 20}}>
+                        <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
                         </div>
-                        <div style={{textAlign: 'center', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <Checkbox toggle label='- Enviar a seguimiento - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
-                        </div>
+                        {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <>
+                        <div>Selecciona la etapa a cual deseas enviar</div>
+                            <Select
+                                placeholder='Etapa'
+                                onChange={(e, {value}) => {
+                                    setSelectedStage(value)
+                                }}
+                                options={listStage && listStage.map((x) => {
+                                    return {key: x._id, value: x._id, text: x.name}
+                                })}
+                            />
+                        </>}
+                        </div>}
 
                         Selecciona una clasificación para el folio :
                         <div style={{marginTop:20}}>
