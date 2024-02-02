@@ -153,7 +153,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 }
                 {
                     inboxes.filter((x) => {
-                        return x.status === 3 || x.folio?.status === 3 ? false : true  
+                        return x.status === 3 || x.folio?.status === 3 || x.folio?.fromPipeline == true ? false : true  
                     }).map((x) => {
                         return (
                             <Table.Row key={x._id}>
