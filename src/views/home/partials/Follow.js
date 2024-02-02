@@ -40,16 +40,12 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
 
     const sortInboxes = (inb) => {
-        console.log({inb});
         let tmpSort = {};
         inb.map((x) => {
-            let infoPipe = x.service.pipelines.find((y) => {
-                return y._id === x.pipeline
-            })
-            if(!tmpSort[infoPipe._id]){
-                tmpSort[infoPipe._id] = [];
+            if(!tmpSort[x.pipelineStage]){
+                tmpSort[x.pipelineStage] = [];
             }
-            tmpSort[infoPipe._id].push(x);
+            tmpSort[x.pipelineStage].push(x);
             return x;
         });
 
@@ -58,31 +54,22 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
     const cardPipeline = (pipe, list) => {
         
-        let pipelineInfo = list[0].service.pipelines.find((x) => {
-            return pipe === x._id
-        })
-        return <Card style={{padding:10}}>
+        return <Card key={`card-${pipe._id}`} style={{padding:10, border : `solid 3px ${pipe.color}`}}>
             <div
                 style={{
                     textAlign : 'center',
                     fontSize : 18,
-                    marginTop : 10,
+                    padding : 10,
                 }}
-            >{pipelineInfo.title}</div>
+            >{pipe.name}</div>
             {
                 list.map((x) => {
-                    let stageInfo = pipelineInfo.pipelines.find((y) => {
-                        return x.pipelineStage === y._id
-                    });
-                    return <Card key={x._id} style={{
-                        border : `solid 2px ${stageInfo.color}`
-                    }}>
+                    return <Card key={x._id} >
                     <CardContent>
                       <CardHeader>{x.aliasUser}</CardHeader>
                       <CardMeta>{x.folio._id}</CardMeta>
                       <CardDescription>{x.anchor}</CardDescription>
-                        <label>-{stageInfo.name}</label>
-                        <div style={{marginTop : 10, width : 80, margin : '0px auto'}}>
+                        <div style={{width : 80, margin : '10px auto 0px auto'}}>
                         {
                             x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                 <Button circular color='facebook' icon='folder open outline' onClick={() => {
@@ -115,7 +102,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 
                 setIsLoadInbox(false);
                 let sortedInb = sortInboxes(data.inboxes);
-                console.log({sortedInb});
+                
                 setInboxes(sortedInb);
                 
                 let hasUnread = data.inboxes.find((x) => {
@@ -201,7 +188,15 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             overflow : 'auto'}}>
             {
                 Object.keys(inboxes).map((x) => {
-                    return cardPipeline(x, inboxes[x]);
+                    
+                    let pipelineId = inboxes[x][0].pipeline;
+                    let infoPipe = inboxes[x][0].service.pipelines.find((y) => {
+                        return pipelineId === y._id
+                    });
+                    let infoStage = infoPipe.pipelines.find((y) => {
+                        return x === y._id
+                    })
+                    return cardPipeline(infoStage, inboxes[x]);
                 })
             }
             </CardGroup>
