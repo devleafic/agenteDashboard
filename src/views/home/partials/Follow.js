@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message } from 'semantic-ui-react';
+import { Container, Table, Label, Header, Icon, Button, Segment, Dimmer, Image, Loader, Modal, Message, Card, CardGroup, CardContent, CardHeader, CardMeta, CardDescription } from 'semantic-ui-react';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 import moment from 'moment';
@@ -38,6 +38,73 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         </Segment>)
     }
 
+
+    const sortInboxes = (inb) => {
+        console.log({inb});
+        let tmpSort = {};
+        inb.map((x) => {
+            let infoPipe = x.service.pipelines.find((y) => {
+                return y._id === x.pipeline
+            })
+            if(!tmpSort[infoPipe._id]){
+                tmpSort[infoPipe._id] = [];
+            }
+            tmpSort[infoPipe._id].push(x);
+            return x;
+        });
+
+        return tmpSort;
+    }
+
+    const cardPipeline = (pipe, list) => {
+        
+        let pipelineInfo = list[0].service.pipelines.find((x) => {
+            return pipe === x._id
+        })
+        return <Card style={{padding:10}}>
+            <div
+                style={{
+                    textAlign : 'center',
+                    fontSize : 18,
+                    marginTop : 10,
+                }}
+            >{pipelineInfo.title}</div>
+            {
+                list.map((x) => {
+                    let stageInfo = pipelineInfo.pipelines.find((y) => {
+                        return x.pipelineStage === y._id
+                    });
+                    return <Card key={x._id} style={{
+                        border : `solid 2px ${stageInfo.color}`
+                    }}>
+                    <CardContent>
+                      <CardHeader>{x.aliasUser}</CardHeader>
+                      <CardMeta>{x.folio._id}</CardMeta>
+                      <CardDescription>{x.anchor}</CardDescription>
+                        <label>-{stageInfo.name}</label>
+                        <div style={{marginTop : 10, width : 80, margin : '0px auto'}}>
+                        {
+                            x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
+                                <Button circular color='facebook' icon='folder open outline' onClick={() => {
+                                    openItemInbox(x.folio, x);
+                                    setUnReadMessages(false)
+                                    setIsLoadInboxFolio({...isLoadInboxFolio, [x.folio._id] : true});
+                                }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}></Button>
+                            </>)
+                        }
+                        {
+                                <Button  key={'hs-'+x.folio._id} href='#' circular color='facebook' icon='eye' onClick={() => {
+                                    getFolioMessages(x.folio._id)
+                                }} ></Button>
+                        }
+                        </div>
+                    </CardContent>
+                  </Card>
+                })
+            }
+        </Card>
+    }
+
     useEffect ( () => {
         const loadInbox = async () => {
             setIsLoadInbox(true);
@@ -47,7 +114,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             },(data) => {
                 
                 setIsLoadInbox(false);
-                setInboxes(data.inboxes);
+                let sortedInb = sortInboxes(data.inboxes);
+                console.log({sortedInb});
+                setInboxes(sortedInb);
                 
                 let hasUnread = data.inboxes.find((x) => {
                     return x.status === 1 ? true : false;
@@ -107,94 +176,36 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             }
         })
     }
-    return ( <div style={{margin : 40}}>
+
+    
+
+    return ( <div style={{padding : 40, overflow: 'auto', height:'calc(100vh - 10px)', background:'#dde1e7'}}>
         <Message
             attached
             icon="inbox"
             header='Pipeline de conversaciones'
             content='Selecciona uno contacto para continuar con la conversación.'
         />
-        <Table singleLine color='blue'>
-            <Table.Header className='showHeader'>
-                <Table.Row >
-                    <Table.HeaderCell>Folio</Table.HeaderCell>
-                    {/*<Table.HeaderCell>Item</Table.HeaderCell> */}
-                    <Table.HeaderCell>Identificador</Table.HeaderCell>
-                    <Table.HeaderCell>AliasId</Table.HeaderCell>
-                    <Table.HeaderCell>Canal</Table.HeaderCell>
-                    <Table.HeaderCell>Bandeja</Table.HeaderCell>
-                    <Table.HeaderCell>Transferido Por</Table.HeaderCell>
-                    <Table.HeaderCell>Última actual...</Table.HeaderCell>    
-                    <Table.HeaderCell>Pipeline</Table.HeaderCell>
-                    <Table.HeaderCell>Stage</Table.HeaderCell>    
-                    <Table.HeaderCell></Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>                    
-                </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
-                {
-                    isLoadInbox && (
-                        <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
-                                <Icon name='spinner' loading/>
-                                Cargando . . .
-                            </Table.Cell>
-                        </Table.Row>
-                    )
-                }
-                {
-                    !isLoadInbox && inboxes.length === 0 && (
-                        <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
-                                <Icon name='mail outline'/>
-                                No hay conversaciones en seguimiento
-                            </Table.Cell>
-                        </Table.Row>
-                    )
-                }
-                {
-                    inboxes.filter((x) => {
-                        return x.status === 3 || x.folio?.status === 3 ? false : true  
-                    }).map((x) => {
-                        return (
-                            <Table.Row key={x._id}>
-                                <Table.Cell><b className='showLabel'>Folio </b>{x.status === 1 && (<Icon name='circle' color='red'/>)} {x.folio?._id}</Table.Cell>
-                               {/* <Table.Cell><b className='showLabel'>Item </b>{x.item}</Table.Cell> */}
-                                <Table.Cell><b className='showLabel'>Identificador </b>{x.anchor}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Alias </b>{x.aliasUser ? x.aliasUser : "Sin alias"}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Canal </b>{x.channel}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Bandeja </b>{x.queue}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Transferido Por</b>{x.userFromName && x.transferDate? x.userFromName + ' - ' + x.transferDate : "N/A"}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Última actual..</b>{moment(x.folio.updatedAt).fromNow()}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Pipeline </b>{x.pipeline}</Table.Cell>
-                                <Table.Cell><b className='showLabel'>Stage </b>{x.pipelineStage}</Table.Cell>
-                              
-                                 <Table.Cell textAlign='right'>
-                                    {
-                                        x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
-                                            <Button circular color='facebook' icon='folder open outline' onClick={() => {
-                                                openItemInbox(x.folio, x);
-                                                setUnReadMessages(false)
-                                                setIsLoadInboxFolio({...isLoadInboxFolio, [x.folio._id] : true});
-                                            }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}></Button>
-                                        </>)
-                                    }
-                                    
-                                </Table.Cell>
-                                <Table.Cell textAlign='right' key={'hs-'+x.folio._id} >
-                                    {
-                                            <Button  key={'hs-'+x.folio._id} href='#' circular color='facebook' icon='eye' onClick={() => {
-                                                getFolioMessages(x.folio._id)
-                                            }} ></Button>
-                                    }
-                                </Table.Cell>                               
-                            </Table.Row>
-                        )
-                    })
-                }
-            </Table.Body>
-        </Table>
+        {
+            isLoadInbox && (
+                <div>
+                    <Icon name='spinner' loading/>
+                    Cargando . . .
+                </div>
+            )
+        }
+        <div style={{
+            marginTop : 20,
+        }}>
+            <CardGroup style={{height : '100%',
+            overflow : 'auto'}}>
+            {
+                Object.keys(inboxes).map((x) => {
+                    return cardPipeline(x, inboxes[x]);
+                })
+            }
+            </CardGroup>
+        </div>
         <Modal
             onClose={() => initLoadModal()}
             open={openModal}
