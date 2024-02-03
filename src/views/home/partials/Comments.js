@@ -250,11 +250,17 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
         let _aliasIdPerson = fullFolio.folio.person.aliasId ///Para cuando se va a mandar a Inbox
         let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
+        let _fromPipeline = fullFolio.folio.fromPipeline //Para cuando se va a mandar a pipline
         if(typeClose === 'guardar'){
             actionClose = 'save';
         }
         if(typeClose === 'finalizar'){
             actionClose = 'end';
+        }
+
+        let isFolioToPipeline = false;
+        if (selectedStage) {    
+            isFolioToPipeline = selectedStage;
         }
 
         socket.connection.emit('closeFolio', {
@@ -268,7 +274,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             _queue,
             _anchorPerson,
             _aliasIdPerson,
-            _fromInbox
+            _fromInbox,
+            isFolioToPipeline,
+            fromPipelineStage : selectedStage ? selectedStage : null,
+            fromPipelineId : pipelineAssign ? pipelineAssign : null,
         }, (result) => {
             console.log(result)
             if(!result.success){

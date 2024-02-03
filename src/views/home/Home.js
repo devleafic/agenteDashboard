@@ -225,7 +225,7 @@ const Home = () => {
                         token : window.localStorage.getItem('sdToken')
                     },(data) => {         
                         let hasUnread = data.inboxes.find((x) => {
-                            return x.status === 1 ? true : false;
+                            return x.status === 1 && !x.pipeline ? true : false;
                         })
                         setUnReadMessages(hasUnread?true:false);
                     });
