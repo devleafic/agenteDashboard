@@ -33,7 +33,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         
                 }
             case 'follow':
-                return <Button disabled={isConnected === -1 ? true : false} icon='clone' onClick={() => selectedComponent('follow')} color={page === 'follow' ? 'blue' : null}/>
+                return <Button disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('follow')} color={page === 'follow' ? 'blue' : null}/>
             case 'contacts':
                 return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
             case 'calendar':

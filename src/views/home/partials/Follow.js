@@ -64,26 +64,34 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
     const cardPipeline = (pipe, list) => {
         
-        return <Card key={`card-${pipe._id}`} style={{padding:10, border : `solid 3px ${pipe.color}`}}>
+        return <Card key={`card-${pipe._id}`} style={{ padding:10, border : `solid 4px ${pipe.color} `,  borderRadius: 15    }}>
             <div
                 style={{
                     textAlign : 'center',
-                    fontSize : 18,
+                    fontSize : 20,
                     padding : 10,
                 }}
             >{pipe.name}</div>
             {
                 list.map((x) => {
                     return <Card key={x._id} >
-                    <CardContent>
+                    <CardContent >
+                    <Image
+                        floated='right'
+                        size='mini'
+                        src='https://react.semantic-ui.com/images/avatar/large/molly.png'
+                    />
                       <CardHeader>{x.aliasUser}</CardHeader>
-                      <CardMeta>{x.folio._id}</CardMeta>
-                      <CardDescription>{x.anchor}</CardDescription>
-                        <div style={{width : 120, margin : '10px auto 0px auto'}}>
+                      <CardMeta>Folio: {x.folio._id}</CardMeta>
+                      <CardMeta>Ult. Mensaje: {moment(x.folio.updatedAt).fromNow()}</CardMeta>
+                      <CardMeta>Tipo: {x.folio.typeFolio}</CardMeta>
+                      <CardMeta>Canal: {x.channel}</CardMeta>
+                      <CardDescription>ID: {x.anchor}</CardDescription>
+                        <div style={{width : 120, margin : '10px auto 0px auto',}}>
                         {
                             x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                 <Button circular color='facebook' icon='folder open outline' onClick={() => {
-                                    openItemInbox(x.folio, x);
+                                    openItemInbox(x.folio, x, pipe.name);
                                     setUnReadMessages(false)
                                     setIsLoadInboxFolio({...isLoadInboxFolio, [x.folio._id] : true});
                                 }} loading={isLoadInboxFolio[x.folio._id]} disabled={isLoadInboxFolio[x.folio._id]}></Button>
@@ -136,7 +144,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
          loadInbox();
     }, []);
 
-    const openItemInbox = (folio, item) => {
+    const openItemInbox = (folio, item, pipe) => {
         console.time('openItemInbox');
         //setIsLoadInboxFolio(true)
         socketC.connection.emit('openItemInbox', {
@@ -205,18 +213,30 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     return ( <div style={{padding : 40, overflow: 'auto', height:'calc(100vh - 10px)', background:'#dde1e7'}}>
         <Message
             attached
-            icon="inbox"
+            icon="filter"
             header='Pipeline de conversaciones'
-            content='Selecciona uno contacto para continuar con la conversación.'
+            content='Selecciona un contacto para continuar con la conversación o moverla de etapa.'
         />
-        {/* {
-            isLoadInbox && (
-                // <div>
-                //     <Icon name='spinner' loading/>
-                //     Cargando . . .
-                // </div>
-            )
-        } */}
+        <Table singleLine color='blue'>
+            <Table.Header className='showHeader'>
+
+            </Table.Header>
+
+            <Table.Body>
+                {
+                    isLoadInbox && (
+                        <Table.Row warning={true}>
+                            <Table.Cell collapsing={true} colSpan={6}>
+                                <Icon name='spinner' loading/>
+                                Cargando . . .
+                            </Table.Cell>
+                        </Table.Row>
+                    )
+                }
+               
+  
+            </Table.Body>
+        </Table>
         <div style={{
             marginTop : 20,
         }}>
@@ -232,7 +252,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     let infoStage = infoPipe.pipelines.find((y) => {
                         return x === y._id
                     })
-                    console.log(infoPipe.pipelines);
+                    //console.log(infoPipe.pipelines);
                     if(listPipeline.length <= 0){
                         setListPipeline(infoPipe.pipelines)
                     }
@@ -253,10 +273,10 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         <Modal
             // onClose={() => initLoadModal()}
             open={openModalTransfer}
-            header={'Transferir de etapa.'}
+            header={'Mover de Etapa: ' + folioToTransfer?.aliasUser}   
             size='tiny'
             content={<div style={{padding:10}}>
-                {folioToTransfer && <><div style={{marginBottom:5}}>Selecciona la etapa a cual será transferido el folio <b>#{folioToTransfer.folio._id}</b></div>
+                {folioToTransfer && <><div style={{marginBottom:5}}>Selecciona la etapa a cual será transferido el folio <b>#{folioToTransfer.folio._id}</b> del usuario <b>{folioToTransfer.aliasUser}</b></div>
                 <Select placeholder='Selecciona la etapa'
                     onChange={(e, data) => {
                         console.log({data});
