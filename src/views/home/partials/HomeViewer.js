@@ -36,7 +36,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias, privateInbox, typeFolio,subject}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, typeFolio,subject}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -67,8 +67,11 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
     let folioIcon 
 
-    if (privateInbox){
+    if (privateInbox && !fromPipeline ){
       folioIcon =  <Icon color='red' name='inbox' /> 
+    }
+    else if (fromPipeline){
+      folioIcon = <Icon color='red' name='filter' />
     } else {
         folioIcon = typeFolio == '_EMAIL_' ? <Icon color='blue' name='envelope open' /> : 
         typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> :
@@ -116,7 +119,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox, typeFolio: item.folio.typeFolio, subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
           tabular:true,
           render : () => {
             
@@ -125,6 +128,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
               <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
                     <Comments
+                      userInfo={userInfo}
                       person={item.folio.person}
                       messages={item.folio.message}
                       folio={item.folio}

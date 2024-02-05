@@ -111,7 +111,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         <Message
             attached
             icon="inbox"
-            header='Inbox'
+            header='Pipeline de conversaciones'
             content='Selecciona uno contacto para continuar con la conversación.'
         />
         <Table singleLine color='blue'>
@@ -124,7 +124,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     <Table.HeaderCell>Canal</Table.HeaderCell>
                     <Table.HeaderCell>Bandeja</Table.HeaderCell>
                     <Table.HeaderCell>Transferido Por</Table.HeaderCell>
-                    <Table.HeaderCell>Última actual...</Table.HeaderCell>                    
+                    <Table.HeaderCell>Última actual...</Table.HeaderCell>    
+                    <Table.HeaderCell>Pipeline</Table.HeaderCell>
+                    <Table.HeaderCell>Stage</Table.HeaderCell>    
                     <Table.HeaderCell></Table.HeaderCell>
                     <Table.HeaderCell></Table.HeaderCell>                    
                 </Table.Row>
@@ -146,14 +148,14 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         <Table.Row warning={true}>
                             <Table.Cell collapsing={true} colSpan={6}>
                                 <Icon name='mail outline'/>
-                                No hay mensajes guardados
+                                No hay conversaciones en seguimiento
                             </Table.Cell>
                         </Table.Row>
                     )
                 }
                 {
                     inboxes.filter((x) => {
-                        return x.status === 3 || x.folio?.status === 3 || x.folio?.fromPipeline == true ? false : true  
+                        return x.status === 3 || x.folio?.status === 3 ? false : true  
                     }).map((x) => {
                         return (
                             <Table.Row key={x._id}>
@@ -165,7 +167,10 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 <Table.Cell><b className='showLabel'>Bandeja </b>{x.queue}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Transferido Por</b>{x.userFromName && x.transferDate? x.userFromName + ' - ' + x.transferDate : "N/A"}</Table.Cell>
                                 <Table.Cell><b className='showLabel'>Última actual..</b>{moment(x.folio.updatedAt).fromNow()}</Table.Cell>
-                                <Table.Cell textAlign='right'>
+                                <Table.Cell><b className='showLabel'>Pipeline </b>{x.pipeline}</Table.Cell>
+                                <Table.Cell><b className='showLabel'>Stage </b>{x.pipelineStage}</Table.Cell>
+                              
+                                 <Table.Cell textAlign='right'>
                                     {
                                         x.folio?.status === 3 ? (<label>Folio finalizado</label>) : (<>
                                             <Button circular color='facebook' icon='folder open outline' onClick={() => {

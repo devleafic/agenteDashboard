@@ -15,6 +15,7 @@ import CallContext from '../../controladores/CallContext';
 /* Componentes */
 import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
+import Follow from './partials/Follow';
 import Contacts from './partials/Contacts';
 import Calendar from './partials/Calendar';
 
@@ -30,6 +31,7 @@ const Home = () => {
     const initializeComponent = {
         home : false,
         Inbox : false,
+        follow : false,
         contacts :  false,
         calendar :  false
     };
@@ -223,7 +225,7 @@ const Home = () => {
                         token : window.localStorage.getItem('sdToken')
                     },(data) => {         
                         let hasUnread = data.inboxes.find((x) => {
-                            return x.status === 1 ? true : false;
+                            return x.status === 1 && !x.pipeline ? true : false;
                         })
                         setUnReadMessages(hasUnread?true:false);
                     });
@@ -510,6 +512,9 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             }
             {
                 component.inbox && <Inbox  vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
+            }
+                        {
+                component.follow && <Follow  vFolio={vFolio} setVFolio={setVFolio} show={component.follow} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
             }
             {
                 component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}  userInfo={userInfo} />

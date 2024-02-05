@@ -32,6 +32,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     return <Button disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
         
                 }
+            case 'follow':
+                return <Button disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('follow')} color={page === 'follow' ? 'blue' : null}/>
             case 'contacts':
                 return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
             case 'calendar':
@@ -55,18 +57,21 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     <Popup content='Conectar' trigger={<Button icon='code branch' onClick={() => {setOnConnect(!onConnect)}} color={page === 'code branch' ? 'blue' : null}/>} position='right center'/>
                 </div> */}
                 <div className='mb-3'>
-                    <Popup content='Conversaciones' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
+                    <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
                 </div>
                 <div className='mb-3'>
-                    <Popup content='Inbox Privado' trigger={getButton('inbox')} position='right center'/>
+                    <Popup content='Mis conversaciones' trigger={getButton('inbox')} position='right center'/>
+                </div>
+                <div className='mb-3'>
+                    <Popup content='Mis seguimientos' trigger={getButton('follow')} position='right center'/>
                 </div>
                 <div className='mb-3'>
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
                 </div>
-                <div className='mb-3'>
+                {/*<div className='mb-3'>
                     <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>
                 </div>
-                {/* <div className='mb-3'>
+                 <div className='mb-3'>
                     <Popup content='Informes' trigger={<Button icon='chart bar' onClick={() => selectedComponent('reports')} color={page === 'reports' ? 'blue' : null}/>} position='right center'/>
                 </div>
                 <div className='mb-3'>

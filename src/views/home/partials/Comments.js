@@ -13,7 +13,7 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 
 
 
-const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio}) => {
+const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +38,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     const [infoForm, setInfoForm] = useState(null);
     const [showBtnUn, setShowBtnUn] = useState(false);
+
+    const pipelineAssign = userInfo.service.pipeline;;
+    const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
+    const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
+    const [selectedStage, setSelectedStage] = useState(null);   
 
 
     const [showResponseTo, setShowResponseTo] = useState(null);
@@ -245,11 +250,17 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         let _anchorPerson = fullFolio.folio.person.anchor ///Para cuando se va a mandar a Inbox
         let _aliasIdPerson = fullFolio.folio.person.aliasId ///Para cuando se va a mandar a Inbox
         let _fromInbox = fullFolio.folio.fromInbox //Para cuando se va a mandar a Inbox
+        let _fromPipeline = fullFolio.folio.fromPipeline //Para cuando se va a mandar a pipline
         if(typeClose === 'guardar'){
             actionClose = 'save';
         }
         if(typeClose === 'finalizar'){
             actionClose = 'end';
+        }
+
+        let isFolioToPipeline = false;
+        if (selectedStage) {    
+            isFolioToPipeline = selectedStage;
         }
 
         socket.connection.emit('closeFolio', {
@@ -263,7 +274,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             _queue,
             _anchorPerson,
             _aliasIdPerson,
-            _fromInbox
+            _fromInbox,
+            isFolioToPipeline,
+            fromPipelineStage : selectedStage ? selectedStage : null,
+            fromPipelineId : pipelineAssign ? pipelineAssign : null,
         }, (result) => {
             console.log(result)
             if(!result.success){
@@ -545,8 +559,8 @@ return ( <>
                         <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>                        
                         {/*<Button  color='green' basic onClick={() => {prepareButtons(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='button' /><Icon name='mail square' /><label className='hideText'>Enviar Boton</label></Button> */}                        
                
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
+                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sticky note' /><label className='hideText'>Continuar Después</label></Button>
+                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='folder'  /><label className='hideText'>Finalizar</label></Button>
 
                     </Form> 
                 ) : typeFolio === '_EMAIL_' && fullFolio ? (
@@ -607,11 +621,26 @@ return ( <>
                     dimmer={'blurring'}
                     open={openModal}
                 >
-                    <Modal.Header>¿Deseas {typeClose} el folio #{folio._id}?</Modal.Header>
+                    <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
-                        <div style={{textAlign: 'center', marginBottom : 20}}>
+                        <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
                         </div>
+                        {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <>
+                        <div>Selecciona la etapa a cual deseas enviar</div>
+                            <Select
+                                placeholder='Etapa'
+                                onChange={(e, {value}) => {
+                                    setSelectedStage(value)
+                                }}
+                                options={listStage && listStage.map((x) => {
+                                    return {key: x._id, value: x._id, text: x.name}
+                                })}
+                            />
+                        </>}
+                        </div>}
+
                         Selecciona una clasificación para el folio :
                         <div style={{marginTop:20}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
