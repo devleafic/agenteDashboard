@@ -490,6 +490,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
+    const fillStages = () =>{
+        const options=listStage && listStage.map((x) => {
+            return {key: x._id, value: x._id, text: x.name }
+        })
+        options.unshift({key : -1, value:-1, text: 'Seleccione una etapa'})
+        return options;
+    }
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header as='h3' dividing>
@@ -624,19 +631,26 @@ return ( <>
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
                         <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <div><Label  circular icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
+                        {typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
                         </div>
                         {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <>
-                        <div ><Label circular icon='filter' color='blue' content='Enviar conversación a pipeline'/>
+                        <div ><Label pointing='right' icon='filter' color='blue' content='Enviar conversación a pipeline'/>
                             <Select style={{marginLeft:20}} 
+                                options={fillStages()}
                                 placeholder='Etapa'
                                 onChange={(e, {value}) => {
-                                    setSelectedStage(value)
+                                    
+                                    if(value === -1){
+                                        setSelectedStage(null)
+                                    }else{
+                                        setSelectedStage(value)
+                                      
+                                    }
+
                                 }}
-                                options={listStage && listStage.map((x) => {
-                                    return {key: x._id, value: x._id, text: x.name }
-                                })}
+
+                        
                             /></div>
                             
                         </>}
