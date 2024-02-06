@@ -624,25 +624,25 @@ return ( <>
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
                         <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <Checkbox toggle label='- Asignarlo a mi Inbox - (Conversación Privada)'  checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> }
+                        {typeClose === 'guardar'  && <div><Label  circular icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
                         </div>
                         {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <>
-                        <div>Selecciona la etapa a cual deseas enviar</div>
-                            <Select
+                        <div ><Label circular icon='filter' color='blue' content='Enviar conversación a pipeline'/>
+                            <Select style={{marginLeft:20}} 
                                 placeholder='Etapa'
                                 onChange={(e, {value}) => {
                                     setSelectedStage(value)
                                 }}
                                 options={listStage && listStage.map((x) => {
-                                    return {key: x._id, value: x._id, text: x.name}
+                                    return {key: x._id, value: x._id, text: x.name }
                                 })}
-                            />
+                            /></div>
+                            
                         </>}
                         </div>}
-
-                        Selecciona una clasificación para el folio :
-                        <div style={{marginTop:20}}>
+                        <Label  color='red' pointing='below' icon='sticky note'  content='Selecciona una clasificación para la conversación:'/>            
+                        <div style={{marginTop:5}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
                             }}/>
