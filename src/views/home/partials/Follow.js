@@ -283,7 +283,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         setDestinyPipeline(data.value)
                     }}
                     options={listPipeline.filter((x) => {
-                    return x._id !== folioToTransfer.pipelineStage ? true : false
+                    return x._id !== folioToTransfer.pipelineStage && x.status == true ? true : false
                 }).map((x) => {
                     return {
                         key : x._id,

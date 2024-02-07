@@ -491,7 +491,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
 
     const fillStages = () =>{
-        const options=listStage && listStage.map((x) => {
+        const options=listStage && listStage.
+        filter(x => x.status === true).
+        map((x) => {
             return {key: x._id, value: x._id, text: x.name }
         })
         options.unshift({key : -1, value:-1, text: 'Seleccione una etapa'})
