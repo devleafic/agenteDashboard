@@ -47,8 +47,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         setFolioToTransfer(folio);
     }
 
-    const sortInboxes = (inb) => {
+    const sortInboxes = (inb, mapSort) => {
         let tmpSort = {};
+        mapSort.forEach(x => {
+            tmpSort[x._id] = []
+        });
         inb.filter((x) => {
             return x.folio.fromPipeline === true;
         }).map((x) => {
@@ -121,7 +124,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         },(data) => {
             
             setIsLoadInbox(false);
-            let sortedInb = sortInboxes(data.inboxes);
+            let idPipe = data.inboxes[0].pipeline;
+            let mapSort = data.inboxes[0].service.pipelines.find((x) => {
+                return x._id === idPipe
+            });
+            let sortedInb = sortInboxes(data.inboxes, mapSort.pipelines);
             
             setInboxes(sortedInb);
             
@@ -244,7 +251,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             overflow : 'auto'}}>
             {
                 Object.keys(inboxes).map((x) => {
-                    
+                    if(inboxes[x].length <= 0){
+                        return false;
+                    }
                     let pipelineId = inboxes[x][0].pipeline;
                     let infoPipe = inboxes[x][0].service.pipelines.find((y) => {
                         return pipelineId === y._id
