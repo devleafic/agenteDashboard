@@ -122,28 +122,34 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         socketC.connection.emit('loadInbox', {
             token : window.localStorage.getItem('sdToken')
         },(data) => {
-            
-            setIsLoadInbox(false);
-            let idPipe = data.inboxes[0].pipeline;
-            let mapSort = data.inboxes[0].service.pipelines.find((x) => {
-                return x._id === idPipe
-            });
-            let sortedInb = sortInboxes(data.inboxes, mapSort.pipelines);
-            
-            setInboxes(sortedInb);
-            
-            let hasUnread = data.inboxes.find((x) => {
-                return x.status === 1 ? true : false;
-            });
+            if (data.success && data.inboxes && data.inboxes.length >= 0 && data.inboxes[0]?.pipeline ){
+                setIsLoadInbox(false);
+                let idPipe = data.inboxes[0].pipeline;
+                let mapSort = data.inboxes[0].service.pipelines.find((x) => {
+                    return x._id === idPipe
+                });
+                let sortedInb = sortInboxes(data.inboxes, mapSort.pipelines);
+                
+                setInboxes(sortedInb);
+                
+                let hasUnread = data.inboxes.find((x) => {
+                    return x.status === 1 ? true : false;
+                });
 
-            const folioList = {};
-            data.inboxes.map((x) => {
-                folioList[x.folio._id] = false;
-                return x.folio._id;
-            });
-            setIsLoadInboxFolio(folioList);
-            setUnReadMessages(hasUnread?true:false);
+                const folioList = {};
+                data.inboxes.map((x) => {
+                    folioList[x.folio._id] = false;
+                    return x.folio._id;
+                });
+                setIsLoadInboxFolio(folioList);
+                setUnReadMessages(hasUnread?true:false);
+            }
+            else{
+                setIsLoadInbox(false);
+                setInboxes([]);
+            }
         });
+        
     }
 
     useEffect ( () => {
