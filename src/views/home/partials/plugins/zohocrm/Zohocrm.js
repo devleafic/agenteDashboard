@@ -281,6 +281,7 @@ const Zohocrm = ({folio, setRefresh}) => {
                         label={`${fieldsRequired.includes(x.toUpperCase()) ? ' * ' : ''} ${x}`}
                         style={{marginTop : 10, width : '100%'}}
                         value={
+                            plugin.dataConfig.criterials[folio.folio.channel._id]?.criterial &&
                             contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]] && 
                             contact[plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0]].trim() === ''
                             && plugin.dataConfig.criterials[folio.folio.channel._id].criterial.split(':')[0] === x ?
