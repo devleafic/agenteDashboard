@@ -188,6 +188,11 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </div>)
             case 'mailingTemplate':
+                
+                const hasEnabledPlugin = folio.folio.service.plugins.find((p) => {return p.plugin === 'mailingTemplate'});
+                if(!hasEnabledPlugin){
+                    return null;
+                }
                 return (<div key={`accordion-${x.plugin}`}>
                     <Accordion.Title index={'mailingTemplate'} active={indexPane === 'mailingTemplate'} onClick={openPane}>
                         <Icon name='mail outline' />

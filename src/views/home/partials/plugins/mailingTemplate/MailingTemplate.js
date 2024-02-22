@@ -10,6 +10,7 @@ import { Select, ListItem, List, Button, ModalHeader,
 
 import PreviewBuilder from './PreviewBuilder';
 import _ from 'lodash';
+import { toast } from 'react-toastify';
 
 export default function MailingTemplate({folio, setMessageToSend}) {
   
@@ -130,6 +131,8 @@ export default function MailingTemplate({folio, setMessageToSend}) {
     
     // Agregamos un nuevo valor a cada campo del grupo de la variable formValues
     const clearGroup = [];
+    if(!formValues[group] || Object.keys(formValues[group]) < fields.length){return toast.error('Todos los campos son requeridos');}
+
     Object.keys(formValues[group]).map((value, index) => {
       fields[value].values.push(formValues[group][value]);
     });
@@ -173,8 +176,7 @@ export default function MailingTemplate({folio, setMessageToSend}) {
 
 
   return (<div>
-    <div>Selecciona una Categoría</div>
-    <Select placeholder='Selecciona una categoría'
+    {!infoPlugin.dataConfig || !infoPlugin.dataConfig.categories  ? 'No hay categorias configuradas' : <><div>Selecciona una Categoría</div><Select placeholder='Selecciona una categoría'
       value={categorieSelected}
       options={infoPlugin.dataConfig.categories.map((xCategorie) => {
       return { key: xCategorie._id , value: xCategorie._id, text: xCategorie.label }
@@ -184,9 +186,9 @@ export default function MailingTemplate({folio, setMessageToSend}) {
         return xTemplate.category === value;
       });
       setListTemplates(list);
-    }}/>
+    }}/></>}
     <div>
-      <div style={{marginTop : 10}}>Selecciona una plantilla</div>
+    {!infoPlugin.dataConfig || !infoPlugin.dataConfig.listTemplates  ? 'No hay plantillas configuradas' : <><div style={{marginTop : 10}}>Selecciona una plantilla</div>
       <List divided>
         {listTemplates.map((xTemplate) => {
           return <ListItem key={xTemplate._id}>
@@ -197,7 +199,7 @@ export default function MailingTemplate({folio, setMessageToSend}) {
             } }>{xTemplate.title}</Button>
           </ListItem>
         })}
-      </List>
+      </List></>}
     </div>
 
 
