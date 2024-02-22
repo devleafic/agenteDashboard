@@ -74,8 +74,14 @@ const PreviewBuilder = ({ infoTemplate }) => {
         padding: 20,
         marginBottom: 20
       }}>
-        <div style={{fontSize: '1.5rem',lineHeight: '2rem', textAlign: 'right'}}>{infoTemplate.title}</div>
-        <img src={infoTemplate.logo} alt="Logo" id="logo" style={{marginTop: '1rem',marginBottom: '1rem', maxWidth:'100%'}}/>
+        <div style={{display: 'flex'}}>
+          <div style={{width: '50%'}}>
+            <img src={infoTemplate.logo} alt="Logo" id="logo" style={{marginTop: '1rem', marginBottom: '1rem', maxWidth: '100%'}}/>
+          </div>
+          <div style={{fontSize: '2.5rem', fontWeight: 700, lineHeight: '2rem', textAlign: 'right', width: '50%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end'}}>
+            {infoTemplate.title}
+          </div>
+        </div>
 
         {Object.keys(infoTemplate.fields).map((key) => {
           const fieldData = infoTemplate.fields[key];
