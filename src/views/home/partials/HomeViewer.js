@@ -80,7 +80,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
     switch (typeFolio) {
       case '_EMAIL_' :
-        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
+        return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
       default:
         return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
         

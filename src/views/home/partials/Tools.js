@@ -1,5 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input, Message } from 'semantic-ui-react';
+import _ from 'lodash';
 
 // Contextos
 import SocketContext from './../../../controladores/SocketContext';
@@ -19,10 +20,11 @@ import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_
 import Mtm from './Mtm'
 
 // Plugins
-import Zohocrm from './plugins/zohocrm/Zohocrm'
+import Zohocrm from './plugins/zohocrm/Zohocrm';
+import MailingTemplate from './plugins/mailingTemplate/MailingTemplate';
 
 const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service:infoService}) => {
-    console.log(folio);
+    // console.log(folio);
     const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
@@ -43,7 +45,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     const [allQA, setAllQA] = useState([]);
 
     const pluginsToTools = folio.folio.service.plugins.filter((x) => {
-        return ['zohocrm'].includes(x.plugin) && x.isActive ? true : false;
+        return ['zohocrm', 'mailingTemplate'].includes(x.plugin) && x.isActive ? true : false;
     });
 
     const initializeTicket = {
@@ -185,6 +187,16 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
                     </Accordion.Content>
                 </div>)
+            case 'mailingTemplate':
+                return (<div key={`accordion-${x.plugin}`}>
+                    <Accordion.Title index={'mailingTemplate'} active={indexPane === 'mailingTemplate'} onClick={openPane}>
+                        <Icon name='mail outline' />
+                        Plantillas de Correo
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 'mailingTemplate'}>
+                        {folio && <MailingTemplate template={crm} person={person} folio={_.cloneDeep(folio)} setRefresh={setRefresh}/>}
+                    </Accordion.Content>
+                </div>)
                 
             default :
                 return <div>Plugin no soportado</div>
@@ -217,7 +229,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             {
                 
                 pluginsToTools.map((x) => {
-                    console.log('cargando plugins')
+                    // console.log('cargando plugins')
                     return loadPlugins(x);
                     
                 })
