@@ -194,7 +194,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         Plantillas de Correo
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 'mailingTemplate'}>
-                        {folio && <MailingTemplate template={crm} person={person} folio={_.cloneDeep(folio)} setRefresh={setRefresh}/>}
+                        {folio && <MailingTemplate template={crm} person={person} folio={_.cloneDeep(folio)} setRefresh={setRefresh} setMessageToSend={setMessageToSend}/>}
                     </Accordion.Content>
                 </div>)
                 

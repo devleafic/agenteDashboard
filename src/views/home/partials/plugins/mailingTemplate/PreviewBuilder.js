@@ -5,6 +5,9 @@ function organizeValues(jsonData) {
 
   jsonData.forEach(item => {
       const values = item.values;
+      if(!values){
+        return [];
+      }
 
       values.forEach((value, index) => {
           if (!organizedData[index]) {
@@ -18,17 +21,21 @@ function organizeValues(jsonData) {
   return organizedData;
 }
 
-const SimpleField = ({ infoField }) => (
-  <div style={{borderWidth: 1, display: 'flex', border: '1px solid #ccc',}}>
-    <div style={{textTransform: 'capitalize', fontWeight: 700, padding: '0.5rem'}}>{infoField.title}</div>
-    <div style={{color : infoField.colorText, padding: '0.5rem', flex: '1 1 0%', borderLeftWidth: 1}}>{infoField.values[0]}</div>
-  </div>
-);
+const SimpleField = ({ infoField }) => {
+  if(!infoField.values){
+    return null;
+  }
+  return (
+    <div style={{borderWidth: 1, display: 'flex', border: '1px solid #ccc',}}>
+      <div style={{textTransform: 'capitalize', fontWeight: 700, padding: '0.5rem'}}>{infoField.title}</div>
+      <div style={{color : infoField.colorText, padding: '0.5rem', flex: '1 1 0%', borderLeftWidth: 1}}>{infoField?.values[0]}</div>
+    </div>
+  )};
 
 const GroupField = ({ fields,onAddRow,group }) => {
-  console.log({fields});
+  
   const sortValues = organizeValues(fields);
-  console.log({sortValues});
+  
   return <div>
     <table style={{width: '100%'}}>
       <thead>

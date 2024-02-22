@@ -11,7 +11,7 @@ import { Select, ListItem, List, Button, ModalHeader,
 import PreviewBuilder from './PreviewBuilder';
 import _ from 'lodash';
 
-export default function MailingTemplate({folio}) {
+export default function MailingTemplate({folio, setMessageToSend}) {
   
   const infoService = folio.folio.service;
   const infoPlugin = infoService.plugins.find((p) => {return p.plugin === 'mailingTemplate'});
@@ -25,10 +25,8 @@ export default function MailingTemplate({folio}) {
 
   const groupField = (fs, i, group) => {
      // Campo, Indice Campo, Grupo
-    console.log(fs); 
-
     const sortedValues = organizeValues(fs);
-    console.log('sortedValues', sortedValues);
+    
     
     return <div key={group} style={{marginTop:10}}>
       {
@@ -56,7 +54,7 @@ export default function MailingTemplate({folio}) {
         }}
         >Agregar Valores</Button>}
       <div>
-        {Array.from({ length: fs[0].values.length }).map((_, iteration) => (
+        {Array.from({ length: fs.length === 1 ? 1 : fs[0].values?.length }).map((_, iteration) => (
           <div key={`iteration-${group}-${iteration}`} style={{ display: 'flex' }}>
             {fs.map((f, index) => (
               <div key={`blank-${group}-${iteration}-${index}`} style={{ marginRight: 10, marginBottom: 10}}>
@@ -81,18 +79,20 @@ export default function MailingTemplate({folio}) {
   }
 
   function organizeValues(jsonData) {
+    if(!jsonData){return []}
     const organizedData = [];
 
     jsonData.forEach(item => {
         const values = item.values;
-
+      if(values){
         values.forEach((value, index) => {
-            if (!organizedData[index]) {
-                organizedData[index] = [];
-            }
+          if (!organizedData[index]) {
+              organizedData[index] = [];
+          }
 
-            organizedData[index].push(value);
+          organizedData[index].push(value);
         });
+      }
     });
 
     return organizedData;
@@ -124,7 +124,7 @@ export default function MailingTemplate({folio}) {
   }
 
   const addValuesToGroup = (group) => {
-    console.log('addValuesToGroup', group);
+    
     const updatedTemplate = { ...templateSelected };
     const fields = updatedTemplate.fields[group];
     
@@ -149,7 +149,7 @@ export default function MailingTemplate({folio}) {
   }
 
   const removeValues = (group, index) => {
-    console.log('removeValues', group, index);
+    
     const updatedTemplate = { ...templateSelected };
     const fields = updatedTemplate.fields[group];
     
@@ -191,7 +191,7 @@ export default function MailingTemplate({folio}) {
         {listTemplates.map((xTemplate) => {
           return <ListItem key={xTemplate._id}>
             <Button onClick={() => {
-              console.log('xTemplate', xTemplate);
+              
               setTemplateSelected(_.cloneDeep(xTemplate));
               setOpen(true);
             } }>{xTemplate.title}</Button>
@@ -229,7 +229,17 @@ export default function MailingTemplate({folio}) {
           content="Generar HTML"
           labelPosition='right'
           icon='checkmark'
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            const containerElement = document.getElementById('ml01-container');
+            if (containerElement) {
+                // Obtener el contenido del elemento
+                const contenido = containerElement.innerHTML;
+          
+                // Hacer algo con el contenido
+                setMessageToSend(contenido);
+              }
+            setOpen(false)
+          }}
           positive
         />
       </ModalActions>

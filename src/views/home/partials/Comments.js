@@ -39,7 +39,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [infoForm, setInfoForm] = useState(null);
     const [showBtnUn, setShowBtnUn] = useState(false);
 
-    const pipelineAssign = userInfo.service.pipeline;;
+    const pipelineAssign = userInfo.service?.pipeline;
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
     const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
     const [selectedStage, setSelectedStage] = useState(null);   
