@@ -36,7 +36,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, typeFolio,subject}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -48,18 +48,19 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,15) : anchor;
-    for(let i = aliasName.length ; i < 15; i++){
+    let aliasName = alias ? alias.substr(0,12) : anchor;
+    for(let i = aliasName.length ; i < 10; i++){
       if (i == 15){
         aliasName = aliasName+'-';}
       else {
         aliasName = aliasName+' ';}
         
-    }
+    }  aliasName = aliasName.length == 12 ? aliasName +'...' : aliasName
+
     if (!subject) {subject = 'Sin Asunto'}
  
-    let displaySubject =  subject ? subject.substr(0,25) : subject;
-    for(let i = displaySubject.length ; i < 15; i++){
+    let displaySubject =  subject ? subject.substr(0,15) : subject;
+    for(let i = displaySubject.length ; i < 10; i++){
       if (i == 15){
         displaySubject = displaySubject+'-';}
       else {
@@ -74,16 +75,24 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       folioIcon = <Icon color='red' name='filter' />
     } else {
         folioIcon = typeFolio == '_EMAIL_' ? <Icon color='blue' name='envelope open' /> : 
-        typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> :
-        typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
+        typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
+        : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
     }
 
     switch (typeFolio) {
       case '_EMAIL_' :
         return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
       default:
-        return <><Image src={ch.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName}</>
-        
+        //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
+        return <>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{ height: 20, width: 20 }} />
+                <span>{aliasName}</span>
+            </div>
+            
+        </div><Image src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} /></>
     }
   } 
 
@@ -119,7 +128,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
           tabular:true,
           render : () => {
             
