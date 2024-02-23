@@ -313,6 +313,20 @@ h2 {
   grid-row: 2;
 }
 
+.removeMargin > .ui.grid > .four.wide.column {
+  width: 12.5% !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: calc(-79px + 100vh);
+}
+
+.removeMargin > .ui.grid > .stretched.twelve.wide.column {
+  width: 87.5% !important;
+}
+.ui.attached.segment{
+  border-radius: 15px;
+}
+
 .dnd{
   flex: 1;
   display: flex;
