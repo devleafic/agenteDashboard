@@ -38,8 +38,9 @@ code {
 .contentDashboard{
   margin-left: 60px;
   min-width: 550px;
-  background: #dde1e7;
+  background: #eeeeee;
   height: calc(100vh - 10px);
+  border-radius: 10px;
 }
 
 .vertical-center {
@@ -304,10 +305,12 @@ h2 {
   margin-bottom: 0px;
   overflow-x: auto;
   overflow-y: hidden;
+  
 }
 
 .removeMargin > .tab{
   margin-top: 0px;
+  grid-row: 2;
 }
 
 .dnd{
