@@ -6,6 +6,7 @@ import axios from 'axios';
 
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
+import { has } from 'lodash';
 
 const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio}) => {
   
@@ -49,13 +50,20 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
 
     let aliasName = alias ? alias.substr(0,12) : anchor;
+    
     for(let i = aliasName.length ; i < 10; i++){
-      if (i == 15){
-        aliasName = aliasName+'-';}
+      if (i == 12){
+        aliasName = aliasName+'---';}
       else {
         aliasName = aliasName+' ';}
         
-    }  aliasName = aliasName.length == 12 ? aliasName +'...' : aliasName
+    }  
+    
+    aliasName = aliasName.length <= 12 ? aliasName +'...' : aliasName
+
+    const hasNoSpaces = /^\S*$/.test(aliasName);
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) : anchor; }
+
 
     if (!subject) {subject = 'Sin Asunto'}
  
@@ -214,7 +222,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     {
       !loadPage ? (listFolios.current.length > 0 ? (
         <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'blue', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+          <Tab attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
