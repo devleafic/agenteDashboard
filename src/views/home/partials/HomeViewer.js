@@ -94,7 +94,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
         return <>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div id='elemento'  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Popup
             content={anchor}
@@ -102,17 +102,18 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             header={alias ? alias : anchor}
             trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
           />
-            <span >{aliasName}</span>
+           <div >{aliasName}</div> 
           </div>
         
         </div>
-        
+        <div>
         <Popup
           content={anchor}
           key={anchor}
           header={alias}
           trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
          />
+         </div>
         </>
     }
   } 
@@ -234,8 +235,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   return ( <>
     {
       !loadPage ? (listFolios.current.length > 0 ? (
-        <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+        <div  style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
+          <Tab  attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])
