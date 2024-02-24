@@ -501,10 +501,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
-            <Header as='h3' dividing>
-                {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo ' : typeFolio === '_MESSAGES_' ? 'Conversación ' : 'Hilo')}
-                {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */}
-                <Label as='a' color='blue'>
+            <Header  as='h2' dividing>
+                {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' + folio.person.aliasId : 'Hilo')}
+                {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */} <br></br>
+                <div  style={{marginTop:5}}>
+                <Label as='a' color='blue' >
                     #{folio._id}
                     <Label.Detail>{folio.person.anchor}</Label.Detail>
                 </Label>
@@ -513,6 +514,7 @@ return ( <>
                 <Label>{folio.service.name}</Label>
                 <Label className='ui tablet computer large monitor only'> <Icon name='box' />{folio.channel.title}</Label>
                 <Label className='ui tablet computer large monitor only'> <Icon name='inbox'/>{getLabelQueue()}</Label>
+                </div>
             </Header>
             {/*channel === 'call' && fullFolio ? (<> */}
             { //bumbles
