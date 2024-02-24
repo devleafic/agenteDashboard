@@ -599,3 +599,15 @@ h2 {
 @media screen and (min-width:1201px) {
   /*body   { background-color: #06F } */
 }
+
+.containerAliasUnread {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.containerupdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra los elementos horizontalmente */
+}
