@@ -317,7 +317,7 @@ h2 {
   width: 12.5% !important;
   overflow-x: hidden;
   overflow-y: auto;
-  height: calc(-79px + 100vh);
+  height: calc(-60px + 100vh);
 }
 
 .removeMargin > .ui.grid > .stretched.twelve.wide.column {
