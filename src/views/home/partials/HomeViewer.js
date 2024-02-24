@@ -37,7 +37,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject,unread}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -75,6 +75,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         displaySubject = displaySubject+' ';}
     }
     let folioIcon 
+    let ureadIcon
 
     if (privateInbox && !fromPipeline ){
       folioIcon =  <Icon color='red' name='inbox' /> 
@@ -87,6 +88,10 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
     }
 
+   
+    ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
+  
+
     switch (typeFolio) {
       case '_EMAIL_' :
         return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
@@ -94,7 +99,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
         return <>
 
-        <div id='elemento'  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Popup
             content={anchor}
@@ -102,19 +107,24 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             header={alias ? alias : anchor}
             trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
           />
-           <div >{aliasName}</div> 
-          </div>
+
+        </div>
         
         </div>
-        <div>
-        <Popup
-          content={anchor}
-          key={anchor}
-          header={alias}
-          trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
-         />
-         </div>
-        </>
+        <div class="containerupdown" >
+
+          <Popup
+            content={anchor}
+            key={anchor}
+            header={alias}
+            trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+          />
+          </div>
+          <div  id='elemento'  >
+              <div >{aliasName}</div>
+          </div>
+           <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}</div>
+       </>
     }
   } 
 
@@ -150,7 +160,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject, unread: unReadFolios[item.folio._id] })}, 
           tabular:true,
           render : () => {
             
