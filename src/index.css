@@ -541,3 +541,61 @@ h2 {
 .button-1:focus {
   background-color: #F082AC;
 }
+
+.overflow-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: hidden;
+  display: none !important;
+  background: #00b5ad;
+}
+
+#elemento {
+  display: block;
+}
+
+@media screen and (max-width: 700px) {
+  .showHide  { display: block; }
+
+  #elemento {
+    background: #00b5ad;
+    visibility: hidden;
+    display: none !important
+  
+  }
+}
+
+/* Mobile first - up to 768px wide */
+@media screen and (min-width:1px) and (max-width:767px) {
+/* body   { background-color: #F60; } */
+
+  #chicon {
+    
+    visibility: hidden;
+    display: none !important
+
+  }
+  #elemento {
+    
+    visibility: hidden;
+    display: none !important
+
+  }
+
+}
+
+/* Tablet targetted size */
+@media screen and (min-width:768px) and (max-width:1200px) {
+ /* body   { background-color: #0F0 } */
+  #elemento {
+   
+    visibility: hidden;
+    display: none !important
+  
+  }
+}
+
+/* Desktop size */
+@media screen and (min-width:1201px) {
+  /*body   { background-color: #06F } */
+}
