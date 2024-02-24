@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import { Tab, Grid, Message, Button, Icon, Image } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon, Image, Popup } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
 import axios from 'axios';
@@ -62,7 +62,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     aliasName = aliasName.length <= 12 ? aliasName +'...' : aliasName
 
     const hasNoSpaces = /^\S*$/.test(aliasName);
-    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) : anchor; }
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,6) : anchor.substr(0,6); }
 
 
     if (!subject) {subject = 'Sin Asunto'}
@@ -95,12 +95,25 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         return <>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{ height: 20, width: 20 }} />
-                <span>{aliasName}</span>
-            </div>
-            
-        </div><Image src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} /></>
+          <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Popup
+            content={anchor}
+            key={anchor}
+            header={alias ? alias : anchor}
+            trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+          />
+            <span >{aliasName}</span>
+          </div>
+        
+        </div>
+        
+        <Popup
+          content={anchor}
+          key={anchor}
+          header={alias}
+          trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+         />
+        </>
     }
   } 
 

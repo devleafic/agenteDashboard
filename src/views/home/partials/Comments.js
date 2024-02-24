@@ -21,6 +21,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [currentFolio, setCurrentFolio] = useState(null);
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
+    const [alias, setAlias] = useState(null)
 
     const textArea = useRef(null);
 
@@ -307,6 +308,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setChannel(folio.channel.name);
 
         setTypeFolio(folio.typeFolio)
+        setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
 
         const loadListClassifications = async () => {
             const tmpClass = [];
@@ -502,7 +504,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
-                {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' + folio.person.aliasId : 'Hilo')}
+                {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' +  alias :   'Hilo')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */} <br></br>
                 <div  style={{marginTop:5}}>
                 <Label as='a' color='blue' >
