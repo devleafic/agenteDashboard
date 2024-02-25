@@ -569,13 +569,13 @@ h2 {
 @media screen and (min-width:1px) and (max-width:767px) {
 /* body   { background-color: #F60; } */
 
-  #chicon {
+  #chicon { 
     
     visibility: hidden;
     display: none !important
 
   }
-  #elemento {
+  #elementoAliasName {
     
     visibility: hidden;
     display: none !important
@@ -587,12 +587,13 @@ h2 {
 /* Tablet targetted size */
 @media screen and (min-width:768px) and (max-width:1200px) {
  /* body   { background-color: #0F0 } */
-  #elemento {
+  #elementoAliasName{
    
     visibility: hidden;
     display: none !important
   
   }
+
 }
 
 /* Desktop size */
@@ -610,4 +611,25 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center; /* Centra los elementos horizontalmente */
+}
+
+.contenedorTab {
+  display: grid;
+  grid-template-columns: auto auto; /* Dos columnas de tamaño automático */
+  grid-gap: 10px; /* Espacio entre las celdas */
+}
+
+.a, .c {
+  justify-self: start; /* Alinea el texto a la izquierda */
+}
+
+.b, .d {
+  justify-self: end; /* Alinea el texto a la derecha */
+}
+
+/* Para dispositivos móviles, cambia a una sola columna */
+@media (max-width: 1035px) {
+  .contenedorTab {
+    grid-template-columns: 1fr; /* Una sola columna */
+  }
 }
