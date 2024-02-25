@@ -69,72 +69,93 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     if (!subject) {subject = 'Sin Asunto'}
  
     let displaySubject =  subject ? subject.substr(0,15) : subject;
-    for(let i = displaySubject.length ; i < 10; i++){
-      if (i == 15){
-        displaySubject = displaySubject+'-';}
-      else {
-        displaySubject = displaySubject+' ';}
-    }
-    let folioIcon 
-    let ureadIcon
+    let folioIcon = false
+    let ureadIcon = false
 
     if (privateInbox && !fromPipeline ){
-      folioIcon =  <Icon color='red' name='inbox' /> 
+      folioIcon =  <Icon style={{marginTop: 3}} color='red' name='inbox' /> 
     }
     else if (fromPipeline){
-      folioIcon = <Icon color='red' name='filter' />
-    } else {
-        folioIcon = typeFolio == '_EMAIL_' ? <Icon color='blue' name='envelope open' /> : 
+      folioIcon = <Icon style={{marginTop: 3}} color='red' name='filter' />
+    }/* else {
+        folioIcon = typeFolio == '_EMAIL_' ? <Icon style={{marginTop: 3}} color='blue' name='envelope open' /> : 
         typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
         : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
-    }
-
-   
-    ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
+    }*/
+      ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
   
 
     switch (typeFolio) {
       case '_EMAIL_' :
-        return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
-      default:
+        //return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
+        return <>
+          <div class="contenedorTab">
+          <div class="a">
+            <div  id='elementoAliasName'  >
+                    <div >{aliasName}</div>
+            </div>
+          </div>
+          <div class="b">
+            <div>
+            <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+            </div>
+          </div>
+          <div class="c">
+            <div  id='elementoAliasName'  >
+                <div >{displaySubject}</div>
+            </div>
+          </div>
+          <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+          </div>
+        </div>
+
+        </>
+        
+        default:
         //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
         return <>
 
-<div class="contenedorTab">
-  <div class="a">
-      {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
-          <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Popup
-            content={anchor}
-            key={anchor}
-            header={alias ? alias : anchor}
-            trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
-          />
+          <div class="contenedorTab">
+            <div class="a">
+                {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
+                    <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Popup
+                      content={anchor}
+                      key={anchor}
+                      header={alias ? alias : anchor}
+                      trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+                    />
 
-         </div>
-        
-       
-  </div>
-  <div class="b">
-    <div>
+                  </div>
+                  
+                
+            </div>
+            <div class="b">
+              <div>
 
-    <Popup
-      content={anchor}
-      key={anchor}
-      header={alias}
-      trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
-    />
-    </div>
-  </div>
-  <div class="c">
-  <div  id='elementoAliasName'  >
-              <div >{aliasName}</div>
+              <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+              </div>
+            </div>
+            <div class="c">
+            <div  id='elementoAliasName'  >
+                        <div >{aliasName}</div>
+                    </div>
+            </div>
+            <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+            </div>
           </div>
-  </div>
-  <div class="d">
-  <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}</div>
-  </div>
-</div>
 
 
 
