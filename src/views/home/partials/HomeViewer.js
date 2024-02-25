@@ -49,20 +49,21 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,12) : anchor;
+    let aliasName = alias ? alias.substr(0,14) : anchor;
     
+    /*
     for(let i = aliasName.length ; i < 10; i++){
-      if (i == 12){
+      if (i == 14){
         aliasName = aliasName+'---';}
       else {
         aliasName = aliasName+' ';}
         
-    }  
+    }  */
     
-    aliasName = aliasName.length <= 12 ? aliasName +'...' : aliasName
+    //aliasName = aliasName.length <= 14 ? aliasName +'...' : aliasName
 
     const hasNoSpaces = /^\S*$/.test(aliasName);
-    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,6) : anchor.substr(0,6); }
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
 
 
     if (!subject) {subject = 'Sin Asunto'}
@@ -99,7 +100,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
         return <>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+<div class="contenedorTab">
+  <div class="a">
+      {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
           <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Popup
             content={anchor}
@@ -108,22 +111,36 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
           />
 
-        </div>
+         </div>
         
-        </div>
-        <div class="containerupdown" >
+       
+  </div>
+  <div class="b">
+    <div>
 
-          <Popup
-            content={anchor}
-            key={anchor}
-            header={alias}
-            trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
-          />
-          </div>
-          <div  id='elemento'  >
+    <Popup
+      content={anchor}
+      key={anchor}
+      header={alias}
+      trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+    />
+    </div>
+  </div>
+  <div class="c">
+  <div  id='elementoAliasName'  >
               <div >{aliasName}</div>
           </div>
-           <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}</div>
+  </div>
+  <div class="d">
+  <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}</div>
+  </div>
+</div>
+
+
+
+
+       
+           
        </>
     }
   } 
