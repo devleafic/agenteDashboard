@@ -7,6 +7,8 @@ import MessageBubble from './MessageBubble';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
 import UploadFile from './UploadFile';
+import UploadMultipleFiles from './UploadMultipleFiles';
+
 import { toast } from 'react-toastify';
 import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
@@ -591,12 +593,23 @@ return ( <>
                                 prepareMessage(e.target.value)}
                         }} />
 
-                        <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
-                        
-                        <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+                        <div style={{display:'flex'}}>
+                            <div style={{flex: 1, marginRight:10}}>
+                                <UploadMultipleFiles  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
+                                    console.log('from comments',{files});
+                                    // setAttachmentFiels(files)
+                                }}/>
+                            </div>
+                            <div >
+                                <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
                       
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
-                        <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
+                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
+                                <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
+                            </div>
+                        </div>
+                        
+                        
+                        
 
                     </Form> ): 
                     (
