@@ -133,8 +133,6 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                     />
 
                   </div>
-                  
-                
             </div>
             <div class="b">
               <div>
@@ -156,12 +154,6 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
             </div>
           </div>
-
-
-
-
-       
-           
        </>
     }
   } 
@@ -198,7 +190,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject, unread: unReadFolios[item.folio._id] })}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.lastEmailProcessed?.subject, unread: unReadFolios[item.folio._id] })}, 
           tabular:true,
           render : () => {
             
