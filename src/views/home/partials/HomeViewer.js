@@ -61,13 +61,10 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }  */
     
     //aliasName = aliasName.length <= 14 ? aliasName +'...' : aliasName
-
-    const hasNoSpaces = /^\S*$/.test(aliasName);
-    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
-
-
     if (!subject) {subject = 'Sin Asunto'}
- 
+    const hasNoSpaces = /^\S*$/.test(aliasName);
+    const hasNoSpaceSubject = /^\S*$/.test(subject);
+   
     let displaySubject =  subject ? subject.substr(0,15) : subject;
     let folioIcon = false
     let ureadIcon = false
@@ -82,6 +79,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
         : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
     }*/
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
+    if (hasNoSpaceSubject){ displaySubject = subject ? subject.substr(0,8) + '..' : subject.substr(0,8) + '..'; }
+
       ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
   
 
