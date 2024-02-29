@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import { Tab, Grid, Message, Button, Icon, Image } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon, Image, Popup } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
 import axios from 'axios';
@@ -37,7 +37,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject,unread}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -49,58 +49,112 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,12) : anchor;
+    let aliasName = alias ? alias.substr(0,14) : anchor;
     
+    /*
     for(let i = aliasName.length ; i < 10; i++){
-      if (i == 12){
+      if (i == 14){
         aliasName = aliasName+'---';}
       else {
         aliasName = aliasName+' ';}
         
-    }  
+    }  */
     
-    aliasName = aliasName.length <= 12 ? aliasName +'...' : aliasName
-
-    const hasNoSpaces = /^\S*$/.test(aliasName);
-    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) : anchor; }
-
-
+    //aliasName = aliasName.length <= 14 ? aliasName +'...' : aliasName
     if (!subject) {subject = 'Sin Asunto'}
- 
+    const hasNoSpaces = /^\S*$/.test(aliasName);
+    const hasNoSpaceSubject = /^\S*$/.test(subject);
+   
     let displaySubject =  subject ? subject.substr(0,15) : subject;
-    for(let i = displaySubject.length ; i < 10; i++){
-      if (i == 15){
-        displaySubject = displaySubject+'-';}
-      else {
-        displaySubject = displaySubject+' ';}
-    }
-    let folioIcon 
+    let folioIcon = false
+    let ureadIcon = false
 
     if (privateInbox && !fromPipeline ){
-      folioIcon =  <Icon color='red' name='inbox' /> 
+      folioIcon =  <Icon style={{marginTop: 3}} color='red' name='inbox' /> 
     }
     else if (fromPipeline){
-      folioIcon = <Icon color='red' name='filter' />
-    } else {
-        folioIcon = typeFolio == '_EMAIL_' ? <Icon color='blue' name='envelope open' /> : 
+      folioIcon = <Icon style={{marginTop: 3}} color='red' name='filter' />
+    }/* else {
+        folioIcon = typeFolio == '_EMAIL_' ? <Icon style={{marginTop: 3}} color='blue' name='envelope open' /> : 
         typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
         : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
-    }
+    }*/
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
+    if (hasNoSpaceSubject){ displaySubject = subject ? subject.substr(0,8) + '..' : subject.substr(0,8) + '..'; }
+
+      ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
+  
 
     switch (typeFolio) {
       case '_EMAIL_' :
-        return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
-      default:
+        //return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
+        return <>
+          <div class="contenedorTab">
+          <div class="a">
+            <div  id='elementoAliasName'  >
+                    <div >{aliasName}</div>
+            </div>
+          </div>
+          <div class="b">
+            <div>
+            <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+            </div>
+          </div>
+          <div class="c">
+            <div  id='elementoAliasName'  >
+                <div >{displaySubject}</div>
+            </div>
+          </div>
+          <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+          </div>
+        </div>
+
+        </>
+        
+        default:
         //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
         return <>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{ height: 20, width: 20 }} />
-                <span>{aliasName}</span>
+          <div class="contenedorTab">
+            <div class="a">
+                {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
+                    <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Popup
+                      content={anchor}
+                      key={anchor}
+                      header={alias ? alias : anchor}
+                      trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+                    />
+
+                  </div>
             </div>
-            
-        </div><Image src={ch.image} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} /></>
+            <div class="b">
+              <div>
+
+              <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+              </div>
+            </div>
+            <div class="c">
+            <div  id='elementoAliasName'  >
+                        <div >{aliasName}</div>
+                    </div>
+            </div>
+            <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+            </div>
+          </div>
+       </>
     }
   } 
 
@@ -136,7 +190,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject}), icon : (unReadFolios[item.folio._id] ? 'red circle' : 'circle outline')}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.lastEmailProcessed?.subject, unread: unReadFolios[item.folio._id] })}, 
           tabular:true,
           render : () => {
             
@@ -221,8 +275,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   return ( <>
     {
       !loadPage ? (listFolios.current.length > 0 ? (
-        <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+        <div  style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
+          <Tab  attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])

@@ -541,3 +541,112 @@ h2 {
 .button-1:focus {
   background-color: #F082AC;
 }
+
+.overflow-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: hidden;
+  display: none !important;
+  background: #00b5ad;
+}
+
+#elemento {
+  display: block;
+}
+
+@media screen and (max-width: 700px) {
+  .showHide  { display: block; }
+
+  #elemento {
+    background: #00b5ad;
+    visibility: hidden;
+    display: none !important
+  
+  }
+}
+
+/* Mobile first - up to 768px wide */
+@media screen and (min-width:1px) and (max-width:767px) {
+/* body   { background-color: #F60; } */
+
+  #chicon { 
+    
+    visibility: hidden;
+    display: none !important
+
+  }
+  #elementoAliasName {
+    
+    visibility: hidden;
+    display: none !important
+
+  }
+
+}
+
+/* Tablet targetted size */
+@media screen and (min-width:768px) and (max-width:1200px) {
+ /* body   { background-color: #0F0 } */
+  #elementoAliasName{
+   
+    visibility: hidden;
+    display: none !important
+  
+  }
+
+}
+
+/* Desktop size */
+@media screen and (min-width:1201px) {
+  /*body   { background-color: #06F } */
+}
+
+.containerAliasUnread {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.containerupdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra los elementos horizontalmente */
+}
+
+.contenedorTab {
+  display: grid;
+  grid-template-columns: auto auto; /* Dos columnas de tamaño automático */
+  grid-gap: 10px; /* Espacio entre las celdas */
+}
+
+.a, .c {
+  justify-self: start; /* Alinea el texto a la izquierda */
+}
+
+.b, .d {
+  justify-self: end; /* Alinea el texto a la derecha */
+}
+
+/* Para dispositivos móviles, cambia a una sola columna */
+@media (max-width: 1035px) {
+  .contenedorTab {
+    grid-template-columns: 1fr; /* Una sola columna */
+  }
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #3498db; /* Puedes cambiar el color según tus preferencias */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin: 0px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* for mail clases */
