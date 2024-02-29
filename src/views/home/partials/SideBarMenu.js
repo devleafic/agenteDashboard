@@ -60,10 +60,10 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
                 </div>
                 <div className='mb-3'>
-                    <Popup content='Mis conversaciones' trigger={getButton('inbox')} position='right center'/>
+                    <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
                 </div>
                 <div className='mb-3'>
-                    <Popup content='Mis seguimientos' trigger={getButton('follow')} position='right center'/>
+                    <Popup content='Mis seguimientos en pipeline' trigger={getButton('follow')} position='right center'/>
                 </div>
                 <div className='mb-3'>
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
