@@ -14,16 +14,6 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 
 
-import { EditorState,convertToRaw, convertFromHTML, ContentState, Modifier } from 'draft-js';
-
-//import { EditorState, convertToRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import draftToHtml from 'draftjs-to-html';
-
-
-
-
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
@@ -34,10 +24,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
     const [alias, setAlias] = useState(null)
-    const [channelEmail, setChannelEmail] =  useState(null)
 
     const textArea = useRef(null);
-    const editorRef = useRef(null);
 
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
@@ -132,63 +120,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToSend('');
             textArea.current.value='';
             textArea.current.focus();
-            setShowResponseTo(null);
-            setMessageToResponse(null);
-            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
-            
-        });
-    }
-
-      // Función para vaciar el editor
-    const clearEditor = () => {
-        setEditorState(EditorState.createEmpty());
-    };
-
-
-    const prepareEmail = async (msg) => {
-        
-        let _msg = '' 
-         
-        if (msg && typeof msg === 'string') {_msg = msg} 
-
-        if (_msg.trim() === '' ){
-
-            if(messageToSend.trim() === ''){
-                return false;
-            } else { 
-                _msg = messageToSend
-            }
-
-        }
-
-        const excludeEmail = channelEmail;
-
-        const toFilteredEmails = folio.lastEmailProcessed.toRecipients.filter(recipient => recipient.email !== excludeEmail);
-        const toEmailsString = toFilteredEmails.map(recipient => recipient.email).join(',');
-        const ccEmailsString = folio.lastEmailProcessed.ccRecipient && folio.lastEmailProcessed.ccRecipient.length > 0 ? folio.lastEmailProcessed.ccRecipients.map(recipient => recipient.email).join(',') : [];
-
-        setIsLoading(true);
-
-        socket.connection.emit('sendEmail', {
-            token : window.localStorage.getItem('sdToken'),
-            folio : folio._id,
-            subject : folio.lastEmailProcessed.subject,
-            message : _msg,//messageToSend,
-            responseTo : folio.lastEmailProcessed.externalId ? folio.lastEmailProcessed.externalId : null,
-            to: toEmailsString,
-            cc: ccEmailsString,
-            class : 'html'
-        }, (result) => {
-
-            if(!result.body.success){
-                toast.error(result.body.message);
-                return false;
-            }
-            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
-            listFolios.current[index].folio.message.push(result.body.lastMessage);
-            setIsLoading(false);
-            setMessageToSend('');
-            clearEditor();
             setShowResponseTo(null);
             setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
@@ -377,12 +308,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
-        
 
         setTypeFolio(folio.typeFolio)
-        if (folio.typeFolio='_EMAIL_') {setChannelEmail(folio.channel.token.public)} //acount email
-
-
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
 
         const loadListClassifications = async () => {
@@ -526,9 +453,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         
                     }
                 })
-                if (typeFolio != '_EMAIL_' && editorRef.current) {
-                    editorRef.current.focus();
-                }
         }    
     },[])
 
@@ -590,53 +514,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
-    
-    const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
-    const onEditorStateChange = (newEditorState) => {
-      setEditorState(newEditorState);
-    };
-  
-    // Función para obtener el contenido del editor en formato HTML
-    const getHtmlContent = () => {
-      const contentState = editorState.getCurrentContent();
-      const rawContentState = convertToRaw(contentState);
-      return draftToHtml(rawContentState);
-    };
-    
-
-
-  const addHTMLToEditor = (newHTML) => {
-    const tableHTMLd = '<div style="width: 80%; margin: 20px auto; border: 1px solid rgb(204, 204, 204); padding: 20px;"><div style="font-size: 1.5rem; line-height: 2rem; text-align: right;">node </div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Node.js_logo_2015.svg/1024px-Node.js_logo_2015.svg.png" alt="Logo" id="logo" style="margin-top: 1rem; margin-bottom: 1rem; max-width: 100%;"><div style="border: 1px solid rgb(204, 204, 204); display: flex;"><div style="text-transform: capitalize; font-weight: 700; padding: 0.5rem;">Nombre</div><div style="color: rgb(34, 247, 137); padding: 0.5rem; flex: 1 1 0%; border-left-width: 1px;">222</div></div><div><table style="width: 100%;"><thead><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>cantidad</b></td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>descrip</b></td></tr></thead><tbody><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">rreer</td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">erere</td></tr></tbody></table></div></div>'
-    const tableHTML = '<table style="width: 100%;"><thead><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>cantidad</b></td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>descrip</b></td></tr></thead><tbody><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">rreer</td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">erere</td></tr></tbody></table>'
-    const blocksFromHTML = convertFromHTML(tableHTML);
-    const fragment = ContentState.createFromBlockArray(
-      blocksFromHTML.contentBlocks,
-      blocksFromHTML.entityMap
-    ).getBlockMap();
-
-    const currentContent = editorState.getCurrentContent();
-    const selectionState = editorState.getSelection();
-
-    const newContentState = Modifier.replaceWithFragment(
-      currentContent,
-      selectionState,
-      fragment
-    );
-
-    const newEditorState = EditorState.push(
-      editorState,
-      newContentState,
-      'insert-fragment'
-    );
-
-    setEditorState(newEditorState);
-  };
-
-      
-
 return ( <>
-
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
                 {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' +  alias :   'Hilo')}
@@ -669,7 +547,7 @@ return ( <>
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 400px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
@@ -725,8 +603,7 @@ return ( <>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos correos'/>}
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
-
-
+  
                         <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
                             //setMessageToSend(e.target.value)
                         }} disabled={isLoading} onKeyDown={(e) => {
@@ -734,14 +611,6 @@ return ( <>
                                 //setMessageToSend(e.target.value)
                                 prepareMessage(e.target.value)}
                         }} />
-                       
-                        {/*<Editor key={'msg-'+folio._id} 
-                            editorState={editorState }
-                            wrapperClassName="demo-wrapper"
-                            editorClassName="demo-editor"
-                            onEditorStateChange={onEditorStateChange}
-                            ref={editorRef}
-                        /> */}
 
                         <div style={{display:'flex'}}>
                             <div style={{flex: 1, marginRight:10}}>
@@ -751,12 +620,16 @@ return ( <>
                                 }}/>
                             </div>
                             <div >
-                           {/*  <Button  color='blue' basic onClick={() => {addHTMLToEditor()}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>tablas</label></Button> */}
-                                <Button  color='blue' basic onClick={() => {prepareEmail (getHtmlContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+                                <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+                      
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
                             </div>
                         </div>
+                        
+                        
+                        
+
                     </Form> ): 
                     (
                         <Form reply style={{textAlign:'right'}}>
@@ -772,10 +645,9 @@ return ( <>
                                     //setMessageToSend(e.target.value)
                                     prepareMessage(e.target.value)}
                             }} />
-                           
+    
+                            <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                             
-                            <Button  color='blue' basic onClick={() => {prepareMessage('')}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
-
                             <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
                       
                             <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
@@ -813,7 +685,10 @@ return ( <>
                                         setSelectedStage(value)
                                       
                                     }
+
                                 }}
+
+                        
                             /></div>
                             
                         </>}
