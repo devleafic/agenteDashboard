@@ -61,13 +61,10 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }  */
     
     //aliasName = aliasName.length <= 14 ? aliasName +'...' : aliasName
-
-    const hasNoSpaces = /^\S*$/.test(aliasName);
-    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
-
-
     if (!subject) {subject = 'Sin Asunto'}
- 
+    const hasNoSpaces = /^\S*$/.test(aliasName);
+    const hasNoSpaceSubject = /^\S*$/.test(subject);
+   
     let displaySubject =  subject ? subject.substr(0,15) : subject;
     let folioIcon = false
     let ureadIcon = false
@@ -82,6 +79,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
         : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
     }*/
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
+    if (hasNoSpaceSubject){ displaySubject = subject ? subject.substr(0,8) + '..' : subject.substr(0,8) + '..'; }
+
       ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
   
 
@@ -101,7 +101,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                 content={anchor}
                 key={anchor}
                 header={alias}
-                trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
               />
             </div>
           </div>
@@ -133,8 +133,6 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                     />
 
                   </div>
-                  
-                
             </div>
             <div class="b">
               <div>
@@ -156,12 +154,6 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
             <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
             </div>
           </div>
-
-
-
-
-       
-           
        </>
     }
   } 
@@ -198,7 +190,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
         return {  
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.email?.subject, unread: unReadFolios[item.folio._id] })}, 
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.lastEmailProcessed?.subject, unread: unReadFolios[item.folio._id] })}, 
           tabular:true,
           render : () => {
             

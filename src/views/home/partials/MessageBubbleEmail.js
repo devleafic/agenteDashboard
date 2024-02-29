@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Image, Icon, Dropdown, Label , Divider, Message, List } from 'semantic-ui-react';
+import { Image, Icon, Dropdown, Label , Divider, Message,  ListItem, ListIcon, ListContent, List } from 'semantic-ui-react';
 
 const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) => {
 
@@ -155,46 +155,55 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
     return ( <>
     {
         message.direction === 'out' ? 
-            (<><div key={message._id}>
+        
+            (<>
+               <Divider horizontal>Mi Correo</Divider>
+                <div key={message._id}>
                 <div style={{float:'right'}}>
                     <Message size='mini' color='blue'
-                        icon='reply'
                         content={convertContent(message)}
                     />
                 </div>
             </div> 
             <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
         </>) : 
-            (<div key={message._id}>
+            (
+            <div key={message._id}>
+                   <Divider horizontal>Correo Cliente. {moment(message.createdAt).fromNow()} </Divider>
                 <div style={{float:'left'}}>
                     <Message size='mini'
-                        content={convertContent(message)}
+                      content={convertContent(message)}
                     />
-                    <Message  size='mini' attached='bottom' warning>
+                    <Message  size='mini'  >
                         <Icon name='attach' />
-                       
-                        
                         <List >
                             {
-                               message.attachments && message.attachments.length > 0 ? message.attachments.map((item) => {
-                                    return (<List.Item  as='a' key={'hs-'+item._id} href={item.contentUrl} target='blank'>{item.name}</List.Item>);
-                                }) : 'Sin adjuntos'
+                               message?.email?.attachments && message.email?.attachments.length > 0 ? message.email.attachments.map((item) => {
+                                   return (
+                                    <ListItem>
+                                    <ListIcon  name='linkify' />
+                                    <ListContent>
+                                      <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.id} -{item.type} </a>
+                                    </ListContent>
+                                  </ListItem>
+                            )}) : 'Sin adjuntos'
                             }
                         </List>
-                        
                     </Message>
+                    
                 </div>
                 {/* Boton para poder hacer reply */}
                 {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
                 <p className='from-them-meta'>
                 
-                    <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
+                    <Dropdown text={moment(message.createdAt).format('LLL')} style={{marginLeft : 1}}>
                         <Dropdown.Menu>
-                            <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
-                            <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} />
+                          {/*  <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>*/}
+                          {/*  <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} /> */}
                         </Dropdown.Menu>
                     </Dropdown>
                 </p>
+                
             </div>)
     }
     </> );
