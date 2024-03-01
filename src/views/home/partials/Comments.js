@@ -43,6 +43,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [showBtnUn, setShowBtnUn] = useState(false);
 
     const pipelineAssign = userInfo.service?.pipeline;
+    const assignPrivateAlways = userInfo.assignPrivateAlways;
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
     const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
     const [selectedStage, setSelectedStage] = useState(null);   
@@ -265,7 +266,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         if (selectedStage) {    
             isFolioToPipeline = selectedStage;
         }
-
         socket.connection.emit('closeFolio', {
             folio : folio._id,
             token : window.localStorage.getItem('sdToken'),
@@ -669,7 +669,8 @@ return ( <>
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
                         <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
+                        {assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} disabled label='Se enviara a Inbox Privado' checked={assignPrivateAlways} onChange={() => setIsFolioAttachedAgent(assignPrivateAlways)  }/> </div>}
+                        {!assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
                         </div>
                         {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <>
@@ -697,6 +698,7 @@ return ( <>
                         <div style={{marginTop:5}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
+                                assignPrivateAlways && setIsFolioAttachedAgent(assignPrivateAlways)
                             }}/>
                         </div>
                         
