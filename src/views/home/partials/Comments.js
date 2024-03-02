@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Message, Checkbox} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, LabelDetail, Checkbox} from 'semantic-ui-react';
 
 
 import SocketContext from './../../../controladores/SocketContext';
@@ -43,10 +43,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [showBtnUn, setShowBtnUn] = useState(false);
 
     const pipelineAssign = userInfo.service?.pipeline;
+    const assignPrivateAlways = userInfo.assignPrivateAlways;
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
     const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
     const [selectedStage, setSelectedStage] = useState(null);   
-
+    const [emailProps, setEmailProps] = useState({});
 
     const [showResponseTo, setShowResponseTo] = useState(null);
     const [messageToResponse, setMessageToResponse] = useState('');
@@ -265,7 +266,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         if (selectedStage) {    
             isFolioToPipeline = selectedStage;
         }
-
         socket.connection.emit('closeFolio', {
             folio : folio._id,
             token : window.localStorage.getItem('sdToken'),
@@ -503,11 +503,30 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         options.unshift({key : -1, value:-1, text: 'Seleccione una etapa'})
         return options;
     }
+
+    const fillRecipients = (ccRecipients, txt) =>{
+    
+
+        if (ccRecipients && ccRecipients.length > 0) {
+            const emails = ccRecipients.map(recipient => recipient.email);
+            const emailsText = emails.join(', ');
+            return <div><Label basic color='blue' pointing='right'>{txt}</Label>{emailsText}</div>
+        }
+    }
+
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
                 {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' +  alias :   'Hilo')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */} <br></br>
+                
+                {( typeFolio === '_EMAIL_' ? 
+                <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.toRecipients,'Para: ' ): 'N/A')}</Header> : '')}
+                {( typeFolio === '_EMAIL_' ? 
+                <Header style={{marginTop: 2, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ') : 'Ninguno')}</Header> : '')}
+                 {( typeFolio === '_EMAIL_' ? 
+                <Header style={{marginTop: 2}} as='h3'> {(typeFolio === '_EMAIL_' ? <div><Label basic color='blue' pointing='right'>Asunto</Label>{ folio?.lastEmailProcessed?.subject}</div> : '')}</Header> : '')}
+                
                 <div  style={{marginTop:5}}>
                 <Label as='a' color='blue' >
                     #{folio._id}
@@ -522,7 +541,7 @@ return ( <>
             </Header>
             {/*channel === 'call' && fullFolio ? (<> */}
             { //bumbles
-                  typeFolio === '_CALL_' && fullFolio ? (<> 
+                typeFolio === '_CALL_' && fullFolio ? (<> 
                     <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
                 </>)
                 : typeFolio === '_EMAIL_' && fullFolio ? 
@@ -650,7 +669,8 @@ return ( <>
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
                     <Modal.Content>
                         <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
+                        {assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} disabled label='Se enviara a Inbox Privado' checked={assignPrivateAlways} onChange={() => setIsFolioAttachedAgent(assignPrivateAlways)  }/> </div>}
+                        {!assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
                         </div>
                         {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
                         {typeClose === 'guardar'  && <>
@@ -678,6 +698,7 @@ return ( <>
                         <div style={{marginTop:5}}>
                             <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
                                 changeClassification(value);
+                                assignPrivateAlways && setIsFolioAttachedAgent(assignPrivateAlways)
                             }}/>
                         </div>
                         
