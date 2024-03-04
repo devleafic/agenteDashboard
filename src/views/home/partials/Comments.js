@@ -663,7 +663,7 @@ return ( <>
         {
             folio && (
                 <Modal
-                    dimmer={'blurring'}
+                    dimmer={'inverted'}
                     open={openModal}
                 >
                     <Modal.Header>¿Deseas {typeClose=== 'guardar' ? 'continuar mas tarde con' : 'finalizar' } el folio #{folio._id}?</Modal.Header>
