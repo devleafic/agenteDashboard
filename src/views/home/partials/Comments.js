@@ -24,6 +24,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
     const [alias, setAlias] = useState(null)
+    const [lastMessageFolio, setLastMessageFolio] = useState(null)
 
     const textArea = useRef(null);
 
@@ -197,6 +198,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setTypeClose('finalizar');
         }
         setOpenModal(true);
+
+        //save last message from current folio
+        let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
+        let lastMessage = listFolios?.current[index].folio.message[listFolios.current[index].folio.message.length-1];
+        if (lastMessage) {setLastMessageFolio(lastMessage.content);} else {setLastMessageFolio(null)}
     }
 
     const closeFolio = () => {
@@ -308,6 +314,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
+        setLastMessageFolio(null);
 
         setTypeFolio(folio.typeFolio)
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
@@ -438,6 +445,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     useEffect(  () => {
         if(typeFolio != '_CALL_'){
             boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
+
         }
         
     }, [vFolio]);
@@ -450,8 +458,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
                     if(pcPosition>=90){
                         setShowBtnUn(false);
-                        
+  
                     }
+                                          
                 })
         }    
     },[])
@@ -467,6 +476,15 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             if(channel != 'call'){
                 showButton()
                 
+
+                if(openModal && lastMessageFolio){
+                    let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
+                    let lastCurrentMessage = listFolios?.current[index].folio.message[listFolios.current[index].folio.message.length-1];
+                    if(lastCurrentMessage.content !== lastMessageFolio){
+                        toast.error(lastCurrentMessage.content &&  lastCurrentMessage.content.length >14 ? 'Nuevo mensaje: ' + lastCurrentMessage.content?.substring(0, 15) + '...' : 'Nuevo mensaje: ' + lastCurrentMessage?.content);    
+                    }
+                }
+
                 let fullHeight = boxMessage.current.scrollHeight;
                 let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
     
@@ -492,6 +510,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         if(pcPosition<=90 && folio._id === window.localStorage.getItem('lastMessage')){
             setShowBtnUn(true);
         }
+
+
+
     }
 
     const fillStages = () =>{
