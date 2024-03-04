@@ -12,7 +12,7 @@ import PreviewBuilder from './PreviewBuilder';
 import _ from 'lodash';
 import { toast } from 'react-toastify';
 
-export default function MailingTemplate({folio, setMessageToSend}) {
+export default function MailingTemplate({folio, setMessageToSend, onClick}) {
   
   const infoService = folio.folio.service;
   const infoPlugin = infoService.plugins.find((p) => {return p.plugin === 'mailingTemplate'});
@@ -49,30 +49,31 @@ export default function MailingTemplate({folio, setMessageToSend}) {
           
         })
       }
-      { fs.length > 1 &&  <Button color='green' style={{marginLeft:5}}
+      { fs.length > 1 &&  <Button color='green' style={{marginLeft:5, marginBottom:10}}
         onClick={() => {
           addValuesToGroup(group);
         }}
         >Agregar Valores</Button>}
-      <div>
+      <div style={fs.length > 2 ? {border: '1px solid #000', padding:10, borderRadius : 10}:{}}>
         {Array.from({ length: fs.length === 1 ? 1 : fs[0].values?.length }).map((_, iteration) => (
-          <div key={`iteration-${group}-${iteration}`} style={{ display: 'flex' }}>
+          <div key={`iteration-${group}-${iteration}`} style={{ display: 'flex', gap: 5 }}>
             {fs.map((f, index) => (
-              <div key={`blank-${group}-${iteration}-${index}`} style={{ marginRight: 10, marginBottom: 10}}>
+              <div key={`blank-${group}-${iteration}-${index}`} style={{ marginBottom: 10, width : '100%'}}>
                 <Input
                   type={f.type}
                   label={f.title}
                   value={f.values[iteration]}
+                  style={{ width : '100%'}}
                   onChange={(e, { value }) => {
                     handleInputChange(group, index, value, iteration);
                   }}
                 />
               </div>
             ))}
-            {fs.length > 1 && <Button icon color='default' style={{marginLeft:5}} size='tiny' onClick={()=> {
+            {fs.length > 1 && <div><Button icon color='default'  size='tiny' onClick={()=> {
               // Eliminamos valores de cada campo del grupo de la variable formValues
               removeValues(group, iteration)
-            }}><Icon name='trash alternate' /></Button>}
+            }}><Icon name='trash alternate' /></Button></div>}
           </div>
         ))}
       </div>
@@ -238,7 +239,8 @@ export default function MailingTemplate({folio, setMessageToSend}) {
                 const contenido = containerElement.innerHTML;
           
                 // Hacer algo con el contenido
-                setMessageToSend(contenido);
+                // setMessageToSend(contenido);
+                onClick(contenido)
               }
             setOpen(false)
           }}
