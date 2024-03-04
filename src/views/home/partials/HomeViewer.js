@@ -141,7 +141,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                 content={anchor}
                 key={anchor}
                 header={alias}
-                trigger={<Image  src={ch.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
               />
               </div>
             </div>
