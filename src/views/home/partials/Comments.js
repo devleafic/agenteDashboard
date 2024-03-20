@@ -25,6 +25,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [typeFolio, setTypeFolio] = useState(null);
     const [alias, setAlias] = useState(null)
     const [lastMessageFolio, setLastMessageFolio] = useState(null)
+    const [channelEmail, setChannelEmail] =  useState(null)
+    const [attachments, setAttachments] = useState([]);
+    
 
     const textArea = useRef(null);
 
@@ -128,6 +131,59 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
         });
     }
+
+    const prepareEmail = async (msg) => {
+
+        let _msg = '' 
+
+        if (msg && typeof msg === 'string') {_msg = msg} 
+
+        if (_msg.trim() === '' ){
+
+            if(messageToSend.trim() === ''){
+                return false;
+            } else { 
+                _msg = messageToSend
+            }
+
+        }
+
+        const excludeEmail = channelEmail;
+
+        const toFilteredEmails = folio.lastEmailProcessed.toRecipients.filter(recipient => recipient.email !== excludeEmail);
+        const toEmailsString = toFilteredEmails.map(recipient => recipient.email).join(',');
+        const ccEmailsString = folio.lastEmailProcessed.ccRecipient && folio.lastEmailProcessed.ccRecipient.length > 0 ? folio.lastEmailProcessed.ccRecipients.map(recipient => recipient.email).join(',') : [];
+
+        setIsLoading(true);
+
+        socket.connection.emit('sendEmail', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio._id,
+            subject : folio.lastEmailProcessed.subject,
+            message : _msg,//messageToSend,
+            responseTo : folio.lastEmailProcessed.externalId ? folio.lastEmailProcessed.externalId : null,
+            to: toEmailsString,
+            cc: ccEmailsString,
+            attachments: attachments.length > 0 ? attachments : null,
+            class : 'html'
+        }, (result) => {
+
+            if(!result.body.success){
+                toast.error(result.body.message);
+                return false;
+            }
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setIsLoading(false);
+            setMessageToSend('');
+            //clearEditor();
+            setShowResponseTo(null);
+            setMessageToResponse(null);
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+
+        });
+    }
+
 
     const prepareButtons = async (msg) => {
         
@@ -568,7 +624,7 @@ return ( <>
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 284px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
@@ -594,7 +650,8 @@ return ( <>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
                         <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
-                ) : typeFolio === '_MESSAGES_' && fullFolio ? (
+                )
+                : typeFolio === '_MESSAGES_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
@@ -618,7 +675,8 @@ return ( <>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='folder'  /><label className='hideText'>Finalizar</label></Button>
 
                     </Form> 
-                ) : typeFolio === '_EMAIL_' && fullFolio ? (
+                )
+                : typeFolio === '_EMAIL_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos correos'/>}
@@ -630,29 +688,26 @@ return ( <>
                         }} disabled={isLoading} onKeyDown={(e) => {
                             if(e.shiftKey && e.key==='Enter'){
                                 //setMessageToSend(e.target.value)
-                                prepareMessage(e.target.value)}
+                                prepareEmail(e.target.value)}
                         }} />
 
                         <div style={{display:'flex'}}>
                             <div style={{flex: 1, marginRight:10}}>
                                 <UploadMultipleFiles  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
                                     console.log('from comments',{files});
-                                    // setAttachmentFiels(files)
+                                    setAttachments(files)
                                 }}/>
                             </div>
                             <div >
-                                <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+                                <Button  color='blue' basic onClick={() => {prepareEmail(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
                       
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
                             </div>
                         </div>
                         
-                        
-                        
-
-                    </Form> ): 
-                    (
+                    </Form> )
+                    : (
                         <Form reply style={{textAlign:'right'}}>
                             <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                                 {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
