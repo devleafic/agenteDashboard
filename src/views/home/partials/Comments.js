@@ -57,6 +57,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [selectedStage, setSelectedStage] = useState(null);   
     const [emailProps, setEmailProps] = useState({});
 
+
+    // para manejo de los archivos
+    const [readyFiles, setReadyFiles] = useState([]);
+
     const [showResponseTo, setShowResponseTo] = useState(null);
     const [messageToResponse, setMessageToResponse] = useState('');
     const responseToMessage = (idMessage) => {
@@ -710,7 +714,7 @@ return ( <>
 
                         <div style={{display:'flex'}}>
                             <div style={{flex: 1, marginRight:10}}>
-                                <UploadMultipleFiles  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
+                                <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
                                     console.log('from comments',{files});
                                     setAttachments(files)
                                 }}/>
