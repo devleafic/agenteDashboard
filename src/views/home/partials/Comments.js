@@ -185,6 +185,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setIsLoading(false);
             setMessageToSend('');
             //clearEditor();
+            editorRef.current.setContent("");
+            setReadyFiles([]);
             setShowResponseTo(null);
             setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
@@ -599,6 +601,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
+    const [value, setValue] = useState('');
+
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
@@ -709,6 +713,7 @@ return ( <>
                                 'alignright alignjustify | bullist numlist outdent indent | ' +
                                 'removeformat ',
                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                            
                             }}
                         />
 
