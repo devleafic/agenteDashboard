@@ -157,12 +157,28 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
         message.direction === 'out' ? 
         
             (<>
-               <Divider horizontal>Mi Correo</Divider>
+               <Divider horizontal>Mi Correo. {moment(message.createdAt).fromNow()} </Divider>
                 <div key={message._id}>
                 <div style={{float:'right'}}>
                     <Message size='mini' color='blue'
-                        content={convertContent(message)}
+                        content={convertContent(message)}                        
                     />
+                     <Message  size='mini'  >
+                       
+                       <List >
+                           {
+                              message?.email?.attachments && message.email?.attachments.length > 0 ? message.email.attachments.map((item) => {
+                                  return (
+                                   <ListItem>
+                                   <ListIcon  name='linkify' />
+                                   <ListContent>
+                                     <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.file.originalFilename} - {item.file.mimetype} </a>
+                                   </ListContent>
+                                 </ListItem>
+                           )}) : 'Sin adjuntos'
+                           }
+                       </List>
+                   </Message>
                 </div>
             </div> 
             <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
@@ -175,7 +191,7 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
                       content={convertContent(message)}
                     />
                     <Message  size='mini'  >
-                        <Icon name='attach' />
+                       
                         <List >
                             {
                                message?.email?.attachments && message.email?.attachments.length > 0 ? message.email.attachments.map((item) => {
@@ -183,7 +199,7 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
                                     <ListItem>
                                     <ListIcon  name='linkify' />
                                     <ListContent>
-                                      <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.id} -{item.type} </a>
+                                      <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.id} - {item.type} </a>
                                     </ListContent>
                                   </ListItem>
                             )}) : 'Sin adjuntos'
