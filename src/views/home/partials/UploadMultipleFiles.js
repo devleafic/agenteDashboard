@@ -6,7 +6,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Dropzone  from 'react-dropzone';
 
 
-const UploadMultipleFiles = ({folio, channel, onChange}) => {
+const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFiles}) => {
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {
@@ -24,7 +24,7 @@ const UploadMultipleFiles = ({folio, channel, onChange}) => {
 
     const [onUpload, setOnUpload] = useState(false);
     // Multiples archivos
-    const [readyFiles, setReadyFiles] = useState([]);
+    // const [readyFiles, setReadyFiles] = useState([]);
     
 
     const filesUpload = async (files) => {
