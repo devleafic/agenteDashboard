@@ -12,8 +12,7 @@ import UploadMultipleFiles from './UploadMultipleFiles';
 import { toast } from 'react-toastify';
 import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
-
-
+import { Editor } from '@tinymce/tinymce-react';
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
@@ -28,7 +27,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [channelEmail, setChannelEmail] =  useState(null)
     const [attachments, setAttachments] = useState([]);
     
-
+    const editorRef = useRef(null);
+    const log = () => {
+      if (editorRef.current) {
+        console.log(editorRef.current.getContent());
+      }
+    };
     const textArea = useRef(null);
 
     // Para finalizar folio
@@ -624,7 +628,7 @@ return ( <>
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 284px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 394px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
@@ -682,14 +686,27 @@ return ( <>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos correos'/>}
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
-  
-                        <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                            //setMessageToSend(e.target.value)
-                        }} disabled={isLoading} onKeyDown={(e) => {
-                            if(e.shiftKey && e.key==='Enter'){
-                                //setMessageToSend(e.target.value)
-                                prepareEmail(e.target.value)}
-                        }} />
+
+                    <Editor
+                            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
+                            onInit={(evt, editor) => editorRef.current = editor}
+                            //initialValue='<p>This is the initial content of the editor.</p>'
+                            init={{
+                            height: 200,
+                            menubar: false,
+                            browser_spellcheck: true,
+                            plugins: [
+                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                            ],
+                            toolbar: 'undo redo | blocks | ' +
+                                'bold italic forecolor | alignleft aligncenter ' +
+                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                'removeformat ',
+                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                            }}
+                        />
 
                         <div style={{display:'flex'}}>
                             <div style={{flex: 1, marginRight:10}}>
@@ -699,7 +716,7 @@ return ( <>
                                 }}/>
                             </div>
                             <div >
-                                <Button  color='blue' basic onClick={() => {prepareEmail(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
+                                <Button  color='blue' basic onClick={() => {prepareEmail(editorRef.current.getContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
                       
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
