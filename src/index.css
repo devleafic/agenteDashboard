@@ -328,9 +328,11 @@ h2 {
 }
 
 .dnd{
-  flex: 1;
+  /* flex: 1;
+  
+  flex-direction: column; */
   display: flex;
-  flex-direction: column;
+  width: 190px;
   align-items: center;
   padding: 10px;
   border-width: 2px;
@@ -341,7 +343,7 @@ h2 {
   color: #6b6b6b;
   outline: none;
   transition: border .24s ease-in-out;
-  float: left;
+  /* float: left; */
   cursor:default;
 
 }

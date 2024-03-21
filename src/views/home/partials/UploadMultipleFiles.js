@@ -51,7 +51,7 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
         onChange(readyFiles);
     }, [readyFiles]);
 
-    return (<div>
+    return (
         <Dropzone onDrop={async (acceptedFiles) => {
             const currentFiles = readyFiles;
             const addFiles = await filesUpload(acceptedFiles);
@@ -59,14 +59,15 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
             setOnUpload(false);
         }} >
         {({getRootProps, getInputProps}) => (
-            <div>
+            <div style={{display:'flex'}}>
                 <div {...getRootProps()} className='dnd' style={{ marginRight: 10 }}>
                     <input {...getInputProps()} />
                     {onUpload ? <div class="spinner"></div> : <a className="camera icon">Arrastra un archivo o Clic</a>}
                 </div>
-                <div className="readyFilesContainer" style={{
+                <div style={{
                 display: 'flex',
                 overflowX: 'auto',
+                width: 500
                 }}>
                 {readyFiles.map((file, index) => (
                     <Popup key={`fileUpload-${index}-${file.file.originalFilename}`} content={file.file.originalFilename} trigger={
@@ -104,8 +105,7 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
           
         )}
         </Dropzone>
-        
-    </div>);
+    );
 }
  
 export default UploadMultipleFiles;
