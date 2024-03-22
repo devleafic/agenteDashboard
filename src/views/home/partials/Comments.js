@@ -781,13 +781,13 @@ return ( <>
                         />
 
                         <div style={{display:'flex'}}>
-                            <div style={{flex: 1, marginRight:10}}>
+                            <div style={{flex: '5 1 0%', marginRight:10}}>
                                 <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
                                     console.log('from comments',{files});
                                     setAttachments(files)
                                 }}/>
                             </div>
-                            <div >
+                            <div style={{flex: '5 1 0%'}}>
                                 <Button  color='blue' basic onClick={() => {prepareEmail(editorRef.current.getContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
                       
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
