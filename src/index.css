@@ -327,10 +327,24 @@ h2 {
   border-radius: 15px;
 }
 
+.dnd-uploadmultiplefiles{
+  min-width: 190px;
+  align-items: center;
+  padding: 10px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-style: dashed;
+  background-color: #fafafa;
+  border-color: #6b6b6b;
+  color: #6b6b6b;
+  outline: none;
+  transition: border .24s ease-in-out;
+  cursor:default;
+}
+
 .dnd{
-  /* flex: 1;
-  
-  flex-direction: column; */
+  flex: 1;  
+  flex-direction: column;
   display: flex;
   width: 190px;
   align-items: center;
@@ -343,9 +357,8 @@ h2 {
   color: #6b6b6b;
   outline: none;
   transition: border .24s ease-in-out;
-  /* float: left; */
+  float: left;
   cursor:default;
-
 }
 
 .inboxcolor_rose {

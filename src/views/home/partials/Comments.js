@@ -717,20 +717,43 @@ return ( <>
                             }}
                         />
 
-                        <div style={{display:'flex'}}>
-                            <div style={{flex: '5 1 0%', marginRight:10}}>
+                    <div style={{ display: 'flex', width: '100%', overflow: 'hidden' }}>
+                        <div style={{ flex: '1', maxWidth: '50%' }}> {/* Establece el ancho máximo que desees */}
+                            <div style={{ overflow: 'hidden' }}> {/* Aplica overflow hidden */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
+                                    console.log('from comments',{files});
+                                    setAttachments(files)
+                                }}/>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
+                            <div style={{ display: 'flex', justifyContent:'flex-end'}}>
+                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>
+                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
+                                <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
+                            </div>
+                        </div>
+                    </div>
+
+                        {/* <div style={{background:'yellow', width:'100%', overflow:'hidden'}}>
+                            <div style={{marginRight:10}}>
                                 <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
                                     console.log('from comments',{files});
                                     setAttachments(files)
                                 }}/>
                             </div>
-                            <div style={{flex: '5 1 0%'}}>
-                                <Button  color='blue' basic onClick={() => {prepareEmail(editorRef.current.getContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
-                      
+                            <div style={{background:'red', float:'left'}}>
+                                a
+                            </div>
+                            <div style={{background:'green', float:'left', width:480}}>
+                                <Button  color='blue' basic onClick={() => {prepareEmail(editorRef.current.getContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
                             </div>
-                        </div>
+                        </div> */}
                         
                     </Form> )
                     : (
