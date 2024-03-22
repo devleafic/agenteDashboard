@@ -159,8 +159,8 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
             (<>
                <Divider horizontal>Mi Correo. {moment(message.createdAt).fromNow()} </Divider>
                 <div key={message._id}>
-                <div style={{float:'right'}}>
-                    <Message size='mini' color='blue'
+                <div >
+                    <Message color='blue'
                         content={convertContent(message)}                        
                     />
                      <Message  size='mini'  >
@@ -186,8 +186,8 @@ const Mail = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}) =
             (
             <div key={message._id}>
                    <Divider horizontal>Correo Cliente. {moment(message.createdAt).fromNow()} </Divider>
-                <div style={{float:'left'}}>
-                    <Message size='mini'
+                <div>
+                    <Message
                       content={convertContent(message)}
                     />
                     <Message  size='mini'  >
