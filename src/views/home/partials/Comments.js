@@ -1,5 +1,6 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, LabelDetail, Checkbox} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image} from 'semantic-ui-react';
+import shortParagraph from './../../../img/short-paragraph.png';
 
 
 import SocketContext from './../../../controladores/SocketContext';
@@ -35,6 +36,18 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     };
     const textArea = useRef(null);
 
+ 
+    const [titleModal, setTitleModal ] = useState('');
+    const [contentMessage, setContentMessage] = useState(
+        <Segment>
+            <Dimmer active inverted>
+                <Loader inverted>Cargando</Loader>
+            </Dimmer>
+
+            <Image src={shortParagraph} />
+        </Segment>
+    );
+
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
     const [openModal, setOpenModal] = useState(false);
@@ -55,8 +68,46 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
     const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
     const [selectedStage, setSelectedStage] = useState(null);   
-    const [emailProps, setEmailProps] = useState({});
+    
+    const [openModalFolio, setOpenModalFolio] = useState(false);
 
+
+    //historic folio 
+    const getFolioMessages = (folio) => {
+        setTitleModal('Historial de Folio #'+folio)
+        setOpenModalFolio(!openModalFolio);
+
+        socket.connection.emit('getMessageHist', {folio}, (res) => {
+            if(res.success){
+                if (res.folio.typeFolio === '_EMAIL_'){
+                    setContentMessage(
+                        <div className='imessage'>
+                            {
+                                res.folio.message.map((msg) => {
+                                    return (
+                                        <MessageBubbleEmail key={msg._id} message={msg}/>
+                                    );
+                                })
+                            }
+                        </div> 
+                    )
+                } else {    
+                setContentMessage(
+                    <div className='imessage'>
+                        {
+                            res.folio.message.map((msg) => {
+                                return (
+                                    <MessageBubble key={msg._id} message={msg}/>
+                                );
+                            })
+                        }
+                    </div> 
+                )}
+            }else{
+
+            }
+        })
+    }
 
     // para manejo de los archivos
     const [readyFiles, setReadyFiles] = useState([]);
@@ -186,6 +237,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToSend('');
             //clearEditor();
             editorRef.current.setContent("");
+            //editorRef.current.insertContent('<div style="width: 80%; margin: 20px auto; border: 1px solid rgb(204, 204, 204); padding: 20px;"><div style="font-size: 1.5rem; line-height: 2rem; text-align: right;">node </div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Node.js_logo_2015.svg/1024px-Node.js_logo_2015.svg.png" alt="Logo" id="logo" style="margin-top: 1rem; margin-bottom: 1rem; max-width: 100%;"><div style="border: 1px solid rgb(204, 204, 204); display: flex;"><div style="text-transform: capitalize; font-weight: 700; padding: 0.5rem;">Nombre</div><div style="color: rgb(34, 247, 137); padding: 0.5rem; flex: 1 1 0%; border-left-width: 1px;">222</div></div><div><table style="width: 100%;"><thead><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>cantidad</b></td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>descrip</b></td></tr></thead><tbody><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">rreer</td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">erere</td></tr></tbody></table></div></div>');
             setReadyFiles([]);
             setShowResponseTo(null);
             setMessageToResponse(null);
@@ -193,6 +245,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         });
     }
+    useEffect(() => {
+        if (messageToSend && editorRef.current) {
+            editorRef.current.insertContent(messageToSend);
+        }
+    
+    }, [setMessageToSend, messageToSend]);
 
 
     const prepareButtons = async (msg) => {
@@ -384,6 +442,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         setTypeFolio(folio.typeFolio)
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
+        if (editorRef && editorRef.current) {
+            editorRef.current.setContent("");
+        }
 
         const loadListClassifications = async () => {
             const tmpClass = [];
@@ -567,6 +628,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
  
     });
 
+    
+
     const showButton = () =>{
         if(!boxMessage.current){return null}
 
@@ -636,7 +699,7 @@ return ( <>
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 394px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 460px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
@@ -700,7 +763,7 @@ return ( <>
                             onInit={(evt, editor) => editorRef.current = editor}
                             //initialValue='<p>This is the initial content of the editor.</p>'
                             init={{
-                            height: 200,
+                            height: 290,
                             menubar: false,
                             browser_spellcheck: true,
                             plugins: [
@@ -855,6 +918,7 @@ return ( <>
                 <center>{message}</center>
             </Modal.Content>
         </Modal>
+
 
     </> );
 }
