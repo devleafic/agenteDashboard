@@ -36,7 +36,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     };
     const textArea = useRef(null);
 
- 
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(
         <Segment>
@@ -70,6 +69,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [selectedStage, setSelectedStage] = useState(null);   
     
     const [openModalFolio, setOpenModalFolio] = useState(false);
+    const [previewEmail, setPreviewEmail] = useState(null);
+    const [openModalPreview, setOpenModalPreview] = useState(false);
+
 
 
     //historic folio 
@@ -190,6 +192,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
         });
     }
+    const previewEmailF = (content) => {
+        if (content.length > 0) {
+            content = <div dangerouslySetInnerHTML={{__html: content }}></div>
+            setPreviewEmail(content);
+            setOpenModalPreview(true);
+        }
+    }
 
     const prepareEmail = async (msg) => {
 
@@ -247,7 +256,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
     useEffect(() => {
         if (messageToSend && editorRef.current) {
-            editorRef.current.insertContent(messageToSend);
+            editorRef.current.insertContent( '<div></div><div></div><div></div>'  +messageToSend + '<div></div><div></div><div></div>');
         }
     
     }, [setMessageToSend, messageToSend]);
@@ -439,11 +448,12 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
         setLastMessageFolio(null);
-
+        setReadyFiles([]);
         setTypeFolio(folio.typeFolio)
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
         if (editorRef && editorRef.current) {
             editorRef.current.setContent("");
+
         }
 
         const loadListClassifications = async () => {
@@ -571,7 +581,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(  () => {
         if(typeFolio != '_CALL_'){
-            boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
+            boxMessage.current.scrollTop =boxMessage.current && boxMessage.current.scrollHeight ? boxMessage.current.scrollHeight : boxMessage.current.scrollTop
 
         }
         
@@ -663,8 +673,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             return <div><Label basic color='blue' pointing='right'>{txt}</Label>{emailsText}</div>
         }
     }
-
-    const [value, setValue] = useState('');
 
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
@@ -763,20 +771,29 @@ return ( <>
                             onInit={(evt, editor) => editorRef.current = editor}
                             //initialValue='<p>This is the initial content of the editor.</p>'
                             init={{
-                            height: 290,
-                            menubar: false,
-                            browser_spellcheck: true,
-                            plugins: [
-                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
-                            ],
-                            toolbar: 'undo redo | blocks | ' +
-                                'bold italic forecolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat ',
-                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
-                            
+                                license_key: 'gpl',
+                                min_height: 280,
+                                max_height: 500,
+                                menubar: false, //true,
+                                browser_spellcheck: true,
+                                branding: false,
+                                plugins: 'autosave',
+                                autosave_restore_when_empty: true,
+                                autosave_interval: '20s',
+                                fullscreen_native: true,
+                               
+
+                                plugins: [
+                                    'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                                ],
+                                toolbar: 'undo redo | blocks | ' +
+                                    'bold italic forecolor | alignleft aligncenter ' +
+                                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                                    'removeformat  | fullscreen | preview | searchreplace', 
+                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                                
                             }}
                         />
 
@@ -794,30 +811,14 @@ return ( <>
                         </div>
                         <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
                             <div style={{ display: 'flex', justifyContent:'flex-end'}}>
-                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>
+                            <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='eye' /></Button>
+                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
                             </div>
                         </div>
                     </div>
 
-                        {/* <div style={{background:'yellow', width:'100%', overflow:'hidden'}}>
-                            <div style={{marginRight:10}}>
-                                <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
-                                    console.log('from comments',{files});
-                                    setAttachments(files)
-                                }}/>
-                            </div>
-                            <div style={{background:'red', float:'left'}}>
-                                a
-                            </div>
-                            <div style={{background:'green', float:'left', width:480}}>
-                                <Button  color='blue' basic onClick={() => {prepareEmail(editorRef.current.getContent())}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>
-                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
-                                <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
-                            </div>
-                        </div> */}
-                        
                     </Form> )
                     : (
                         <Form reply style={{textAlign:'right'}}>
@@ -918,6 +919,23 @@ return ( <>
                 <center>{message}</center>
             </Modal.Content>
         </Modal>
+
+
+
+
+      {/* <Modal
+            open={openModalPreview}
+            header='Vista previa del correo...'//{titleModal}
+            size='large'
+            scrolling
+            blurring
+            content={previewEmail}
+            actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModalPreview(false); setPreviewEmail(null)} }]}
+    /> */}
+        
+
+
+
 
 
     </> );
