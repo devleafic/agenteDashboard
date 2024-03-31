@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image, Message,   ListItem, ListIcon, ListContent, List} from 'semantic-ui-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
@@ -70,6 +70,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     
     const [openModalFolio, setOpenModalFolio] = useState(false);
     const [previewEmail, setPreviewEmail] = useState(null);
+    const [previewEmailHTML, setPreviewEmailHTML] = useState(null);
     const [openModalPreview, setOpenModalPreview] = useState(false);
 
 
@@ -194,6 +195,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
     const previewEmailF = (content) => {
         if (content.length > 0) {
+            setPreviewEmailHTML(content)
             content = <div dangerouslySetInnerHTML={{__html: content }}></div>
             setPreviewEmail(content);
             setOpenModalPreview(true);
@@ -921,12 +923,14 @@ return ( <>
             <Modal.Content>
                 <center>{message}</center>
             </Modal.Content>
+
+            
         </Modal>
 
 
 
 
-    <Modal
+  {/*  <Modal
             open={openModalPreview}
             header='Vista previa del correo...'//{titleModal}
             size='large'
@@ -934,62 +938,47 @@ return ( <>
             blurring
             content={previewEmail}
             actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModalPreview(false); setPreviewEmail(null)} }]}
-    /> 
+    /> */}
 
-
-                <Modal
-                    dimmer={'inverted'}
-                    open={openModalPreview}
-                >
-                    <Modal.Header>¿Deseas enviar el correo {folio._id}?</Modal.Header>
-                    <Modal.Content>
-                        <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} disabled label='Se enviara a Inbox Privado' checked={assignPrivateAlways} onChange={() => setIsFolioAttachedAgent(assignPrivateAlways)  }/> </div>}
-                        {!assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
-                        </div>
-                        {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
-                        {typeClose === 'guardar'  && <>
-                        <div ><Label pointing='right' icon='filter' color='blue' content='Enviar conversación a pipeline'/>
-                            <Select style={{marginLeft:20}} 
-                                options={fillStages()}
-                                placeholder='Etapa'
-                                onChange={(e, {value}) => {
-                                    
-                                    if(value === -1){
-                                        setSelectedStage(null)
-                                    }else{
-                                        setSelectedStage(value)
-                                      
-                                    }
-
-                                }}
-
-                        
-                            /></div>
-                            
-                        </>}
-                        </div>}
-                        <Label  color='red' pointing='below' icon='sticky note'  content='Selecciona una clasificación para la conversación:'/>            
-                        <div style={{marginTop:5}}>
-                            <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
-                                changeClassification(value);
-                                assignPrivateAlways && setIsFolioAttachedAgent(assignPrivateAlways)
-                            }}/>
-                        </div>
-                        
-                        {infoForm && renderForm(infoForm)}
-                    </Modal.Content>
-                    <Modal.Actions>
-                    <Button negative onClick={e=> {setOpenModal(false); setInfoForm(null)}} disabled={isEndingFolio} >
+        <Modal
+            
+            open={openModalPreview}
+            size='large'
+          
+            >
+            <Header icon>
+                <Icon name='mail' />
+                Vista previa del correo...
+            </Header>
+            <Modal.Content>
+               {previewEmail}
+               <Message  size='mini'  >
+                       
+                       <List >
+                           {
+                                attachments && attachments.length > 0 ? attachments.map((item) => {
+                                  return (
+                                   <ListItem>
+                                   <ListIcon  name='linkify' />
+                                   <ListContent>
+                                     <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.file.originalFilename} - {item.file.mimetype} </a>
+                                   </ListContent>
+                                 </ListItem>
+                           )}) : 'Sin adjuntos'
+                           }
+                       </List>
+                   </Message>
+            </Modal.Content>
+            <Modal.Actions>
+                    <Button negative onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null)}} >
                         Cancelar
                     </Button>
-                    <Button positive onClick={closeFolio} disabled={isEndingFolio} loading={isEndingFolio}>
-                        <label style={{textTransform:'capitalize'}}>{typeClose}</label>
+                    <Button positive onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML) }  } >
+                        Enviar
                     </Button>
-                    </Modal.Actions>
-                </Modal>
-        
 
+            </Modal.Actions>
+        </Modal>
 
 
 
