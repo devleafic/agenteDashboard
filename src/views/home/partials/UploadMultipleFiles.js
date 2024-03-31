@@ -6,7 +6,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Dropzone  from 'react-dropzone';
 
 
-const UploadMultipleFiles = ({folio, channel, onChange}) => {
+const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFiles}) => {
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {
@@ -24,7 +24,7 @@ const UploadMultipleFiles = ({folio, channel, onChange}) => {
 
     const [onUpload, setOnUpload] = useState(false);
     // Multiples archivos
-    const [readyFiles, setReadyFiles] = useState([]);
+    // const [readyFiles, setReadyFiles] = useState([]);
     
 
     const filesUpload = async (files) => {
@@ -51,7 +51,7 @@ const UploadMultipleFiles = ({folio, channel, onChange}) => {
         onChange(readyFiles);
     }, [readyFiles]);
 
-    return (<div>
+    return (
         <Dropzone onDrop={async (acceptedFiles) => {
             const currentFiles = readyFiles;
             const addFiles = await filesUpload(acceptedFiles);
@@ -59,53 +59,55 @@ const UploadMultipleFiles = ({folio, channel, onChange}) => {
             setOnUpload(false);
         }} >
         {({getRootProps, getInputProps}) => (
-            <div>
-                <div {...getRootProps()} className='dnd' style={{ marginRight: 10 }}>
+            <div style={{display:'flex'}}>
+                <div {...getRootProps()} className='dnd-uploadmultiplefiles' style={{ marginRight: 10 }}>
                     <input {...getInputProps()} />
                     {onUpload ? <div class="spinner"></div> : <a className="camera icon">Arrastra un archivo o Clic</a>}
                 </div>
-                <div className="readyFilesContainer" style={{
-                display: 'flex',
-                overflowX: 'auto',
-                }}>
-                {readyFiles.map((file, index) => (
-                    <Popup key={`fileUpload-${index}-${file.file.originalFilename}`} content={file.file.originalFilename} trigger={
-                        <div key={index} className='cardFileContainer' style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: 10,
-                            border: '1px solid black',
-                            marginRight: 2,
-                            backgroundColor: '#f5f5f5',
-                            }}>
-                            <a href={file.url} target='_blank'>
-                                <div className='cardFile' style={{
-                                width: 100,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
+                <div style={{background:'red'}}>
+                    <div style={{
+                    display: 'flex',
+                    overflowX: 'auto',
+                    
+                    }}>
+                    {readyFiles.map((file, index) => (
+                        <Popup key={`fileUpload-${index}-${file.file.originalFilename}`} content={file.file.originalFilename} trigger={
+                            <div key={index} className='cardFileContainer' style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: 10,
+                                border: '1px solid black',
+                                marginRight: 2,
+                                backgroundColor: '#f5f5f5',
                                 }}>
-                                {file.file.originalFilename}
+                                <a href={file.url} target='_blank'>
+                                    <div className='cardFile' style={{
+                                    width: 100,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    }}>
+                                    {file.file.originalFilename}
+                                    </div>
+                                </a>
+                                <div style={{ marginLeft: 'auto', backgroundColor: '#f9f9f9' }}>
+                                    <Button size='tiny' style={{ height: 22, padding: 5 }} onClick={() => {
+                                    if(window.confirm(`¿Estás seguro de eliminar el archivo "${file.file.originalFilename}"? `)){
+                                        const newFiles = readyFiles.filter((f, i) => i !== index);
+                                        setReadyFiles(newFiles);
+                                    }
+                                    }}>X</Button>
                                 </div>
-                            </a>
-                            <div style={{ marginLeft: 'auto', backgroundColor: '#f9f9f9' }}>
-                                <Button size='tiny' style={{ height: 22, padding: 5 }} onClick={() => {
-                                 if(window.confirm(`¿Estás seguro de eliminar el archivo "${file.file.originalFilename}"? `)){
-                                    const newFiles = readyFiles.filter((f, i) => i !== index);
-                                    setReadyFiles(newFiles);
-                                 }
-                                }}>X</Button>
-                            </div>
-                            </div>
-                    }/>
-                ))}
+                                </div>
+                        }/>
+                    ))}
+                    </div>
                 </div>
             </div>
           
         )}
         </Dropzone>
-        
-    </div>);
+    );
 }
  
 export default UploadMultipleFiles;

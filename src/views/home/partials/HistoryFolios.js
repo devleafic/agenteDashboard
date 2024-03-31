@@ -4,6 +4,7 @@ import moment from 'moment';
 import SocketContext from './../../../controladores/SocketContext';
 import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
+import MessageBubbleEmail from './MessageBubbleEmail';
 
 const HistoryFolios = ({historyFolios}) => {
 
@@ -26,6 +27,19 @@ const HistoryFolios = ({historyFolios}) => {
 
         socket.connection.emit('getMessageHist', {folio}, (res) => {
             if(res.success){
+                if (res.folio.typeFolio === '_EMAIL_'){
+                    setContentMessage(
+                        <div className='imessage'>
+                            {
+                                res.folio.message.map((msg) => {
+                                    return (
+                                        <MessageBubbleEmail key={msg._id} message={msg}/>
+                                    );
+                                })
+                            }
+                        </div> 
+                    )
+                } else {    
                 setContentMessage(
                     <div className='imessage'>
                         {
@@ -36,7 +50,7 @@ const HistoryFolios = ({historyFolios}) => {
                             })
                         }
                     </div> 
-                )
+                )}
             }else{
 
             }
@@ -56,6 +70,7 @@ const HistoryFolios = ({historyFolios}) => {
         <Modal
             open={openModal}
             header={titleModal}
+            size='fullscreen'
             scrolling
             content={contentMessage}
             actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModal(!openModal);} }]}

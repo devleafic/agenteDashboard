@@ -1,5 +1,6 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, LabelDetail, Checkbox} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image} from 'semantic-ui-react';
+import shortParagraph from './../../../img/short-paragraph.png';
 
 
 import SocketContext from './../../../controladores/SocketContext';
@@ -12,8 +13,7 @@ import UploadMultipleFiles from './UploadMultipleFiles';
 import { toast } from 'react-toastify';
 import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
-
-
+import { Editor } from '@tinymce/tinymce-react';
 
 const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
@@ -25,8 +25,27 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [typeFolio, setTypeFolio] = useState(null);
     const [alias, setAlias] = useState(null)
     const [lastMessageFolio, setLastMessageFolio] = useState(null)
-
+    const [channelEmail, setChannelEmail] =  useState(null)
+    const [attachments, setAttachments] = useState([]);
+    
+    const editorRef = useRef(null);
+    const log = () => {
+      if (editorRef.current) {
+        console.log(editorRef.current.getContent());
+      }
+    };
     const textArea = useRef(null);
+
+    const [titleModal, setTitleModal ] = useState('');
+    const [contentMessage, setContentMessage] = useState(
+        <Segment>
+            <Dimmer active inverted>
+                <Loader inverted>Cargando</Loader>
+            </Dimmer>
+
+            <Image src={shortParagraph} />
+        </Segment>
+    );
 
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
@@ -48,7 +67,52 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
     const [listStage] = useState(infoPipeline ? infoPipeline.pipelines : false);
     const [selectedStage, setSelectedStage] = useState(null);   
-    const [emailProps, setEmailProps] = useState({});
+    
+    const [openModalFolio, setOpenModalFolio] = useState(false);
+    const [previewEmail, setPreviewEmail] = useState(null);
+    const [openModalPreview, setOpenModalPreview] = useState(false);
+
+
+
+    //historic folio 
+    const getFolioMessages = (folio) => {
+        setTitleModal('Historial de Folio #'+folio)
+        setOpenModalFolio(!openModalFolio);
+
+        socket.connection.emit('getMessageHist', {folio}, (res) => {
+            if(res.success){
+                if (res.folio.typeFolio === '_EMAIL_'){
+                    setContentMessage(
+                        <div className='imessage'>
+                            {
+                                res.folio.message.map((msg) => {
+                                    return (
+                                        <MessageBubbleEmail key={msg._id} message={msg}/>
+                                    );
+                                })
+                            }
+                        </div> 
+                    )
+                } else {    
+                setContentMessage(
+                    <div className='imessage'>
+                        {
+                            res.folio.message.map((msg) => {
+                                return (
+                                    <MessageBubble key={msg._id} message={msg}/>
+                                );
+                            })
+                        }
+                    </div> 
+                )}
+            }else{
+
+            }
+        })
+    }
+
+    // para manejo de los archivos
+    const [readyFiles, setReadyFiles] = useState([]);
 
     const [showResponseTo, setShowResponseTo] = useState(null);
     const [messageToResponse, setMessageToResponse] = useState('');
@@ -128,6 +192,75 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
         });
     }
+    const previewEmailF = (content) => {
+        if (content.length > 0) {
+            content = <div dangerouslySetInnerHTML={{__html: content }}></div>
+            setPreviewEmail(content);
+            setOpenModalPreview(true);
+        }
+    }
+
+    const prepareEmail = async (msg) => {
+
+        let _msg = '' 
+
+        if (msg && typeof msg === 'string') {_msg = msg} 
+
+        if (_msg.trim() === '' ){
+
+            if(messageToSend.trim() === ''){
+                return false;
+            } else { 
+                _msg = messageToSend
+            }
+
+        }
+
+        const excludeEmail = channelEmail;
+
+        const toFilteredEmails = folio.lastEmailProcessed.toRecipients.filter(recipient => recipient.email !== excludeEmail);
+        const toEmailsString = toFilteredEmails.map(recipient => recipient.email).join(',');
+        const ccEmailsString = folio.lastEmailProcessed.ccRecipient && folio.lastEmailProcessed.ccRecipient.length > 0 ? folio.lastEmailProcessed.ccRecipients.map(recipient => recipient.email).join(',') : [];
+
+        setIsLoading(true);
+
+        socket.connection.emit('sendEmail', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio._id,
+            subject : folio.lastEmailProcessed.subject,
+            message : _msg,//messageToSend,
+            responseTo : folio.lastEmailProcessed.externalId ? folio.lastEmailProcessed.externalId : null,
+            to: toEmailsString,
+            cc: ccEmailsString,
+            attachments: attachments.length > 0 ? attachments : null,
+            class : 'html'
+        }, (result) => {
+
+            if(!result.body.success){
+                toast.error(result.body.message);
+                return false;
+            }
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setIsLoading(false);
+            setMessageToSend('');
+            //clearEditor();
+            editorRef.current.setContent("");
+            //editorRef.current.insertContent('<div style="width: 80%; margin: 20px auto; border: 1px solid rgb(204, 204, 204); padding: 20px;"><div style="font-size: 1.5rem; line-height: 2rem; text-align: right;">node </div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Node.js_logo_2015.svg/1024px-Node.js_logo_2015.svg.png" alt="Logo" id="logo" style="margin-top: 1rem; margin-bottom: 1rem; max-width: 100%;"><div style="border: 1px solid rgb(204, 204, 204); display: flex;"><div style="text-transform: capitalize; font-weight: 700; padding: 0.5rem;">Nombre</div><div style="color: rgb(34, 247, 137); padding: 0.5rem; flex: 1 1 0%; border-left-width: 1px;">222</div></div><div><table style="width: 100%;"><thead><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>cantidad</b></td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize; font-weight: 700;"><b>descrip</b></td></tr></thead><tbody><tr><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">rreer</td><td style="padding: 0.5rem; border: 1px solid rgb(204, 204, 204); text-transform: capitalize;">erere</td></tr></tbody></table></div></div>');
+            setReadyFiles([]);
+            setShowResponseTo(null);
+            setMessageToResponse(null);
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+
+        });
+    }
+    useEffect(() => {
+        if (messageToSend && editorRef.current) {
+            editorRef.current.insertContent( '<div></div><div></div><div></div>'  +messageToSend + '<div></div><div></div><div></div>');
+        }
+    
+    }, [setMessageToSend, messageToSend]);
+
 
     const prepareButtons = async (msg) => {
         
@@ -315,9 +448,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
         setLastMessageFolio(null);
-
+        setReadyFiles([]);
         setTypeFolio(folio.typeFolio)
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
+        if (editorRef && editorRef.current) {
+            editorRef.current.setContent("");
+
+        }
 
         const loadListClassifications = async () => {
             const tmpClass = [];
@@ -444,7 +581,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(  () => {
         if(typeFolio != '_CALL_'){
-            boxMessage.current.scrollTop = boxMessage.current.scrollHeight; 
+            boxMessage.current.scrollTop =boxMessage.current && boxMessage.current.scrollHeight ? boxMessage.current.scrollHeight : boxMessage.current.scrollTop
 
         }
         
@@ -500,6 +637,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         
  
     });
+
+    
 
     const showButton = () =>{
         if(!boxMessage.current){return null}
@@ -568,7 +707,7 @@ return ( <>
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 460px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) 
@@ -594,7 +733,8 @@ return ( <>
                         <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
                         <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
                     </Form>
-                ) : typeFolio === '_MESSAGES_' && fullFolio ? (
+                )
+                : typeFolio === '_MESSAGES_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
@@ -618,41 +758,69 @@ return ( <>
                         <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='folder'  /><label className='hideText'>Finalizar</label></Button>
 
                     </Form> 
-                ) : typeFolio === '_EMAIL_' && fullFolio ? (
+                )
+                : typeFolio === '_EMAIL_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos correos'/>}
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
-  
-                        <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                            //setMessageToSend(e.target.value)
-                        }} disabled={isLoading} onKeyDown={(e) => {
-                            if(e.shiftKey && e.key==='Enter'){
-                                //setMessageToSend(e.target.value)
-                                prepareMessage(e.target.value)}
-                        }} />
 
-                        <div style={{display:'flex'}}>
-                            <div style={{flex: 1, marginRight:10}}>
-                                <UploadMultipleFiles  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
+                    <Editor
+                            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
+                            onInit={(evt, editor) => editorRef.current = editor}
+                            //initialValue='<p>This is the initial content of the editor.</p>'
+                            init={{
+                                license_key: 'gpl',
+                                min_height: 280,
+                                max_height: 500,
+                                menubar: false, //true,
+                                browser_spellcheck: true,
+                                branding: false,
+                                plugins: 'autosave',
+                                autosave_restore_when_empty: true,
+                                autosave_interval: '20s',
+                                fullscreen_native: true,
+                               
+
+                                plugins: [
+                                    'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                                ],
+                                toolbar: 'undo redo | blocks | ' +
+                                    'bold italic forecolor | alignleft aligncenter ' +
+                                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                                    'removeformat  | fullscreen | preview | searchreplace', 
+                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                                
+                            }}
+                        />
+
+                    <div style={{ display: 'flex', width: '100%', overflow: 'hidden' }}>
+                        <div style={{ flex: '1', maxWidth: '50%' }}> {/* Establece el ancho máximo que desees */}
+                            <div style={{ overflow: 'hidden' }}> {/* Aplica overflow hidden */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
                                     console.log('from comments',{files});
-                                    // setAttachmentFiels(files)
+                                    setAttachments(files)
                                 }}/>
-                            </div>
-                            <div >
-                                <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><Icon name='mail square' /><label className='hideText'>Enviar Correo</label></Button>                        
-                      
-                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
-                                <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Resuelto</label></Button>
+                                </div>
+                                
                             </div>
                         </div>
-                        
-                        
-                        
+                        <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
+                            <div style={{ display: 'flex', justifyContent:'flex-end'}}>
+                            <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='eye' /></Button>
+                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
+                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
+                                <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
+                            </div>
+                        </div>
+                    </div>
 
-                    </Form> ): 
-                    (
+                    </Form> )
+                    : (
                         <Form reply style={{textAlign:'right'}}>
                             <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                                 {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}
@@ -751,6 +919,24 @@ return ( <>
                 <center>{message}</center>
             </Modal.Content>
         </Modal>
+
+
+
+
+      {/* <Modal
+            open={openModalPreview}
+            header='Vista previa del correo...'//{titleModal}
+            size='large'
+            scrolling
+            blurring
+            content={previewEmail}
+            actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModalPreview(false); setPreviewEmail(null)} }]}
+    /> */}
+        
+
+
+
+
 
     </> );
 }
