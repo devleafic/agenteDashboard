@@ -773,26 +773,29 @@ return ( <>
                             init={{
                                 license_key: 'gpl',
                                 min_height: 280,
-                                max_height: 500,
+                                max_height: 600,
                                 menubar: false, //true,
-                                browser_spellcheck: true,
                                 branding: false,
                                 plugins: 'autosave',
                                 autosave_restore_when_empty: true,
                                 autosave_interval: '20s',
                                 fullscreen_native: true,
-                               
-
+                                custom_undo_redo_levels: 10,  
+                                language: 'es',  
+                                browser_spellcheck: true,
+                                font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                                default_font_stack: [ '-apple-system', 'Arial', 'Calibri' ],
+                                preview_styles: 'font-size color',
                                 plugins: [
                                     'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                                     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table',
                                 ],
-                                toolbar: 'undo redo | blocks | ' +
-                                    'bold italic forecolor | alignleft aligncenter ' +
+                                toolbar:'fontsize | ' + 'undo redo | ' +//  blocks | ' + 
+                                    'bold italic forecolor | alignleft aligncenter ' + 
                                     'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat  | fullscreen | preview | searchreplace', 
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                                    'removeformat  | fullscreen | preview | searchreplace  | table ',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
+                                content_style: 'body { font-family:Calibri; font-size:12px }'
                                 
                             }}
                         />
@@ -923,7 +926,7 @@ return ( <>
 
 
 
-      {/* <Modal
+    <Modal
             open={openModalPreview}
             header='Vista previa del correo...'//{titleModal}
             size='large'
@@ -931,7 +934,60 @@ return ( <>
             blurring
             content={previewEmail}
             actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModalPreview(false); setPreviewEmail(null)} }]}
-    /> */}
+    /> 
+
+
+                <Modal
+                    dimmer={'inverted'}
+                    open={openModalPreview}
+                >
+                    <Modal.Header>¿Deseas enviar el correo {folio._id}?</Modal.Header>
+                    <Modal.Content>
+                        <div style={{textAlign: 'centers', marginBottom : 20}}>
+                        {assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} disabled label='Se enviara a Inbox Privado' checked={assignPrivateAlways} onChange={() => setIsFolioAttachedAgent(assignPrivateAlways)  }/> </div>}
+                        {!assignPrivateAlways && typeClose === 'guardar'  && <div><Label pointing='right' icon='inbox' color='blue' content='Enviar conversación a inbox privado '/> <Checkbox style={{marginLeft:20}} label='Selecciona' checked={isFolioAttachedAgent} onChange={() => setIsFolioAttachedAgent(!isFolioAttachedAgent)  }/> </div>}
+                        </div>
+                        {!isFolioAttachedAgent && infoPipeline && <div style={{textAlign: 'centers', marginBottom : 20}}>
+                        {typeClose === 'guardar'  && <>
+                        <div ><Label pointing='right' icon='filter' color='blue' content='Enviar conversación a pipeline'/>
+                            <Select style={{marginLeft:20}} 
+                                options={fillStages()}
+                                placeholder='Etapa'
+                                onChange={(e, {value}) => {
+                                    
+                                    if(value === -1){
+                                        setSelectedStage(null)
+                                    }else{
+                                        setSelectedStage(value)
+                                      
+                                    }
+
+                                }}
+
+                        
+                            /></div>
+                            
+                        </>}
+                        </div>}
+                        <Label  color='red' pointing='below' icon='sticky note'  content='Selecciona una clasificación para la conversación:'/>            
+                        <div style={{marginTop:5}}>
+                            <Select placeholder='Clasificación' options={listClassification} disabled={isEndingFolio} onChange={(e, {value}) => {
+                                changeClassification(value);
+                                assignPrivateAlways && setIsFolioAttachedAgent(assignPrivateAlways)
+                            }}/>
+                        </div>
+                        
+                        {infoForm && renderForm(infoForm)}
+                    </Modal.Content>
+                    <Modal.Actions>
+                    <Button negative onClick={e=> {setOpenModal(false); setInfoForm(null)}} disabled={isEndingFolio} >
+                        Cancelar
+                    </Button>
+                    <Button positive onClick={closeFolio} disabled={isEndingFolio} loading={isEndingFolio}>
+                        <label style={{textTransform:'capitalize'}}>{typeClose}</label>
+                    </Button>
+                    </Modal.Actions>
+                </Modal>
         
 
 
