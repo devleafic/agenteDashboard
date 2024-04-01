@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image, Message,   ListItem, ListIcon, ListContent, List} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image, Message,   ListItem, ListIcon, ListContent, List, IconGroup} from 'semantic-ui-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
@@ -27,7 +27,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [lastMessageFolio, setLastMessageFolio] = useState(null)
     const [channelEmail, setChannelEmail] =  useState(null)
     const [attachments, setAttachments] = useState([]);
-    
+    const [contador, setContador] = useState(0);
+
     const editorRef = useRef(null);
     const log = () => {
       if (editorRef.current) {
@@ -199,6 +200,9 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             content = <div dangerouslySetInnerHTML={{__html: content }}></div>
             setPreviewEmail(content);
             setOpenModalPreview(true);
+        }
+        else {
+            toast.error('No hay contenido para previsualizar');
         }
     }
 
@@ -676,18 +680,42 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      // Código que deseas ejecutar cada 20 segundos
+      // para la funcion de autosave!!!
+      setContador((prevContador) => prevContador + 1);
+      console.log('Contador:', contador )
+    }, 20000); // 20 segundos en milisegundos
+
+    return () => {
+      clearInterval(intervalo); // Limpiar el intervalo cuando el componente se desmonte
+    };
+  }, []);
+
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
                 {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' +  alias :   'Hilo')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */} <br></br>
                 
-                {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.toRecipients,'Para: ' ): 'N/A')}</Header> : '')}
-                {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 2, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ') : 'Ninguno')}</Header> : '')}
-                 {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 2}} as='h3'> {(typeFolio === '_EMAIL_' ? <div><Label basic color='blue' pointing='right'>Asunto</Label>{ folio?.lastEmailProcessed?.subject}</div> : '')}</Header> : '')}
+                {typeFolio === '_EMAIL_' && (
+                    <>
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        </Header>
+                        <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
+                        </Header>
+                        <Header style={{marginTop: 2}} as='h3'>
+                            <div>
+                                <Label basic color='blue' pointing='right'>Asunto</Label>
+                                {folio?.lastEmailProcessed?.subject}
+                            </div>
+                        </Header>
+                    </>
+                )}
                 
                 <div  style={{marginTop:5}}>
                 <Label as='a' color='blue' >
@@ -780,7 +808,9 @@ return ( <>
                                 branding: false,
                                 plugins: 'autosave',
                                 autosave_restore_when_empty: true,
-                                autosave_interval: '20s',
+                                autosave_interval: '10s',
+                                autosave_retention: '30m',
+                                autosave_restore_when_empty: true,
                                 fullscreen_native: true,
                                 custom_undo_redo_levels: 10,  
                                 language: 'es',  
@@ -791,13 +821,13 @@ return ( <>
                                 plugins: [
                                     'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                                     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table',
+                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table', 'autosave'
                                 ],
                                 toolbar:'fontsize | ' + 'undo redo | ' +//  blocks | ' + 
                                     'bold italic forecolor | alignleft aligncenter ' + 
                                     'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat  | fullscreen | preview | searchreplace  | table ',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
-                                content_style: 'body { font-family:Calibri; font-size:12px }'
+                                    'removeformat  | fullscreen | preview | searchreplace  | table restoredraft',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
+                                content_style: 'body { font-family:Arial; font-size:12px }'
                                 
                             }}
                         />
@@ -817,7 +847,7 @@ return ( <>
                         <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
                             <div style={{ display: 'flex', justifyContent:'flex-end'}}>
                             <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='eye' /></Button>
-                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
+                               {/* <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button> */}
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
                             </div>
@@ -944,16 +974,35 @@ return ( <>
             
             open={openModalPreview}
             size='large'
-          
             >
-            <Header icon>
-                <Icon name='mail' />
-                Vista previa del correo...
+            <Header >
+            <IconGroup size='huge'>
+                <Icon  color='grey' name='mail outline' />
+                <Icon color='blue' corner name='paper plane' />
+            </IconGroup>
+                Vista previa del correo, revisa la información antes de enviar...
             </Header>
             <Modal.Content>
+    
+            {typeFolio === '_EMAIL_' && (
+                    <>
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        </Header>
+                        <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
+                        </Header>
+                        <Header style={{marginTop: 2}} as='h3'>
+                            <div>
+                                <Label basic color='blue' pointing='right'>Asunto</Label>
+                                {folio?.lastEmailProcessed?.subject}
+                            </div>
+                        </Header>
+                    </>
+                )}
+                <Divider/>
                {previewEmail}
                <Message  size='mini'  >
-                       
                        <List >
                            {
                                 attachments && attachments.length > 0 ? attachments.map((item) => {
@@ -973,9 +1022,10 @@ return ( <>
                     <Button negative onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null)}} >
                         Cancelar
                     </Button>
-                    <Button positive onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML) }  } >
+                   {/*} <Button positive onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML) }  } >
                         Enviar
-                    </Button>
+                        </Button>*/}
+                    <Button color='blue' basic onClick={() => {setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML)  }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
 
             </Modal.Actions>
         </Modal>
