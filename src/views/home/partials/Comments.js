@@ -1,5 +1,5 @@
 import React, {useContext, useState, useRef, useEffect} from 'react';
-import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image} from 'semantic-ui-react';
+import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image, Message,   ListItem, ListIcon, ListContent, List, IconGroup} from 'semantic-ui-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
@@ -27,7 +27,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [lastMessageFolio, setLastMessageFolio] = useState(null)
     const [channelEmail, setChannelEmail] =  useState(null)
     const [attachments, setAttachments] = useState([]);
-    
+    const [contador, setContador] = useState(0);
+
     const editorRef = useRef(null);
     const log = () => {
       if (editorRef.current) {
@@ -70,6 +71,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     
     const [openModalFolio, setOpenModalFolio] = useState(false);
     const [previewEmail, setPreviewEmail] = useState(null);
+    const [previewEmailHTML, setPreviewEmailHTML] = useState(null);
     const [openModalPreview, setOpenModalPreview] = useState(false);
 
 
@@ -194,9 +196,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     }
     const previewEmailF = (content) => {
         if (content.length > 0) {
+            setPreviewEmailHTML(content)
             content = <div dangerouslySetInnerHTML={{__html: content }}></div>
             setPreviewEmail(content);
             setOpenModalPreview(true);
+        }
+        else {
+            toast.error('No hay contenido para previsualizar');
         }
     }
 
@@ -674,18 +680,42 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      // Código que deseas ejecutar cada 20 segundos
+      // para la funcion de autosave!!!
+      setContador((prevContador) => prevContador + 1);
+      console.log('Contador:', contador )
+    }, 20000); // 20 segundos en milisegundos
+
+    return () => {
+      clearInterval(intervalo); // Limpiar el intervalo cuando el componente se desmonte
+    };
+  }, []);
+
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
             <Header  as='h2' dividing>
                 {(typeFolio === '_CALL_' ? 'Llamada ' : typeFolio === '_EMAIL_' ? 'Correo con: ' + folio.person.anchor : typeFolio === '_MESSAGES_' ? 'Conversación con: ' +  alias :   'Hilo')}
                 {/* <Label as='a' tag color='teal' style={{marginLeft:30}}>#{folio._id}</Label> */} <br></br>
                 
-                {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.toRecipients,'Para: ' ): 'N/A')}</Header> : '')}
-                {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 2, marginBottom: 2}} as='h4'> {(typeFolio === '_EMAIL_' ?  fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ') : 'Ninguno')}</Header> : '')}
-                 {( typeFolio === '_EMAIL_' ? 
-                <Header style={{marginTop: 2}} as='h3'> {(typeFolio === '_EMAIL_' ? <div><Label basic color='blue' pointing='right'>Asunto</Label>{ folio?.lastEmailProcessed?.subject}</div> : '')}</Header> : '')}
+                {typeFolio === '_EMAIL_' && (
+                    <>
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        </Header>
+                        <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
+                        </Header>
+                        <Header style={{marginTop: 2}} as='h3'>
+                            <div>
+                                <Label basic color='blue' pointing='right'>Asunto</Label>
+                                {folio?.lastEmailProcessed?.subject}
+                            </div>
+                        </Header>
+                    </>
+                )}
                 
                 <div  style={{marginTop:5}}>
                 <Label as='a' color='blue' >
@@ -773,26 +803,31 @@ return ( <>
                             init={{
                                 license_key: 'gpl',
                                 min_height: 280,
-                                max_height: 500,
+                                max_height: 600,
                                 menubar: false, //true,
-                                browser_spellcheck: true,
                                 branding: false,
                                 plugins: 'autosave',
                                 autosave_restore_when_empty: true,
-                                autosave_interval: '20s',
+                                autosave_interval: '10s',
+                                autosave_retention: '30m',
+                                autosave_restore_when_empty: true,
                                 fullscreen_native: true,
-                               
-
+                                custom_undo_redo_levels: 10,  
+                                language: 'es',  
+                                browser_spellcheck: true,
+                                font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                                default_font_stack: [ '-apple-system', 'Arial', 'Calibri' ],
+                                preview_styles: 'font-size color',
                                 plugins: [
                                     'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                                     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table', 'autosave'
                                 ],
-                                toolbar: 'undo redo | blocks | ' +
-                                    'bold italic forecolor | alignleft aligncenter ' +
+                                toolbar:'fontsize | ' + 'undo redo | ' +//  blocks | ' + 
+                                    'bold italic forecolor | alignleft aligncenter ' + 
                                     'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat  | fullscreen | preview | searchreplace', 
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+                                    'removeformat  | fullscreen | preview | searchreplace  | table restoredraft',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
+                                content_style: 'body { font-family:Arial; font-size:12px }'
                                 
                             }}
                         />
@@ -812,7 +847,7 @@ return ( <>
                         <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
                             <div style={{ display: 'flex', justifyContent:'flex-end'}}>
                             <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='eye' /></Button>
-                                <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
+                               {/* <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button> */}
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
                             </div>
@@ -918,12 +953,14 @@ return ( <>
             <Modal.Content>
                 <center>{message}</center>
             </Modal.Content>
+
+            
         </Modal>
 
 
 
 
-      {/* <Modal
+  {/*  <Modal
             open={openModalPreview}
             header='Vista previa del correo...'//{titleModal}
             size='large'
@@ -932,8 +969,66 @@ return ( <>
             content={previewEmail}
             actions={[{ key: 'Aceptar', content: 'Aceptar', positive: true, onClick: ()=> { setOpenModalPreview(false); setPreviewEmail(null)} }]}
     /> */}
-        
 
+        <Modal
+            
+            open={openModalPreview}
+            size='large'
+            >
+            <Header >
+            <IconGroup size='huge'>
+                <Icon  color='grey' name='mail outline' />
+                <Icon color='blue' corner name='paper plane' />
+            </IconGroup>
+                Vista previa del correo, revisa la información antes de enviar...
+            </Header>
+            <Modal.Content>
+    
+            {typeFolio === '_EMAIL_' && (
+                    <>
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        </Header>
+                        <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
+                            {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
+                        </Header>
+                        <Header style={{marginTop: 2}} as='h3'>
+                            <div>
+                                <Label basic color='blue' pointing='right'>Asunto</Label>
+                                {folio?.lastEmailProcessed?.subject}
+                            </div>
+                        </Header>
+                    </>
+                )}
+                <Divider/>
+               {previewEmail}
+               <Message  size='mini'  >
+                       <List >
+                           {
+                                attachments && attachments.length > 0 ? attachments.map((item) => {
+                                  return (
+                                   <ListItem>
+                                   <ListIcon  name='linkify' />
+                                   <ListContent>
+                                     <a href={item?.url} target="_blank" rel="noopener noreferrer" >{item.file.originalFilename} - {item.file.mimetype} </a>
+                                   </ListContent>
+                                 </ListItem>
+                           )}) : 'Sin adjuntos'
+                           }
+                       </List>
+                   </Message>
+            </Modal.Content>
+            <Modal.Actions>
+                    <Button negative onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null)}} >
+                        Cancelar
+                    </Button>
+                   {/*} <Button positive onClick={e=> { setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML) }  } >
+                        Enviar
+                        </Button>*/}
+                    <Button color='blue' basic onClick={() => {setOpenModalPreview(false); setPreviewEmail(null); prepareEmail(previewEmailHTML)  }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
+
+            </Modal.Actions>
+        </Modal>
 
 
 
