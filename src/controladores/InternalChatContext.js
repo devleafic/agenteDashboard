@@ -38,7 +38,9 @@ export const SocketProvider = ({ children }) => {
       });
 
       if(!isExists){
-        setInboxList([...inboxList, data.body.chat]);
+        setInboxList((prevInboxList) => {
+          return [...prevInboxList, data.body.chat]
+        });
       }
 
     })

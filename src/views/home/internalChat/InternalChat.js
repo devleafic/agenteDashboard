@@ -124,7 +124,7 @@ export default function InternalChat({userInfo}) {
             })
             return member.user.profile.name;
         }
-        return 'Chat Grupal'
+        return title;
         // return members.map((member) => member.user.profile.name).join(', ');
     
     }
@@ -213,7 +213,7 @@ export default function InternalChat({userInfo}) {
                                     marginRight: '10px'
                                 }}/>
                             </div>
-                            {getNames(chat.isPrivate, chat.members, 'lista')}
+                            {getNames(chat.isPrivate, chat.members, chat.label)}
                         </div>
                     })
                 }
@@ -226,7 +226,7 @@ export default function InternalChat({userInfo}) {
                 alignItems: 'center',
                 justifyContent: 'space-between',}}
             >
-                <div>Chat privado con: <strong>{getNames(viewChat.isPrivate, viewChat.members, 'title')}</strong></div>
+                <div><strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong></div>
                 <div style={{marginLeft:10}}>
                     <Dropdown
                         text='Miembros'
