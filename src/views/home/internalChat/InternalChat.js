@@ -235,7 +235,7 @@ export default function InternalChat({userInfo}) {
                                 }}/>
                             </div>
                             {getNames(chat.isPrivate, chat.members, chat.label)}
-                            ({unreadMessages[chat._id]})
+                            ({unreadMessages && unreadMessages[chat._id] ? unreadMessages[chat._id] : 0})
                         </div>
                     })
                 }
