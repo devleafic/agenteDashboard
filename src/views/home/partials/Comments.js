@@ -202,7 +202,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setOpenModalPreview(true);
         }
         else {
-            toast.error('No hay contenido para previsualizar');
+            toast.error('No hay contenido para enviar');
         }
     }
 
