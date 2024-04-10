@@ -665,3 +665,123 @@ h2 {
 }
 
 /* for mail clases */
+
+
+/* clases para el chat interno */
+
+.internal-chat-container {
+  display: flex;
+  height: 100vh;
+}
+
+.internal-chat-list {
+  flex: 1;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+}
+/* 
+.internal-chat-messages {
+  flex: 3;
+  padding: 20px;
+  overflow-y: auto;
+} */
+
+.internal-chat-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.internal-chat-item:hover {
+  background-color: #e0e0e0;
+}
+
+.internal-chat-message {
+  width: 100%; 
+  max-width: 70%;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  display: flex;
+  justify-content: flex-end; 
+}
+
+
+.internal-chat-message {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #F0F0F0;
+  border-radius: 15px;
+  max-width: 70%;
+}
+
+.internal-chat-sent .message {
+  background-color: #DCF8C6;
+}
+
+.internal-chat-received .message {
+  background-color: #E5E5EA;
+}
+
+.internal-chat-messages {
+  display: flex;
+  flex: 3;
+  padding: 20px;
+  overflow-y: auto;
+  flex-direction: column;
+  height: 100%;
+}
+
+.internal-chat-message-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 10px;
+}
+
+.internal-chat-input-container,
+.internal-chat-file-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.internal-chat-input-container textarea {
+  width: calc(100% - 80px); 
+}
+
+.internal-chat-input-container button,
+.internal-chat-file-container button {
+  width: 80px;
+}
+
+
+/* clases para el chat interno */
+.internal-chat-sent {
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.internal-chat-received {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.message {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #F0F0F0;
+    border-radius: 15px;
+    max-width: 70%;
+}
+
+.internal-chat-sent .message {
+    background-color: #DCF8C6;
+}
+
+.internal-chat-received .message {
+    background-color: #E5E5EA;
+}

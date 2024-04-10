@@ -38,6 +38,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
+            case 'InternalChat':
+                return <Button disabled={isConnected === -1 ? true : false} icon='rocketchat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : null}/>
         }
     }
 
@@ -67,6 +69,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 </div>
                 <div className='mb-3'>
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
+                </div>
+                <div className='mb-3'>
+                    <Popup content='Chat Interno' trigger={getButton('InternalChat')} position='right center'/>
                 </div>
                 {/*<div className='mb-3'>
                     <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>
