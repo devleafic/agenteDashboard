@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 
 const SocketContext = createContext();
@@ -19,8 +20,7 @@ export const SocketProvider = ({ children }) => {
 }
 
   useEffect(() => {
-    console.log('iniciando chat interno')
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io(process.env.REACT_APP_INTERNALCHAT, {
         transports : ['websocket'],
         query : {
             token : window.localStorage.getItem('sdToken')
@@ -28,9 +28,15 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on('connect', () => {
+        if (newSocket.connected) {
+        toast.success('Conectado al servidor de TeamChat con éxito');  
         console.log('Conectado al servidor de Socket.IO');
         setSocket(newSocket);
         getInboxChat(newSocket);
+        }else {
+        console.log('No se pudo conectar al servidor de TeamChat');
+        toast.error('No se pudo conectar al servidor de TeamChat');
+        }
     });
 
     newSocket.on('newChat',(data) => {
