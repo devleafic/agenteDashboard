@@ -718,11 +718,11 @@ h2 {
   max-width: 70%;
 }
 
-.internal-chat-sent .message {
+.internal-chat-sent .internal-chat-message {
   background-color: #DCF8C6;
 }
 
-.internal-chat-received .message {
+.internal-chat-received .internal-chat-message {
   background-color: #E5E5EA;
 }
 
@@ -770,7 +770,7 @@ h2 {
     text-align: left;
 }
 
-.message {
+.internal-chat-message {
     display: inline-block;
     padding: 8px 12px;
     background-color: #F0F0F0;
@@ -778,10 +778,10 @@ h2 {
     max-width: 70%;
 }
 
-.internal-chat-sent .message {
+.internal-chat-sent .internal-chat-message {
     background-color: #DCF8C6;
 }
 
-.internal-chat-received .message {
+.internal-chat-received .internal-chat-message {
     background-color: #E5E5EA;
 }

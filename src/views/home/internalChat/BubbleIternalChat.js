@@ -35,6 +35,8 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
     }
 
     useEffect(() => {
+
+        // Configuración del observer, para saber si el mensaje es visible en la pantalla
         const options = {
             root: null,
             rootMargin: '0px',
@@ -71,7 +73,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
   return (<>
     <div key={msg._id} className={userInfo._id !== msg.createdBy ? 'internal-chat-received' : 'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
-        <div className="message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>
+        <div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>
         {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div>Leido</div>}
         <div>
             {

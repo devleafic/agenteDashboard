@@ -8,14 +8,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import ListFoliosContext from './controladores/FoliosContext';
 import SocketContext from './controladores/SocketContext';
 import CallContext from './controladores/CallContext';
-import { SocketProvider } from './controladores/InternalChatContext';
+// import { SocketProvider } from './controladores/InternalChatContext';
 
 import { BrowserRouter as Router} from "react-router-dom";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Router>
-    <SocketProvider>
+    {/* <SocketProvider> */}
       <ListFoliosContext.Provider value={{current:[]}}>
         <SocketContext.Provider value={{connection:{}}}>
           <CallContext.Provider value={{connection:{}}}>
@@ -23,7 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </CallContext.Provider>
         </SocketContext.Provider>
       </ListFoliosContext.Provider>
-    </SocketProvider>
+    {/* </SocketProvider> */}
     </Router>
   
   //document.getElementById('root')
