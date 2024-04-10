@@ -8,11 +8,13 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [inboxList, setInboxList] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState([]);
 
   const getInboxChat = (newSocket) => {
     newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (data) => {
         console.log({data});
         setInboxList(data.body.chats)
+        setUnreadMessages(data.body.countUnread);
     });
 }
 
@@ -43,13 +45,13 @@ export const SocketProvider = ({ children }) => {
         });
       }
 
-    })
+    });
     
     return () => newSocket.close();
   }, []);
 
   return (
-    <SocketContext.Provider value={{socket : socket, inboxList : inboxList}}>
+    <SocketContext.Provider value={{socket : socket, inboxList : inboxList, unreadMessages : unreadMessages, setUnreadMessages:setUnreadMessages}}>
       {children}
     </SocketContext.Provider>
   );

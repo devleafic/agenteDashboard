@@ -13,7 +13,7 @@ import {
 
 export default function InternalChat({userInfo}) {
 
-    const {socket, inboxList} = useSocket();
+    const {socket, inboxList, unreadMessages, setUnreadMessages} = useSocket();
     const [findUser, setFindUser] = useState('');
     const [contactList, setContactList] = useState([]);
     const [viewChat, setViewChat] = useState(null);
@@ -92,6 +92,27 @@ export default function InternalChat({userInfo}) {
 
                     let chatIndex = prevViewChat.messages.findIndex((x) => x._id === data.body.message._id);
                     prevViewChat.messages[chatIndex] = data.body.message;
+
+                    // Actualizamos el contador de no leídos
+                    // Validamos si el chat existe
+                    const isExists = inboxList.find((x) => {
+                        return x._id === data.body.chatId;
+                    });
+
+                    if(isExists){
+                        // Validamos si el reader es el mismo usuario de la sesión
+                        const isReaderForMe = data.body.message.readers.find((x) => {
+                            return x.user === userInfo._id;
+                        });
+
+                        if(isReaderForMe){
+                            setUnreadMessages((prevUnreadMessages) => {
+                                return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages[data.body.chatId] - 1};
+                            });
+                        }
+                    }
+
+
                     return {...prevViewChat};
                 })
             });
@@ -214,6 +235,7 @@ export default function InternalChat({userInfo}) {
                                 }}/>
                             </div>
                             {getNames(chat.isPrivate, chat.members, chat.label)}
+                            ({unreadMessages[chat._id]})
                         </div>
                     })
                 }
