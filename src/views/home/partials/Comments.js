@@ -202,7 +202,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setOpenModalPreview(true);
         }
         else {
-            toast.error('No hay contenido para previsualizar');
+            toast.error('No hay contenido para enviar');
         }
     }
 
@@ -226,7 +226,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         const toFilteredEmails = folio.lastEmailProcessed.toRecipients.filter(recipient => recipient.email !== excludeEmail);
         const toEmailsString = toFilteredEmails.map(recipient => recipient.email).join(',');
-        const ccEmailsString = folio.lastEmailProcessed.ccRecipient && folio.lastEmailProcessed.ccRecipient.length > 0 ? folio.lastEmailProcessed.ccRecipients.map(recipient => recipient.email).join(',') : [];
+        const ccEmailsString = folio.lastEmailProcessed.ccRecipients && folio.lastEmailProcessed.ccRecipients.length > 0 ? folio.lastEmailProcessed.ccRecipients.map(recipient => recipient.email).join(',') : [];
 
         setIsLoading(true);
 
@@ -237,7 +237,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             message : _msg,//messageToSend,
             responseTo : folio.lastEmailProcessed.externalId ? folio.lastEmailProcessed.externalId : null,
             to: toEmailsString,
-            cc: ccEmailsString,
+            cc: ccEmailsString, // ? ccEmailsString : '',
+            bcc: [],
             attachments: attachments.length > 0 ? attachments : null,
             class : 'html'
         }, (result) => {
@@ -456,6 +457,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setLastMessageFolio(null);
         setReadyFiles([]);
         setTypeFolio(folio.typeFolio)
+        if (folio.typeFolio === '_EMAIL_') {setChannelEmail(folio.channel.token.public)}
         setAlias(folio.person.aliasId ? folio.person.aliasId : folio.person.anchor)
         if (editorRef && editorRef.current) {
             editorRef.current.setContent("");
@@ -680,6 +682,19 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         }
     }
 
+    const toSendRecipients = (ccRecipients, txt) =>{
+        const excludeEmail = channelEmail;
+        const toFilteredEmails = folio.lastEmailProcessed.toRecipients.filter(recipient => recipient.email !== excludeEmail);
+
+        if (toFilteredEmails && toFilteredEmails.length > 0) {
+            const emails = toFilteredEmails.map(recipient => recipient.email);
+            let emailsText =  folio.person.anchor + ', ' + emails.join(', ');
+            return <div><Label basic color='blue' pointing='right'>{txt}</Label>{emailsText}</div>
+        } else{
+            return <div><Label basic color='blue' pointing='right'>{txt}</Label>{folio.person.anchor}</div>
+        }
+    }
+
 
   useEffect(() => {
     const intervalo = setInterval(() => {
@@ -846,7 +861,7 @@ return ( <>
                         </div>
                         <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
                             <div style={{ display: 'flex', justifyContent:'flex-end'}}>
-                            <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='eye' /></Button>
+                            <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /></Button>
                                {/* <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button> */}
                                 <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
                                 <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
@@ -986,8 +1001,8 @@ return ( <>
     
             {typeFolio === '_EMAIL_' && (
                     <>
-                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
-                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> 
+                         {toSendRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: '  )}
                         </Header>
                         <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
                             {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
