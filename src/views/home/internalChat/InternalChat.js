@@ -126,7 +126,9 @@ export default function InternalChat({userInfo}) {
                     if (prevViewChat._id === data.body.chatId) {
                         // Actualiza el estado con el nuevo mensaje agregado
                         console.log('bajando chat');
-                        messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                        setTimeout(() => {
+                            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                        }, 10);
                         return {...prevViewChat, messages: [...prevViewChat.messages, data.body.message]};
                     }
                     // Si no coincide, devuelve el estado sin cambios
@@ -234,11 +236,11 @@ const getActivitie = (isPrivate, members) => {
 
 }
 
-    useEffect(() => {
-        if(viewChat){
-            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-        }
-    }, [viewChat]);
+    // useEffect(() => {
+    //     if(viewChat){
+    //         messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    //     }
+    // }, [viewChat]);
 
   return (<>
 <div style={{margin : 20}}>

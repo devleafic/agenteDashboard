@@ -6,19 +6,17 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
     const {socket, inboxList} = useSocket();
 
-    const isReaderForMe = msg.readers.find((x) => {
-        return x.user === userInfo._id;
-    });
     const messageRef = useRef(null);
 
     const sendReaction = (e, { name, value }) => {
         console.log({ name, value });
+        console.log('leyendo');
         socket.emit('sendReaction', {reaction : value, token: window.localStorage.getItem('sdToken'), chatId : infoChat._id, messageId : msg._id}, (data) => {
             console.log('Reacción enviada y recibida por el servidor');
         });
     }
 
-    const renderAndCountReactions = (reactions, direcction) => {
+    const renderAndCountReactions = (idMsg, reactions, direcction) => {
         const reactionCount = {};
         reactions.forEach((reaction) => {
             if(reactionCount[reaction.emoji]){
@@ -28,8 +26,8 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }
         });
 
-        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction) => {
-            return <div key={reaction} style={{padding:10}}>{reaction} {reactionCount[reaction]}</div>
+        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction, index) => {
+            return <div key={idMsg+'-'+reaction+'-'+index} style={{padding:10}}>{reaction} {reactionCount[reaction]}</div>
         })}</div>;
     
     }
@@ -45,6 +43,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
         const callback = (entries) => {
             entries.forEach(entry => {
+                const isReaderForMe = msg.readers.find((x) => {return x.user._id === userInfo._id;});
                 if (!isReaderForMe && entry.isIntersecting) {
                     const idBubble = entry.target.getAttribute('data-message-id');
                     readMessage(idBubble);
@@ -114,16 +113,16 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div>Leido</div>}
         <div>
             {
-                renderAndCountReactions(msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
+                renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
             }
         </div>
         <Dropdown style={{padding : 15}} text='💬' onChange={sendReaction} options={[
-            {key : 'emoji-0', text : '🙂', value : '🙂'},
-            {key : 'emoji-1', text : '🤔', value : '🤔'},
-            {key : 'emoji-2', text : '😡', value : '😡'},
-            {key : 'emoji-2', text : '😳', value : '😳'},
-            {key : 'emoji-3', text : '👍', value : '👍'},
-            {key : 'emoji-4', text : '👎', value : '👎'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-2', text : '😳', value : '😳'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-3', text : '👍', value : '👍'},
+            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-4', text : '👎', value : '👎'},
         ]} name='reaction'/>
     </div>
     </>)
