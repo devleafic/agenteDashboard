@@ -719,8 +719,7 @@ h2 {
 }
 
 .internal-chat-message {
-  width: 100%; 
-  max-width: 70%;
+  max-width: 40%;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -739,10 +738,12 @@ h2 {
 }
 
 .internal-chat-sent .internal-chat-message {
+  margin-right: 10px;
   background-color: #DCF8C6;
 }
 
 .internal-chat-received .internal-chat-message {
+  margin-left: 10px;
   background-color: #E5E5EA;
 }
 
