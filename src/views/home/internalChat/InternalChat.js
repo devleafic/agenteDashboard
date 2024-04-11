@@ -23,8 +23,23 @@ export default function InternalChat({userInfo}) {
     const messageContainerRef = useRef(null);
 
     const [myActivitie, setMyActivitie] = useState('2-listo');
-
+    const defaultActivitie = '2-listo';
     const listActivites = [
+        {
+            id: '2-listo',
+            label: 'Listo',
+            emoji : '🟢'
+        },
+        {
+            id: '2-ocupado',
+            label: 'Ocupado',
+            emoji : '🔴'
+        }, 
+        {
+            id: '2-ausente',
+            label: 'Ausente',
+            emoji : '🟡 '
+        }, 
         {
             id: '1-comida',
             label: 'Comida',
@@ -34,12 +49,7 @@ export default function InternalChat({userInfo}) {
             id: '2-banio',
             label: 'Baño',
             emoji : '🚽' 
-        },
-        {
-            id: '2-listo',
-            label: 'Listo',
-            emoji : '✅'
-        },
+        }
     ]
 
     const setActivitie = (idAct) => {
@@ -96,7 +106,7 @@ export default function InternalChat({userInfo}) {
         if (socket) {
             console.log('Conexión del socket establecida');
 
-            setActivitie('2-listo')
+            setActivitie(defaultActivitie)
             
             socket.on('incomingMessage', (data) => {
                 console.log({incomingMessage : data});
@@ -234,9 +244,9 @@ const getActivitie = (isPrivate, members) => {
         <div className="internal-chat-list">
             <div style={{marginBottom : 5}}>
                 <div>
-                    Mi actividad : {listActivites.find((x) => {return x.id === myActivitie}).emoji}
+                    Mi estado: {listActivites.find((x) => {return x.id === myActivitie}).emoji}
                 </div>
-                <Dropdown text='Mostrar como.'>
+                <Dropdown text='Cambiar estado'>
                     <DropdownMenu>
                         {
                             listActivites.map((activity) => {
@@ -249,7 +259,7 @@ const getActivitie = (isPrivate, members) => {
                 </Dropdown>
             </div>
             <div style={{ position: 'relative' }}>
-                <Input icon='search' placeholder='Buscar contacto' variant='large' style={{ width: '100%' }}
+                <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%' }}
                     value={findUser}
                     onChange={(e) => {
                         setFindUser(e.target.value);
@@ -275,20 +285,43 @@ const getActivitie = (isPrivate, members) => {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
+                            padding: '10px',
+                            borderBottom: '1px solid #ccc',
+                            cursor: 'pointer',
+                            
                         }}
-                        >
-                            <div>
-                                <img src='https://cdn1.iconfinder.com/data/icons/user-avatar-20/64/18-man-256.png' style={{
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <img
+                                src='https://cdn1.iconfinder.com/data/icons/user-avatar-20/64/18-man-256.png'
+                                style={{
                                     width: '30px',
                                     height: '30px',
                                     borderRadius: '50%',
                                     marginRight: '10px'
-                                }}/>
-                                {getActivitie(chat.isPrivate, chat.members)}
-                            </div>
-                            {getNames(chat.isPrivate, chat.members, chat.label)}
-                            ({unreadMessages && unreadMessages[chat._id] ? unreadMessages[chat._id] : 0})
+                                }}
+                            />
+                            {getActivitie(chat.isPrivate, chat.members)}
                         </div>
+                        <div style={{ flex: 1, margin: 5}}>
+                            {getNames(chat.isPrivate, chat.members, chat.label)}
+                        </div>
+                        <div style={{ marginLeft: '10px' }}>
+                            <div style={{
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '50%',
+                                backgroundColor: unreadMessages && unreadMessages[chat._id] ? 'red' : 'gray',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: 'white',
+                                fontSize: '12px'
+                            }}>
+                                {unreadMessages && unreadMessages[chat._id] ? unreadMessages[chat._id] : 0}
+                            </div>
+                        </div>
+                    </div>
                     })
                 }
         </div>
