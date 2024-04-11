@@ -60,16 +60,16 @@ const InternalUploadFile = ({sendFile}) => {
         });
     };
     return (<>
-        <Dropzone maxFiles={2} onDrop={acceptedFiles => {
+        <Dropzone maxFiles={1} onDrop={acceptedFiles => {
             console.log(acceptedFiles);
             
             fileUpload(acceptedFiles[0]);
         }} >
         {({getRootProps, getInputProps}) => (
             
-            <div {...getRootProps()} className='dnd'>
-                <input {...getInputProps()} />
-                <a class="camera icon">Arrastra un archivo o Clic</a>
+            <div {...getRootProps()} className='dndInternalChat' style={{ display: 'flex', justifyContent: 'center', alignItems: 'left' }}>
+            <input {...getInputProps()} />
+            <Icon name='attach' />
             </div>
             
         )}

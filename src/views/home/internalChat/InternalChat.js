@@ -240,7 +240,7 @@ const getActivitie = (isPrivate, members) => {
     }, [viewChat]);
 
   return (<>
-    <div className="internal-chat-container">
+    <div className="internal-chat-container" style={{height:'calc(100% - 30px)'}}>
         <div className="internal-chat-list">
             <div style={{marginBottom : 5}}>
                 <div>
@@ -352,7 +352,7 @@ const getActivitie = (isPrivate, members) => {
                     </Dropdown>
                 </div>
             </div>
-            <div className="internal-chat-message-container" ref={messageContainerRef}>
+            <div className="internal-chat-message-container"  ref={messageContainerRef}>
                 {
                     viewChat.messages.map((msg) => {
                         return <BubbleIternalChat key={'component-'+msg._id} infoChat={viewChat} msg={msg} userInfo={userInfo} readMessage={(idMsg) => {
@@ -362,8 +362,9 @@ const getActivitie = (isPrivate, members) => {
                 }
             </div>
             <div className="internal-chat-input-container">
+
                 <textarea 
-                    rows="3" 
+                    rows="4" 
                     cols="50" 
                     placeholder="Escribe tu mensaje aquí..." 
                     onChange={(e) => setMessage(e.target.value)}
@@ -374,14 +375,41 @@ const getActivitie = (isPrivate, members) => {
                             sendMessage();
                         }
                     }}
+                    style={{
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '10px',
+                        resize: 'none',
+                        outline: 'none',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        width: '100%',
+                        marginBottom: '5px'
+                    }}
                 />
-                <button onClick={sendMessage}>Enviar Mensaje</button>
+                <button 
+                    onClick={sendMessage}
+                    style={{
+                        marginLeft:  5,
+                        backgroundColor: '#25D366',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '10px',
+                        cursor: 'pointer',
+                        height: '100%' 
+                    }}
+                >
+                    Enviar
+                </button>
+                <div className="internal-chat-file-container" style={{ padding: '10px',
+                        cursor: 'pointer',
+                        height: '100%'  }}>
+                    <InternalUploadFile sendFile={sendFile}/>
+                    {/* <input type="file" onChange={handleFileChange} />
+                    <button onClick={sendFile}>Enviar Archivo</button> */}
+                </div>
             </div>
-            <div className="internal-chat-file-container">
-                <InternalUploadFile sendFile={sendFile}/>
-                {/* <input type="file" onChange={handleFileChange} />
-                <button onClick={sendFile}>Enviar Archivo</button> */}
-            </div>
+
         </div>:<div className="internal-chat-messages">Selecciona un chat</div>}
     </div>
   </>)

@@ -350,7 +350,26 @@ h2 {
   align-items: center;
   padding: 10px;
   border-width: 2px;
-  border-radius: 2px;
+  border-radius: 8px;
+  border-style: dashed;
+  background-color: #fafafa;
+  border-color: #6b6b6b;
+  color: #6b6b6b;
+  outline: none;
+  transition: border .24s ease-in-out;
+  float: left;
+  cursor:default;
+}
+.dndInternalChat{
+  flex: 1;  
+  flex-direction: column;
+  display: flex;
+  width: 50px;
+  height: 100%;
+  align-items: center;
+  padding: 10px;
+  border-width: 2px;
+  border-radius: 8px;
   border-style: dashed;
   background-color: #fafafa;
   border-color: #6b6b6b;
@@ -672,6 +691,7 @@ h2 {
 .internal-chat-container {
   display: flex;
   height: 100vh;
+  background-color: #f0f0f0;
 }
 
 .internal-chat-list {
@@ -745,12 +765,12 @@ h2 {
 .internal-chat-file-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: left;
   padding: 10px;
 }
 
 .internal-chat-input-container textarea {
-  width: calc(100% - 80px); 
+  width: calc(100% - 70px); 
 }
 
 .internal-chat-input-container button,
