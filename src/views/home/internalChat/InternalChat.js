@@ -288,7 +288,7 @@ const getActivitie = (isPrivate, members) => {
                             padding: '10px',
                             borderBottom: '1px solid #ccc',
                             cursor: 'pointer',
-                            
+        
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -344,7 +344,7 @@ const getActivitie = (isPrivate, members) => {
                         className='icon'
                     >
                         <DropdownMenu>
-                        <DropdownHeader content='Miembros del chat' />
+                        <DropdownHeader content='Miembros en el chat' />
                         {viewChat.members.map((member) => (
                             <DropdownItem key={member.user._id}>{member.user.profile.name}</DropdownItem>
                         ))}
