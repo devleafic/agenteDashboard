@@ -3,6 +3,7 @@ import { useSocket } from '../../../controladores/InternalChatContext';
 import { Input } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
+import { Message } from 'semantic-ui-react';
 
 import axios from 'axios';
 import {
@@ -240,7 +241,15 @@ const getActivitie = (isPrivate, members) => {
     }, [viewChat]);
 
   return (<>
-    <div className="internal-chat-container" style={{height:'calc(100% - 30px)'}}>
+<div style={{margin : 20}}>
+        <Message
+            attached
+            icon="chat"
+            header='TeamChat'
+            content='Comunicate con tu equipos de trabajo. Selecciona un contacto para continuar con la conversación.'
+        /> </div>
+    <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
+   
         <div className="internal-chat-list">
             <div style={{marginBottom : 5}}>
                 <div>
