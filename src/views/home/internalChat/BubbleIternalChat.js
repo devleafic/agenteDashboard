@@ -110,13 +110,13 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
         {convertContent(msg)}
         {/*<div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>*/}
-        {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div>Leido</div>}
+        {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}><div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div></div>}
         <div>
             {
                 renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
             }
         </div>
-        <Dropdown style={{padding : 15}} text='💬' onChange={sendReaction} options={[
+        <Dropdown style={{padding : 2, marginRight: 5}} text='💬' onChange={sendReaction} options={[
             {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
             {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
             {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},

@@ -4,6 +4,7 @@ import { Input } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
 import { Message } from 'semantic-ui-react';
+import { Table, Icon } from 'semantic-ui-react';
 
 import axios from 'axios';
 import {
@@ -22,6 +23,7 @@ export default function InternalChat({userInfo}) {
     const [viewChat, setViewChat] = useState(null);
     const [message, setMessage] = useState('');
     const messageContainerRef = useRef(null);
+    const [loading, setLoading] = useState(false);
 
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
@@ -93,8 +95,10 @@ export default function InternalChat({userInfo}) {
 
     // Función para abir un chat
     const openChat = (chatId) => {
+        setLoading(true);
         socket.emit('openChat', {chatId, token: window.localStorage.getItem('sdToken')}, (data) => {
             console.log({openChat : data});
+            setLoading(false);
             if(data.body.success){
                 setViewChat(data.body.chat);
                 setTimeout(() => {
@@ -243,8 +247,10 @@ const getActivitie = (isPrivate, members) => {
     //         messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     //     }
     // }, [viewChat]);
+    const [clickedId, setClickedId] = useState(null);
 
   return (<>
+                 
 <div style={{margin : 20}}>
         <Message
             attached
@@ -272,7 +278,7 @@ const getActivitie = (isPrivate, members) => {
                 </Dropdown>
             </div>
             <div style={{ position: 'relative' }}>
-                <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%' }}
+                <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%', marginBottom: '10px'}}
                     value={findUser}
                     onChange={(e) => {
                         setFindUser(e.target.value);
@@ -293,6 +299,7 @@ const getActivitie = (isPrivate, members) => {
                 {
                     inboxList.map((chat) => {
                         return <div className="internal-chat-item" key={chat._id} onClick={() => {
+                            setClickedId(chat._id);
                             openChat(chat._id);
                         }}
                         style={{
@@ -301,7 +308,7 @@ const getActivitie = (isPrivate, members) => {
                             padding: '10px',
                             borderBottom: '1px solid #ccc',
                             cursor: 'pointer',
-        
+                            backgroundColor: clickedId === chat._id ? 'lightgray' : 'white', // Change the background color when clicked
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -346,7 +353,7 @@ const getActivitie = (isPrivate, members) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',}}
             >
-                <div><strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong></div>
+                <div style={{ fontSize: '30px' }}><strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong></div>
                 <div style={{marginLeft:10}}>
                     <Dropdown
                         text='Miembros'
@@ -366,6 +373,18 @@ const getActivitie = (isPrivate, members) => {
                 </div>
             </div>
             <div className="internal-chat-message-container"  ref={messageContainerRef}>
+                { 
+                    loading && (
+                        <div style={{display: 'flex', justifyContent: 'center', padding: '10px', alignItems:'center', height: '60vh' }}>
+                        <Table.Row>
+                            <Table.Cell collapsing={true} colSpan={6}>
+                                <Icon name='spinner' size='large'/>
+                                Cargando chat . . .
+                            </Table.Cell>
+                        </Table.Row>
+                        </div>
+                    )
+                }
                 {
                     viewChat.messages.map((msg) => {
                         return <BubbleIternalChat key={'component-'+msg._id} infoChat={viewChat} msg={msg} userInfo={userInfo} readMessage={(idMsg) => {

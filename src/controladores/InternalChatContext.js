@@ -75,7 +75,7 @@ export const SocketProvider = ({ children }) => {
 
           return prevInboxList;
         });
-    }, 10000);
+    }, 5000);
     
     return () => {
       clearInterval(timerActivities);
