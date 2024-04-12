@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 
 const SocketContext = createContext();
@@ -8,7 +9,8 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [inboxList, setInboxList] = useState([]);
-  const [unreadMessages, setUnreadMessages] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState({});
+  const [activitiesUsers, setActivitiesUsers] = useState({});
 
   const getInboxChat = (newSocket) => {
     newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (data) => {
@@ -19,8 +21,7 @@ export const SocketProvider = ({ children }) => {
 }
 
   useEffect(() => {
-    console.log('iniciando chat interno')
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io(process.env.REACT_APP_INTERNALCHAT, {
         transports : ['websocket'],
         query : {
             token : window.localStorage.getItem('sdToken')
@@ -28,9 +29,15 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on('connect', () => {
+        if (newSocket.connected) {
+        toast.success('Conectado al servidor de TeamChat con éxito');  
         console.log('Conectado al servidor de Socket.IO');
         setSocket(newSocket);
         getInboxChat(newSocket);
+        }else {
+        console.log('No se pudo conectar al servidor de TeamChat');
+        toast.error('No se pudo conectar al servidor de TeamChat');
+        }
     });
 
     newSocket.on('newChat',(data) => {
@@ -46,12 +53,38 @@ export const SocketProvider = ({ children }) => {
       }
 
     });
+
+    // Validamos la actividad de mi inbox
+    let timerActivities = setInterval(() => {
+        setInboxList((prevInboxList) => {
+          const myContacts = []
+          prevInboxList.forEach((ch) => {
+            ch.members.forEach((x) => {
+              myContacts.push(x.user._id);
+            });
+          })
+          console.log('Consultando actividad de mi inbox', {myContacts});
+          
+          // Vamos al server por las actividades
+          newSocket.emit('getActivitiesInbox', {
+            contacts : myContacts
+          },(data) => {
+            console.log('contactos actividades',data);
+            setActivitiesUsers(data);
+          });
+
+          return prevInboxList;
+        });
+    }, 5000);
     
-    return () => newSocket.close();
+    return () => {
+      clearInterval(timerActivities);
+      newSocket.close();
+    }
   }, []);
 
   return (
-    <SocketContext.Provider value={{socket : socket, inboxList : inboxList, unreadMessages : unreadMessages, setUnreadMessages:setUnreadMessages}}>
+    <SocketContext.Provider value={{socket : socket, inboxList : inboxList, unreadMessages : unreadMessages, setUnreadMessages:setUnreadMessages, activitiesUsers}}>
       {children}
     </SocketContext.Provider>
   );

@@ -350,7 +350,26 @@ h2 {
   align-items: center;
   padding: 10px;
   border-width: 2px;
-  border-radius: 2px;
+  border-radius: 8px;
+  border-style: dashed;
+  background-color: #fafafa;
+  border-color: #6b6b6b;
+  color: #6b6b6b;
+  outline: none;
+  transition: border .24s ease-in-out;
+  float: left;
+  cursor:default;
+}
+.dndInternalChat{
+  flex: 1;  
+  flex-direction: column;
+  display: flex;
+  width: 50px;
+  height: 100%;
+  align-items: center;
+  padding: 10px;
+  border-width: 2px;
+  border-radius: 8px;
   border-style: dashed;
   background-color: #fafafa;
   border-color: #6b6b6b;
@@ -672,6 +691,7 @@ h2 {
 .internal-chat-container {
   display: flex;
   height: 100vh;
+  background-color: #f0f0f0;
 }
 
 .internal-chat-list {
@@ -695,12 +715,11 @@ h2 {
 }
 
 .internal-chat-item:hover {
-  background-color: #e0e0e0;
+  background-color: #614e5e;
 }
 
 .internal-chat-message {
-  width: 100%; 
-  max-width: 70%;
+  max-width: 40%;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -718,11 +737,13 @@ h2 {
   max-width: 70%;
 }
 
-.internal-chat-sent .message {
+.internal-chat-sent .internal-chat-message {
+  margin-right: 10px;
   background-color: #DCF8C6;
 }
 
-.internal-chat-received .message {
+.internal-chat-received .internal-chat-message {
+  margin-left: 10px;
   background-color: #E5E5EA;
 }
 
@@ -745,12 +766,12 @@ h2 {
 .internal-chat-file-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: left;
   padding: 10px;
 }
 
 .internal-chat-input-container textarea {
-  width: calc(100% - 80px); 
+  width: calc(100% - 70px); 
 }
 
 .internal-chat-input-container button,
@@ -770,7 +791,7 @@ h2 {
     text-align: left;
 }
 
-.message {
+.internal-chat-message {
     display: inline-block;
     padding: 8px 12px;
     background-color: #F0F0F0;
@@ -778,10 +799,10 @@ h2 {
     max-width: 70%;
 }
 
-.internal-chat-sent .message {
+.internal-chat-sent .internal-chat-message {
     background-color: #DCF8C6;
 }
 
-.internal-chat-received .message {
+.internal-chat-received .internal-chat-message {
     background-color: #E5E5EA;
 }
