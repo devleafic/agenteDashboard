@@ -97,7 +97,9 @@ export default function InternalChat({userInfo}) {
             console.log({openChat : data});
             if(data.body.success){
                 setViewChat(data.body.chat);
-            }else{
+                setTimeout(() => {
+                    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                }, 100);            }else{
                 toast.error('Ocurrion un error al abrir el chat');
             }
         });
