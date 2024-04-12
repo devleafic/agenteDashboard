@@ -103,8 +103,10 @@ export default function InternalChat({userInfo}) {
                 setViewChat(data.body.chat);
                 setTimeout(() => {
                     messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-                }, 100);            }else{
-                toast.error('Ocurrion un error al abrir el chat');
+                }, 100);
+            }
+            else{
+                   toast.error('Ocurrion un error al abrir el chat');
             }
         });
     }
@@ -255,7 +257,7 @@ const getActivitie = (isPrivate, members) => {
         <Message
             attached
             icon="chat"
-            header='TeamChat'
+            header='TeamChat - Versión Beta 0.1'
             content='Comunicate con tu equipo de trabajo. Selecciona un contacto para continuar con la conversación.'
         /> </div>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
