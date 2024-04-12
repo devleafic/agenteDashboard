@@ -55,15 +55,16 @@ export default function InternalChat({userInfo}) {
         }
     ]
 
+    // Función para cambiar el estado de la actividad
     const setActivitie = (idAct) => {
-        console.log(idAct);
-        
         socket.emit('setActivitie', {activitie : idAct, token: window.localStorage.getItem('sdToken')}, (data) => {
             console.log({data});
+            window.sessionStorage.setItem('lastActivitie', idAct);
             setMyActivitie(data);
         });
     }    
 
+    // Función para enviar un mensaje
     const sendMessage = () => {
         const messageToSend = message.trim();
         socket.emit('sendMessage', {message : messageToSend, token: window.localStorage.getItem('sdToken'), chatId : viewChat._id ,type : 'text'}, (data) => {
@@ -72,18 +73,21 @@ export default function InternalChat({userInfo}) {
         setMessage('');
     };
 
+
+    // Función para obtener la lista de contactos
     const getContactList = (contact) => {
-        console.log(contact);
+        // console.log(contact, userInfo);
         if(contact.length < 3){
             setContactList([]);
             return false;
         }
-        socket.emit('getContactList', {contact}, (data) => {
+        socket.emit('getContactList', {contact, service : userInfo.service.id}, (data) => {
             console.log({data});
             setContactList(data.body.list);
         });
     }
 
+    // Función para crear un chat
     const createChat = (contactToOpen) => {
         // if(window.confirm(`¿Desea abrir el chat con este usuario "${contactToOpen.profile.name}"?`)){
             socket.emit('createChat', {contact : contactToOpen._id, token: window.localStorage.getItem('sdToken')}, (data) => {
@@ -120,13 +124,15 @@ export default function InternalChat({userInfo}) {
             socket.on('incomingMessage', (data) => {
                 console.log({incomingMessage : data});
                 setViewChat((prevViewChat) => {
+
+                    setUnreadMessages((prevUnreadMessages) => {
+                        return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
+                    })
+
                     // Si prevViewChat es null, devuelve prevViewChat directamente
                     if (!prevViewChat) {
                         // Si no esta en pantallam actualizamos los contadores de no leido
                         console.log('llego per no esta en pantalla');
-                        setUnreadMessages((prevUnreadMessages) => {
-                            return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
-                        })
                         return prevViewChat
                     };
                     
@@ -188,6 +194,17 @@ export default function InternalChat({userInfo}) {
                     return {...prevViewChat};
                 })
             });
+
+            socket.on('reconnect',() => {
+                console.log('Reconectado al servidor de TeamChat');
+                // Enviamos el último estado
+                setMyActivitie((prevMyActivitie) => {
+                    console.log('úlimo estado', prevMyActivitie)
+                    setActivitie(prevMyActivitie);
+                    return prevMyActivitie;
+                })
+                
+            })
         }
     }, [socket]);
 
