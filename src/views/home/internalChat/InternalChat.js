@@ -246,7 +246,7 @@ const getActivitie = (isPrivate, members) => {
             attached
             icon="chat"
             header='TeamChat'
-            content='Comunicate con tu equipos de trabajo. Selecciona un contacto para continuar con la conversación.'
+            content='Comunicate con tu equipo de trabajo. Selecciona un contacto para continuar con la conversación.'
         /> </div>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    

@@ -80,7 +80,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             case 'document':
                 return (<a target='blank' href={content}><Icon name='folder open outline'></Icon></a>);
             case 'image':
-               return (<div className="internal-chat-message" ><a href={content} target='_blank'><Image style={{borderRadius: '8px'}} size='small' src={content}/></a></div>);
+               return (<div className="internal-chat-message" ><a href={content} target='_blank'><Image style={{borderRadius: '8px'}} size='medium' src={content}/></a></div>);
             case 'sticker':
                 return (<><a href={content} target='_blank'><Image src={content} style={{borderRadius: '8px'}} size='small' /></a></>);
             case 'video':
