@@ -24,3 +24,7 @@ yarn-error.log*
 
 .env
 /.env
+package-lock.json
+package-lock.json
+# ... other rules omitted for brevity ...
+/public/tinymce/

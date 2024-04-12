@@ -4,7 +4,7 @@ import SocketContext from './../../../controladores/SocketContext';
 //import CallContext from '../../controladores/CallContext';
 import CallContext from '../../../controladores/CallContext';
 
-
+//only twilio call control
 
 const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}) => {
     
@@ -25,12 +25,16 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
         });
     }
 
-    useEffect(() => {
-        if(onCall === 'connect' || onCall === 'disconnect'){
-            beep.pause();
-        }else if(onCall === 'calling'){
-            beep.play();
+    useEffect( () => {
+        async function getCall(){
+            if(onCall === 'connect' || onCall === 'disconnect'){
+                beep.pause();
+            }else if(onCall === 'calling'){
+                beep.play();
+            }
         }
+        getCall();
+
     },[onCall]);
 
 
@@ -80,7 +84,7 @@ const Call = ({currentFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall}
                         <Icon name='stop'/>
                         Colgar
                     </Button>
-                    <Button color='green' disabled={!(onCall === 'disconnect')} onClick={makeCall}>
+                    <Button color='blue' disabled={!(onCall === 'disconnect')} onClick={makeCall}>
                         <Icon name='phone'/>
                         Llamar
                     </Button>

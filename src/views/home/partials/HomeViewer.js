@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import { Tab, Grid, Message, Button, Icon, Image } from 'semantic-ui-react';
+import { Tab, Grid, Message, Button, Icon, Image, Popup } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
 import axios from 'axios';
 
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
+import { has } from 'lodash';
 
 const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio}) => {
   
@@ -36,7 +37,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
-  const getIconChannel = ({anchor, channel, alias}) => {
+  const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject,unread}) => {
     let ch;
     
     if(availableCh){ch = availableCh.find((x) => {
@@ -48,14 +49,116 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       });
     }
 
-    let aliasName = alias ? alias.substr(0,13) : anchor;
-    for(let i = aliasName.length ; i < 13; i++){
-      aliasName = aliasName+'_';
+    let aliasName = alias ? alias.substr(0,14) : anchor;
+    
+    /*
+    for(let i = aliasName.length ; i < 10; i++){
+      if (i == 14){
+        aliasName = aliasName+'---';}
+      else {
+        aliasName = aliasName+' ';}
+        
+    }  */
+    
+    //aliasName = aliasName.length <= 14 ? aliasName +'...' : aliasName
+    if (!subject) {subject = 'Sin Asunto'}
+    const hasNoSpaces = /^\S*$/.test(aliasName);
+    const hasNoSpaceSubject = /^\S*$/.test(subject);
+   
+    let displaySubject =  subject ? subject.substr(0,15) : subject;
+    let folioIcon = false
+    let ureadIcon = false
+
+    if (privateInbox && !fromPipeline ){
+      folioIcon =  <Icon style={{marginTop: 3}} color='red' name='inbox' /> 
     }
-    return <><Image src={ch.image} style={{height : 20, marginRight : 10}} /> {aliasName}</>
+    else if (fromPipeline){
+      folioIcon = <Icon style={{marginTop: 3}} color='red' name='filter' />
+    }/* else {
+        folioIcon = typeFolio == '_EMAIL_' ? <Icon style={{marginTop: 3}} color='blue' name='envelope open' /> : 
+        typeFolio == '_CALL_' ?  <Icon color='blue' name='call' /> 
+        : typeFolio == '_MESSAGES_' ? <Icon color='blue' name='folder open' /> : <Icon color='blue' name='folder outline' />
+    }*/
+    if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
+    if (hasNoSpaceSubject){ displaySubject = subject ? subject.substr(0,8) + '..' : subject.substr(0,8) + '..'; }
+
+      ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
+  
+
+    switch (typeFolio) {
+      case '_EMAIL_' :
+        //return <><Image src={ch?.image} style={{height : 20, marginRight : 10}} />{folioIcon} {aliasName} <br></br>{displaySubject}</>
+        return <>
+          <div class="contenedorTab">
+          <div class="a">
+            <div  id='elementoAliasName'  >
+                    <div >{aliasName}</div>
+            </div>
+          </div>
+          <div class="b">
+            <div>
+            <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+            </div>
+          </div>
+          <div class="c">
+            <div  id='elementoAliasName'  >
+                <div >{displaySubject}</div>
+            </div>
+          </div>
+          <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+          </div>
+        </div>
+
+        </>
+        
+        default:
+        //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
+        return <>
+
+          <div class="contenedorTab">
+            <div class="a">
+                {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
+                    <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Popup
+                      content={anchor}
+                      key={anchor}
+                      header={alias ? alias : anchor}
+                      trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+                    />
+
+                  </div>
+            </div>
+            <div class="b">
+              <div>
+
+              <Popup
+                content={anchor}
+                key={anchor}
+                header={alias}
+                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+              />
+              </div>
+            </div>
+            <div class="c">
+            <div  id='elementoAliasName'  >
+                        <div >{aliasName}</div>
+                    </div>
+            </div>
+            <div class="d">
+            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
+            </div>
+          </div>
+       </>
+    }
   } 
 
-  useEffect(() => {
+  useEffect(  () => {
     const renderPanesViews = async () => {
       
       if(!availableCh){
@@ -86,8 +189,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
 
       const tempPanes = listFolios.current.map((index) => {
         const item = index;
-        return {
-          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId}), icon : (unReadFolios[item.folio._id] ? 'circle' : false)}, 
+        return {  
+          menuItem :  { key: item.folio._id, content: getIconChannel({anchor : item.folio.person.anchor, channel : item.folio.channel, alias : item.folio.person.aliasId, privateInbox: item.folio.fromInbox,  fromPipeline: item.folio.fromPipeline, typeFolio: item.folio.typeFolio, profilePic: item.folio.person.profilePic ,subject: item.folio?.lastEmailProcessed?.subject, unread: unReadFolios[item.folio._id] })}, 
           tabular:true,
           render : () => {
             
@@ -96,6 +199,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
               <Grid style={{height:'calc(100vh - 138px)'}}>
                 <Grid.Column width={sizeCols.a} style={{height:'100%'}}>
                     <Comments
+                      userInfo={userInfo}
                       person={item.folio.person}
                       messages={item.folio.message}
                       folio={item.folio}
@@ -114,9 +218,9 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       countunReadMsg={countunReadMsg}
                       dispatchCount={dispatchCount}
                     />
-                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='teal' onClick={hideTools}/>
+                    <Button style={{float:'right', top:'45%', position:'absolute', right:'0%', marginRight:'-13px'}} size='mini' circular icon={toolsOpen ? 'chevron right' : 'chevron left'} color='blue' onClick={hideTools}/>
               </Grid.Column>
-              <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none'}}>
+              <Grid.Column width={sizeCols.b} style={{display: toolsOpen ? 'block' : 'none', height:'100%',}}>
                     <Tools setMessageToSend={setMessageToSend} messageToSend={messageToSend}
                       folio={item}
                       quicklyAnswer={item.QuicklyAnswer}
@@ -127,6 +231,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
                       setRefresh={setRefresh}
                       historyFolios={item.historyFolios}
                       userInfo={userInfo}
+                      mtm={item.mtm}
+                      service={item.folio.service}
                     />
               </Grid.Column>
              </Grid>
@@ -138,7 +244,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
       setPanesView(tempPanes);
       return true;
     }
-    return renderPanesViews();
+    renderPanesViews();
 
   }, [refresh, messageToSend, vFolio]);
 
@@ -146,20 +252,20 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     switch(isConnected){
       case -1:
         return (<div style={{margin : 40}}><Message
-          icon='user cancel'
+          icon='plug'
           header='Aun no estas conectado, selecciona una actividad para conectarte'
           negative
         /></div>)
       case 1:
         return (<div style={{margin : 40}}><Message
-          icon='flag checkered'
-          header='Sin mensajes nuevos'
+          icon='envelope open outline'
+          header='Listo para recibir nuevos mensajes o llamadas. Sin nueva actividad por ahora.'
           positive
         /></div>)
       case 2:
           return (<div style={{margin : 40}}><Message
             icon='clock outline'
-            header='Estas en linea sin embargo no recibirás mensajes'
+            header='Continuas conectado, pero no recibiras nuevos mensajes o llamadas.'
             warning
           /></div>)
     }
@@ -169,8 +275,8 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   return ( <>
     {
       !loadPage ? (listFolios.current.length > 0 ? (
-        <div style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
-          <Tab attached={true} className='removeMargin' menu={{ color: 'green',attached :true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
+        <div  style={{padding: 8, height: 'calc(100vh - 79px)', display: show ? 'block' : 'none'}}>
+          <Tab  attached={true} className='removeMargin' menu={{ color: 'white', attached :true, vertical: true, tabular : true}} panes={panesView} activeIndex={currentTab} onTabChange={(e, {activeIndex}) => {
             setVFolio(currentKeysFolios[activeIndex]);
             setMessageToSend('')
             window.localStorage.setItem('vFolio', currentKeysFolios[activeIndex])

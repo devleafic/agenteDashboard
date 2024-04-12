@@ -6,17 +6,12 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Dropzone  from 'react-dropzone';
 
 
-const UploadFile = ({folio, channel, setRefresh}) => {
+const InternalUploadFile = ({sendFile}) => {
 
-    const listFolios = useContext(ListFoliosContext);
-    const socket = useContext(SocketContext);
 
     
     const [onPushFile, setOnPushFile] = useState(false);
-    const fileInputRef = useRef();
-    const [toUpload, setToUpload] = useState(null);
-    const [onUpload, setOnUpload] = useState(false);
-    const [nameFile, setNameFile] = useState(null);
+    
     const [contentShow, setContentShow] = useState(null);
     const [nameFileSend, setNameFileSend ] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -24,47 +19,12 @@ const UploadFile = ({folio, channel, setRefresh}) => {
     const [urlFile, setUrlFile ] = useState(null);
     const [urlFileType, setUrlFileType ] = useState(null);
 
-    const fileChange = e => {
-        if(!e.target.files[0]){
-            return false;
-        }
-
-        setNameFile(e.target.files[0].name);
-        setToUpload(e.target.files[0])
-        fileUpload(e.target.files[0]);
-    };
-
-    const sendFileMessage = () => {
-        setOnPushFile(true);
-        let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
-        socket.connection.emit('sendMessage', {
-            token : window.localStorage.getItem('sdToken'),
-            folio : folio,
-            message : urlFixed,
-            caption : nameFile,
-            class : urlFileType
-        }, (result) => {
-            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio});
-            listFolios.current[index].folio.message.push(result.body.lastMessage);
-            setShowModal(false);
-            setRefresh(Math.random());
-            setOnUpload(false);
-            setToUpload(null);
-            setNameFile(null);
-            setContentShow(null);
-            setNameFileSend(null);
-            setUrlFile(null);
-            setUrlFileType(null);
-            setOnPushFile(false);
-        });
-    }
-    
 
     const fileUpload = file => {
-        setOnUpload(true);
+        
         setContentShow(null);
         setShowModal(true);
-        const url = process.env.REACT_APP_CENTRALITA+'/sendFile/'+channel+'/'+folio;
+        const url = process.env.REACT_APP_CENTRALITA+'/sendFile/interlchat/file';
         const formData = new FormData();
         formData.append("file", file);
         
@@ -76,7 +36,6 @@ const UploadFile = ({folio, channel, setRefresh}) => {
         setOnPushFile(true);
         return post(url, formData, config).then((data) => {
             
-            setToUpload(null);
             setOnPushFile(false);
             setNameFileSend(data.data.file.originalFilename)
             setUrlFile(data.data.url);
@@ -101,41 +60,23 @@ const UploadFile = ({folio, channel, setRefresh}) => {
         });
     };
     return (<>
-        <Dropzone maxFiles={2} onDrop={acceptedFiles => {
+        <Dropzone maxFiles={1} onDrop={acceptedFiles => {
             console.log(acceptedFiles);
-            setNameFile(acceptedFiles[0].name);
-            setToUpload(acceptedFiles[0])
+            
             fileUpload(acceptedFiles[0]);
         }} >
         {({getRootProps, getInputProps}) => (
             
-            <div {...getRootProps()} className='dnd'>
-                <input {...getInputProps()} />
-                <a class="camera icon">Arrastra un archivo o Clic</a>
+            <div {...getRootProps()} className='dndInternalChat' style={{ display: 'flex', justifyContent: 'center', alignItems: 'left' }}>
+            <input {...getInputProps()} />
+            <Icon name='attach' />
             </div>
             
         )}
         </Dropzone>
-        {/* <Button
-            content={nameFile ? nameFile : 'Archivo'}
-            labelPosition="left"
-            icon="file"
-            disabled={onUpload}
-            loading={onUpload}
-            onClick={() => fileInputRef.current.click()}
-        />
-        <input
-            ref={fileInputRef}
-            type="file"
-            hidden
-            onChange={fileChange}
-            multiple={false}
-        /> */}
 
         <Modal
         basic
-        //onClose={() => setOpen(false)}
-        //onOpen={() => setOpen(true)}
         open={showModal}
         size='small'
         >
@@ -152,10 +93,18 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 </Message>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setShowModal(false); setOnUpload(false); setNameFile('Archivo')}} loading={onPushFile} disabled={onPushFile}>
+                <Button basic color='red' inverted onClick={() => {setShowModal(false);}} loading={onPushFile} disabled={onPushFile}>
                 <Icon name='remove' /> No
                 </Button>
-                <Button color='blue' inverted onClick={sendFileMessage} loading={onPushFile} disabled={onPushFile}>
+                <Button color='blue' inverted onClick={() => {
+                    let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
+                    console.log(urlFixed, urlFileType);
+                    sendFile({
+                        url : urlFixed,
+                        typeFile : urlFileType
+                    });
+                    setShowModal(false);
+                }} loading={onPushFile} disabled={onPushFile}>
                 <Icon name='checkmark'  /> Enviar
                 </Button>
             </Modal.Actions>
@@ -164,4 +113,4 @@ const UploadFile = ({folio, channel, setRefresh}) => {
     </>);
 }
  
-export default UploadFile;
+export default InternalUploadFile;

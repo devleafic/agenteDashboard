@@ -29,8 +29,8 @@ const ViewTicket = ({ticket, setOpenViewTicket}) => {
     }
 
 
-    useEffect(() => {
-        function getTicket (){
+    useEffect(  () => {
+        async function getTicket (){
             setOnLoadingData(true);
             socket.connection.emit('getTicket', {ticket : ticket, token : window.localStorage.getItem('sdToken')}, (result) => {
                 if(!result.success){
@@ -52,7 +52,7 @@ const ViewTicket = ({ticket, setOpenViewTicket}) => {
         if(diffTime <= 0){
             return <Label as='a' color='red' tag>Fuera de tiempo</Label>;
         }else if(diffTime > 0){
-            return <Label as='a' color='green' tag>En tiempo</Label>;
+            return <Label as='a' color='blue' tag>En tiempo</Label>;
         }
     }
 

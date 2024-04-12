@@ -1,5 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input } from 'semantic-ui-react';
+import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input, Message } from 'semantic-ui-react';
+import _ from 'lodash';
 
 // Contextos
 import SocketContext from './../../../controladores/SocketContext';
@@ -12,9 +13,19 @@ import ViewTicket from './ViewTicket';
 import FindTicket from './FindTicket';
 import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
+import TransferFolioPrivado from './TranferirFolioPrivado';
+import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
+import TransferFolioQueueGeneric from './TransferFolioQueueGeneric';
+import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal'
+import Mtm from './Mtm'
 
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo}) => {
+// Plugins
+import Zohocrm from './plugins/zohocrm/Zohocrm';
+import MailingTemplate from './plugins/mailingTemplate/MailingTemplate';
 
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service:infoService, setInsertHtml}) => {
+    // console.log(folio);
+    const historyFoliosReverse = historyFolios//.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
@@ -32,6 +43,10 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
     const [openFindTicket, setOpenFindTicket] = useState(false);
 
     const [allQA, setAllQA] = useState([]);
+
+    const pluginsToTools = folio.folio.service.plugins.filter((x) => {
+        return ['zohocrm', 'mailingTemplate'].includes(x.plugin) && x.isActive ? true : false;
+    });
 
     const initializeTicket = {
         area : null,
@@ -127,9 +142,24 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
 
     }
 
-    useEffect(() => {
+    const sendFile = (e) => {
+        console.log(e)
+        socket.connection.emit('sendMessage', {
+            token : window.localStorage.getItem('sdToken'),
+            folio : folio.folio._id,
+            message : e.url,
+            caption : e.name,
+            class : e.mimeType === 'application/pdf' ? 'document' : 'image'
+        }, (result) => {
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio.folio._id});
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setRefresh(Math.random());
+        });
+    }
+
+    useEffect(  () => {
         
-        const loadListClassifications = () => {
+        const loadListClassifications = async () => {
             const tmpClass = [];
             for(let item of folio.clasifications){
                 tmpClass.push({
@@ -141,46 +171,101 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
             setListClassification(tmpClass);
             setAllQA(quicklyAnswer)
         }
-        return loadListClassifications();
+        //return 
+        loadListClassifications();
     }, []);
+
+    const loadPlugins = (x) => {
+        switch(x.plugin){
+            case 'zohocrm':
+                return (<div key={`accordion-${x.plugin}`}>
+                    <Accordion.Title index={'zohocrm'} active={indexPane === 'zohocrm'} onClick={openPane}>
+                        <Icon name='address card outline' />
+                        Zoho CRM (Preview)
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 'zohocrm'}>
+                        {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
+                    </Accordion.Content>
+                </div>)
+            case 'mailingTemplate':
+                
+                const hasEnabledPlugin = folio.folio.service.plugins.find((p) => {return p.plugin === 'mailingTemplate'});
+                if(!hasEnabledPlugin){
+                    return null;
+                }
+                return (<div key={`accordion-${x.plugin}`}>
+                    <Accordion.Title index={'mailingTemplate'} active={indexPane === 'mailingTemplate'} onClick={openPane}>
+                        <Icon name='mail outline' />
+                        Plantillas de Correo
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 'mailingTemplate'}>
+                        {folio && <MailingTemplate template={crm} person={person} folio={_.cloneDeep(folio)} setRefresh={setRefresh} setMessageToSend={setMessageToSend} onClick={(htmlMail)=>{
+                            // htmlMail 
+                            console.log('click', htmlMail)
+                            setMessageToSend(htmlMail);
+                            //setInsertHtml(htmlMail)
+                        }}/>}
+                    </Accordion.Content>
+                </div>)
+                
+            default :
+                return <div>Plugin no soportado</div>
+        }
+    }
+
+    const getIcon = (type) => {
+        switch (type) {
+            case 'image/png':
+                return 'image outline'
+            case 'image/jpeg':
+                return 'image outline'
+            case 'application/pdf':
+                return 'file pdf'
+            default:
+                return 'file pdf'
+        }
+    }
     
-    return ( <>
+    return ( <div style={{maxHeight:'100%', overflowY:'auto', border : '1px solid rgba(34,36,38,.15)'}}>
         <Accordion fluid styled>
             <Accordion.Title index={1} active={indexPane === 1} onClick={openPane}>
                 <Icon name='address book outline' />
                 CRM
             </Accordion.Title>
             <Accordion.Content active={indexPane === 1}>
-                
                 {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh}/>}
-                
             </Accordion.Content>
+            {/* ----- plugins ----- */}
+            {
+                
+                pluginsToTools.map((x) => {
+                    // console.log('cargando plugins')
+                    return loadPlugins(x);
+                    
+                })
+            }
+            {/* ------------ */}             
+            <Accordion.Title index={10} active={indexPane === 10} onClick={openPane}>
+                <Icon name='paper plane' />
+                Plantillas de mensajes
+            </Accordion.Title>
+            <Accordion.Content active={indexPane === 10}>
+                < Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio}/>
+            </Accordion.Content>      
+           
             {/* ------------ */}
             <Accordion.Title index={5} active={indexPane === 5} onClick={openPane}>
-                <Icon name='box' />
+                <Icon name='archive' />
                 Historial de Folios
             </Accordion.Title>
             <Accordion.Content active={indexPane === 5}>
-                < HistoryFolios historyFolios={historyFolios}/>
+                < HistoryFolios historyFolios={historyFoliosReverse}/>
             </Accordion.Content>
-            {/* ------------ */}
-            {
-                folio && (<>
-                    <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
-                        <Icon name='exchange' />
-                        Transferir Folio
-                    </Accordion.Title>
-                    <Accordion.Content active={indexPane === 6}>
-                        <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
-                    </Accordion.Content>
-                </>)
-            }
-            
             {/* ------------ */}
             {
                 folio && folio.folio.channel !== 'call' && (<>
                     <Accordion.Title index={2} active={indexPane === 2} onClick={openPane}>
-                        <Icon name='folder open outline' />
+                        <Icon name='edit' />
                         Respuestas Rápidas
                     </Accordion.Title>
                     <Accordion.Content active={indexPane === 2}>
@@ -199,8 +284,75 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </Accordion.Content>
                 </>)
             }
-            
+            {/* ------------ transferencia Folio */}
+            {
+                folio  && !folio.folio.fromInbox  && !folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={6} active={indexPane === 6} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir Folio
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 6}>
+                        <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
             {/* ------------ */}
+            {/* ------------ transferencia folio privado */}
+            {
+                folio  && folio.folio.fromInbox && folio.folio.channel  !== 'call' &&  (<>
+                    <Accordion.Title index={7} active={indexPane === 7} onClick={openPane}>
+                        <Icon name='comment outline' />
+                        Transferir Conversación Privada 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 7}>
+                        <TransferFolioPrivado folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}  
+            {/* ------------ transferencia folio en queue global */}
+            {
+                folio  && folio.folio.isGlobalQueue &&  !folio.folio.isGlobalDistributor && !folio.folio.fromInbox && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={8} active={indexPane === 8} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja Global
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 8}>
+                        <TransferFolioQueueGlobal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+
+            {/* ------------ transferencia Folio */}
+            {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={9} active={indexPane === 9} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja de Canal 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 9}>
+                        <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+
+            {/* ------------ transferencia Folio generic*/}
+            {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={11} active={indexPane === 11} onClick={openPane}>
+                        <Icon name='exchange' />
+                        Transferir a Bandeja Genérica 
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 11}>
+                        <TransferFolioQueueGeneric folio={folio} setRefresh={setRefresh} userInfo={userInfo}/>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+       
+            {/* ------------ */}                
+
             <Accordion.Title index={3} active={indexPane === 3} onClick={openPane}>
                 <Icon name='ticket' />
                 Tickets
@@ -216,26 +368,80 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                     </List>
                 </div>
                 <p>
-                    <Button color='teal' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
+                    <Button color='blue' onClick={() => setOpenModalTicket(true)}>Generar Ticket.</Button>
                     <Button color='yellow' icon='search' onClick={() => {setOpenFindTicket(true)}}/>
                 </p>
             </Accordion.Content>
             {/* ------------ */}
+            {folio.folio.typeFolio === '_MESSAGES_' && <>
             <Accordion.Title index={4} active={indexPane === 4} onClick={openPane}>
                 <Icon name='cloud' />
-                Archivos en la nube
+               Catálogo de archivos
             </Accordion.Title>
-            <Accordion.Content active={indexPane === 4}>
-                <p>
-                    Aun no hay archivos.
-                </p>
-            </Accordion.Content>
+             <Accordion.Content active={indexPane === 4}>
+             <div style={{height:250, overflowY:'scroll'}}>
+                {
+                    infoService.repoFiles && infoService.repoFiles.length > 0 && infoService.repoFiles.map((item) => {
+                        return <div>
+                            <Button
+                                icon='eye'
+                                size='mini'
+                                style={{marginRight:5}}
+                                target='_blank'
+                                href={item.url}
+                            ></Button>
+                            <Button key={item._id}
+                                size='mini'
+                                color='blue'
+                                onClick={() => {
+                                    if(window.confirm('¿Deseas enviar el archivo "'+item.name+'"?')){
+                                        sendFile(item)
+                                    }
+                                }}
+                            >
+                                <Icon name={getIcon(item.mimeType)} />
+                                {item.name}
+                            </Button>
+                        <Divider/></div>
+                    })
+                }
+                </div>
+            </Accordion.Content></>}
 
-        </Accordion>
+                        {/* ------------ salesforce*/}
+                        {
+                folio  && !folio.folio.fromInbox  && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' &&  (<>
+                    <Accordion.Title index={12} active={indexPane === 12} onClick={openPane}>
+                        <Icon name='skyatlas' />
+                        SalesForce CRM
+                    </Accordion.Title>
+                    <Accordion.Content active={indexPane === 12}>
+                    <   Form error>
+                            <Form.Input label='ID' placeholder='' />
+                            <Form.Input label='Nombre' placeholder='' />
+                            <Form.Input label='Apellido' placeholder='' />
+                            <Form.Input label='Email' placeholder='' />
+                            <Form.Input label='NIT' placeholder='' />
+                            <Form.Input label='Canal' placeholder='' />
+                            <Form.Input label='Origne' placeholder='' />
+                            {/*<Message
+                            error
+                            header='Conacto de SF'
+                            content=''
+                            />*/}
+                            <Button>Submit</Button>
+                        </Form>
+                    </Accordion.Content>
+                </>)
+            }
+            {/* ------------ */}
+
+            </Accordion>
+            
 
         <div>
             {/* <Button key={'btnsave-'+folio} fluid color='orange' basic style={{marginBottom:15, marginTop: 15}} onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' />Guardar Folio</Button>
-            <Button key={'btnend-'+folio} fluid color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
+            <Button key={'btnend-'+folio} fluid color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  />Finalizar Folio</Button> */}
         </div> 
 
                 {
@@ -311,7 +517,7 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
         {
             openFindTicket && <FindTicket setTicketSelected={setTicketSelected} setOpenViewTicket={setOpenViewTicket} setOpenFindTicket={setOpenFindTicket}/>
         }
-    </> );
+    </div> );
 }
  
 export default Tools;

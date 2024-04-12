@@ -12,15 +12,18 @@ const ResponseTicket = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [isLoading, setIsloading] = useState(false);
 
-    useEffect(async () => {
-        let {data} = await axios.get(process.env.REACT_APP_CENTRALITA+'/ticket/'+idTicket);
-        if(data.body.success){
-            setInfoTicket(data.body.ticket);
-            setOnLoding(false);
-        }else{
-            alert(data.body.message);
+    useEffect( () => {
+        const getTicket = async () => {
+            let {data} = await axios.get(process.env.REACT_APP_CENTRALITA+'/ticket/'+idTicket);
+            if(data.body.success){
+                setInfoTicket(data.body.ticket);
+                setOnLoding(false);
+            }else{
+                alert(data.body.message);
+            }
+            console.log(data);
         }
-        console.log(data);
+        getTicket();
     },[]);
 
     const sendMessage = async () => {
@@ -44,7 +47,7 @@ const ResponseTicket = () => {
         if(diffTime <= 0){
             return <Label as='a' color='red' tag>Fuera de tiempo</Label>;
         }else if(diffTime > 0){
-            return <Label as='a' color='green' tag>En tiempo</Label>;
+            return <Label as='a' color='blue' tag>En tiempo</Label>;
         }
     }
 
@@ -92,7 +95,7 @@ const ResponseTicket = () => {
                                     return (
                                         <Comment key={item._id}>
                                             <Comment.Content>
-                                                <Label as='a' color={item.from === 'agent' ? 'teal' : 'orange'}>{item.from === 'agent' ? item.agent.profile.name : item.producer}</Label>
+                                                <Label as='a' color={item.from === 'agent' ? 'blue' : 'orange'}>{item.from === 'agent' ? item.agent.profile.name : item.producer}</Label>
                                                 <Comment.Metadata>
                                                     <div style={{fontSize:12}}>{moment(item.createdAt).fromNow()}</div>
                                                 </Comment.Metadata>
