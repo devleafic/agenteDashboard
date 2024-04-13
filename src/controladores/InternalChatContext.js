@@ -30,13 +30,20 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect', () => {
         if (newSocket.connected) {
-        toast.success('Conectado al servidor de TeamChat con éxito');  
-        console.log('Conectado al servidor de Socket.IO');
-        setSocket(newSocket);
-        getInboxChat(newSocket);
+          toast.success('Conectado al servidor de TeamChat con éxito');  
+          console.log('Conectado al servidor de Socket.IO');
+
+          let lastActivitie = window.sessionStorage.getItem('lastActivitie');
+          if(lastActivitie){
+            console.log('Enviando actividad al servidor', lastActivitie);
+            newSocket.emit('setActivitie', {activitie : lastActivitie, token: window.localStorage.getItem('sdToken')}, (data) => {});
+          }
+
+          setSocket(newSocket);
+          getInboxChat(newSocket);
         }else {
-        console.log('No se pudo conectar al servidor de TeamChat');
-        toast.error('No se pudo conectar al servidor de TeamChat');
+          console.log('No se pudo conectar al servidor de TeamChat');
+          toast.error('No se pudo conectar al servidor de TeamChat');
         }
     });
 
@@ -63,13 +70,13 @@ export const SocketProvider = ({ children }) => {
               myContacts.push(x.user._id);
             });
           })
-          console.log('Consultando actividad de mi inbox', {myContacts});
+          // console.log('Consultando actividad de mi inbox', {myContacts});
           
           // Vamos al server por las actividades
           newSocket.emit('getActivitiesInbox', {
             contacts : myContacts
           },(data) => {
-            console.log('contactos actividades',data);
+            // console.log('contactos actividades',data);
             setActivitiesUsers(data);
           });
 

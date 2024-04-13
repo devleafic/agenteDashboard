@@ -117,12 +117,12 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }
         </div>
         <Dropdown style={{padding : 2, marginRight: 5}} text='💬' onChange={sendReaction} options={[
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-2', text : '😳', value : '😳'},
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-3', text : '👍', value : '👍'},
-            {key : msg._id+Math.floor(Math.random() * 101)+'-emoji-4', text : '👎', value : '👎'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-3', text : '😳', value : '😳'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-4', text : '👍', value : '👍'},
+            {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-5', text : '👎', value : '👎'},
         ]} name='reaction'/>
     </div>
     </>)
