@@ -91,7 +91,7 @@ export const SocketProvider = ({ children }) => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{socket : socket, inboxList : inboxList, unreadMessages : unreadMessages, setUnreadMessages:setUnreadMessages, activitiesUsers}}>
+    <SocketContext.Provider value={{socket : socket, inboxList : inboxList,setInboxList:setInboxList, unreadMessages : unreadMessages, setUnreadMessages:setUnreadMessages, activitiesUsers}}>
       {children}
     </SocketContext.Provider>
   );

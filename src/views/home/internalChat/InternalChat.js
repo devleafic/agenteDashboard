@@ -17,7 +17,7 @@ import InternalUploadFile from './InternalUploadFile';
 
 export default function InternalChat({userInfo}) {
 
-    const {socket, inboxList, unreadMessages, setUnreadMessages, activitiesUsers} = useSocket();
+    const {socket, inboxList, unreadMessages, setUnreadMessages, activitiesUsers, setInboxList} = useSocket();
     const [findUser, setFindUser] = useState('');
     const [contactList, setContactList] = useState([]);
     const [viewChat, setViewChat] = useState(null);
@@ -81,7 +81,9 @@ export default function InternalChat({userInfo}) {
             setContactList([]);
             return false;
         }
-        socket.emit('getContactList', {contact, service : userInfo.service.id}, (data) => {
+        socket.emit('getContactList', {contact, service : userInfo.service.id, 
+            token: window.localStorage.getItem('sdToken')
+        }, (data) => {
             console.log({data});
             setContactList(data.body.list);
         });
@@ -125,9 +127,11 @@ export default function InternalChat({userInfo}) {
                 console.log({incomingMessage : data});
                 setViewChat((prevViewChat) => {
 
-                    setUnreadMessages((prevUnreadMessages) => {
-                        return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
-                    })
+                    if(data.body.message.createdBy !== userInfo._id){
+                        setUnreadMessages((prevUnreadMessages) => {
+                            return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
+                        });
+                    }
 
                     // Si prevViewChat es null, devuelve prevViewChat directamente
                     if (!prevViewChat) {
@@ -141,7 +145,8 @@ export default function InternalChat({userInfo}) {
                         // Actualiza el estado con el nuevo mensaje agregado
                         console.log('bajando chat');
                         setTimeout(() => {
-                            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                            if(!messageContainerRef.current){return false;}
+                            messageContainerRef.current.scrollTop = messageContainerRef.current ? messageContainerRef.current.scrollHeight : 0;
                         }, 10);
                         return {...prevViewChat, messages: [...prevViewChat.messages, data.body.message]};
                     }
@@ -162,22 +167,28 @@ export default function InternalChat({userInfo}) {
 
                     // Actualizamos el contador de no leídos
                     // Validamos si el chat existe
-                    const isExists = inboxList.find((x) => {
-                        return x._id === data.body.chatId;
-                    });
-
-                    if(isExists){
-                        // Validamos si el reader es el mismo usuario de la sesión
-                        const isReaderForMe = data.body.message.readers.find((x) => {
-                            return x.user === userInfo._id;
+                    setInboxList((prevInboxList) => {
+                        const isExists = prevInboxList.find((x) => {
+                            return x._id === data.body.chatId;
                         });
 
-                        if(isReaderForMe){
-                            setUnreadMessages((prevUnreadMessages) => {
-                                return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages[data.body.chatId] === 0 ? 0 : prevUnreadMessages[data.body.chatId] - 1};
+                        if(isExists){
+                            // Validamos si el reader es el mismo usuario de la sesión
+                            const isReaderForMe = data.body.message.readers.find((x) => {
+                                return x.user === userInfo._id;
                             });
+    
+                            if(isReaderForMe){
+                                setUnreadMessages((prevUnreadMessages) => {
+                                    if(!prevUnreadMessages){
+                                        return {};
+                                    }
+                                    return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] === 0 ? 0 : prevUnreadMessages[data.body.chatId] - 1};
+                                });
+                            }
                         }
-                    }
+                        return prevInboxList;
+                    })
 
                     return {...prevViewChat};
                 })
