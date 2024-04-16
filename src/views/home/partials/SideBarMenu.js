@@ -1,10 +1,44 @@
+import {useEffect, useState} from 'react'
 import { Button, Popup, Image, Icon } from 'semantic-ui-react';
 
 /* Recursos */
 import avatar from './../../../img/ico.png';
-import { Link } from "react-router-dom";
+import { useSocket } from '../../../controladores/InternalChatContext';
+import { toast } from 'react-toastify';
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
+
+
+    const {unreadMessages} = useSocket();
+    const [hasUnread, setHasUnread] = useState(0);
+
+    useEffect(() => {
+        // console.log('nuevo un read',unreadMessages);
+        // Contamos cuantos mensajes no leidos hay
+
+        let count = 0;
+        for (const key in unreadMessages) {
+            if (unreadMessages.hasOwnProperty(key)) {
+                count += unreadMessages[key];
+            }
+        }
+        console.log({count});
+        if(count > 0){
+            toast.info('Nuevo mensaje en TeamChat', {
+                position: "top-center",
+                autoClose: 1000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                });
+        }
+        setHasUnread(count);
+
+    },[unreadMessages])
+
 
     const closeSession = () => {
         window.localStorage.removeItem('sdToken');
@@ -39,7 +73,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
             case 'InternalChat':
-                return <Button disabled={isConnected === -1 ? true : false} icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : null}/>
+                return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
         }
     }
 
