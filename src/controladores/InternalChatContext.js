@@ -30,7 +30,16 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect', () => {
         if (newSocket.connected) {
-          toast.success('Conectado al servidor de TeamChat con éxito');  
+          toast.success('Conectado a TeamChat', {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            });
           console.log('Conectado al servidor de Socket.IO');
 
           let lastActivitie = window.sessionStorage.getItem('lastActivitie');

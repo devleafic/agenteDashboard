@@ -599,11 +599,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         if(typeFolio != '_CALL_'){
             boxMessage.current.addEventListener(
                 'scroll',() => {
-                    let fullHeight = boxMessage.current.scrollHeight;
-                    let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
-                    if(pcPosition>=90){
-                        setShowBtnUn(false);
-  
+                    if (boxMessage && boxMessage.current) {
+                        let fullHeight = boxMessage.current.scrollHeight;
+                        let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
+                        if(pcPosition>=90){
+                            setShowBtnUn(false);
+    
+                        }
                     }
                                           
                 })

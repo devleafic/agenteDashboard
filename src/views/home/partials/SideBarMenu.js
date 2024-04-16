@@ -24,7 +24,16 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         }
         console.log({count});
         if(count > 0){
-            toast.info('Llego un nuevo mensaje');
+            toast.info('Nuevo mensaje en TeamChat', {
+                position: "top-center",
+                autoClose: 1000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                });
         }
         setHasUnread(count);
 
@@ -64,7 +73,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
             case 'InternalChat':
-                return <Button basic disabled={isConnected === -1 ? true : false} icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
+                return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
         }
     }
 
