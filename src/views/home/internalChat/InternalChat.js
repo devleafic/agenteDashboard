@@ -24,7 +24,7 @@ export default function InternalChat({userInfo}) {
     const [message, setMessage] = useState('');
     const messageContainerRef = useRef(null);
     const [loading, setLoading] = useState(false);
-
+    let [avatarUser , setAvatarUser] = useState('https://react.semantic-ui.com/images/avatar/small/molly.png')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
     const listActivites = [
@@ -321,8 +321,18 @@ const getActivitie = (isPrivate, members) => {
                         <div className="internal-chat-item" key={user._id} onClick={() => {
                             createChat(user);
                         }}>
-                            {user.profile.name}
-                        </div>
+                            <img src={user.profile.picture && user.profile.picture.length > 0  ? user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+                                    height: '30px',
+                                    borderRadius: '50%',
+                                    marginRight: '10px' }}/>
+                            <span style={{ 
+                                    color: '#444', 
+                                    fontSize: '18px', 
+                                    fontWeight: 'bold',
+                                }}>
+                                {user.user} - {user.profile.name}
+                            </span>
+                         </div>
                     ))}
                 </div>}
             </div>
@@ -343,7 +353,7 @@ const getActivitie = (isPrivate, members) => {
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <img
-                                src='https://cdn1.iconfinder.com/data/icons/user-avatar-20/64/18-man-256.png'
+                                src={avatarUser} 
                                 style={{
                                     width: '30px',
                                     height: '30px',
