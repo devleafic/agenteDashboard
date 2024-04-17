@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
 
 
-    const {unreadMessages} = useSocket();
+    const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
 
     useEffect(() => {
@@ -17,9 +17,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         // Contamos cuantos mensajes no leidos hay
 
         let count = 0;
-        for (const key in unreadMessages) {
-            if (unreadMessages.hasOwnProperty(key)) {
-                count += unreadMessages[key];
+        for (const key in unReadMessagesIC) {
+            if (unReadMessagesIC.hasOwnProperty(key)) {
+                count += unReadMessagesIC[key];
             }
         }
         console.log({count});
@@ -28,7 +28,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         }
         setHasUnread(count);
 
-    },[unreadMessages])
+    },[unReadMessagesIC])
 
 
     const closeSession = () => {

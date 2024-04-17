@@ -220,6 +220,7 @@ const Home = () => {
                     }
 
                     setUserInfo(data.user);
+                    await window.localStorage.setItem('userId', data.user._id);
                     setIsReady(true);
                     window.localStorage.setItem('autoAccept', false);
 

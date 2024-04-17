@@ -30,6 +30,7 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('connect', () => {
         if (newSocket.connected) {
+
           toast.success('Conectado al servidor de TeamChat con éxito');  
           console.log('Conectado al servidor de Socket.IO');
 
@@ -83,6 +84,17 @@ export const SocketProvider = ({ children }) => {
           return prevInboxList;
         });
     }, 5000);
+
+    // Re-validación de nuvo mensaje
+    newSocket.on('incomingMessage', async (data) => {
+      console.log('context', data);
+      const dataUserStorage = await window.localStorage.getItem('userId');
+      if(data.body.message.createdBy !== dataUserStorage){
+        setUnreadMessages((prevUnreadMessages) => {
+            return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
+        });
+      }
+    });
     
     return () => {
       clearInterval(timerActivities);
