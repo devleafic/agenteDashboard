@@ -18,6 +18,7 @@ import Inbox from './partials/Inbox';
 import Follow from './partials/Follow';
 import Contacts from './partials/Contacts';
 import Calendar from './partials/Calendar';
+import InternalChat from './internalChat/InternalChat';
 
 window.mobileAndTabletCheck = function() {
     let check = false;
@@ -33,7 +34,8 @@ const Home = () => {
         Inbox : false,
         follow : false,
         contacts :  false,
-        calendar :  false
+        calendar :  false,
+        InternalChat : false
     };
 
     function reducer(state, action) {
@@ -205,7 +207,17 @@ const Home = () => {
             },async (data) => {
                 if(data.success){
 
-                    toast.success('Se ha conectado al servidor correctamente');
+                    
+                    toast.success('Se ha conectado al servidor correctamente', {
+                        position: "top-right",
+                        autoClose: 1000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        });
 
                     // let pulgins = window.localStorage.getItem('plugins')
                     // let chCall = pulgins.find((x) => {
@@ -218,6 +230,7 @@ const Home = () => {
                     }
 
                     setUserInfo(data.user);
+                    await window.localStorage.setItem('userId', data.user._id);
                     setIsReady(true);
                     window.localStorage.setItem('autoAccept', false);
 
@@ -521,7 +534,10 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
             } 
             {
                 component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
-            }                        
+            }
+            {
+                component.InternalChat && <InternalChat  show={component.InternalChat} selectedComponent={selectedComponent} userInfo={userInfo}/>
+            }        
         </div>
         
 

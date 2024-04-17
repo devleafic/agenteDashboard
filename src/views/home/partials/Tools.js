@@ -23,9 +23,9 @@ import Mtm from './Mtm'
 import Zohocrm from './plugins/zohocrm/Zohocrm';
 import MailingTemplate from './plugins/mailingTemplate/MailingTemplate';
 
-const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service:infoService}) => {
+const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service:infoService, setInsertHtml}) => {
     // console.log(folio);
-    const historyFoliosReverse = historyFolios.reverse(); //ordered most recent at top
+    const historyFoliosReverse = historyFolios//.reverse(); //ordered most recent at top
     const [indexPane, setIndexPane] = useState(-1);
     const socket = useContext(SocketContext);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
@@ -202,6 +202,8 @@ const Tools = ({quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, s
                         {folio && <MailingTemplate template={crm} person={person} folio={_.cloneDeep(folio)} setRefresh={setRefresh} setMessageToSend={setMessageToSend} onClick={(htmlMail)=>{
                             // htmlMail 
                             console.log('click', htmlMail)
+                            setMessageToSend(htmlMail);
+                            //setInsertHtml(htmlMail)
                         }}/>}
                     </Accordion.Content>
                 </div>)

@@ -1,10 +1,44 @@
+import {useEffect, useState} from 'react'
 import { Button, Popup, Image, Icon } from 'semantic-ui-react';
 
 /* Recursos */
 import avatar from './../../../img/ico.png';
-import { Link } from "react-router-dom";
+import { useSocket } from '../../../controladores/InternalChatContext';
+import { toast } from 'react-toastify';
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
+
+
+    const {unreadMessages : unReadMessagesIC} = useSocket();
+    const [hasUnread, setHasUnread] = useState(0);
+
+    useEffect(() => {
+        // console.log('nuevo un read',unreadMessages);
+        // Contamos cuantos mensajes no leidos hay
+
+        let count = 0;
+        for (const key in unReadMessagesIC) {
+            if (unReadMessagesIC.hasOwnProperty(key)) {
+                count += unReadMessagesIC[key];
+            }
+        }
+        console.log({count});
+        if(count > 0){
+            toast.info('Nuevo mensaje en TeamChat', {
+                position: "top-center",
+                autoClose: 1000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                });
+        }
+        setHasUnread(count);
+
+    },[unReadMessagesIC])
+
 
     const closeSession = () => {
         window.localStorage.removeItem('sdToken');
@@ -38,6 +72,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
+            case 'InternalChat':
+                return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
         }
     }
 
@@ -67,6 +103,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 </div>
                 <div className='mb-3'>
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
+                </div>
+                <div className='mb-3'>
+                    <Popup content='TeamChat (Beta 0.1) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
                 </div>
                 {/*<div className='mb-3'>
                     <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>
