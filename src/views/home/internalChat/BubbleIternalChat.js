@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
 import {Dropdown, Icon, Image, Label} from 'semantic-ui-react';
 import { useSocket } from '../../../controladores/InternalChatContext';
+import moment from 'moment';
+moment.locale('es');
 
 export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}) {
 
@@ -104,7 +106,6 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 return (<>[La clase {type} no esta soportada] - {content}</>);
         }
     }
-
   return (<>
     <div key={msg._id} className={userInfo._id !== msg.createdBy ? 'internal-chat-received' : 
         'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
@@ -116,7 +117,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
             }
         </div>
-        <Dropdown style={{padding : 2, marginRight: 5}} text='💬' onChange={sendReaction} options={[
+        <Dropdown  style={{padding : 2, marginRight: 5}} text={moment(msg.createdAt).format('lll')+' 💬'} onChange={sendReaction} options={[
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},

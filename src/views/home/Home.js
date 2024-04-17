@@ -207,7 +207,17 @@ const Home = () => {
             },async (data) => {
                 if(data.success){
 
-                    toast.success('Se ha conectado al servidor correctamente');
+                    
+                    toast.success('Se ha conectado al servidor correctamente', {
+                        position: "top-right",
+                        autoClose: 1000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        });
 
                     // let pulgins = window.localStorage.getItem('plugins')
                     // let chCall = pulgins.find((x) => {
