@@ -95,7 +95,6 @@ export const SocketProvider = ({ children }) => {
 
     // Re-validación de nuvo mensaje
     newSocket.on('incomingMessage', async (data) => {
-      console.log('context', data);
       const dataUserStorage = await window.localStorage.getItem('userId');
       if(data.body.message.createdBy !== dataUserStorage){
         setUnreadMessages((prevUnreadMessages) => {
