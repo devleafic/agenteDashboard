@@ -92,6 +92,16 @@ export const SocketProvider = ({ children }) => {
           return prevInboxList;
         });
     }, 5000);
+
+    // Re-validación de nuvo mensaje
+    newSocket.on('incomingMessage', async (data) => {
+      const dataUserStorage = await window.localStorage.getItem('userId');
+      if(data.body.message.createdBy !== dataUserStorage){
+        setUnreadMessages((prevUnreadMessages) => {
+            return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
+        });
+      }
+    });
     
     return () => {
       clearInterval(timerActivities);

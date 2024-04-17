@@ -124,14 +124,14 @@ export default function InternalChat({userInfo}) {
             setActivitie(defaultActivitie)
             
             socket.on('incomingMessage', (data) => {
-                console.log({incomingMessage : data});
+                // console.log({incomingMessage : data});
                 setViewChat((prevViewChat) => {
 
-                    if(data.body.message.createdBy !== userInfo._id){
-                        setUnreadMessages((prevUnreadMessages) => {
-                            return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
-                        });
-                    }
+                    // if(data.body.message.createdBy !== userInfo._id){
+                    //     setUnreadMessages((prevUnreadMessages) => {
+                    //         return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
+                    //     });
+                    // }
 
                     // Si prevViewChat es null, devuelve prevViewChat directamente
                     if (!prevViewChat) {
