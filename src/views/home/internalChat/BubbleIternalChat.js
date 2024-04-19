@@ -79,7 +79,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             case 'text':
                 return <div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(content) }}></div>;
             case 'document':
-                return (<a target='blank' href={content}><Icon name='folder open outline'></Icon></a>);
+                return (<a target='blank' href={content}>Documento - <Icon name='folder open outline'></Icon></a>);
             case 'image':
                return (<div className="internal-chat-message" ><a href={content} target='_blank'><Image style={{borderRadius: '8px'}} size='medium' src={content}/></a></div>);
             case 'sticker':
