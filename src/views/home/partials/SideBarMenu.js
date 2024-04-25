@@ -105,7 +105,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
                 </div>
                 <div className='mb-3'>
-                    <Popup content='TeamChat (Beta 0.2) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
+                    <Popup content='TeamChat (Beta 0.3) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
                 </div>
                 {/*<div className='mb-3'>
                     <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>

@@ -247,10 +247,21 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     }
 
     useEffect( () => {
-        if (automaticActivity && isInbound ){changeActivity()}
+        if (!userInfo.onlyteamchat && automaticActivity && isInbound ){changeActivity()}
     }, [automaticActivity]);
 
     const changeActivity = async (e) => {    
+
+        if (userInfo.onlyteamchat) {
+            toast.warning('No puedes cambiar de actividad, solo tienes acceso a TeamChat',{
+                position: "top-right",
+                autoClose: 5000,
+                closeOnClick: true,
+                pauseOnHover: false,
+            });
+            return false;
+        }
+
         let value = e ?  e.target.value : automaticActivity._id
         let activityObj = fullActivities.find((x) => {
             return x._id === value;
