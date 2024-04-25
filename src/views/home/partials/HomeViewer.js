@@ -251,15 +251,20 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
   const getMessageEmpty = () => {
     switch(isConnected){
       case -1:
-        return (<div style={{margin : 40}}><Message
+        return userInfo.onlyteamchat ?
+        (<div style={{margin : 40}}><Message
+          icon='coffee'
+          header='Solo tienes accesso a TeamChat. '
+          warning
+        /></div>) : (<div style={{margin : 40}}><Message
           icon='plug'
-          header='Aun no estas conectado, selecciona una actividad para conectarte'
+          header='Aun no estas conectado, selecciona una actividad para conectarte y registrar tu actividad.'
           negative
         /></div>)
       case 1:
         return (<div style={{margin : 40}}><Message
           icon='envelope open outline'
-          header='Listo para recibir nuevos mensajes o llamadas. Sin nueva actividad por ahora.'
+          header='Listo para recibir nuevos mensajes o llamadas. Sin nueva pendientes por atender.'
           positive
         /></div>)
       case 2:
