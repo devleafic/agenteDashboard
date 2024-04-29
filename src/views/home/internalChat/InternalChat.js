@@ -25,6 +25,7 @@ export default function InternalChat({userInfo}) {
     const messageContainerRef = useRef(null);
     const [loading, setLoading] = useState(false);
     let [avatarUser , setAvatarUser] = useState('https://react.semantic-ui.com/images/avatar/small/molly.png')
+    let [groupAvatar , setGroupAvatar] = useState('https://thinkthyme.com/wp-content/uploads/2017/12/10-Group-Chat-Tools-for-Small-Companies.jpg')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
     const listActivites = [
@@ -238,6 +239,18 @@ export default function InternalChat({userInfo}) {
     
     }
 
+    const getPictures = (isPrivate, members) => {
+        if(isPrivate){
+            const member = members.find((member) => {
+                return member.user._id !== userInfo._id
+            }   )           
+            return <img src={member.user.profile.picture && member.user.profile.picture.length > 0  ? member.user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+                    height: '30px', borderRadius: '50%', marginRight: '10px' }}/>       
+        }
+        return <img src={groupAvatar} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+                height: '30px', borderRadius: '50%', marginRight: '10px' }}/>
+    }
+
     const [selectedFile, setSelectedFile] = useState(null);
 
     const handleFileChange = (event) => {
@@ -285,7 +298,7 @@ const getActivitie = (isPrivate, members) => {
         <Message
             attached
             icon="chat"
-            header='TeamChat - Versión en prueba Beta 0.3'
+            header='TeamChat - Versión en prueba Beta 0.5' 
             content='Comunicate con tu equipo de trabajo. Selecciona un contacto para continuar con la conversación.'
         /> </div>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
@@ -352,15 +365,7 @@ const getActivitie = (isPrivate, members) => {
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <img
-                                src={avatarUser} 
-                                style={{
-                                    width: '30px',
-                                    height: '30px',
-                                    borderRadius: '50%',
-                                    marginRight: '10px'
-                                }}
-                            />
+                            {getPictures(chat.isPrivate, chat.members)}
                             {getActivitie(chat.isPrivate, chat.members)}
                         </div>
                         <div style={{ flex: 1, margin: 5}}>
@@ -482,7 +487,7 @@ const getActivitie = (isPrivate, members) => {
                 </div>
             </div>
 
-        </div>:<div className="internal-chat-messages">Selecciona un chat</div>}
+        </div>:<div className="internal-chat-messages">Selecciona un chat o busca un contacto</div>}
     </div>
   </>)
 }

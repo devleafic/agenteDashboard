@@ -108,10 +108,11 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
     }
   return (<>
     <div key={msg._id} className={userInfo._id !== msg.createdBy ? 'internal-chat-received' : 
-        'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
-        {convertContent(msg)}
+                                                                'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
+                                                                {convertContent(msg)}
         {/*<div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>*/}
-        {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}><div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div></div>}
+        {userInfo._id !== msg.createdBy && !infoChat.isPrivate && <div style={{marginLeft:'5px'}}><div><Icon color='blue' name='user'/>{userInfo.profile.name}</div></div>}
+        {userInfo._id === msg.createdBy && infoChat.isPrivate && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}><div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div></div>}
         <div>
             {
                 renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
