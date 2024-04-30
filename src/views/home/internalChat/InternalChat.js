@@ -334,13 +334,13 @@ const getActivitie = (isPrivate, members) => {
                         <div className="internal-chat-item" key={user._id} onClick={() => {
                             createChat(user);
                         }}>
-                            <img src={user.profile.picture && user.profile.picture.length > 0  ? user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
-                                    height: '30px',
+                            <img src={user.profile.picture && user.profile.picture.length > 0  ? user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '20px',
+                                    height: '20px',
                                     borderRadius: '50%',
                                     marginRight: '10px' }}/>
                             <span style={{ 
                                     color: '#444', 
-                                    fontSize: '18px', 
+                                    fontSize: '15px', 
                                     fontWeight: 'bold',
                                 }}>
                                 {user.user} - {user.profile.name}
