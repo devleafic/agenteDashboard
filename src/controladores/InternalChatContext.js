@@ -76,6 +76,7 @@ export const SocketProvider = ({ children }) => {
           const myContacts = []
           prevInboxList.forEach((ch) => {
             ch.members.forEach((x) => {
+              if(x.role === 'admin'){return;}
               myContacts.push(x.user._id);
             });
           })

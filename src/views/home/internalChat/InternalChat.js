@@ -109,7 +109,8 @@ export default function InternalChat({userInfo}) {
             if(data.body.success){
                 setViewChat(data.body.chat);
                 setTimeout(() => {
-                    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                    if(messageContainerRef.current)
+                        messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight;
                 }, 100);
             }
             else{
@@ -410,9 +411,10 @@ const getActivitie = (isPrivate, members) => {
                     >
                         <DropdownMenu>
                         <DropdownHeader content='Miembros en el chat' />
-                        {viewChat.members.map((member) => (
+                        {viewChat && viewChat.members.map((member) => {
+                            if(member.role === 'admin'){return;}
                             <DropdownItem key={member.user._id}>{member.user.profile.name}</DropdownItem>
-                        ))}
+                        })}
                         </DropdownMenu>
                     </Dropdown>
                 </div>
