@@ -25,7 +25,7 @@ export default function InternalChat({userInfo}) {
     const messageContainerRef = useRef(null);
     const [loading, setLoading] = useState(false);
     let [avatarUser , setAvatarUser] = useState('https://react.semantic-ui.com/images/avatar/small/molly.png')
-    let [groupAvatar , setGroupAvatar] = useState('https://thinkthyme.com/wp-content/uploads/2017/12/10-Group-Chat-Tools-for-Small-Companies.jpg')
+    let [groupAvatar , setGroupAvatar] = useState('https://cdn0.iconfinder.com/data/icons/find-a-job-and-interview-flat/512/job_employment_hiring_recruitment_hire_employee_hr_recruit_worker_select-1024.png')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
     const listActivites = [
@@ -240,7 +240,7 @@ export default function InternalChat({userInfo}) {
     
     }
 
-    const getPictures = (isPrivate, members) => {
+    const getPictures = (isPrivate, members ,groupPicture) => {
         if(isPrivate){
             const member = members.find((member) => {
                 return member.user._id !== userInfo._id
@@ -248,7 +248,7 @@ export default function InternalChat({userInfo}) {
             return <img src={member.user.profile.picture && member.user.profile.picture.length > 0  ? member.user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
                     height: '30px', borderRadius: '50%', marginRight: '10px' }}/>       
         }
-        return <img src={groupAvatar} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+        return <img src={groupPicture && groupPicture.length > 0 ? groupPicture : groupAvatar} alt="User Icon" style={{ marginRight: '10px', width: '30px',
                 height: '30px', borderRadius: '50%', marginRight: '10px' }}/>
     }
 
@@ -366,7 +366,7 @@ const getActivitie = (isPrivate, members) => {
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {getPictures(chat.isPrivate, chat.members)}
+                            {getPictures(chat.isPrivate, chat.members, chat.picture)}
                             {getActivitie(chat.isPrivate, chat.members)}
                         </div>
                         <div style={{ flex: 1, margin: 5}}>
@@ -411,10 +411,9 @@ const getActivitie = (isPrivate, members) => {
                     >
                         <DropdownMenu>
                         <DropdownHeader content='Miembros en el chat' />
-                        {viewChat && viewChat.members.map((member) => {
-                            if(member.role === 'admin'){return;}
+                        {viewChat && viewChat.members.map((member) => (
                             <DropdownItem key={member.user._id}>{member.user.profile.name}</DropdownItem>
-                        })}
+                        ))}
                         </DropdownMenu>
                     </Dropdown>
                 </div>

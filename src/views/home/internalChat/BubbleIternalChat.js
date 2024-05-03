@@ -48,10 +48,10 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 readerslog.push('Tú');
             }else{
                 infoChat.members.forEach((member) => {  
-                    if(member.role === 'admin'){return;}
                     if(member.user._id === reader.user._id || member.user._id === reader.user){
                         readerslog.push(member.user.profile.name ? member.user.profile.name : 'Unknown');
                     }
+                   
                 }); 
                 //console.log({infoChat})  
             }
