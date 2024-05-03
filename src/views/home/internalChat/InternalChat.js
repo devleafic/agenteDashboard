@@ -299,8 +299,8 @@ const getActivitie = (isPrivate, members) => {
         <Message
             attached
             icon="chat"
-            header='TeamChat - Versión en prueba Beta 0.5' 
-            content='Comunicate con tu equipo de trabajo. Selecciona un contacto para continuar con la conversación.'
+            header='TeamChat - Versión Beta 0.6' 
+            content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
         /> </div>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    
@@ -399,7 +399,14 @@ const getActivitie = (isPrivate, members) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',}}
             >
-                <div style={{ fontSize: '30px' }}><strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong></div>
+                <div style={{ display: 'flex', alignItems: 'center', fontSize: '30px' }}>
+                    <img 
+                        src={!viewChat.isPrivate && viewChat.picture && viewChat.picture.length > 0 ? viewChat.picture : avatarUser} 
+                        alt="User Icon" 
+                        style={{ marginRight: '10px', width: '50px', height: '50px', borderRadius: '50%' }}
+                    />
+                    <strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong>
+                </div>
                 <div style={{marginLeft:10}}>
                     <Dropdown
                         text='Miembros'
