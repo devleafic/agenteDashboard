@@ -24,8 +24,8 @@ export default function InternalChat({userInfo}) {
     const [message, setMessage] = useState('');
     const messageContainerRef = useRef(null);
     const [loading, setLoading] = useState(false);
-    let [avatarUser , setAvatarUser] = useState('https://react.semantic-ui.com/images/avatar/small/molly.png')
-    let [groupAvatar , setGroupAvatar] = useState('https://cdn0.iconfinder.com/data/icons/find-a-job-and-interview-flat/512/job_employment_hiring_recruitment_hire_employee_hr_recruit_worker_select-1024.png')
+    let [avatarUser , setAvatarUser] = useState('https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg')
+    let [groupAvatar , setGroupAvatar] = useState('https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/gropuchat.jpg')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
     const listActivites = [
