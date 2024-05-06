@@ -68,7 +68,7 @@ useEffect(() => {
     newSocket.on('newChat',(data) => {
       let inboxarray = [];
       newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (chats) => {
-          console.log({chats});
+          //console.log({chats});
           setInboxList(chats.body.chats)
           setUnreadMessages(chats.body.countUnread); 
           inboxarray = chats.body.chats.map(chat => chat);

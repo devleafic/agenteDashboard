@@ -61,7 +61,7 @@ const InternalUploadFile = ({sendFile}) => {
     };
     return (<>
         <Dropzone maxFiles={1} onDrop={acceptedFiles => {
-            console.log(acceptedFiles);
+            //console.log(acceptedFiles);
             
             fileUpload(acceptedFiles[0]);
         }} >
@@ -98,7 +98,7 @@ const InternalUploadFile = ({sendFile}) => {
                 </Button>
                 <Button color='blue' inverted onClick={() => {
                     let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
-                    console.log(urlFixed, urlFileType);
+                    //console.log(urlFixed, urlFileType);
                     sendFile({
                         url : urlFixed,
                         typeFile : urlFileType

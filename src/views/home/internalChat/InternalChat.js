@@ -85,7 +85,7 @@ export default function InternalChat({userInfo}) {
         socket.emit('getContactList', {contact, service : userInfo.service.id, 
             token: window.localStorage.getItem('sdToken')
         }, (data) => {
-            console.log({data});
+            //console.log({data});
             setContactList(data.body.list);
         });
     }
@@ -104,7 +104,7 @@ export default function InternalChat({userInfo}) {
     const openChat = (chatId) => {
         setLoading(true);
         socket.emit('openChat', {chatId, token: window.localStorage.getItem('sdToken')}, (data) => {
-            console.log({openChat : data});
+            //console.log({openChat : data});
             setLoading(false);
             if(data.body.success){
                 setViewChat(data.body.chat);
@@ -197,7 +197,7 @@ export default function InternalChat({userInfo}) {
             });
 
             socket.on('newReaction',(data) => {
-                console.log('newReaction', data);
+                //console.log('newReaction', data);
                 setViewChat((prevViewChat) => {
                     if (!prevViewChat) return prevViewChat;
                     if (prevViewChat._id !== data.body.chatId) {return prevViewChat;}
@@ -224,7 +224,7 @@ export default function InternalChat({userInfo}) {
     const readMessage = (id) => {
         console.log('leido enviando');
         socket.emit('readMessage', {chatId: viewChat._id,messageId : id, token: window.localStorage.getItem('sdToken')}, (data) => {
-            console.log({readMessage : data});
+            //console.log({readMessage : data});
         });
     }
 
