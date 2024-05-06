@@ -18,7 +18,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
     const messageRef = useRef(null);
 
     const sendReaction = (e, { name, value }) => {
-        console.log({ name, value });
+        //console.log({ name, value });
         console.log('leyendo');
         socket.emit('sendReaction', {reaction : value, token: window.localStorage.getItem('sdToken'), chatId : infoChat._id, messageId : msg._id}, (data) => {
             console.log('Reacción enviada y recibida por el servidor');
@@ -27,6 +27,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
     const renderAndCountReactions = (idMsg, reactions, direcction) => {
         const reactionCount = {};
+        let reactionAgents = []
         reactions.forEach((reaction) => {
             if(reactionCount[reaction.emoji]){
                 reactionCount[reaction.emoji] += 1;
@@ -35,9 +36,48 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }
         });
 
-        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction, index) => {
-            return <div key={idMsg+'-'+reaction+'-'+index}>{reaction} {reactionCount[reaction]}</div>
-        })}</div>;
+
+        reactions.forEach((reader) => {
+            if(reader.user._id === userInfo._id){
+                reactionAgents.push('' + reader.emoji + 'Tú' );
+            }else{
+                infoChat.members.forEach((member) => {  
+                    if(member.user._id === reader.user._id || member.user._id === reader.user){
+                        reactionAgents.push(member.user.profile.name ? '' + reader.emoji + ' ' + member.user.profile.name : 'Miembro expulsado');
+                    }
+                   
+                }); 
+                //console.log({infoChat})  
+            }
+
+        });
+
+        //console.log({reactionAgents});
+
+       let reactionLogHtml = reactionAgents.map((reader) => {   
+            return <div> {reader}</div>;
+        });
+                                      
+
+        let content = reactionLogHtml ? reactionLogHtml : 'Sin reacciones';
+
+        // return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction, index) => {
+        //     return <div key={idMsg+'-'+reaction+'-'+index}>{reaction} {reactionCount[reaction]}</div>
+        // })}</div>;
+
+        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}> 
+            {reactionCount && Object.keys(reactionCount).length > 0 ?  
+                <Popup 
+                    trigger={<Button style={{padding: 0,margin: 2,  marginRight: 5}} icon='eye' color='blue' circular/>} 
+                    content={content} 
+                    style={styleGroupReaders} 
+                /> 
+                : 
+                <></>
+                }
+                {Object.keys(reactionCount).map((reaction, index) => {
+                    return <div key={idMsg+'-'+reaction+'-'+index}>{reaction} {reactionCount[reaction]}</div> })} 
+            </div>;
     
     }
 
@@ -49,7 +89,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }else{
                 infoChat.members.forEach((member) => {  
                     if(member.user._id === reader.user._id || member.user._id === reader.user){
-                        readerslog.push(member.user.profile.name ? member.user.profile.name : 'Unknown');
+                        readerslog.push(member.user.profile.name ? member.user.profile.name : 'Miembro expulsado');
                     }
                    
                 }); 
@@ -57,14 +97,12 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }
 
         });
-        console.log({readerslog});
+       // console.log({readerslog});
 
 
         let readersLogHtml = readerslog.map((reader) => {   
             return <div><Icon  color='blue'  name='check'/>{reader}</div>;
-        }  
-  
-        );
+        });
 
         let content = readersLogHtml ? readersLogHtml : 'Sin lectores';
         return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>
