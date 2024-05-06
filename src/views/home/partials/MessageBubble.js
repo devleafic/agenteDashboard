@@ -199,13 +199,13 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 <p className='from-me'>{convertContent(message)}</p>  {getReaction(message.reaction)}
             </div>
         </div> 
-        <p className='from-me-meta'>{moment(message.createdAt).fromNow()} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
+        <p className='from-me-meta'>{moment(message.createdAt).format('lll')} {getNameAuthor(message.origin)} <br/> {getAck(message.ack)}   </p>
         </>) : (<div key={message._id}>
             <p className='from-them'>{convertContent(message)} </p> {getReaction(message.reaction)}
             {/* Boton para poder hacer reply */}
             {/* <p className='from-them-meta'>{moment(message.createdAt).fromNow()} <a href="#" onClick={() => {responseToMessage(message._id)}}><Icon name='reply'></Icon></a></p> */}
             <p className='from-them-meta'>
-                <Dropdown text={moment(message.createdAt).fromNow()} style={{marginLeft : 1}}>
+                <Dropdown text={moment(message.createdAt).format('lll')} style={{marginLeft : 1}}>
                     <Dropdown.Menu>
                         <Dropdown.Item text='Responder'  onClick={() => {responseToMessage(message._id)}}/>
                         <Dropdown.Item text='Reaccionar'  onClick={() => {reactToMessage(message.externalId)}} />
