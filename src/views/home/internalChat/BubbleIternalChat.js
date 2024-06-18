@@ -1,8 +1,15 @@
 import { useRef, useEffect, useState } from 'react';
-import {Dropdown, Icon, Image, Label} from 'semantic-ui-react';
+import {Dropdown, Icon, Image, Label, Popup, Button} from 'semantic-ui-react';
 import { useSocket } from '../../../controladores/InternalChatContext';
 import moment from 'moment';
 moment.locale('es');
+
+const styleGroupReaders = {
+    borderRadius: 0,
+    opacity: 0.9,
+    padding: '2em',
+  }
+  
 
 export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}) {
 
@@ -11,7 +18,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
     const messageRef = useRef(null);
 
     const sendReaction = (e, { name, value }) => {
-        console.log({ name, value });
+        //console.log({ name, value });
         console.log('leyendo');
         socket.emit('sendReaction', {reaction : value, token: window.localStorage.getItem('sdToken'), chatId : infoChat._id, messageId : msg._id}, (data) => {
             console.log('Reacción enviada y recibida por el servidor');
@@ -20,6 +27,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
     const renderAndCountReactions = (idMsg, reactions, direcction) => {
         const reactionCount = {};
+        let reactionAgents = []
         reactions.forEach((reaction) => {
             if(reactionCount[reaction.emoji]){
                 reactionCount[reaction.emoji] += 1;
@@ -28,10 +36,79 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             }
         });
 
-        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction, index) => {
-            return <div key={idMsg+'-'+reaction+'-'+index} style={{padding:10}}>{reaction} {reactionCount[reaction]}</div>
-        })}</div>;
+
+        reactions.forEach((reader) => {
+            if(reader.user._id === userInfo._id){
+                reactionAgents.push('' + reader.emoji + 'Tú' );
+            }else{
+                infoChat.members.forEach((member) => {  
+                    if(member.user._id === reader.user._id || member.user._id === reader.user){
+                        reactionAgents.push(member.user.profile.name ? '' + reader.emoji + ' ' + member.user.profile.name : 'Miembro expulsado');
+                    }
+                   
+                }); 
+                //console.log({infoChat})  
+            }
+
+        });
+
+        //console.log({reactionAgents});
+
+       let reactionLogHtml = reactionAgents.map((reader) => {   
+            return <div> {reader}</div>;
+        });
+                                      
+
+        let content = reactionLogHtml ? reactionLogHtml : 'Sin reacciones';
+
+        // return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>{Object.keys(reactionCount).map((reaction, index) => {
+        //     return <div key={idMsg+'-'+reaction+'-'+index}>{reaction} {reactionCount[reaction]}</div>
+        // })}</div>;
+
+        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}> 
+            {reactionCount && Object.keys(reactionCount).length > 0 ?  
+                <Popup 
+                    trigger={<Button style={{padding: 0,margin: 2,  marginRight: 5}} icon='eye' color='blue' circular/>} 
+                    content={content} 
+                    style={styleGroupReaders} 
+                /> 
+                : 
+                <></>
+                }
+                {Object.keys(reactionCount).map((reaction, index) => {
+                    return <div key={idMsg+'-'+reaction+'-'+index}>{reaction} {reactionCount[reaction]}</div> })} 
+            </div>;
     
+    }
+
+    const renderGroupReaders = (readers, direcction) => {   
+        let readerslog = []
+        readers.forEach((reader) => {
+            if(reader.user._id === userInfo._id){
+                readerslog.push('Tú');
+            }else{
+                infoChat.members.forEach((member) => {  
+                    if(member.user._id === reader.user._id || member.user._id === reader.user){
+                        readerslog.push(member.user.profile.name ? member.user.profile.name : 'Miembro expulsado');
+                    }
+                   
+                }); 
+                //console.log({infoChat})  
+            }
+
+        });
+       // console.log({readerslog});
+
+
+        let readersLogHtml = readerslog.map((reader) => {   
+            return <div><Icon  color='blue'  name='check'/>{reader}</div>;
+        });
+
+        let content = readersLogHtml ? readersLogHtml : 'Sin lectores';
+        return <div style={{display:'flex', justifyContent: direcction === 'left' ? 'end' : 'start'}}>
+             <Popup trigger={<Button style={{padding: 0,margin: 2,  marginRight: 5}} icon='eye' color='blue' circular/>} content={content} style={styleGroupReaders} />
+            <em style={{fontSize: 11, color: 'gray'}}>Lectores #{readers.length}</em>
+        </div>;
     }
 
     useEffect(() => {
@@ -106,18 +183,43 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 return (<>[La clase {type} no esta soportada] - {content}</>);
         }
     }
+
+    const getAuthor = (id,members) => { // Obtiene el nombre del autor del mensaje para grupos
+        const author = members.find((x) => {return x.user._id === id;});
+        if (author && author.user && author.user.profile) {
+            return (
+                <div style={{fontSize: 12, color: 'gray'}}>
+                    <Icon name='user circle' />
+                    {author.user.profile.name}
+                </div>
+            );
+        } else {
+            return (
+                <div style={{fontSize: 12, color: 'gray'}}>
+                    <Icon name='user circle' />
+                    Unknown
+                </div>
+            );
+        }
+    }
+
   return (<>
-    <div key={msg._id} className={userInfo._id !== msg.createdBy ? 'internal-chat-received' : 
-        'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
-        {convertContent(msg)}
-        {/*<div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>*/}
-        {userInfo._id === msg.createdBy && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}><div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div></div>}
+        <div key={msg._id} className={userInfo._id !== msg.createdBy ? 'internal-chat-received' : 
+                                                                'internal-chat-sent'} ref={messageRef} data-message-id={msg._id}>
+            {convertContent(msg)}
+            {/*<div className="internal-chat-message" dangerouslySetInnerHTML={{ __html: formatMessage(msg.message) }}></div>*/}
+            {userInfo._id !== msg.createdBy && !infoChat.isPrivate && getAuthor(msg.createdBy, infoChat.members)}
+            {userInfo._id === msg.createdBy && infoChat.isPrivate && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}><div><Icon color='blue' name='check'/><Icon  color='blue'  name='check'/></div></div>}
+            
+            {userInfo._id === msg.createdBy && !infoChat.isPrivate && (msg.readers.length > 1) && <div style={{marginRight:'5px'}}>
+            
+        </div>}
         <div>
-            {
-                renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')
-            }
+            {!infoChat.isPrivate && renderGroupReaders( msg.readers, userInfo._id !== msg.createdBy ? 'right' : 'left' )}
+            {renderAndCountReactions(msg._id,msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')}
         </div>
-        <Dropdown  style={{padding : 2, marginRight: 5}} text={moment(msg.createdAt).format('lll')+' 💬'} onChange={sendReaction} options={[
+
+        <Dropdown  style={{fontSize: 11, color: 'gray', padding : 2, marginRight: 5}} text={moment(msg.createdAt).format('lll')+' 💬'} onChange={sendReaction} options={[
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-0', text : '🙂', value : '🙂'},
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-1', text : '🤔', value : '🤔'},
             {key : msg._id+'-'+Math.floor(Math.random() * 101)+'-emoji-2', text : '😡', value : '😡'},

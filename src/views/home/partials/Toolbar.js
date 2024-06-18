@@ -4,7 +4,7 @@ import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
-import avatar from './../../../img/avatars/matt.jpg';
+//import avatar from './../../../img/avatars/matt.jpg';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
@@ -23,8 +23,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [outboundAva, setOutboundAva] = useState(false);
 
     const listFolios = useContext(ListFoliosContext);
-
-    const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando..."});
+    const avatar  = 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg'; 
+    const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando...", profilePicture: avatar});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
 
     //notification center

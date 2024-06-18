@@ -24,7 +24,8 @@ export default function InternalChat({userInfo}) {
     const [message, setMessage] = useState('');
     const messageContainerRef = useRef(null);
     const [loading, setLoading] = useState(false);
-    let [avatarUser , setAvatarUser] = useState('https://react.semantic-ui.com/images/avatar/small/molly.png')
+    let [avatarUser , setAvatarUser] = useState('https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg')
+    let [groupAvatar , setGroupAvatar] = useState('https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/gropuchat.jpg')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
     const listActivites = [
@@ -84,7 +85,7 @@ export default function InternalChat({userInfo}) {
         socket.emit('getContactList', {contact, service : userInfo.service.id, 
             token: window.localStorage.getItem('sdToken')
         }, (data) => {
-            console.log({data});
+            //console.log({data});
             setContactList(data.body.list);
         });
     }
@@ -103,12 +104,13 @@ export default function InternalChat({userInfo}) {
     const openChat = (chatId) => {
         setLoading(true);
         socket.emit('openChat', {chatId, token: window.localStorage.getItem('sdToken')}, (data) => {
-            console.log({openChat : data});
+            //console.log({openChat : data});
             setLoading(false);
             if(data.body.success){
                 setViewChat(data.body.chat);
                 setTimeout(() => {
-                    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                    if(messageContainerRef.current)
+                        messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight;
                 }, 100);
             }
             else{
@@ -195,7 +197,7 @@ export default function InternalChat({userInfo}) {
             });
 
             socket.on('newReaction',(data) => {
-                console.log('newReaction', data);
+                //console.log('newReaction', data);
                 setViewChat((prevViewChat) => {
                     if (!prevViewChat) return prevViewChat;
                     if (prevViewChat._id !== data.body.chatId) {return prevViewChat;}
@@ -222,7 +224,7 @@ export default function InternalChat({userInfo}) {
     const readMessage = (id) => {
         console.log('leido enviando');
         socket.emit('readMessage', {chatId: viewChat._id,messageId : id, token: window.localStorage.getItem('sdToken')}, (data) => {
-            console.log({readMessage : data});
+            //console.log({readMessage : data});
         });
     }
 
@@ -236,6 +238,18 @@ export default function InternalChat({userInfo}) {
         return title;
         // return members.map((member) => member.user.profile.name).join(', ');
     
+    }
+
+    const getPictures = (isPrivate, members ,groupPicture) => {
+        if(isPrivate){
+            const member = members.find((member) => {
+                return member.user._id !== userInfo._id
+            }   )           
+            return <img src={member.user.profile.picture && member.user.profile.picture.length > 0  ? member.user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+                    height: '30px', borderRadius: '50%', marginRight: '10px' }}/>       
+        }
+        return <img src={groupPicture && groupPicture.length > 0 ? groupPicture : groupAvatar} alt="User Icon" style={{ marginRight: '10px', width: '30px',
+                height: '30px', borderRadius: '50%', marginRight: '10px' }}/>
     }
 
     const [selectedFile, setSelectedFile] = useState(null);
@@ -285,8 +299,8 @@ const getActivitie = (isPrivate, members) => {
         <Message
             attached
             icon="chat"
-            header='TeamChat - Versión en prueba Beta 0.3'
-            content='Comunicate con tu equipo de trabajo. Selecciona un contacto para continuar con la conversación.'
+            header='TeamChat - Versión Beta 0.6' 
+            content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
         /> </div>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    
@@ -321,13 +335,13 @@ const getActivitie = (isPrivate, members) => {
                         <div className="internal-chat-item" key={user._id} onClick={() => {
                             createChat(user);
                         }}>
-                            <img src={user.profile.picture && user.profile.picture.length > 0  ? user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '30px',
-                                    height: '30px',
+                            <img src={user.profile.picture && user.profile.picture.length > 0  ? user.profile.picture : avatarUser} alt="User Icon" style={{ marginRight: '10px', width: '20px',
+                                    height: '20px',
                                     borderRadius: '50%',
                                     marginRight: '10px' }}/>
                             <span style={{ 
                                     color: '#444', 
-                                    fontSize: '18px', 
+                                    fontSize: '15px', 
                                     fontWeight: 'bold',
                                 }}>
                                 {user.user} - {user.profile.name}
@@ -352,15 +366,7 @@ const getActivitie = (isPrivate, members) => {
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <img
-                                src={avatarUser} 
-                                style={{
-                                    width: '30px',
-                                    height: '30px',
-                                    borderRadius: '50%',
-                                    marginRight: '10px'
-                                }}
-                            />
+                            {getPictures(chat.isPrivate, chat.members, chat.picture)}
                             {getActivitie(chat.isPrivate, chat.members)}
                         </div>
                         <div style={{ flex: 1, margin: 5}}>
@@ -393,7 +399,14 @@ const getActivitie = (isPrivate, members) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',}}
             >
-                <div style={{ fontSize: '30px' }}><strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong></div>
+                <div style={{ display: 'flex', alignItems: 'center', fontSize: '30px' }}>
+                    <img 
+                        src={!viewChat.isPrivate && viewChat.picture && viewChat.picture.length > 0 ? viewChat.picture : avatarUser} 
+                        alt="User Icon" 
+                        style={{ marginRight: '10px', width: '50px', height: '50px', borderRadius: '50%' }}
+                    />
+                    <strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong>
+                </div>
                 <div style={{marginLeft:10}}>
                     <Dropdown
                         text='Miembros'
@@ -405,7 +418,7 @@ const getActivitie = (isPrivate, members) => {
                     >
                         <DropdownMenu>
                         <DropdownHeader content='Miembros en el chat' />
-                        {viewChat.members.map((member) => (
+                        {viewChat && viewChat.members.map((member) => (
                             <DropdownItem key={member.user._id}>{member.user.profile.name}</DropdownItem>
                         ))}
                         </DropdownMenu>
@@ -482,7 +495,7 @@ const getActivitie = (isPrivate, members) => {
                 </div>
             </div>
 
-        </div>:<div className="internal-chat-messages">Selecciona un chat</div>}
+        </div>:<div className="internal-chat-messages">Selecciona un chat o busca un contacto</div>}
     </div>
   </>)
 }

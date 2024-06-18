@@ -15,11 +15,20 @@ export const SocketProvider = ({ children }) => {
   const getInboxChat = (newSocket) => {
     newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (data) => {
         console.log({data});
-        setInboxList(data.body.chats)
+      
+        let arraychats = data.body.chats.map(chat => chat);
+        setInboxList(arraychats)
+        //setInboxList(data.body.chats)
         setUnreadMessages(data.body.countUnread);
     });
 }
-
+/*
+useEffect(() => { 
+  console.log('InboxList', inboxList)
+  console.log(inboxList.length > 0 ? 'InboxList tiene datos' : 'InboxList no tiene datos')
+}
+, [inboxList]); 
+*/
   useEffect(() => {
     const newSocket = io(process.env.REACT_APP_INTERNALCHAT, {
         transports : ['websocket'],
@@ -57,16 +66,26 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on('newChat',(data) => {
-      // Buscamos si ya existe
-      const isExists = inboxList.find((x) => {
-        return x._id === data.body.chat._id;
-      });
+      let inboxarray = [];
+      newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (chats) => {
+          //console.log({chats});
+          setInboxList(chats.body.chats)
+          setUnreadMessages(chats.body.countUnread); 
+          inboxarray = chats.body.chats.map(chat => chat);
 
-      if(!isExists){
-        setInboxList((prevInboxList) => {
-          return [...prevInboxList, data.body.chat]
+          // Buscamos si ya existe
+        const isExists = inboxarray.find((x) => {
+          return x._id === data.body.chat._id;
         });
-      }
+
+        if(!isExists){
+          setInboxList((prevInboxList) => {
+            return [...prevInboxList, data.body.chat]
+          });
+        }
+      });
+     
+     
 
     });
 
