@@ -63,7 +63,9 @@ const Login = () => {
                                 iconPosition='left'
                                 placeholder='Usuario'
                                 value={user}
-                                onChange={(e) => {setUser(e.target.value); setMsgError('')}}
+                                //onChange={(e) => {setUser(e.target.value); setMsgError('')}}
+                                onChange={(e) => {setUser(e.target.value.replace(/\s/g, '')); setMsgError('')}}
+                                
                             />
                             <Form.Input
                                 fluid
