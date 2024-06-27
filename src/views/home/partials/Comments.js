@@ -295,6 +295,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             message : _msg,//messageToSend,
             responseTo : showResponseTo,
             class : 'buttonreply',
+           // header: 'header',
+           // footer: 'footer',
             interaction :[
                 {
                   type: 'reply',
