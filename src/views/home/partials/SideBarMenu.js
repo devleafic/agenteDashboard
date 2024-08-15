@@ -8,8 +8,12 @@ import { toast } from 'react-toastify';
 import '../../../SideBarMenu.css'; 
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
-    console.log('page',page);
-    page = page ? page : 'home';
+    useEffect(() => {
+        // Asegúrate de que el estado se inicialice correctamente
+        if (!page) {
+            page('home'); // O cualquier valor predeterminado que tenga sentido
+        }
+    }, [page]);
     const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
 
@@ -61,10 +65,10 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                         <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
                             <Icon loading name='envelope' color='red'  />
                            {/* <Icon name='inbox' />*/}
-                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
+                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : 'grey'} />
                     )
                 }else{
-                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
+                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : 'null'}/>
         
                 }
             case 'follow':
@@ -74,7 +78,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
             case 'InternalChat':
-                return  <Button className="sidebar-item"  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : 'gray')}/>  
+                return  <Button className="sidebar-item"  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : 'grey')}/>  
         }
     }
     useEffect(() => {
@@ -102,8 +106,21 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         <div style={{height:'100%',position: 'relative'}}>
         <div className="sidebar-container">
             <div className="sidebar-content">
-                <div className="sidebar-item">
-                    <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'blue' : null}/>} position='right center'/>
+                    <div className="sidebar-item">
+                    <Popup
+                        content='Conversaciones Asignadas'
+                        trigger={
+                            <Button
+                                icon='comments'
+                                onClick={() => {
+                                    selectedComponent('home');
+                                  
+                                }}
+                                color={page === 'home' ? 'blue' : null}
+                            />
+                        }
+                        position='right center'
+                    />
                 </div>
                 <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
