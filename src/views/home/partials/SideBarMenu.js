@@ -5,6 +5,7 @@ import { Button, Popup, Image, Icon } from 'semantic-ui-react';
 import avatar from './../../../img/ico.png';
 import { useSocket } from '../../../controladores/InternalChatContext';
 import { toast } from 'react-toastify';
+import '../../../SideBarMenu.css'; 
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
 
@@ -88,41 +89,28 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             />
         </div>
         <div style={{height:'100%',position: 'relative'}}>
-            <div className='vertical-center'>
-                {/* <div className='mb-3'>
-                    <Popup content='Conectar' trigger={<Button icon='code branch' onClick={() => {setOnConnect(!onConnect)}} color={page === 'code branch' ? 'blue' : null}/>} position='right center'/>
-                </div> */}
-                <div className='mb-3'>
+        <div className="sidebar-container">
+            <div className="sidebar-content">
+                <div className="sidebar-item">
                     <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
                 </div>
-                <div className='mb-3'>
+                <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
                 </div>
-                <div className='mb-3'>
+                <div className="sidebar-item">
                     <Popup content='Mis seguimientos en pipeline' trigger={getButton('follow')} position='right center'/>
                 </div>
-                <div className='mb-3'>
+                <div className="sidebar-item">
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
                 </div>
-                <div className='mb-3'>
+                <div className="sidebar-item">
                     <Popup content='TeamChat (Beta 0.6) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
                 </div>
-                {/*<div className='mb-3'>
-                    <Popup content='Calendario' trigger={getButton('calendar')} position='right center'/>
-                </div>
-                 <div className='mb-3'>
-                    <Popup content='Informes' trigger={<Button icon='chart bar' onClick={() => selectedComponent('reports')} color={page === 'reports' ? 'blue' : null}/>} position='right center'/>
-                </div>
-                <div className='mb-3'>
-                    <Popup content='Busqueda' trigger={<Link to='/dashboard/search'><Button icon='search' color={page === 'search' ? 'blue' : null}/></Link>} position='right center'/>
-                </div>
-                <div className='mb-3'>
-                    <Popup content='Cloud SDrive' trigger={<Link to='/dashboard/cloud'><Button icon='cloud' color={page === 'cloud' ? 'blue' : null}/></Link>} position='right center'/>
-                </div> */}
-                <div className='mb-3' style={{marginTop:100}}>
+                <div className="sidebar-item logout">
                     <Popup content='Cerrar Sesión' trigger={<Button icon='log out' onClick={closeSession}/>} position='right center'/>
                 </div>
             </div>
+        </div>
         </div>
     </>);
 }

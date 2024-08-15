@@ -1,96 +1,81 @@
-import { Grid, Header, Form, Button, Image, Message } from 'semantic-ui-react';
-import React, {useState} from 'react';
+import { Grid, Header, Form, Button, Image, Message, Segment, Icon } from 'semantic-ui-react';
+import React, { useState } from 'react';
 import LogoImage from './../img/logo.png';
 import axios from 'axios';
+import './Login.css'; // Import custom CSS for additional styling
 
 const Login = () => {
-
-    const [ onLoading, setOnLoading ] = useState(false);
-    const [ user, setUser ] = useState('');
-    const [ password, setPassword ] = useState('');
-    const [ msgError, setMsgError ] = useState('');
-
-
+    const [onLoading, setOnLoading] = useState(false);
+    const [user, setUser] = useState('');
+    const [password, setPassword] = useState('');
+    const [msgError, setMsgError] = useState('');
 
     const onSubmitForm = async (event) => {
         event.preventDefault();
-        if(user.trim() === ''){setMsgError('El usuario no debe ir vacio.');return false;}
-        if(password.trim() === ''){setMsgError('La contraseña no debe ir vacia.');return false;}
+        if (user.trim() === '') { setMsgError('El usuario no debe ir vacío.'); return false; }
+        if (password.trim() === '') { setMsgError('La contraseña no debe ir vacía.'); return false; }
 
         setOnLoading(true);
 
-        try{
-            console.log('iniciando')
-            let resLogin = await axios.post(process.env.REACT_APP_CENTRALITA+'/agent/login',{user, password});    
-            
+        try {
+            let resLogin = await axios.post(process.env.REACT_APP_CENTRALITA + '/agent/login', { user, password });
+
             setOnLoading(false);
-            if(!resLogin.data.body.success){
+            if (!resLogin.data.body.success) {
                 setMsgError(resLogin.data.body.message);
                 return false;
             }
             window.localStorage.setItem('sdToken', resLogin.data.body.token);
             window.localStorage.setItem('myName', resLogin.data.body.name);
             return window.location.href = '/';
-        }catch(err){
-            setMsgError('Ocurrio un error al intentar iniciar sesión, intente mas tarde.\n\n'+err.message);
+        } catch (err) {
+            setMsgError('Ocurrió un error al intentar iniciar sesión, intente más tarde.\n\n' + err.message);
             setOnLoading(false);
         }
-        
-
     }
 
-    return (<>
-        <Grid columns={1} style={{height:'calc(100vh + 14px)'}}>
-            <Grid.Column>
-                <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-
-
-
-                    <Grid.Column style={{ maxWidth: 450 }}> 
-
-               
-                        {/* <Header as='h1' style={{color:'#FFF'}}>Bienvenido a SD.2</Header> */}
-                        <Image src={LogoImage}  centered style={{textAlign: 'center', maxWidth: 200}}/>
-                        <Header as='h2'>WhatsApp Business, Messenger, Instagram, Livechat, Llamadas y más...</Header>
+    return (
+        <div className="login-container">
+            <Grid textAlign='center' verticalAlign='middle' className="login-grid">
+                <Grid.Column style={{ maxWidth: 450 }}>
+                    <Segment raised>
+                        <Header as='h2' color='blue' textAlign='center'>
+                            <Image src={LogoImage} style={{ width: 300, margin: '0 auto' }} />
+                        </Header>
+                        <Header as='h2'>WhatsApp for Business, Messenger, Instagram, Livechat, Llamadas y más...</Header>
                         <Header as='h3'>Combinados en una bandeja para equipos</Header>
-                        <Form size='large' onSubmit={onSubmitForm}>
-                            <p>Ingresa tus credenciales para poder acceder</p>
-                            {msgError.trim() !== '' &&(<Message negative>
-                                <p>{msgError}</p>
-                            </Message>)}
-                            <Form.Input
-                                fluid icon='user'
-                                iconPosition='left'
-                                placeholder='Usuario'
-                                value={user}
-                                //onChange={(e) => {setUser(e.target.value); setMsgError('')}}
-                                onChange={(e) => {setUser(e.target.value.replace(/\s/g, '')); setMsgError('')}}
-                                
-                            />
-                            <Form.Input
-                                fluid
-                                icon='lock'
-                                iconPosition='left'
-                                placeholder='Contraseña'
-                                type='password'
-                                value={password}
-                                onChange={(e)=> {setPassword(e.target.value); setMsgError('')}}
-                            />
-                            
-                            <Button color='blue' fluid size='large' loading={onLoading} disabled={onLoading}>
-                                Iniciar Sesión
-                            </Button>
-                            <Header as='h4'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
-                            <Header as='h6'>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</Header>
-                            <a  href='https://play.google.com/store/apps/details?id=com.leafm&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible en Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png'      width="150'" 
-     height="auto"/></a>
+                        <Header as='h4' color='grey' textAlign='center'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
+                        <Header as='h6' color='grey' textAlign='center'>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</Header>
+                        <Form size='large' onSubmit={onSubmitForm} loading={onLoading}>
+                            <Segment stacked>
+                                <Form.Input
+                                    fluid
+                                    icon='user'
+                                    iconPosition='left'
+                                    placeholder='Usuario'
+                                    value={user}
+                                    onChange={(e) => { setUser(e.target.value.replace(/\s/g, '')); setMsgError(''); }}
+                                />
+                                <Form.Input
+                                    fluid
+                                    icon='lock'
+                                    iconPosition='left'
+                                    placeholder='Contraseña'
+                                    type='password'
+                                    value={password}
+                                    onChange={(e) => { setPassword(e.target.value); setMsgError(''); }}
+                                />
+                                <Button color='blue' fluid size='large'>
+                                    Iniciar Sesión
+                                </Button>
+                            </Segment>
                         </Form>
-                    </Grid.Column>
-                </Grid>
-                
-            </Grid.Column>
-        </Grid>          
-    </>);
+                        {msgError && <div className="ui message error">{msgError}</div>}
+                    </Segment>
+                </Grid.Column>
+            </Grid>
+        </div>
+    );
 }
- 
+
 export default Login;
