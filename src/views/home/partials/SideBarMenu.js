@@ -63,8 +63,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         switch (option){
             case 'home':
                 return <Button  style={{ color: iconColor }}
-                disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>
-         
+                disabled={isConnected === -1 ? true : false} icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'blue' : 'white'}/>
             case 'inbox':
                 if(unReadMessages){
                     return (
@@ -114,28 +113,8 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
 
         <div className="sidebar-container">
             <div className="sidebar-content">
-            <div className="sidebar-item">
-                    <Popup content='Mis conversaciones en curso' trigger={getButton('home')} position='right center'/>
-                </div>
-                    <div className="sidebar-item">
-                    <Popup
-                        content='Conversaciones Asignadas'
-                        trigger={
-                            <Button
-                                icon='comments'
-                                onClick={() => {
-                                    selectedComponent('home');
-                                  
-                                }}
-                                color={page === 'home' ? 'blue' : null}
-                            />
-                        }
-                        position='right center'
-                    />
-                </div>
-
                 <div className="sidebar-item">
-                    <Popup content='Conversaciones en curso' trigger={getButton('home')} position='right center'/>
+                    <Popup content='Mis Conversaciones en curso' trigger={getButton('home')} position='right center'/>
                 </div>
                 <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
