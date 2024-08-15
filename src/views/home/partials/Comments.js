@@ -764,7 +764,7 @@ return ( <>
                 : typeFolio === '_MESSAGES_' && fullFolio ? 
                 
                 (
-                    <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
+                    <div style={{height:'calc(100% - 244px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
                         {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
                     </div>
                 ) :
