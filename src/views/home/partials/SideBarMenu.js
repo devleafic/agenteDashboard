@@ -77,6 +77,17 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
         }
     }
+    useEffect(() => {
+        // Asegúrate de que los estilos CSS se carguen correctamente
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '../../../SideBarMenu.css'; // Reemplaza con la ruta correcta a tu archivo CSS
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, []);
 
     return (<>
         <div style={{marginTop:20, textAlign:'center'}}>
