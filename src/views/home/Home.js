@@ -515,7 +515,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
     return ( <>
         
         <div className={getColorStatusBar()}></div>
-        <div className='sideBar'>
+        <div className='sideBarHome'>
             <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect} unReadMessages={unReadMessages} isConnected={isConnected}/>
         </div>
         <div className='contentDashboard'>
