@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import '../../../SideBarMenu.css'; 
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
-
+    console.log('page',page);
     page = page ? page : 'home';
     const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
