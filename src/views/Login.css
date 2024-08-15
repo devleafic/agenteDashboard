@@ -1,30 +1,30 @@
-body {
+.login-page body {
     margin: 0;
     font-family: 'Arial', sans-serif;
 }
 
-.ui.segment {
+.login-page .ui.segment {
     border-radius: 10px !important;
     padding: 2em;
 }
 
-.ui.header {
+.login-page .ui.header {
     margin-bottom: 1.5em;
 }
 
-.ui.form .field > .ui.input > input {
+.login-page .ui.form .field > .ui.input > input {
     border-radius: 10px !important;
 }
 
-.ui.button {
+.login-page .ui.button {
     border-radius: 10px !important;
 }
 
-.ui.message {
+.login-page .ui.message {
     border-radius: 10px !important;
 }
 
-.login-container {
+.login-page .login-container {
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -32,6 +32,6 @@ body {
     background: linear-gradient(to right, #6a11cb, #2575fc);
 }
 
-.login-grid {
+.login-page .login-grid {
     width: 100%;
 }

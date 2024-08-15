@@ -35,6 +35,7 @@ const Login = () => {
     }
 
     return (
+        <div class="login-page">
         <div className="login-container">
             <Grid textAlign='center' verticalAlign='middle' className="login-grid">
                 <Grid.Column style={{ maxWidth: 450 }}>
@@ -74,6 +75,7 @@ const Login = () => {
                     </Segment>
                 </Grid.Column>
             </Grid>
+        </div>
         </div>
     );
 }
