@@ -58,10 +58,12 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     }
 
     const getButton = (option) => {
-       
+        const isSelected = page === option;
+        const iconColor = isSelected ? 'white' : 'grey'; 
         switch (option){
             case 'home':
-                return <Button disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>
+                return <Button  style={{ color: iconColor }}
+                disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>
          
             case 'inbox':
                 if(unReadMessages){
@@ -70,10 +72,10 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                         <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
                             <Icon loading name='envelope' color='red'  />
                            {/* <Icon name='inbox' />*/}
-                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : 'grey'} />
+                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
                     )
                 }else{
-                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : 'null'}/>
+                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
         
                 }
             case 'follow':
