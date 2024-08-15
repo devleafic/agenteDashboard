@@ -19,15 +19,16 @@
 }
 
 .sidebar-item {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    margin-right: 10px;
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
 .sidebar-item .ui.button {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 30px; /* Hace que los botones sean casi redondos */
     background-color: #ffffff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);

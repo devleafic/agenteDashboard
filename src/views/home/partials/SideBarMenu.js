@@ -9,7 +9,7 @@ import '../../../SideBarMenu.css';
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
 
-
+    page = page ? page : 'home';
     const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
 
@@ -64,7 +64,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                             </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
                     )
                 }else{
-                    return <Button disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
+                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
         
                 }
             case 'follow':
@@ -74,7 +74,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
             case 'InternalChat':
-                return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
+                return  <Button className="sidebar-item"  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : 'gray')}/>  
         }
     }
     useEffect(() => {
@@ -103,7 +103,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
         <div className="sidebar-container">
             <div className="sidebar-content">
                 <div className="sidebar-item">
-                    <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
+                    <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'blue' : null}/>} position='right center'/>
                 </div>
                 <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
