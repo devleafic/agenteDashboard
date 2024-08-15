@@ -100,7 +100,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     content='Inbox Central, powered by BotDynamics.'
                     key={process.env.REACT_APP_SYSTEM_VERSION}
                     header={process.env.REACT_APP_SYSTEM_VERSION}
-                    trigger={<Image src={avatar} centered style={{height:30}}/>}
+                    trigger={<Image src={avatar} centered style={{height:33}}/>}
             />
         </div>
         <div style={{height:'100%',position: 'relative'}}>
