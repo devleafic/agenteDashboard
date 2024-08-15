@@ -3,15 +3,13 @@ body {
     font-family: 'Arial', sans-serif;
 }
 
-
-
 .ui.segment {
     border-radius: 10px !important;
-    padding: 2em !important;
+    padding: 2em;
 }
 
 .ui.header {
-    margin-bottom: 1.5em !important;
+    margin-bottom: 1.5em;
 }
 
 .ui.form .field > .ui.input > input {
@@ -32,8 +30,8 @@ body {
     justify-content: center;
     align-items: center;
     background: linear-gradient(to right, #6a11cb, #2575fc);
-  }
-  
-  .login-grid {
+}
+
+.login-grid {
     width: 100%;
-  }
+}
