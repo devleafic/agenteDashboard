@@ -131,6 +131,10 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                         position='right center'
                     />
                 </div>
+
+                <div className="sidebar-item">
+                    <Popup content='Conversaciones en curso' trigger={getButton('home')} position='right center'/>
+                </div>
                 <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
                 </div>
