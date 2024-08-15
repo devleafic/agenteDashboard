@@ -284,22 +284,21 @@ h2 {
 
 .statusBar {
   background: #FF1744;
-  height: 15px; /* Aumenta la altura */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 10px; /* Aumenta la altura */
   transition: background 0.3s ease;
 }
 
 .statusBarblue {
   background: #3EBD61;
-  height: 15px; /* Aumenta la altura */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 10px; /* Aumenta la altura */
+
   transition: background 0.3s ease;
 }
 
 .statusBarOff {
   background: #EF9400;
-  height: 15px; /* Aumenta la altura */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 10px; /* Aumenta la altura */
+
   transition: background 0.3s ease;
 }
 

@@ -11,8 +11,10 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     useEffect(() => {
         // Asegúrate de que el estado se inicialice correctamente
         if (!page) {
+            console.log('no hay pagina');
             page('home'); // O cualquier valor predeterminado que tenga sentido
         }
+        console.log('page',page);
     }, [page]);
     const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
@@ -78,7 +80,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             case 'calendar':
                 return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
             case 'InternalChat':
-                return  <Button className="sidebar-item"  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : 'grey')}/>  
+                return  <Button className="sidebar-item"  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>  
         }
     }
     useEffect(() => {
@@ -100,7 +102,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     content='Inbox Central, powered by BotDynamics.'
                     key={process.env.REACT_APP_SYSTEM_VERSION}
                     header={process.env.REACT_APP_SYSTEM_VERSION}
-                    trigger={<Image src={avatar} centered style={{height:33}}/>}
+                    trigger={<Image src={avatar} centered style={{height:28}}/>}
             />
         </div>
         <div style={{height:'100%',position: 'relative'}}>
