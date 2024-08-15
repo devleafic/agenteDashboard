@@ -281,26 +281,63 @@ h2 {
   background-color: #00b5ad !important
 }
 
-.statusBar{
-  background:#FF1744;
-  height: 10px;
+
+.statusBar {
+  background: #FF1744;
+  height: 15px; /* Aumenta la altura */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
 }
 
-.statusBarblue{background:#3EBD61; height: 10px;}
-.statusBarOff{background:#EF9400; height: 10px;}
+.statusBarblue {
+  background: #3EBD61;
+  height: 15px; /* Aumenta la altura */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
 
+.statusBarOff {
+  background: #EF9400;
+  height: 15px; /* Aumenta la altura */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
 
 .selectActivity {
   background: #fff;
-  border: 1px solid rgba(34,36,38,.15);
+  border: 1px solid rgba(34, 36, 38, 0.15);
   border-radius: 0.28571429rem;
   box-shadow: 0 0 0 0 transparent inset;
   padding: 0.50em 1em;
-  color: rgba(0,0,0,.87);
+  color: rgba(0, 0, 0, 0.87);
   margin-left: 15px;
   margin-right: 15px;
+  font-size: 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray"><path d="M4 6l4 4 4-4z"/></svg>'), linear-gradient(to bottom, #ffffff 0%, #f1f1f1 100%);
+  background-repeat: no-repeat, repeat;
+  background-position: right 10px center, 0 0;
+  background-size: 12px, 100%;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
 }
 
+.selectActivity:hover {
+  border-color: rgba(34, 36, 38, 0.35);
+}
+
+.selectActivity:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  outline: none;
+  background-color: #e6f7ff;
+}
+
+.selectActivity option:checked {
+  background-color: #007bff;
+  color: #fff;
+}
 .removeMargin > .menu{
   margin-bottom: 0px;
   overflow-x: auto;
@@ -634,7 +671,6 @@ h2 {
 @media screen and (min-width:1201px) {
   /*body   { background-color: #06F } */
 }
-
 .containerAliasUnread {
   display: flex;
   flex-direction: column;
@@ -660,6 +696,8 @@ h2 {
 .b, .d {
   justify-self: end; /* Alinea el texto a la derecha */
 }
+
+
 
 /* Para dispositivos móviles, cambia a una sola columna */
 @media (max-width: 1035px) {

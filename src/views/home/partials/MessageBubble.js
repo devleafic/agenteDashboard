@@ -171,10 +171,10 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
     }
     
     const getNameAuthor = (element) => {
-        if(!element){return '';}
+        if(!element){return 'No se recupero el autor, reinicia sesión.';}
         if(element.sys && element.sys == 'BOT') {element.sys = '🤖'}
         return element.agent ? element.agent.user 
-            : (element.sys ? element.sys : '');
+            : (element.sys ? element.sys : 'Autor desconocido');
     }
 
     const getAck = (ack) => {

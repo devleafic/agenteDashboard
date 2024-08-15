@@ -1,0 +1,43 @@
+.sidebar-container {
+    height: 100%;
+    width: 80px;
+    background-color: #f3f4f6;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Centra los elementos verticalmente */
+    padding-top: 20px;
+    position: relative;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.sidebar-item {
+    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-item .ui.button {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px; /* Hace que los botones sean casi redondos */
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-item .ui.button:hover {
+    background-color: #e0e1e2;
+}
+
+.sidebar-item.logout {
+    margin-top: auto;
+    margin-bottom: 20px;
+}

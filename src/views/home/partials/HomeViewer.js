@@ -37,6 +37,12 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     }
   }
 
+  const [selected, setSelected] = useState(null);
+
+  const handleSelect = (key) => {
+    setSelected(key);
+  };
+
   const getIconChannel = ({anchor, channel, alias, privateInbox, fromPipeline, profilePic, typeFolio,subject,unread}) => {
     let ch;
     
@@ -118,45 +124,46 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
         </>
         
         default:
-        //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
-        return <>
-
-          <div class="contenedorTab">
-            <div class="a">
-                {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
-                    <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Popup
-                      content={anchor}
-                      key={anchor}
-                      header={alias ? alias : anchor}
-                      trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
-                    />
-
-                  </div>
-            </div>
-            <div class="b">
-              <div>
-
-              <Popup
-                content={anchor}
-                key={anchor}
-                header={alias}
-                trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
-              />
+          //return <>     <img src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png' } alt="profile" style={{height : 20, width:20}} /> <span>{aliasName}</span> <Image src={ch.image} style={{height : 20, width : 20,  marginTop: 8}} /></>
+          return <>
+  
+            <div class="contenedorTab">
+              <div class="a">
+                  {/*<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
+                      <div  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Popup
+                        content={anchor}
+                        key={anchor}
+                        header={alias ? alias : anchor}
+                        trigger={<Image  src={profilePic ? profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' }} />}
+                      />
+  
+                    </div>
+              </div>
+              <div class="b">
+                <div>
+  
+                <Popup
+                  content={anchor}
+                  key={anchor}
+                  header={alias}
+                  trigger={<Image  src={ch?.image} style={{ height: 20, width: 20, marginTop: 2, marginLeft: 'auto' }} />}
+                />
+                </div>
+              </div>
+              <div class="c">
+              <div  id='elementoAliasName'  >
+                          <div >{aliasName}</div>
+                      </div>
+              </div>
+              <div class="d">
+              <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
               </div>
             </div>
-            <div class="c">
-            <div  id='elementoAliasName'  >
-                        <div >{aliasName}</div>
-                    </div>
-            </div>
-            <div class="d">
-            <div style={{ height: 20, width: 20, marginTop: 8, marginLeft: 'auto' } }>{ureadIcon}{folioIcon ? folioIcon : ''}</div>
-            </div>
-          </div>
-       </>
-    }
-  } 
+         </>
+      }
+    } 
+  
 
   useEffect(  () => {
     const renderPanesViews = async () => {

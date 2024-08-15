@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+
+
+.ui.segment {
+    border-radius: 10px !important;
+    padding: 2em !important;
+}
+
+.ui.header {
+    margin-bottom: 1.5em !important;
+}
+
+.ui.form .field > .ui.input > input {
+    border-radius: 10px !important;
+}
+
+.ui.button {
+    border-radius: 10px !important;
+}
+
+.ui.message {
+    border-radius: 10px !important;
+}
+
+.login-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+  }
+  
+  .login-grid {
+    width: 100%;
+  }
