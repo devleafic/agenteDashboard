@@ -60,6 +60,9 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     const getButton = (option) => {
        
         switch (option){
+            case 'home':
+                return <Button disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>
+         
             case 'inbox':
                 if(unReadMessages){
                     return (
@@ -106,8 +109,12 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             />
         </div>
         <div style={{height:'100%',position: 'relative'}}>
+
         <div className="sidebar-container">
             <div className="sidebar-content">
+            <div className="sidebar-item">
+                    <Popup content='Mis conversaciones en curso' trigger={getButton('home')} position='right center'/>
+                </div>
                     <div className="sidebar-item">
                     <Popup
                         content='Conversaciones Asignadas'
