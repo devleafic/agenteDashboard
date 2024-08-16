@@ -66,7 +66,7 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => { setPassword(e.target.value); setMsgError(''); }}
                                 />
-                                <Button color='blue' fluid size='large'>
+                                <Button style={{background: 'linear-gradient(to right, #6a11cb, #2575fc)',color: '#FFFFFF'}}fluid size='large'>
                                     Iniciar Sesión
                                 </Button>
                             </Segment>

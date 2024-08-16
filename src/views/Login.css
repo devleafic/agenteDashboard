@@ -1,11 +1,19 @@
-.login-page body {
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Evitar desbordamiento horizontal */
+}
+
+.login-page {
     font-family: 'Arial', sans-serif;
 }
 
 .login-page .ui.segment {
     border-radius: 10px !important;
     padding: 2em;
+    margin: 0; /* Asegúrate de que no haya márgenes que causen desbordamiento */
 }
 
 .login-page .ui.header {
@@ -30,8 +38,14 @@
     justify-content: center;
     align-items: center;
     background: linear-gradient(to right, #6a11cb, #2575fc);
+    padding: 1em;
+    overflow: hidden; /* Evitar desbordamiento */
+    box-sizing: border-box; /* Incluir padding y border en el tamaño total */
 }
 
 .login-page .login-grid {
     width: 100%;
+    max-width: 450px;
+    padding: 0 1em;
+    box-sizing: border-box; /* Incluir padding y border en el tamaño total */
 }
