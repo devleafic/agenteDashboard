@@ -42,3 +42,12 @@
     margin-top: auto;
     margin-bottom: 20px;
 }
+
+/* styles.css */
+.sidebar-button .icon {
+    color: grey; /* Color por defecto */
+}
+
+.sidebar-button.selected .icon {
+    color: blue; /* Color cuando está seleccionado */
+}

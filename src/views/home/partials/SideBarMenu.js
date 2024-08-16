@@ -59,11 +59,12 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
 
     const getButton = (option) => {
         const isSelected = page === option;
-        const iconColor = isSelected ? 'white' : 'grey'; 
+        const buttonClass = isSelected ? 'sidebar-button selected' : 'sidebar-button';
+    
         switch (option){
             case 'home':
-                return <Button  style={{ color: iconColor }}
-                disabled={isConnected === -1 ? true : false} icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'blue' : 'white'}/>
+                return <Button   className={buttonClass}
+                disabled={isConnected === -1 ? true : false} icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'blue' : null}/>
             case 'inbox':
                 if(unReadMessages){
                     return (
