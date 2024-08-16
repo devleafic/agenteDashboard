@@ -49,5 +49,5 @@
 }
 
 .sidebar-button.selected .icon {
-    color: blue; /* Color cuando está seleccionado */
+    color: #6a11cb, /* Color cuando está seleccionado */
 }
