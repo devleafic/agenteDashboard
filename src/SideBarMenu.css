@@ -42,12 +42,11 @@
     margin-top: auto;
     margin-bottom: 20px;
 }
-
-/* styles.css */
+/* SideBarMenu.css */
 .sidebar-button .icon {
     color: grey; /* Color por defecto */
 }
 
 .sidebar-button.selected .icon {
-    color: #6a11cb, /* Color cuando está seleccionado */
+    color: #b249f8 /* Color cuando está seleccionado */
 }

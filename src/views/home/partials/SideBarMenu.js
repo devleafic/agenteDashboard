@@ -63,8 +63,12 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     
         switch (option){
             case 'home':
-                return <Button   className={buttonClass}
-                disabled={isConnected === -1 ? true : false} icon='comments' onClick={() => selectedComponent('home')} color={page == 'home' ? 'rgb(255, 255, 255)' : null}/>
+                return <Button 
+                     className={buttonClass}
+                    disabled={isConnected === -1 ? true : false} 
+                    icon='comments' onClick={() => selectedComponent('home')} 
+                    //color={page == 'home' ? 'rgb(255, 255, 255)' : null}
+                    />
             case 'inbox':
                 if(unReadMessages){
                     return (
