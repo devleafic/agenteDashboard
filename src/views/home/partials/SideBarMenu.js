@@ -73,23 +73,39 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                 if(unReadMessages){
                     return (
         
-                        <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
+                        <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
                             <Icon loading name='envelope' color='red'  />
                            {/* <Icon name='inbox' />*/}
-                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
+                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} 
+                            //color={page === 'inbox' ? 'blue' : null} 
+                            />
                     )
                 }else{
-                    return <Button className="sidebar-item" disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ?  'rgb(255, 255, 255)' : null}/>
+                    return <Button className={buttonClass}
+                            disabled={isConnected === -1 ? true : false}
+                            icon='inbox' onClick={() => selectedComponent('inbox')} 
+                            //color={page === 'inbox' ?  'rgb(255, 255, 255)' : null}
+                            />
         
                 }
             case 'follow':
-                return <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('follow')} color={page === 'follow' ?  'rgb(255, 255, 255)' : null}/>
+                return <Button className={buttonClass}
+                 disabled={isConnected === -1 ? true : false}
+                  icon='filter' onClick={() => selectedComponent('follow')}
+                  // color={page === 'follow' ?  'rgb(255, 255, 255)' : null}
+                  />
             case 'contacts':
-                return <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ?  'rgb(255, 255, 255)' : null}/>
+                return <Button className={buttonClass} 
+                disabled={isConnected === -1 ? true : false}
+                 icon='id card' onClick={() => selectedComponent('contacts')} 
+                 //color={page === 'contacts' ?  'rgb(255, 255, 255)' : null}
+                 />
             case 'calendar':
                 return <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ?  'rgb(255, 255, 255)' : null}/>                
             case 'InternalChat':
-                return  <Button className={buttonClass}  icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ?  'rgb(255, 255, 255)' : (hasUnread > 0 ? 'red' : null)}/>  
+                return  <Button className={buttonClass}  
+                icon='chat' onClick={() => selectedComponent('InternalChat')} 
+                color={page === 'InternalChat' ?  'rgb(255, 255, 255)' : (hasUnread > 0 ? 'red' : null)}/>  
         }
     }
     useEffect(() => {
