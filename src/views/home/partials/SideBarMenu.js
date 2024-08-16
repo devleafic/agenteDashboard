@@ -8,8 +8,14 @@ import { toast } from 'react-toastify';
 import '../../../SideBarMenu.css'; 
 
 const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unReadMessages}) => {
-
-
+    useEffect(() => {
+        // Asegúrate de que el estado se inicialice correctamente
+        if (!page) {
+            console.log('no hay pagina');
+            page('home'); // O cualquier valor predeterminado que tenga sentido
+        }
+        console.log('page',page);
+    }, [page]);
     const {unreadMessages : unReadMessagesIC} = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
 
@@ -52,31 +58,67 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
     }
 
     const getButton = (option) => {
-       
+        const isSelected = page === option;
+        const buttonClass = isSelected ? 'sidebar-button selected' : 'sidebar-button';
+    
         switch (option){
+            case 'home':
+                return <Button 
+                     className={buttonClass}
+                    disabled={isConnected === -1 ? true : false} 
+                    icon='comments' onClick={() => selectedComponent('home')} 
+                    //color={page == 'home' ? 'rgb(255, 255, 255)' : null}
+                    />
             case 'inbox':
                 if(unReadMessages){
                     return (
         
-                        <Button disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
+                        <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon={<Icon.Group>
                             <Icon loading name='envelope' color='red'  />
                            {/* <Icon name='inbox' />*/}
-                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null} />
+                            </Icon.Group>}  onClick={() => selectedComponent('inbox')} 
+                            //color={page === 'inbox' ? 'blue' : null} 
+                            />
                     )
                 }else{
-                    return <Button disabled={isConnected === -1 ? true : false} icon='inbox' onClick={() => selectedComponent('inbox')} color={page === 'inbox' ? 'blue' : null}/>
+                    return <Button className={buttonClass}
+                            disabled={isConnected === -1 ? true : false}
+                            icon='inbox' onClick={() => selectedComponent('inbox')} 
+                            //color={page === 'inbox' ?  'rgb(255, 255, 255)' : null}
+                            />
         
                 }
             case 'follow':
-                return <Button disabled={isConnected === -1 ? true : false} icon='filter' onClick={() => selectedComponent('follow')} color={page === 'follow' ? 'blue' : null}/>
+                return <Button className={buttonClass}
+                 disabled={isConnected === -1 ? true : false}
+                  icon='filter' onClick={() => selectedComponent('follow')}
+                  // color={page === 'follow' ?  'rgb(255, 255, 255)' : null}
+                  />
             case 'contacts':
-                return <Button disabled={isConnected === -1 ? true : false} icon='id card' onClick={() => selectedComponent('contacts')} color={page === 'contacts' ? 'blue' : null}/>
+                return <Button className={buttonClass} 
+                disabled={isConnected === -1 ? true : false}
+                 icon='id card' onClick={() => selectedComponent('contacts')} 
+                 //color={page === 'contacts' ?  'rgb(255, 255, 255)' : null}
+                 />
             case 'calendar':
-                return <Button disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ? 'blue' : null}/>                
+                return <Button className={buttonClass} disabled={isConnected === -1 ? true : false} icon='calendar alternate' onClick={() => selectedComponent('calendar')} color={page === 'calendar' ?  'rgb(255, 255, 255)' : null}/>                
             case 'InternalChat':
-                return <Button basic icon='chat' onClick={() => selectedComponent('InternalChat')} color={page === 'InternalChat' ? 'blue' : (hasUnread > 0 ? 'red' : null)}/>
+                return  <Button className={buttonClass}  
+                icon='chat' onClick={() => selectedComponent('InternalChat')} 
+                color={page === 'InternalChat' ?  'rgb(255, 255, 255)' : (hasUnread > 0 ? 'red' : null)}/>  
         }
     }
+    useEffect(() => {
+        // Asegúrate de que los estilos CSS se carguen correctamente
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '../../../SideBarMenu.css'; // Reemplaza con la ruta correcta a tu archivo CSS
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, []);
 
     return (<>
         <div style={{marginTop:20, textAlign:'center'}}>
@@ -85,14 +127,15 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     content='Inbox Central, powered by BotDynamics.'
                     key={process.env.REACT_APP_SYSTEM_VERSION}
                     header={process.env.REACT_APP_SYSTEM_VERSION}
-                    trigger={<Image src={avatar} centered style={{height:30}}/>}
+                    trigger={<Image src={avatar} centered style={{height:28}}/>}
             />
         </div>
         <div style={{height:'100%',position: 'relative'}}>
+
         <div className="sidebar-container">
             <div className="sidebar-content">
                 <div className="sidebar-item">
-                    <Popup content='Conversaciones Asignadas' trigger={<Button icon='comments' onClick={() => selectedComponent('home')} color={page === 'home' ? 'blue' : null}/>} position='right center'/>
+                    <Popup content='Mis Conversaciones en curso' trigger={getButton('home')} position='right center'/>
                 </div>
                 <div className="sidebar-item">
                     <Popup content='Mis conversaciones privadas' trigger={getButton('inbox')} position='right center'/>
