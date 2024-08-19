@@ -102,18 +102,34 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
             agents.length <= 0 && <Message icon='ban' compact floating negative content='Sin agentes disponibles'/>
         }
         <Label>Selecciona el agente a transferir</Label>
-        <Dropdown placeholder='Elige un agente' value={agentToSend.agent} error={errorAgentField} selection fluid options={agents.map((x) => {
-            return { key: x._id, value: x._id, text: x.user }
-        })} onChange={(e,{value}) => {
-            setErrorAgentField(false);
-            let agentName = agents.find((x) => {
-                return x._id === value;
-            })
-            setAgentToSend({...agentToSend, agent : value, name : agentName.user, folio : folio.folio._id })
-            
-        }} disabled={agents.length <= 0}/>
-        <div style={{marginTop:15}}>
-            <Button color='blue' onClick={() => checkToSendAgent()} disabled={agents.length <= 0}>Transferir Folio Privado</Button>
+        <Dropdown 
+            placeholder='Elige un agente' 
+            value={agentToSend.agent} 
+            error={errorAgentField} 
+            selection 
+            fluid 
+            options={agents.length > 0 ? agents.map((x) => {
+                return { key: x._id, value: x._id, text: x.user }
+            }) : []} 
+            onChange={(e, { value }) => {
+                setErrorAgentField(false);
+                let agentName = agents.find((x) => x._id === value);
+                if (agentName && folio && folio.folio) {
+                    setAgentToSend({ ...agentToSend, agent: value, name: agentName.user, folio: folio.folio._id });
+                } else {
+                    console.error("Agent or folio information is missing");
+                }
+            }} 
+            disabled={agents.length <= 0}
+        />
+        <div style={{ marginTop: 15 }}>
+            <Button 
+                color='blue' 
+                onClick={() => checkToSendAgent()} 
+                disabled={agents.length <= 0}
+            >
+                Transferir Folio Privado
+            </Button>
         </div>
 
         <Modal
