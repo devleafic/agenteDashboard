@@ -92,36 +92,42 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
 
     }
 
-    useEffect(  () => {
-        setAgentToSend(initializeQueue);
-        console.log('refrescando componente de transferir')},
-    [folio])
+    // useEffect(  () => {
+    //     setAgentToSend(initializeQueue);
+    //     console.log('refrescando componente de transferir')},
+    // [folio])
 
+    useEffect(() => {
+        setAgentToSend({ agent: '', name: '', folio: '' });
+        console.log('refrescando componente de transferir');
+    }, [folio]);
     return ( <>
         {
             agents.length <= 0 && <Message icon='ban' compact floating negative content='Sin agentes disponibles'/>
         }
         <Label>Selecciona el agente a transferir</Label>
-        <Dropdown 
-            placeholder='Elige un agente' 
-            value={agentToSend.agent} 
-            error={errorAgentField} 
-            selection 
-            fluid 
-            options={agents.length > 0 ? agents.map((x) => {
-                return { key: x._id, value: x._id, text: x.user }
-            }) : []} 
-            onChange={(e, { value }) => {
-                setErrorAgentField(false);
-                let agentName = agents.find((x) => x._id === value);
-                if (agentName && folio && folio.folio) {
-                    setAgentToSend({ ...agentToSend, agent: value, name: agentName.user, folio: folio.folio._id });
-                } else {
-                    console.error("Agent or folio information is missing");
-                }
-            }} 
-            disabled={agents.length <= 0}
-        />
+        <select
+          className="modern-select" 
+                value={agentToSend.agent}
+                onChange={(e) => {
+                    setErrorAgentField(false);
+                    const value = e.target.value;
+                    let agentName = agents.find((x) => x._id.toString() === value);
+                    if (agentName && folio && folio.folio) {
+                        setAgentToSend({ ...agentToSend, agent: value, name: agentName.user, folio: folio.folio._id });
+                    } else {
+                        console.error("Agent or folio information is missing");
+                    }
+                }}
+                disabled={agents.length <= 0}
+                style={agents.length > 5 ? { maxHeight: '200px', overflowY: 'auto' } : {}}
+            >
+                <option value="" disabled>Elige un agente</option>
+                {agents.length > 0 && agents.map((x) => (
+                    <option key={x._id} value={x._id.toString()}>{x.user}</option>
+                ))}
+            </select>
+            {errorAgentField && <Message negative content='Selecciona un agente' />}
         <div style={{ marginTop: 15 }}>
             <Button 
                 color='blue' 
