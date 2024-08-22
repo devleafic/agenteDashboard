@@ -61,43 +61,48 @@ const UploadFile = ({folio, channel, setRefresh}) => {
     
 
     const fileUpload = file => {
+        const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
+    
+        if (file.size > maxFileSize) {
+            alert("El archivo es demasiado grande. El tamaño máximo permitido es 20MB.");
+            return;
+        }
+    
         setOnUpload(true);
         setContentShow(null);
         setShowModal(true);
-        const url = process.env.REACT_APP_CENTRALITA+'/sendFile/'+channel+'/'+folio;
+        const url = process.env.REACT_APP_CENTRALITA + '/sendFile/' + channel + '/' + folio;
         const formData = new FormData();
         formData.append("file", file);
-        
+    
         const config = {
-          headers: {
-            "Content-type": "multipart/form-data"
-          }
+            headers: {
+                "Content-type": "multipart/form-data"
+            }
         };
         setOnPushFile(true);
         return post(url, formData, config).then((data) => {
-            
+    
             setToUpload(null);
             setOnPushFile(false);
             setNameFileSend(data.data.file.originalFilename)
             setUrlFile(data.data.url);
             let classFile = data.data.file.mimetype.split('/');
-            
-
-            if(classFile[0] === 'image'){
+    
+            if (classFile[0] === 'image') {
                 setUrlFileType(classFile[0]);
-            }else{
+            } else {
                 setUrlFileType('document');
             }
-
-            if(classFile[0] === 'image'){
-                setContentShow(<Image centered size='medium' src={data.data.url}/>)
-            }else{
-                setContentShow(<a color='blue'target='blank' href={data.data.url}><Icon name='folder open'></Icon>{data.data.file.originalFilename}</a>)
+    
+            if (classFile[0] === 'image') {
+                setContentShow(<Image centered size='medium' src={data.data.url} />)
+            } else {
+                setContentShow(<a color='blue' target='blank' href={data.data.url}><Icon name='folder open'></Icon>{data.data.file.originalFilename}</a>)
             }
-            
+    
             // setShowModal(true)
-
-            
+    
         });
     };
     return (<>
