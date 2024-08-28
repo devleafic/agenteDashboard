@@ -27,6 +27,10 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
     const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando...", profilePicture: avatar});
     const [automaticActivity, setAutomaticActivity ] = useState(null);
 
+    const [agentList, setAgentList ] = useState(null);
+    const [timing, setTiming ] = useState(null);
+    const [inAtention, setInAtention] = useState(null);
+
     //notification center
     const {
         notifications,
@@ -64,6 +68,18 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         foliosOnBotAt: '°°°'
     })
 
+    const getTiming = () => {    
+        socketC.connection.emit('activitiesAgent', {
+          //date : 'today',
+          service :  userInfo.service.id
+        },(result) => {
+            console.log(result);
+            setInAtention(result.inAtention);
+            setTiming(result.timing);
+            setAgentList(result.agentList);
+        });
+      };
+
     const getAnalytics = () => {
         
         if (userInfo) {
@@ -74,6 +90,8 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             },(result) => {
                 setAnalytics(result.data)
             });
+
+           
         }
     };
 
