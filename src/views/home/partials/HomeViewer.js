@@ -10,7 +10,8 @@ import { has } from 'lodash';
 
 const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio}) => {
   
-  const boxMessage = useRef();
+  const boxMessage = useRef(null);
+
   const listFolios = useContext(ListFoliosContext);
   const [ messageToSend, setMessageToSend] = useState('');
   const [panesView, setPanesView] = useState([]);

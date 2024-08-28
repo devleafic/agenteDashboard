@@ -19,7 +19,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
-    
+    console.log('boxMessage update',boxMessage)
     const [currentFolio, setCurrentFolio] = useState(null);
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
@@ -28,7 +28,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [channelEmail, setChannelEmail] =  useState(null)
     const [attachments, setAttachments] = useState([]);
     const [contador, setContador] = useState(0);
-
     const editorRef = useRef(null);
     const log = () => {
       if (editorRef.current) {
