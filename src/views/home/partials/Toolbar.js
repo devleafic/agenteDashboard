@@ -1,9 +1,11 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Grid} from 'semantic-ui-react';
+import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Grid, Label} from 'semantic-ui-react';
 import {toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
+import moment from 'moment';
+
 //import avatar from './../../../img/avatars/matt.jpg';
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -68,10 +70,12 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
         foliosOnBotAt: '°°°'
     })
 
-    const getTiming = () => {    
-        socketC.connection.emit('activitiesAgent', {
+    
+
+    const getAgentActivitie = () => {    
+        socketC.connection.emit('activitieAgent', {
           //date : 'today',
-          service :  userInfo.service.id
+          agent :  userInfo._id
         },(result) => {
             console.log(result);
             setInAtention(result.inAtention);
@@ -79,6 +83,34 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             setAgentList(result.agentList);
         });
       };
+
+      const getTiming = (agent) => {
+        if (typeof agent === 'undefined' || agent === null) {
+            return 'Agente no definido';
+        }
+
+        if (typeof timing === 'undefined' || timing === null) {
+            return 'Calculando tiempo de conexión';
+        }
+        
+        const timingLast = timing.find((x) => {
+            return agent === x.agent;
+        });
+        
+        if (!timingLast) {
+            return 'Sin tiempo de conexión';
+        }
+
+        const lastActivitie = timingLast.activities[timingLast.activities.length -1];
+        let diffTime = moment().diff(moment(lastActivitie.timing.start), 'seconds');
+        //console.log( moment().diff(moment(lastActivitie.timing.start), 'seconds'));
+        return <Label>
+                    <Icon name='hourglass half' />  { moment.utc(diffTime * 1000).format("HH:mm:ss")}
+                </Label>
+              
+      
+          
+    }  
 
     const getAnalytics = () => {
         
@@ -91,7 +123,7 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
                 setAnalytics(result.data)
             });
 
-           
+            getAgentActivitie()
         }
     };
 
@@ -390,29 +422,24 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
             {
                 
                 isReady && (
+                    <div >
+                        <Popup href="#"
+                        content={userDetail.prefetch}
+                        key={userDetail.name}
+                        header={userDetail.name}
+                        trigger={<Image src={avatar} avatar />}
+                        />  
+                        {getTiming(userInfo._id)}
                     <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
                         <option value={-1} selected={currentActivity === -1}>Selecciona una actividad</option>
                         {
                             activities.map((x) => {return <option value={x.value} key={x.key} selected={currentActivity === x.key}>{x.text}</option>})
                         }
                     </select>
+                    </div>
                 )
             }
-            {
-
-            isReady && (
-
-
-                    <Popup href="#"
-                    content={userDetail.prefetch}
-                    key={userDetail.name}
-                    header={userDetail.name}
-                    trigger={<Image src={avatar} avatar />}
-                    />
-
-
-                )
-            }   
+ 
             {
                 showBlankFolio && infoBlankFolio && (<>
                     <Modal
