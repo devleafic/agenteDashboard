@@ -2,9 +2,11 @@ import shortParagraph from './../../../img/short-paragraph.png';
 import MessageBubble from './MessageBubble';
 import React, {useContext, useState, useEffect} from 'react';
 import axios from 'axios';
-import { Button, Form,  Message, Label, Table, Menu, Icon, Pagination, Input, Segment , Dimmer, Loader, Image, List, Modal, Select } from 'semantic-ui-react';
+import { Button, Form,  Message, Label, Table, Menu, Icon, Pagination, Input, Segment , Dimmer, Loader, Image, List, Modal, Select, Grid } from 'semantic-ui-react';
 import { toast } from 'react-toastify';
 import SocketContext from '../../../controladores/SocketContext';
+import image from './../../../img/dashboard/empty_service.png';
+
 
 const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, userInfo}) => {
     console.log(userInfo)
@@ -387,9 +389,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                     header='Contactos'
                     content='Selecciona un contacto para crear o continuar una conversación'
                 />
-                <Form  className='attached fluid segment' >
-                    <Form.Group widths='equal'>
-                        <input  style={{marginLeft: 50, marginRight: 50}}
+                  <Form  className='attached fluid segment' >
+                   <Form.Group widths='equal'>
+                        <input disabled={!userInfo.allowFindFolios} style={{marginLeft: 50, marginRight: 50}}
                         icon='users' iconPosition='left' 
                         placeholder="Buscar..."
                         onChange={(e) => setQuery(e.target.value.toLowerCase())}
@@ -402,10 +404,22 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
     
                 </Form>
                 {
+                    !userInfo.allowFindFolios &&  <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+                    <Grid.Column>
+                        <div style={{textAlign:'center'}}>
+                            <h2 style={{fontWeight:100}}>No cuentas con acceso</h2>
+                            <p>  No tienes acceso a este apartado. Para hacer busquedas, consulta a tu supervisor.  </p>
+                        </div>
+                    </Grid.Column>
+                    </Grid>      
+                                    
+                }
+
+                {
                     onLoad  && contentMessage //when loading contacts
                 }
                 {
-                    report && report.result.length <= 0 && (
+                   userInfo.allowFindFolios &&  report && report.result.length <= 0 && (
                         <Message
                             icon='warning circle'
                             header='No se encontraron datos con los criterios seleccionados'
@@ -414,7 +428,7 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                     )
                 }
                 {
-                    report && report.result.length > 0 && (
+                     userInfo.allowFindFolios && report && report.result.length > 0 && (
                         <div style={{marginTop: 40}}>
                             {/*<Header as='h2'>Resultado</Header> */}
                             <Table celled>
@@ -464,8 +478,9 @@ const Contacts =  ({selectedComponent, setUnReadMessages, vFolio, setVFolio, use
                             </Table>
                         </div>
                     ) 
-                }                {
-                    showModalContact && (
+                }     
+                           {
+                     userInfo.allowFindFolios && showModalContact && (
                         <Modal
                             onClose={() => {setShowModalContact(false);clearForm();}}
                             onOpen={() => {setShowModalContact(true);clearForm();}}
