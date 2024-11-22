@@ -122,10 +122,18 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         const content = msg.content;
         const caption = msg.caption;
         const recording = msg.callRecordUrl;
+        adstring = '';
+
+        let adstring = '';
+
+        if (msg.ads) {
+            const ads = msg.ads;
+             adstring = `\n\nTexto anuncio: ${ads?.headlineAndBody ?? ''}\nID: ${ads?.sourceId ?? ''}\nTipo: ${ads?.sourceType ?? ''}\n${ads?.sourceUrl ?? ''}`;
+        }
 
         switch(type){
             case 'text':
-                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}</div>);
+                return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  {content}{adstring}</div>);
             case 'interactive':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null}  <Button  color='gray' key={msg._id}>{content}</Button></div>);
             case 'buttonreply':
