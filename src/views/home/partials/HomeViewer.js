@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState, useRef} from 'react';
 import { Tab, Grid, Message, Button, Icon, Image, Popup } from 'semantic-ui-react';
 import Comments from './Comments';
 import Tools from './Tools';
-import axios from 'axios';
+import axios from 'axios'; //test
 
 
 import ListFoliosContext from '../../../controladores/FoliosContext';
