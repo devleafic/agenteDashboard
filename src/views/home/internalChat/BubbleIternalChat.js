@@ -177,6 +177,8 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 return (<video controls><source src={content} type='video/mp4' style={{borderRadius: '15px' }}  reload='auto'/></video>)
             case 'notify':
                 return <Label color="red"> <Icon name='x' />{content}<Label.Detail>FINALIZAR LA CONVERSACIÓN</Label.Detail></Label>          
+            case 'notify-success':
+                return <Label color='green'> <Icon name='x' />{content}<Label.Detail>ACTUALIZACIÓN DE LA CONVERSACIÓN</Label.Detail></Label>          
             case 'errors':
                 return (<>[{type}] - {content}</>);      
             default:
