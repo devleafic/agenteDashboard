@@ -35,47 +35,64 @@ const Login = () => {
     }
 
     return (
-        <div class="login-page">
-        <div className="login-container">
-            <Grid textAlign='center' verticalAlign='middle' className="login-grid">
-                <Grid.Column style={{ maxWidth: 450 }}>
-                    <Segment raised>
-                        <Header as='h2' color='blue' textAlign='center'>
-                            <Image src={LogoImage} style={{ width: 300, margin: '0 auto' }} />
-                        </Header>
-                        <Header as='h2'>WhatsApp for Business, Messenger, Instagram, Livechat, Llamadas y más...</Header>
-                        <Header as='h3'>Combinados en una bandeja para equipos</Header>
-                        <Header as='h4' color='grey' textAlign='center'>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</Header>
-                        <Header as='h6' color='grey' textAlign='center'>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</Header>
-                        <Form size='large' onSubmit={onSubmitForm} loading={onLoading}>
-                            <Segment stacked>
-                                <Form.Input
-                                    fluid
-                                    icon='user'
-                                    iconPosition='left'
-                                    placeholder='Usuario'
-                                    value={user}
-                                    onChange={(e) => { setUser(e.target.value.replace(/\s/g, '')); setMsgError(''); }}
-                                />
-                                <Form.Input
-                                    fluid
-                                    icon='lock'
-                                    iconPosition='left'
-                                    placeholder='Contraseña'
-                                    type='password'
-                                    value={password}
-                                    onChange={(e) => { setPassword(e.target.value); setMsgError(''); }}
-                                />
-                                <Button style={{background: 'linear-gradient(to right, #6a11cb, #2575fc)',color: '#FFFFFF'}}fluid size='large'>
-                                    Iniciar Sesión
-                                </Button>
-                            </Segment>
+        <div className="login-page">
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-card-content">
+                        <div className="login-logo-container">
+                            <Image src={LogoImage} className="login-logo" />
+                        </div>
+                        
+                        <div className="login-header">
+                            <h1 className="login-title">Bienvenido</h1>
+                            <p className="login-subtitle">WhatsApp for Business, Messenger, Instagram, Livechat, Llamadas y más...</p>
+                            <p className="login-description">Combinados en una bandeja para equipos</p>
+                        </div>
+                        
+                        <Form size='large' onSubmit={onSubmitForm} loading={onLoading} className="login-form">
+                            <div className="form-group">
+                                <label className="form-label">Usuario</label>
+                                <div className="input-with-icon">
+                                    <Icon name='user' className="input-icon" />
+                                    <Form.Input
+                                        fluid
+                                        placeholder='Ingrese su usuario'
+                                        value={user}
+                                        className="hero-input"
+                                        onChange={(e) => { setUser(e.target.value.replace(/\s/g, '')); setMsgError(''); }}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Contraseña</label>
+                                <div className="input-with-icon">
+                                    <Icon name='lock' className="input-icon" />
+                                    <Form.Input
+                                        fluid
+                                        placeholder='Ingrese su contraseña'
+                                        type='password'
+                                        value={password}
+                                        className="hero-input"
+                                        onChange={(e) => { setPassword(e.target.value); setMsgError(''); }}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <Button className="hero-button" fluid size='large'>
+                                Iniciar Sesión
+                            </Button>
+                            
+                            {msgError && <div className="error-message">{msgError}</div>}
                         </Form>
-                        {msgError && <div className="ui message error">{msgError}</div>}
-                    </Segment>
-                </Grid.Column>
-            </Grid>
-        </div>
+                        
+                        <div className="version-info">
+                            <p>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</p>
+                            <p>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
