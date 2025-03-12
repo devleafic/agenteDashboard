@@ -98,7 +98,7 @@ export const SocketProvider = ({ children }) => {
               if (!notificationSettings.mutedChats.includes(chatId)) {
                 // Check if we have permission to show notifications
                 if (Notification.permission === "granted") {
-                  const notification = new Notification(notification.senderName, {
+                  const notification = new Notification(notification && notification.senderName ? notification.senderName : 'New Msg', {
                     body: notificationText,
                     icon: '/logo192.png', // Add your app icon path here
                   });
