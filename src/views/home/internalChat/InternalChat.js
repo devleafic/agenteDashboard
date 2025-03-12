@@ -1,6 +1,6 @@
 import {useEffect, useState, useRef} from 'react';
 import { useSocket } from '../../../controladores/InternalChatContext';
-import { Input } from 'semantic-ui-react'
+import { Input, Modal, Button, Label } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
 import { Message } from 'semantic-ui-react';
@@ -14,10 +14,20 @@ import {
     Dropdown,
   } from 'semantic-ui-react'
 import InternalUploadFile from './InternalUploadFile';
+import NotificationSettings from './NotificationSettings';
 
 export default function InternalChat({userInfo}) {
 
-    const {socket, inboxList, unreadMessages, setUnreadMessages, activitiesUsers, setInboxList} = useSocket();
+    const {
+        socket, 
+        inboxList, 
+        unreadMessages, 
+        setUnreadMessages, 
+        activitiesUsers, 
+        setInboxList, 
+        notificationSettings,
+        toggleMuteChat
+    } = useSocket();
     const [findUser, setFindUser] = useState('');
     const [contactList, setContactList] = useState([]);
     const [viewChat, setViewChat] = useState(null);
@@ -28,6 +38,7 @@ export default function InternalChat({userInfo}) {
     let [groupAvatar , setGroupAvatar] = useState('https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/gropuchat.jpg')
     const [myActivitie, setMyActivitie] = useState('2-listo');
     const defaultActivitie = '2-listo';
+    const [showNotificationSettings, setShowNotificationSettings] = useState(false);
     const listActivites = [
         {
             id: '2-listo',
@@ -299,9 +310,56 @@ const getActivitie = (isPrivate, members) => {
         <Message
             attached
             icon="chat"
-            header='TeamChat - Versión Beta 0.6' 
-            content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
+            header={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    TeamChat - Versión Beta 0.7
+                    {notificationSettings.doNotDisturb && (
+                        <Label color='red' size='tiny' style={{ marginLeft: '10px' }}>
+                            <Icon name='do not disturb' /> No molestar
+                        </Label>
+                    )}
+                </div>
+            }
+            content={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>
+                        Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.
+                        {notificationSettings.doNotDisturb && (
+                            <span style={{ color: 'red', marginLeft: '5px' }}>
+                                (Notificaciones silenciadas globalmente)
+                            </span>
+                        )}
+                    </span>
+                    <Button 
+                        icon={notificationSettings.doNotDisturb ? 'bell slash' : 'bell'} 
+                        content='Notificaciones' 
+                        size='tiny' 
+                        onClick={() => setShowNotificationSettings(true)} 
+                        style={{ marginLeft: '10px' }}
+                        color={notificationSettings.doNotDisturb ? 'red' : 'blue'}
+                    />
+                </div>
+            }
         /> </div>
+        
+        {/* Notification Settings Modal */}
+        <Modal
+            open={showNotificationSettings}
+            onClose={() => setShowNotificationSettings(false)}
+            size='small'
+        >
+            <Modal.Header>
+                <Icon name='bell' /> Configuración de Notificaciones
+            </Modal.Header>
+            <Modal.Content>
+                <NotificationSettings />
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={() => setShowNotificationSettings(false)}>
+                    <Icon name='check' /> Cerrar
+                </Button>
+            </Modal.Actions>
+        </Modal>
     <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    
         <div className="internal-chat-list">
@@ -372,7 +430,7 @@ const getActivitie = (isPrivate, members) => {
                         <div style={{ flex: 1, margin: 5}}>
                             {getNames(chat.isPrivate, chat.members, chat.label)}
                         </div>
-                        <div style={{ marginLeft: '10px' }}>
+                        <div style={{ marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
                             <div style={{
                                 width: '20px',
                                 height: '20px',
@@ -382,10 +440,28 @@ const getActivitie = (isPrivate, members) => {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 color: 'white',
-                                fontSize: '12px'
+                                fontSize: '12px',
+                                marginRight: '5px'
                             }}>
                                 {unreadMessages && unreadMessages[chat._id] ? unreadMessages[chat._id] : 0}
                             </div>
+                            <Icon 
+                                name={notificationSettings.mutedChats.includes(chat._id) ? 'bell slash' : 'bell'} 
+                                color={notificationSettings.mutedChats.includes(chat._id) ? 'grey' : 'blue'}
+                                style={{ cursor: 'pointer', marginLeft: '5px' }}
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent opening the chat when clicking the bell icon
+                                    // Check current state before toggling
+                                    const isMuted = notificationSettings.mutedChats.includes(chat._id);
+                                    toggleMuteChat(chat._id);
+                                    toast.info(
+                                        isMuted
+                                            ? `Notificaciones activadas para ${getNames(chat.isPrivate, chat.members, chat.label)}` 
+                                            : `Notificaciones silenciadas para ${getNames(chat.isPrivate, chat.members, chat.label)}`,
+                                        { autoClose: 2000 }
+                                    );
+                                }}
+                            />
                         </div>
                     </div>
                     })
@@ -405,9 +481,16 @@ const getActivitie = (isPrivate, members) => {
                         alt="User Icon" 
                         style={{ marginRight: '10px', width: '50px', height: '50px', borderRadius: '50%' }}
                     />
-                    <strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong>
+                    <div>
+                        <strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong>
+                        {notificationSettings.mutedChats.includes(viewChat._id) && (
+                            <div style={{ fontSize: '14px', color: 'gray' }}>
+                                <Icon name='bell slash' /> Notificaciones silenciadas
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <div style={{marginLeft:10}}>
+                <div style={{marginLeft:10, display: 'flex'}}>
                     <Dropdown
                         text='Miembros'
                         icon='users'
@@ -423,6 +506,22 @@ const getActivitie = (isPrivate, members) => {
                         ))}
                         </DropdownMenu>
                     </Dropdown>
+                    <Button
+                        icon={notificationSettings.mutedChats.includes(viewChat._id) ? 'bell' : 'bell slash'}
+                        content={notificationSettings.mutedChats.includes(viewChat._id) ? 'Activar notificaciones' : 'Silenciar chat'}
+                        onClick={() => {
+                            // Check current state before toggling
+                            const isMuted = notificationSettings.mutedChats.includes(viewChat._id);
+                            toggleMuteChat(viewChat._id);
+                            toast.info(
+                                isMuted
+                                    ? `Notificaciones activadas para ${getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}` 
+                                    : `Notificaciones silenciadas para ${getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}`,
+                                { autoClose: 2000 }
+                            );
+                        }}
+                        style={{ marginLeft: '10px' }}
+                    />
                 </div>
             </div>
             <div className="internal-chat-message-container"  ref={messageContainerRef}>
