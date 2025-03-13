@@ -62,7 +62,22 @@ const HistoryFolios = ({historyFolios}) => {
             <List >
                 {
                     historyFolios.map((item) => {
-                        return (<List.Item key={'hs-'+item._id} href='#' onClick={(e) => {getFolioMessages(item._id);}} title={item.createdAt}>#{item._id}</List.Item>);
+                        return (
+                            <List.Item 
+                                key={'hs-'+item._id} 
+                                href='#' 
+                                onClick={(e) => {getFolioMessages(item._id);}} 
+                                title={item.createdAt}
+                            >
+                                <List.Content>
+                                    <List.Header>#{item._id}</List.Header>
+                                    <List.Description>
+                                        <Icon name='clock outline' />
+                                        {moment(item.createdAt).utcOffset('-06:00').format('DD/MM/YYYY HH:mm')}
+                                    </List.Description>
+                                </List.Content>
+                            </List.Item>
+                        );
                     })
                 }
             </List>

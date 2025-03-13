@@ -1,4 +1,4 @@
-import React, {useContext, useState, useRef, useEffect} from 'react';
+import React, {useContext, useState, useRef, useEffect, useCallback} from 'react';
 import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Segment, Dimmer , Checkbox, Loader, Image, Message,   ListItem, ListIcon, ListContent, List, IconGroup} from 'semantic-ui-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
@@ -35,6 +35,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
       }
     };
     const textArea = useRef(null);
+    const [hasTextContent, setHasTextContent] = useState(false);
 
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(
@@ -73,7 +74,122 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [previewEmailHTML, setPreviewEmailHTML] = useState(null);
     const [openModalPreview, setOpenModalPreview] = useState(false);
 
+    // Para el manejo de los borradores
+    // Para el manejo de los borradores
+    const [messageDrafts, setMessageDrafts] = useState(() => {
+        // Try to load drafts from localStorage on component mount
+        try {
+            const savedDrafts = localStorage.getItem('messageDrafts');
+            return savedDrafts ? JSON.parse(savedDrafts) : {};
+        } catch (error) {
+            console.error('Error loading drafts from localStorage:', error);
+            return {};
+        }
+    });    
+    const [previousFolioId, setPreviousFolioId] = useState(null);
+    const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
+    const [indicatorMessage, setIndicatorMessage] = useState("Guardado...");
+    const [indicatorColor, setIndicatorColor] = useState("rgba(0, 128, 0, 0.7)"); // Default green color
+    const debounceTimerRef = useRef(null);
 
+    // Helper function to show indicator with specific message and color
+    const showIndicator = (message, isRestoration = false) => {
+        setIndicatorMessage(message);
+        setIndicatorColor(isRestoration ? "rgba(0, 100, 200, 0.8)" : "rgba(0, 128, 0, 0.7)");
+        setShowAutoSaveIndicator(true);
+    };
+    
+    // Debounce function
+    const debounce = useCallback((func, delay = 500) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            func();
+        }, delay);
+    }, []);
+    
+    // Function to save draft for a specific folio with debounce
+    const saveDraftForFolio = useCallback((folioId) => {
+        console.log('Attempting to save draft for folio:', folioId, 'Current typeFolio:', typeFolio);
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            const emailContent = editorRef.current.getContent();
+            if (emailContent && emailContent.trim() !== '' && emailContent !== '<p></p>') {
+                debounce(() => {
+                    setMessageDrafts(prevDrafts => {
+                        const newDrafts = {...prevDrafts};
+                        newDrafts[folioId] = emailContent;
+                        console.log('Saved draft for folio:', folioId);
+                        showIndicator("Guardado...");
+                        // Save to localStorage
+                        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                        return newDrafts;
+                    });
+                });
+            }
+        } else if (textArea.current && textArea.current.value && textArea.current.value.trim() !== '') {
+            debounce(() => {
+                setMessageDrafts(prevDrafts => {
+                    const newDrafts = {...prevDrafts};
+                    newDrafts[folioId] = textArea.current.value;
+                    console.log('Saved draft for folio:', folioId);
+                    showIndicator("Guardado...");
+                    // Save to localStorage
+                    localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                    return newDrafts;
+                });
+            });
+        }
+    }, [typeFolio, debounce]);
+    
+    // Function to restore draft for a specific folio
+    const restoreDraftForFolio = (folioId) => {
+        console.log('Attempting to restore draft for folio:', folioId, 'Draft exists:', !!messageDrafts[folioId], 'Current typeFolio:', typeFolio);
+        console.log('All drafts:', messageDrafts);
+        
+        if (messageDrafts[folioId]) {
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                // For email type folios
+                console.log('Restoring email draft:', messageDrafts[folioId]);
+                editorRef.current.setContent(messageDrafts[folioId]);
+                // Show indicator
+                showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
+            } else if (textArea.current) {
+                // For other types of folios
+                console.log('Restoring text draft:', messageDrafts[folioId]);
+                textArea.current.value = messageDrafts[folioId];
+                // Show indicator
+                showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
+                
+                // Trigger an input event to ensure React knows about the change
+                const event = new Event('input', { bubbles: true });
+                textArea.current.dispatchEvent(event);
+            }
+        }
+    };
+    
+    // Function to clear draft for a specific folio
+    const clearDraftForFolio = (folioId) => {
+        setMessageDrafts(prevDrafts => {
+            const newDrafts = {...prevDrafts};
+            delete newDrafts[folioId];
+            
+            // Update localStorage
+            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+            
+            return newDrafts;
+        });
+    };
+
+    useEffect(() => {
+        if (showAutoSaveIndicator) {
+            const timer = setTimeout(() => setShowAutoSaveIndicator(false), 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [showAutoSaveIndicator]);
 
     //historic folio 
     const getFolioMessages = (folio) => {
@@ -165,8 +281,6 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
         }
 
-
-
         setIsLoading(true);
 
         socket.connection.emit('sendMessage', {
@@ -191,6 +305,15 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
             
+            // Clear draft for current folio
+            console.log('Message sent successfully, clearing draft for folio:', folio._id);
+
+            if (folio && folio._id  ) {
+                clearDraftForFolio(folio._id);
+               
+            }
+            setHasTextContent(false);
+
         });
     }
     const previewEmailF = (content) => {
@@ -258,6 +381,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
 
+            // Clear draft for current folio and hide the clear text area button
+            if (folio && folio._id) {
+                clearDraftForFolio(folio._id);
+                setHasTextContent(false);
+            }
         });
     }
     useEffect(() => {
@@ -453,6 +581,17 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
     useEffect(  () => {
         
+        console.log('Folio change effect triggered. New folio:', folio._id, 'Previous folio:', previousFolioId);
+        
+        // First, save draft from previous folio before switching
+        if (previousFolioId && previousFolioId !== folio._id) {
+            console.log('Saving draft for previous folio before switching');
+            saveDraftForFolio(previousFolioId);
+        }
+        
+        // Set current folio as previous for next change - do this early
+        setPreviousFolioId(folio._id);
+
         setCurrentFolio(folio._id);
         setChannel(folio.channel.name);
         setLastMessageFolio(null);
@@ -484,12 +623,48 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             if(pcPosition>=90){
                 boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
             }
-            
         }
+        
+        // Restore draft with a delay to ensure inputs are ready
+        setTimeout(() => {
+            console.log('Attempting to restore draft after delay');
+            restoreDraftForFolio(folio._id);
+        }, 300);
+
         listFolios.currentBox = boxMessage.current;
         console.log('refrescando componente de comentarios')
          loadListClassifications();
-    }, [folio]);
+    }, [folio]); // Remove messageDrafts from dependencies to prevent unnecessary re-renders
+
+    useEffect(() => {
+        console.log('Setting up auto-save interval');
+        const intervalo = setInterval(() => {
+            // Auto-save draft every 5 seconds if there's content
+            setContador((prevContador) => prevContador + 1);
+            console.log('Auto-save check for folio:', folio?._id, 'Type:', typeFolio);
+            
+            // Auto-save current draft if there's content
+            if (folio && folio._id) {
+                saveDraftForFolio(folio._id);
+            }
+        }, 5000);
+
+        return () => {
+            clearInterval(intervalo);
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, [folio, typeFolio, saveDraftForFolio]);
+    
+    // Clean up debounce timer on unmount - single implementation
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, []);
 
     const getLabelQueue = () => {
 
@@ -622,8 +797,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             } 
         
             if(channel != 'call'){
-                showButton()
-                
+                // Remove the call to showButton function that was deleted
+                // showButton()
 
                 if(openModal && lastMessageFolio){
                     let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
@@ -649,21 +824,51 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
  
     });
 
-    
-
-    const showButton = () =>{
-        if(!boxMessage.current){return null}
-
-        let fullHeight = boxMessage.current.scrollHeight;
-        let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
-
-        if(pcPosition<=90 && folio._id === window.localStorage.getItem('lastMessage')){
-            setShowBtnUn(true);
+    const clearTextArea = () => {
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            editorRef.current.setContent('');
+        } else if (textArea.current) {
+            textArea.current.value = '';
         }
+        setHasTextContent(false);
+        
+        // Clear draft for current folio
+        if (folio && folio._id) {
+            setMessageDrafts(prevDrafts => {
+                const newDrafts = {...prevDrafts};
+                delete newDrafts[folio._id];
+                
+                // Update localStorage
+                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                
+                return newDrafts;
+            });
+            showIndicator("Borrador eliminado", true);
+        }
+    };
 
+    const handleTextAreaChange = (e) => {
+        setHasTextContent(e.target.value.trim() !== '');
+    };
+    
+    const handleEditorChange = () => {
+        if (editorRef.current) {
+            const content = editorRef.current.getContent();
+            setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
+        }
+    };
 
-
-    }
+    useEffect(() => {
+        // Check for content on component mount and when switching folios
+        setTimeout(() => {
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                const content = editorRef.current.getContent();
+                setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
+            } else if (textArea.current) {
+                setHasTextContent(textArea.current.value.trim() !== '');
+            }
+        }, 100);
+    }, [folio, typeFolio]);
 
     const fillStages = () =>{
         const options=listStage && listStage.
@@ -700,17 +905,23 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
 
 
   useEffect(() => {
+    console.log('Setting up auto-save interval');
     const intervalo = setInterval(() => {
-      // Código que deseas ejecutar cada 20 segundos
-      // para la funcion de autosave!!!
-      setContador((prevContador) => prevContador + 1);
-      console.log('Contador:', contador )
-    }, 20000); // 20 segundos en milisegundos
+        // Auto-save draft every 5 seconds if there's content
+        setContador((prevContador) => prevContador + 1);
+        console.log('Auto-save check for folio:', folio?._id, 'Type:', typeFolio);
+        
+        // Auto-save current draft if there's content
+        if (folio && folio._id) {
+            saveDraftForFolio(folio._id);
+        }
+    }, 5000);
 
-    return () => {
-      clearInterval(intervalo); // Limpiar el intervalo cuando el componente se desmonte
-    };
-  }, []);
+return () => {
+  clearInterval(intervalo);
+};
+}, [folio, typeFolio, saveDraftForFolio]);
+
 
 return ( <>
         <Comment.Group style={{margin:0, maxWidth:'none', height: '100%'}}>
@@ -720,8 +931,8 @@ return ( <>
                 
                 {typeFolio === '_EMAIL_' && (
                     <>
-                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
-                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> 
+                         {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: '  )}
                         </Header>
                         <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
                             {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
@@ -789,13 +1000,47 @@ return ( <>
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
                         
-                        <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                            //setMessageToSend(e.target.value)
-                        }} disabled={isLoading} onKeyDown={(e) => {
-                            if(e.shiftKey && e.key==='Enter'){
-                                //setMessageToSend(e.target.value)
-                                prepareMessage(e.target.value)}
-                        }} />
+                        <div style={{ position: 'relative' }}>
+                            <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={handleTextAreaChange} disabled={isLoading} onKeyDown={(e) => {
+                                if(e.shiftKey && e.key==='Enter'){
+                                    //setMessageToSend(e.target.value)
+                                    prepareMessage(e.target.value)}
+
+                            }} />
+                            
+                            {/* Auto-save indicator */}
+                            {showAutoSaveIndicator && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '-25px',
+                                    right: '10px',
+                                    backgroundColor: indicatorColor,
+                                    color: 'white',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '12px',
+                                    zIndex: 1000
+                                }}>
+                                    {indicatorMessage}
+                                </div>
+                            )}
+                            {hasTextContent && (
+                                <Button 
+                                    icon="trash" 
+                                    size="mini" 
+                                    color="red" 
+                                    style={{ 
+                                        position: 'absolute', 
+                                        top: '5px', 
+                                        right: '5px', 
+                                        zIndex: 1000,
+                                        opacity: 0.8
+                                    }} 
+                                    onClick={clearTextArea} 
+                                    title="Limpiar texto"
+                                />
+                            )}
+                        </div>
 
                         <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                         
@@ -814,63 +1059,130 @@ return ( <>
                             {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                         </div>
 
-                    <Editor
-                            tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
-                            onInit={(evt, editor) => editorRef.current = editor}
-                            //initialValue='<p>This is the initial content of the editor.</p>'
-                            init={{
-                                license_key: 'gpl',
-                                min_height: 280,
-                                max_height: 600,
-                                menubar: false, //true,
-                                branding: false,
-                                plugins: 'autosave',
-                                autosave_restore_when_empty: true,
-                                autosave_interval: '10s',
-                                autosave_retention: '30m',
-                                autosave_restore_when_empty: true,
-                                fullscreen_native: true,
-                                custom_undo_redo_levels: 10,  
-                                language: 'es',  
-                                browser_spellcheck: true,
-                                font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-                                default_font_stack: [ '-apple-system', 'Arial', 'Calibri' ],
-                                preview_styles: 'font-size color',
-                                plugins: [
-                                    'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table', 'autosave'
-                                ],
-                                toolbar:'fontsize | ' + 'undo redo | ' +//  blocks | ' + 
-                                    'bold italic forecolor | alignleft aligncenter ' + 
-                                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                                    'removeformat  | fullscreen | preview | searchreplace  | table restoredraft',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
-                                content_style: 'body { font-family:Arial; font-size:12px }'
-                                
-                            }}
-                        />
-
-                    <div style={{ display: 'flex', width: '100%', overflow: 'hidden' }}>
-                        <div style={{ flex: '1', maxWidth: '50%' }}> {/* Establece el ancho máximo que desees */}
-                            <div style={{ overflow: 'hidden' }}> {/* Aplica overflow hidden */}
-                                <div style={{ overflowX: 'auto' }}>
-                                    <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
-                                    console.log('from comments',{files});
-                                    setAttachments(files)
-                                }}/>
+                        <div style={{ position: 'relative' }}>
+                            <Editor
+                                tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
+                                onInit={(evt, editor) => {
+                                    editorRef.current = editor;
+                                    handleEditorChange(); // Check content on init
+                                }}
+                                onEditorChange={handleEditorChange}
+                                init={{
+                                    license_key: 'gpl',
+                                    min_height: 280,
+                                    max_height: 600,
+                                    menubar: false, //true,
+                                    branding: false,
+                                    plugins: 'autosave',
+                                    autosave_restore_when_empty: true,
+                                    autosave_interval: '10s',
+                                    autosave_retention: '30m',
+                                    autosave_restore_when_empty: true,
+                                    fullscreen_native: true,
+                                    custom_undo_redo_levels: 10,  
+                                    language: 'es',  
+                                    browser_spellcheck: true,
+                                    font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                                    default_font_stack: [ '-apple-system', 'Arial', 'Calibri' ],
+                                    preview_styles: 'font-size color',
+                                    plugins: [
+                                        'autoresize','advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                        'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount' , 'table', 'autosave'
+                                    ],
+                                    toolbar:'fontsize | ' + 'undo redo | ' +//  blocks | ' + 
+                                        'bold italic forecolor | alignleft aligncenter ' + 
+                                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                                        'removeformat  | fullscreen | preview | searchreplace  | table restoredraft',// tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol', 
+                                    content_style: 'body { font-family:Arial; font-size:12px }'
+                                    
+                                }}
+                            />
+                            
+                            {/* Auto-save indicator */}
+                            {showAutoSaveIndicator && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    backgroundColor: indicatorColor,
+                                    color: 'white',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '12px',
+                                    zIndex: 1000
+                                }}>
+                                    {indicatorMessage}
                                 </div>
+                            )}
+                            {hasTextContent && (
+                                <Button 
+                                    icon="trash" 
+                                    size="mini" 
+                                    color="red" 
+                                    style={{ 
+                                        position: 'absolute', 
+                                        top: '5px', 
+                                        right: '5px', 
+                                        zIndex: 1000,
+                                        opacity: 0.8
+                                    }} 
+                                    onClick={clearTextArea} 
+                                    title="Limpiar texto"
+                                />
+                            )}
+                        </div>
+
+                        <div style={{ display: 'flex', width: '100%', overflow: 'hidden' }}>
+                            <div style={{ flex: '1', maxWidth: '50%' }}> {/* Establece el ancho máximo que desees */}
+                                <div style={{ overflow: 'hidden' }}> {/* Aplica overflow hidden */}
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles}  folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => {
+                                        console.log('from comments',{files});
+                                        setAttachments(files)
+                                    }}/>
+                                    </div>
                                 
+                                </div>
+                            </div>
+                            <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                    <Button 
+                                        color='blue' 
+                                        onClick={() => { previewEmailF(editorRef.current.getContent()) }} 
+                                        loading={isLoading} 
+                                        disabled={isLoading}
+                                        style={{ borderRadius: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
+                                    >
+                                        <Icon name='paper plane' />
+                                        <span style={{ marginLeft: '5px' }}>Enviar</span>
+                                    </Button>
+                                    {/* <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button> */}
+                                    <Button 
+                                        key={'btnsave-'+folio} 
+                                        color='orange' 
+                                        onClick={e => { prepareCloseFolio('save') }} 
+                                        loading={isEndingFolio} 
+                                        disabled={isEndingFolio}
+                                        style={{ borderRadius: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
+                                    >
+                                        <Icon name='save' />
+                                        <span style={{ marginLeft: '5px' }}>Guardar</span>
+                                    </Button>
+                                    <Button 
+                                        key={'btnend-'+folio} 
+                                        color='green' 
+                                        onClick={e => { prepareCloseFolio('end') }} 
+                                        loading={isEndingFolio} 
+                                        disabled={isEndingFolio}
+                                        style={{ borderRadius: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
+                                    >
+                                        <Icon name='sign-out' />
+                                        <span style={{ marginLeft: '5px' }}>Finalizar</span>
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <div style={{flex: 1, justifyContent:'flex-end', alignItems:'center',}}>
-                            <div style={{ display: 'flex', justifyContent:'flex-end'}}>
-                            <Button color='blue' basic onClick={() => { previewEmailF(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /></Button>
-                               {/* <Button color='blue' basic onClick={() => { prepareEmail(editorRef.current.getContent()) }} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button> */}
-                                <Button key={'btnsave-'+folio} color='orange' basic onClick={e => { prepareCloseFolio('save') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Continuar después</label></Button>
-                                <Button key={'btnend-'+folio} color='green' basic onClick={e => { prepareCloseFolio('end') }} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out' /><label className='hideText'>Resuelto</label></Button>
-                            </div>
-                        </div>
-                    </div>
 
                     </Form> )
                     : (
@@ -880,21 +1192,54 @@ return ( <>
                                 {showResponseTo && <Label onClick={() => {removeResponseTo()}} circular icon='arrow circle down' color='blue' content={messageToResponse}/>}
                             </div>
                             
-                            <textArea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                                //setMessageToSend(e.target.value)
-                            }} disabled={isLoading} onKeyDown={(e) => {
-                                if(e.shiftKey && e.key==='Enter'){
-                                    //setMessageToSend(e.target.value)
-                                    prepareMessage(e.target.value)}
-                            }} />
-    
+                            <div style={{ position: 'relative' }}>
+                                <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={handleTextAreaChange} disabled={isLoading} onKeyDown={(e) => {
+                                    if(e.shiftKey && e.key==='Enter'){
+                                        //setMessageToSend(e.target.value)
+                                        prepareMessage(e.target.value)}
+                                }} />
+                                
+                                {/* Auto-save indicator */}
+                                {showAutoSaveIndicator && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '-25px',
+                                        right: '10px',
+                                        backgroundColor: indicatorColor,
+                                        color: 'white',
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        zIndex: 1000
+                                    }}>
+                                        {indicatorMessage}
+                                    </div>
+                                )}
+                                {hasTextContent && (
+                                    <Button 
+                                        icon="trash" 
+                                        size="mini" 
+                                        color="red" 
+                                        style={{ 
+                                            position: 'absolute', 
+                                            top: '5px', 
+                                            right: '5px', 
+                                            zIndex: 1000,
+                                            opacity: 0.8
+                                        }} 
+                                        onClick={clearTextArea} 
+                                        title="Limpiar texto"
+                                    />
+                                )}
+                            </div>
+
                             <UploadFile  folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                             
                             <Button  color='blue' basic onClick={() => {prepareMessage(textArea.current.value)}} loading={isLoading} disabled={isLoading}><Icon name='paper plane' /><label className='hideText'>Enviar</label></Button>
                       
                             <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='save' /><label className='hideText'>Guardar</label></Button>
                             <Button key={'btnend-'+folio} color='green' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={isEndingFolio}><Icon name='sign-out'  /><label className='hideText'>Finalizar</label></Button>
-    
+
                         </Form> 
                     )
             }
