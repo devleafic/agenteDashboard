@@ -75,7 +75,17 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
     const [openModalPreview, setOpenModalPreview] = useState(false);
 
     // Para el manejo de los borradores
-    const [messageDrafts, setMessageDrafts] = useState({});
+    // Para el manejo de los borradores
+    const [messageDrafts, setMessageDrafts] = useState(() => {
+        // Try to load drafts from localStorage on component mount
+        try {
+            const savedDrafts = localStorage.getItem('messageDrafts');
+            return savedDrafts ? JSON.parse(savedDrafts) : {};
+        } catch (error) {
+            console.error('Error loading drafts from localStorage:', error);
+            return {};
+        }
+    });    
     const [previousFolioId, setPreviousFolioId] = useState(null);
     const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
     const [indicatorMessage, setIndicatorMessage] = useState("Guardado...");
@@ -112,6 +122,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         newDrafts[folioId] = emailContent;
                         console.log('Saved draft for folio:', folioId);
                         showIndicator("Guardado...");
+                        // Save to localStorage
+                        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
                         return newDrafts;
                     });
                 });
@@ -123,6 +135,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                     newDrafts[folioId] = textArea.current.value;
                     console.log('Saved draft for folio:', folioId);
                     showIndicator("Guardado...");
+                    // Save to localStorage
+                    localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
                     return newDrafts;
                 });
             });
@@ -162,6 +176,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
         setMessageDrafts(prevDrafts => {
             const newDrafts = {...prevDrafts};
             delete newDrafts[folioId];
+            
+            // Update localStorage
+            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+            
             return newDrafts;
         });
     };
@@ -289,7 +307,13 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             
             // Clear draft for current folio
             console.log('Message sent successfully, clearing draft for folio:', folio._id);
-            clearDraftForFolio(folio._id);
+
+            if (folio && folio._id  ) {
+                clearDraftForFolio(folio._id);
+               
+            }
+            setHasTextContent(false);
+
         });
     }
     const previewEmailF = (content) => {
@@ -357,6 +381,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageToResponse(null);
             listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
 
+            // Clear draft for current folio and hide the clear text area button
+            if (folio && folio._id) {
+                clearDraftForFolio(folio._id);
+                setHasTextContent(false);
+            }
         });
     }
     useEffect(() => {
@@ -808,6 +837,10 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             setMessageDrafts(prevDrafts => {
                 const newDrafts = {...prevDrafts};
                 delete newDrafts[folio._id];
+                
+                // Update localStorage
+                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                
                 return newDrafts;
             });
             showIndicator("Borrador eliminado", true);
