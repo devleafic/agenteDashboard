@@ -35,8 +35,7 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
       }
     };
     const textArea = useRef(null);
-
-
+    const [hasTextContent, setHasTextContent] = useState(false);
 
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(
@@ -142,12 +141,14 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                 editorRef.current.setContent(messageDrafts[folioId]);
                 // Show indicator
                 showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
             } else if (textArea.current) {
                 // For other types of folios
                 console.log('Restoring text draft:', messageDrafts[folioId]);
                 textArea.current.value = messageDrafts[folioId];
                 // Show indicator
                 showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
                 
                 // Trigger an input event to ensure React knows about the change
                 const event = new Event('input', { bubbles: true });
@@ -767,8 +768,8 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             } 
         
             if(channel != 'call'){
-                showButton()
-                
+                // Remove the call to showButton function that was deleted
+                // showButton()
 
                 if(openModal && lastMessageFolio){
                     let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
@@ -794,21 +795,47 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
  
     });
 
-    
-
-    const showButton = () =>{
-        if(!boxMessage.current){return null}
-
-        let fullHeight = boxMessage.current.scrollHeight;
-        let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
-
-        if(pcPosition<=90 && folio._id === window.localStorage.getItem('lastMessage')){
-            setShowBtnUn(true);
+    const clearTextArea = () => {
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            editorRef.current.setContent('');
+        } else if (textArea.current) {
+            textArea.current.value = '';
         }
+        setHasTextContent(false);
+        
+        // Clear draft for current folio
+        if (folio && folio._id) {
+            setMessageDrafts(prevDrafts => {
+                const newDrafts = {...prevDrafts};
+                delete newDrafts[folio._id];
+                return newDrafts;
+            });
+            showIndicator("Borrador eliminado", true);
+        }
+    };
 
+    const handleTextAreaChange = (e) => {
+        setHasTextContent(e.target.value.trim() !== '');
+    };
+    
+    const handleEditorChange = () => {
+        if (editorRef.current) {
+            const content = editorRef.current.getContent();
+            setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
+        }
+    };
 
-
-    }
+    useEffect(() => {
+        // Check for content on component mount and when switching folios
+        setTimeout(() => {
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                const content = editorRef.current.getContent();
+                setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
+            } else if (textArea.current) {
+                setHasTextContent(textArea.current.value.trim() !== '');
+            }
+        }, 100);
+    }, [folio, typeFolio]);
 
     const fillStages = () =>{
         const options=listStage && listStage.
@@ -871,8 +898,8 @@ return ( <>
                 
                 {typeFolio === '_EMAIL_' && (
                     <>
-                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'>
-                            {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}
+                        <Header style={{marginTop: 4, marginBottom: 2}} as='h4'> 
+                         {fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: '  )}
                         </Header>
                         <Header style={{marginTop: 2, marginBottom: 2}} as='h4'>
                             {fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}
@@ -941,9 +968,7 @@ return ( <>
                         </div>
                         
                         <div style={{ position: 'relative' }}>
-                            <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                                //setMessageToSend(e.target.value)
-                            }} disabled={isLoading} onKeyDown={(e) => {
+                            <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={handleTextAreaChange} disabled={isLoading} onKeyDown={(e) => {
                                 if(e.shiftKey && e.key==='Enter'){
                                     //setMessageToSend(e.target.value)
                                     prepareMessage(e.target.value)}
@@ -965,6 +990,22 @@ return ( <>
                                 }}>
                                     {indicatorMessage}
                                 </div>
+                            )}
+                            {hasTextContent && (
+                                <Button 
+                                    icon="trash" 
+                                    size="mini" 
+                                    color="red" 
+                                    style={{ 
+                                        position: 'absolute', 
+                                        top: '5px', 
+                                        right: '5px', 
+                                        zIndex: 1000,
+                                        opacity: 0.8
+                                    }} 
+                                    onClick={clearTextArea} 
+                                    title="Limpiar texto"
+                                />
                             )}
                         </div>
 
@@ -988,8 +1029,11 @@ return ( <>
                         <div style={{ position: 'relative' }}>
                             <Editor
                                 tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
-                                onInit={(evt, editor) => editorRef.current = editor}
-                                //initialValue='<p>This is the initial content of the editor.</p>'
+                                onInit={(evt, editor) => {
+                                    editorRef.current = editor;
+                                    handleEditorChange(); // Check content on init
+                                }}
+                                onEditorChange={handleEditorChange}
                                 init={{
                                     license_key: 'gpl',
                                     min_height: 280,
@@ -1037,6 +1081,22 @@ return ( <>
                                 }}>
                                     {indicatorMessage}
                                 </div>
+                            )}
+                            {hasTextContent && (
+                                <Button 
+                                    icon="trash" 
+                                    size="mini" 
+                                    color="red" 
+                                    style={{ 
+                                        position: 'absolute', 
+                                        top: '5px', 
+                                        right: '5px', 
+                                        zIndex: 1000,
+                                        opacity: 0.8
+                                    }} 
+                                    onClick={clearTextArea} 
+                                    title="Limpiar texto"
+                                />
                             )}
                         </div>
 
@@ -1100,9 +1160,7 @@ return ( <>
                             </div>
                             
                             <div style={{ position: 'relative' }}>
-                                <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={(e) => {
-                                    //setMessageToSend(e.target.value)
-                                }} disabled={isLoading} onKeyDown={(e) => {
+                                <textarea key={'msg-'+folio._id} ref={textArea} rows={1} style={{marginBottom:10}} className='heightText' onChange={handleTextAreaChange} disabled={isLoading} onKeyDown={(e) => {
                                     if(e.shiftKey && e.key==='Enter'){
                                         //setMessageToSend(e.target.value)
                                         prepareMessage(e.target.value)}
@@ -1123,6 +1181,22 @@ return ( <>
                                     }}>
                                         {indicatorMessage}
                                     </div>
+                                )}
+                                {hasTextContent && (
+                                    <Button 
+                                        icon="trash" 
+                                        size="mini" 
+                                        color="red" 
+                                        style={{ 
+                                            position: 'absolute', 
+                                            top: '5px', 
+                                            right: '5px', 
+                                            zIndex: 1000,
+                                            opacity: 0.8
+                                        }} 
+                                        onClick={clearTextArea} 
+                                        title="Limpiar texto"
+                                    />
                                 )}
                             </div>
 
