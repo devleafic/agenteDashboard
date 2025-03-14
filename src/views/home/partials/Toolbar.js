@@ -77,7 +77,6 @@ const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsC
           //date : 'today',
           agent :  userInfo._id
         },(result) => {
-            console.log(result);
             setInAtention(result.inAtention);
             setTiming(result.timing);
             setAgentList(result.agentList);
