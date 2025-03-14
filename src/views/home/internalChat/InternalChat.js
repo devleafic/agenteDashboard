@@ -482,6 +482,73 @@ export default function InternalChat({userInfo}) {
         },
     ];
 
+
+    // Scroll infitinito
+    // Estado para evitar cargas múltiples al estar ya cargando mensajes anteriores
+    const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+    const [pageMsg, setPageMsg] = useState(1);
+
+    const loadOlderMessages = async () => {
+        if (isLoadingOlder) return;
+        setIsLoadingOlder(true);
+        const currentScrollHeight = messageContainerRef.current.scrollHeight;
+
+        try {
+        const resOlder = await getOlderMessages(viewChat._id, pageMsg);
+        
+        const olderMessages = resOlder.body.chat.messages;
+        if(olderMessages.length > 0){
+            setPageMsg(pageMsg + 1);
+        }
+        setViewChat((prevViewChat) => ({
+            ...prevViewChat,
+            messages: [...olderMessages, ...prevViewChat.messages],
+        }));
+
+        setTimeout(() => {
+            if (messageContainerRef.current) {
+            const newScrollHeight = messageContainerRef.current.scrollHeight;
+            messageContainerRef.current.scrollTop = newScrollHeight - currentScrollHeight;
+            }
+        }, 10);
+        } catch (error) {
+        console.error('Error al cargar mensajes anteriores', error);
+        } finally {
+        setIsLoadingOlder(false);
+        }
+    };
+
+    const getOlderMessages = async (chatId,page) => {
+
+        return new Promise((resolve, reject) => {
+            socket.emit('getOlderMessages', {chatId,page, token: window.localStorage.getItem('sdToken')}, (data) => {
+                resolve(data);
+            });
+        })
+    }
+
+    
+    useEffect(() => {
+        const handleScroll = () => {
+        if (messageContainerRef.current) {
+            if (messageContainerRef.current.scrollTop === 0 && viewChat && viewChat.messages.length > 0) {
+            loadOlderMessages();
+            }
+        }
+        };
+
+        const div = messageContainerRef.current;
+        if (div) {
+        div.addEventListener("scroll", handleScroll);
+        }
+
+        return () => {
+        if (div) {
+            div.removeEventListener("scroll", handleScroll);
+        }
+        };
+    }, [viewChat, isLoadingOlder]);
+
     return (<>
                  
         <div style={{margin : 20}}>
@@ -656,25 +723,29 @@ export default function InternalChat({userInfo}) {
                         </Dropdown>
                     </div>
                 </div>
-                <div className="internal-chat-message-container"  ref={messageContainerRef}>
+                <div className="internal-chat-message-container" ref={messageContainerRef}>
                     { 
-                        loading && (
-                            <div style={{display: 'flex', justifyContent: 'center', padding: '10px', alignItems:'center', height: '60vh' }}>
-                            <Table.Row>
-                                <Table.Cell collapsing={true} colSpan={6}>
-                                    <Icon name='spinner' size='large'/>
-                                    Cargando chat . . .
-                                </Table.Cell>
-                            </Table.Row>
-                            </div>
-                        )
+                    loading && (
+                        <div style={{display: 'flex', justifyContent: 'center', padding: '10px', alignItems:'center', height: '60vh' }}>
+                        <Table.Row>
+                            <Table.Cell collapsing={true} colSpan={6}>
+                            <Icon name='spinner' size='large'/>
+                            Cargando chat . . .
+                            </Table.Cell>
+                        </Table.Row>
+                        </div>
+                    )
                     }
                     {
-                        viewChat.messages.map((msg) => {
-                            return <BubbleIternalChat key={'component-'+msg._id} infoChat={viewChat} msg={msg} userInfo={userInfo} readMessage={(idMsg) => {
-                                readMessage(idMsg);
-                            }}/>
-                        })
+                    viewChat.messages.map((msg) => (
+                        <BubbleIternalChat
+                        key={'component-'+msg._id}
+                        infoChat={viewChat}
+                        msg={msg}
+                        userInfo={userInfo}
+                        readMessage={(idMsg) => readMessage(idMsg)}
+                        />
+                    ))
                     }
                 </div>
                 <div className="internal-chat-input-container">
