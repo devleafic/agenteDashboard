@@ -147,7 +147,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
                     <Popup content='Contactos' trigger={getButton('contacts')} position='right center'/>
                 </div>
                 <div className="sidebar-item">
-                    <Popup content='TeamChat (Beta 0.7) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
+                    <Popup content='TeamChat (Beta 0.9) Comunicate con tu equipo de trabajo.' trigger={getButton('InternalChat')} position='right center'/>
                 </div>
                 <div className="sidebar-item logout">
                     <Popup content='Cerrar Sesión' trigger={<Button icon='log out' onClick={closeSession}/>} position='right center'/>

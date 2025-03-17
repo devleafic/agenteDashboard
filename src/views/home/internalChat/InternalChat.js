@@ -4,7 +4,10 @@ import { Input } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
 import { Message } from 'semantic-ui-react';
-import { Table, Icon, Menu, Tab } from 'semantic-ui-react';
+import { Table, Icon, Menu, Tab, Button } from 'semantic-ui-react';
+import NotificationSettings from './NotificationSettings';
+
+import { useNotifications } from '../../../controladores/NotificationContext';
 
 import axios from 'axios';
 import {
@@ -30,6 +33,7 @@ export default function InternalChat({userInfo}) {
     const defaultActivitie = '2-listo';
     const [activeTab, setActiveTab] = useState(0); // 0 for chats, 1 for archived
     const [clickedId, setClickedId] = useState(null);
+    const [showNotificationSettings, setShowNotificationSettings] = useState(false);
     
     const listActivites = [
         {
@@ -555,28 +559,36 @@ export default function InternalChat({userInfo}) {
             <Message
                 attached
                 icon="chat"
-                header='TeamChat - Versión Beta 0.6' 
+                header='TeamChat - Versión Beta 0.9' 
                 content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
             /> 
         </div>
         <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    
             <div className="internal-chat-list">
-                <div style={{marginBottom : 5}}>
-                    <div>
-                        Mi estado: {listActivites.find((x) => {return x.id === myActivitie}).emoji}
+                <div style={{marginBottom: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                        <div>
+                            Mi estado: {listActivites.find((x) => {return x.id === myActivitie}).emoji}
+                        </div>
+                        <Dropdown text='Cambiar estado' style={{marginLeft: '10px'}}>
+                            <DropdownMenu>
+                                {
+                                    listActivites.map((activity) => {
+                                        return <DropdownItem onClick={() => {
+                                            setActivitie(activity.id);
+                                        }} key={activity.id} text={`${activity.emoji} ${activity.label}`} />
+                                    })
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
                     </div>
-                    <Dropdown text='Cambiar estado'>
-                        <DropdownMenu>
-                            {
-                                listActivites.map((activity) => {
-                                    return <DropdownItem onClick={() => {
-                                        setActivitie(activity.id);
-                                    }} key={activity.id} text={`${activity.emoji} ${activity.label}`} />
-                                })
-                            }
-                        </DropdownMenu>
-                    </Dropdown>
+                    <Button 
+                        icon="bell" 
+                        size="small" 
+                        onClick={() => setShowNotificationSettings(true)} 
+                        title="Configuración de notificaciones"
+                    />
                 </div>
                 <div style={{ position: 'relative' }}>
                     <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%', marginBottom: '10px'}}
@@ -797,5 +809,10 @@ export default function InternalChat({userInfo}) {
 
             </div>:<div className="internal-chat-messages">Selecciona un chat o busca un contacto</div>}
         </div>
+        {/* Notification Settings Modal */}
+<NotificationSettings 
+    open={showNotificationSettings} 
+    onClose={() => setShowNotificationSettings(false)} 
+/>
     </>)
 }
