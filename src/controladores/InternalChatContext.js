@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import io from 'socket.io-client';
-
+import { useNotifications } from './NotificationContext';
 const SocketContext = createContext();
+
 
 export const useSocket = () => useContext(SocketContext);
 
@@ -12,6 +13,9 @@ export const SocketProvider = ({ children }) => {
   const [archivedChats, setArchivedChats] = useState([]); 
   const [unreadMessages, setUnreadMessages] = useState({});
   const [activitiesUsers, setActivitiesUsers] = useState({});
+  
+// Get notification functions from context
+const { playNotificationSound, showBrowserNotification } = useNotifications();
 
   const getInboxChat = (newSocket) => {
     newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (data) => {
@@ -147,9 +151,32 @@ export const SocketProvider = ({ children }) => {
     newSocket.on('incomingMessage', async (data) => {
       const dataUserStorage = await window.localStorage.getItem('userId');
       if(data.body.message.createdBy !== dataUserStorage){
+        
+         // Play notification sound and show browser notification
+         playNotificationSound();
+        
+         // Get sender information for notification
+         const chatInfo = inboxList.find(chat => chat._id === data.body.chatId);
+         let senderName = "Nuevo mensaje";
+         let messageContent = data.body.message.content || "Nuevo mensaje recibido";
+         
+         if (chatInfo) {
+           if (chatInfo.isPrivate) {
+             const sender = chatInfo.members.find(member => member.user._id !== dataUserStorage);
+             if (sender) {
+               senderName = sender.user.profile.name;
+             }
+           } else {
+             senderName = chatInfo.label;
+           }
+         }
+         
+        showBrowserNotification(senderName, messageContent);
+
         setUnreadMessages((prevUnreadMessages) => {
             return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
         });
+
       }
       
       const savedArchivedChats = localStorage.getItem('archivedChats');
@@ -173,7 +200,7 @@ export const SocketProvider = ({ children }) => {
       clearInterval(timerActivities);
       newSocket.close();
     }
-  }, []);
+  }, [playNotificationSound, showBrowserNotification] );
 
   return (
     <SocketContext.Provider value={{

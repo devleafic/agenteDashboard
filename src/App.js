@@ -7,6 +7,7 @@ import ResponseTicket from './views/tickets/ResponseTicket';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { SocketProvider } from './controladores/InternalChatContext';
+import { NotificationProvider } from './controladores/NotificationContext';
 
 axios.interceptors.request.use((req) => {
     req.headers.Authorization = 'Bearer '+window.localStorage.getItem('sdToken');
@@ -20,7 +21,7 @@ function App() {
 
     <Routes>
         <Route path="/login"  element={<Login/>}/>
-        <Route path="/" exact={true} element={<SocketProvider><Home/></SocketProvider>}/>
+        <Route path="/" exact={true} element={<NotificationProvider><SocketProvider><Home/></SocketProvider></NotificationProvider>}/>
         <Route path="/ticket/:idTicket"  element={<ResponseTicket/>}/>
      </Routes>   
 
