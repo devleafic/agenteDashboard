@@ -559,7 +559,7 @@ export default function InternalChat({userInfo}) {
             <Message
                 attached
                 icon="chat"
-                header='TeamChat - Versión Beta 0.6' 
+                header='TeamChat - Versión Beta 0.9' 
                 content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
             /> 
         </div>
