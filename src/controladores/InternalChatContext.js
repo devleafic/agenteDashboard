@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
   const [activitiesUsers, setActivitiesUsers] = useState({});
   
 // Get notification functions from context
-const { playNotificationSound, showBrowserNotification } = useNotifications();
+const { queueNotification } = useNotifications();
 
   const getInboxChat = (newSocket) => {
     newSocket.emit('getInboxChat', {token: window.localStorage.getItem('sdToken')}, (data) => {
@@ -152,9 +152,6 @@ const { playNotificationSound, showBrowserNotification } = useNotifications();
       const dataUserStorage = await window.localStorage.getItem('userId');
       if(data.body.message.createdBy !== dataUserStorage){
         
-         // Play notification sound and show browser notification
-         playNotificationSound();
-        
          // Get sender information for notification
          const chatInfo = inboxList.find(chat => chat._id === data.body.chatId);
          let senderName = "Nuevo mensaje";
@@ -171,7 +168,8 @@ const { playNotificationSound, showBrowserNotification } = useNotifications();
            }
          }
          
-        showBrowserNotification(senderName, messageContent);
+         // Queue the notification with type 'message'
+         queueNotification(senderName, messageContent, 'message');
 
         setUnreadMessages((prevUnreadMessages) => {
             return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
@@ -200,7 +198,7 @@ const { playNotificationSound, showBrowserNotification } = useNotifications();
       clearInterval(timerActivities);
       newSocket.close();
     }
-  }, [playNotificationSound, showBrowserNotification] );
+  }, [queueNotification] );
 
   return (
     <SocketContext.Provider value={{
