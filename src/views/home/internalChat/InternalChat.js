@@ -764,51 +764,85 @@ export default function InternalChat({userInfo}) {
                     ))
                     }
                 </div>
-                <div className="internal-chat-input-container">
+                <div className="internal-chat-input-container" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px',
+                    backgroundColor: '#f0f2f5',
+                    borderRadius: '8px',
+                    margin: '10px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}>
+                    <div className="internal-chat-file-container" style={{ 
+                        marginRight: '10px',
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
+                        <InternalUploadFile sendFile={sendFile}/>
+                    </div>
 
-                    <textarea 
-                        rows="4" 
-                        cols="50" 
-                        placeholder="Escribe tu mensaje aquí..." 
-                        onChange={(e) => setMessage(e.target.value)}
-                        value={message}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                sendMessage();
-                            }
-                        }}
-                        style={{
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '10px',
-                            resize: 'none',
-                            outline: 'none',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            width: '100%',
-                            marginBottom: '5px'
-                        }}
-                    />
+                    <div style={{ 
+                        flex: 1,
+                        position: 'relative',
+                        backgroundColor: '#fff',
+                        borderRadius: '20px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}>
+                        <textarea 
+                            rows="1"
+                            placeholder="Escribe tu mensaje aquí..."
+                            onChange={(e) => {
+                                setMessage(e.target.value);
+                                // Auto-adjust height
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+                            }}
+                            value={message}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    sendMessage();
+                                }
+                            }}
+                            style={{
+                                width: '100%',
+                                border: 'none',
+                                borderRadius: '20px',
+                                padding: '12px 20px',
+                                resize: 'none',
+                                outline: 'none',
+                                fontSize: '15px',
+                                lineHeight: '20px',
+                                maxHeight: '100px',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+                            }}
+                        />
+                    </div>
+
                     <button 
                         onClick={sendMessage}
                         style={{
-                            marginLeft:  5,
-                            backgroundColor: '#25D366',
+                            marginLeft: '10px',
+                            backgroundColor: '#00a884',
                             color: '#fff',
                             border: 'none',
-                            borderRadius: '8px',
-                            padding: '10px',
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             cursor: 'pointer',
-                            height: '100%' 
+                            transition: 'background-color 0.2s',
+                            padding: 0
                         }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#008f6f'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#00a884'}
                     >
-                        Enviar
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor"/>
+                        </svg>
                     </button>
-                    <div className="internal-chat-file-container" style={{ padding: '10px',
-                            cursor: 'pointer',
-                            height: '100%'  }}>
-                        <InternalUploadFile sendFile={sendFile}/>
-                    </div>
                 </div>
 
             </div>:<div className="internal-chat-messages">Selecciona un chat o busca un contacto</div>}
