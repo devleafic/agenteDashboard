@@ -30,18 +30,7 @@ const SideBarMenu = ({page, selectedComponent, setOnConnect, isConnected, unRead
             }
         }
         console.log({count});
-        if(count > 0){
-            toast.info('Nuevo mensaje en TeamChat', {
-                position: "top-center",
-                autoClose: 1000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                });
-        }
+       
         setHasUnread(count);
 
     },[unReadMessagesIC])

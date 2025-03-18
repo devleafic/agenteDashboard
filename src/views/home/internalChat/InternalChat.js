@@ -131,91 +131,91 @@ export default function InternalChat({userInfo}) {
             console.log('Conexión del socket establecida');
 
             setActivitie(defaultActivitie)
-            
-            socket.on('incomingMessage', (data) => {
-                // console.log({incomingMessage : data});
+        }
+
+        return () => {
+            if (socket) {
+                socket.off('incomingMessage');
+                socket.off('newReader');
+                socket.off('newReaction');
+                socket.off('reconnect');
+            }
+        };
+    }, [socket]);
+
+    useEffect(() => {
+        if (socket) {
+            const handleIncomingMessage = (data) => {
                 setViewChat((prevViewChat) => {
-
-                    // if(data.body.message.createdBy !== userInfo._id){
-                    //     setUnreadMessages((prevUnreadMessages) => {
-                    //         return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] ? prevUnreadMessages[data.body.chatId] + 1 : 1};
-                    //     });
-                    // }
-
-                    // Si prevViewChat es null, devuelve prevViewChat directamente
                     if (!prevViewChat) {
-                        // Si no esta en pantallam actualizamos los contadores de no leido
-                        console.log('llego per no esta en pantalla');
-                        return prevViewChat
-                    };
+                        console.log('llego pero no esta en pantalla');
+                        return prevViewChat;
+                    }
                     
-                    // Si el chatId del mensaje entrante coincide con el chatId actual
                     if (prevViewChat._id === data.body.chatId) {
-                        // Actualiza el estado con el nuevo mensaje agregado
                         console.log('bajando chat');
-                        setTimeout(() => {
-                            if(!messageContainerRef.current){return false;}
-                            messageContainerRef.current.scrollTop = messageContainerRef.current ? messageContainerRef.current.scrollHeight : 0;
-                        }, 10);
+                        requestAnimationFrame(() => {
+                            if (messageContainerRef.current) {
+                                messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                            }
+                        });
                         return {...prevViewChat, messages: [...prevViewChat.messages, data.body.message]};
                     }
-                    // Si no coincide, devuelve el estado sin cambios
                     return prevViewChat;
                 });
-            });
+            };
 
-            socket.on('newReader', (data) => {
+            const handleNewReader = (data) => {
                 setViewChat((prevViewChat) => {
-                    if (!prevViewChat) return prevViewChat;
-                    if (prevViewChat._id !== data.body.chatId) {
+                    if (!prevViewChat || prevViewChat._id !== data.body.chatId) {
                         return prevViewChat;
                     }
 
-                    let chatIndex = prevViewChat.messages.findIndex((x) => x._id === data.body.message._id);
-                    prevViewChat.messages[chatIndex] = data.body.message;
+                    const updatedMessages = [...prevViewChat.messages];
+                    const chatIndex = updatedMessages.findIndex((x) => x._id === data.body.message._id);
+                    if (chatIndex !== -1) {
+                        updatedMessages[chatIndex] = data.body.message;
+                    }
 
-                    // Actualizamos el contador de no leídos
-                    // Validamos si el chat existe
-                    setInboxList((prevInboxList) => {
-                        const isExists = prevInboxList.find((x) => {
-                            return x._id === data.body.chatId;
+                    return {...prevViewChat, messages: updatedMessages};
+                });
+
+                setInboxList((prevInboxList) => {
+                    const isExists = prevInboxList.find((x) => x._id === data.body.chatId);
+                    if (!isExists) return prevInboxList;
+
+                    const isReaderForMe = data.body.message.readers.find((x) => x.user === userInfo._id);
+                    if (isReaderForMe) {
+                        setUnreadMessages((prevUnreadMessages) => {
+                            if (!prevUnreadMessages) return {};
+                            const currentCount = prevUnreadMessages[data.body.chatId] || 0;
+                            return {
+                                ...prevUnreadMessages,
+                                [data.body.chatId]: currentCount === 0 ? 0 : currentCount - 1
+                            };
                         });
+                    }
+                    return prevInboxList;
+                });
+            };
 
-                        if(isExists){
-                            // Validamos si el reader es el mismo usuario de la sesión
-                            const isReaderForMe = data.body.message.readers.find((x) => {
-                                return x.user === userInfo._id;
-                            });
-    
-                            if(isReaderForMe){
-                                setUnreadMessages((prevUnreadMessages) => {
-                                    if(!prevUnreadMessages){
-                                        return {};
-                                    }
-                                    return {...prevUnreadMessages, [data.body.chatId] : prevUnreadMessages && prevUnreadMessages[data.body.chatId] === 0 ? 0 : prevUnreadMessages[data.body.chatId] - 1};
-                                });
-                            }
-                        }
-                        return prevInboxList;
-                    })
-
-                    return {...prevViewChat};
-                })
-            });
-
-            socket.on('newReaction',(data) => {
-                //console.log('newReaction', data);
+            const handleNewReaction = (data) => {
                 setViewChat((prevViewChat) => {
-                    if (!prevViewChat) return prevViewChat;
-                    if (prevViewChat._id !== data.body.chatId) {return prevViewChat;}
+                    if (!prevViewChat || prevViewChat._id !== data.body.chatId) {
+                        return prevViewChat;
+                    }
 
-                    let chatIndex = prevViewChat.messages.findIndex((x) => x._id === data.body.message._id);
-                    prevViewChat.messages[chatIndex] = data.body.message;
-                    return {...prevViewChat};
-                })
-            });
+                    const updatedMessages = [...prevViewChat.messages];
+                    const chatIndex = updatedMessages.findIndex((x) => x._id === data.body.message._id);
+                    if (chatIndex !== -1) {
+                        updatedMessages[chatIndex] = data.body.message;
+                    }
 
-            socket.on('reconnect',() => {
+                    return {...prevViewChat, messages: updatedMessages};
+                });
+            };
+
+            const handleReconnect = () => {
                 console.log('Reconectado al servidor de TeamChat');
                 // Enviamos el último estado
                 setMyActivitie((prevMyActivitie) => {
@@ -223,10 +223,14 @@ export default function InternalChat({userInfo}) {
                     setActivitie(prevMyActivitie);
                     return prevMyActivitie;
                 })
-                
-            })
+            };
+
+            socket.on('incomingMessage', handleIncomingMessage);
+            socket.on('newReader', handleNewReader);
+            socket.on('newReaction', handleNewReaction);
+            socket.on('reconnect', handleReconnect);
         }
-    }, [socket]);
+    }, [socket, userInfo._id]);
 
     const readMessage = (id) => {
         console.log('leido enviando');
