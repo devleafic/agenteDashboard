@@ -154,8 +154,8 @@ const { queueNotification } = useNotifications();
         
          // Get sender information for notification
          const chatInfo = inboxList.find(chat => chat._id === data.body.chatId);
-         let senderName = "Nuevo mensaje";
-         let messageContent = data.body.message.content || "Nuevo mensaje recibido";
+         let senderName = "TeamChat 💬";
+         let messageContent = data.body.message?.message || "Nuevo mensaje recibido";
          
          if (chatInfo) {
            if (chatInfo.isPrivate) {
