@@ -1,16 +1,13 @@
-import React, {useRef, useState, useContext, useCallback} from 'react';
+import React, {useRef, useState, useContext, useCallback, useEffect} from 'react';
 import { Icon, Loader, Button, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
 import axios, {post} from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
-import Dropzone  from 'react-dropzone';
-
+import Dropzone from 'react-dropzone';
 
 const UploadFile = ({folio, channel, setRefresh}) => {
-
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
-
     
     const [onPushFile, setOnPushFile] = useState(false);
     const fileInputRef = useRef();
@@ -18,155 +15,200 @@ const UploadFile = ({folio, channel, setRefresh}) => {
     const [onUpload, setOnUpload] = useState(false);
     const [nameFile, setNameFile] = useState(null);
     const [contentShow, setContentShow] = useState(null);
-    const [nameFileSend, setNameFileSend ] = useState(null);
+    const [nameFileSend, setNameFileSend] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [urlFile, setUrlFile] = useState(null);
+    const [urlFileType, setUrlFileType] = useState(null);
 
-    const [urlFile, setUrlFile ] = useState(null);
-    const [urlFileType, setUrlFileType ] = useState(null);
+    // Clipboard paste handler
+    useEffect(() => {
+        const mimeToExt = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'application/pdf': 'pdf',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+            'application/vnd.ms-excel': 'xls'
+        };
 
-    const fileChange = e => {
-        if(!e.target.files[0]){
-            return false;
-        }
+        const handlePaste = (e) => {
+            if (!e.clipboardData) return;
+            
+            const items = e.clipboardData.items || [];
+            for (let i = 0; i < items.length; i++) {
+                try {
+                    if (items[i].kind !== 'file' || !items[i].getAsFile) continue;
+                    
+                    const blob = items[i].getAsFile();
+                    if (!blob) {
+                        console.warn('Invalid clipboard file');
+                        continue;
+                    }
 
-        setNameFile(e.target.files[0].name);
-        setToUpload(e.target.files[0])
-        fileUpload(e.target.files[0]);
-    };
+                    const mimeType = blob.type;
+                    const supportedTypes = [
+                        'image/',
+                        'application/pdf',
+                        'application/vnd.openxmlformats',
+                        'application/vnd.ms-excel'
+                    ];
 
-    const sendFileMessage = () => {
-        setOnPushFile(true);
-        let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
-        socket.connection.emit('sendMessage', {
-            token : window.localStorage.getItem('sdToken'),
-            folio : folio,
-            message : urlFixed,
-            caption : nameFile,
-            class : urlFileType
-        }, (result) => {
-            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio});
-            listFolios.current[index].folio.message.push(result.body.lastMessage);
-            setShowModal(false);
-            setRefresh(Math.random());
-            setOnUpload(false);
-            setToUpload(null);
-            setNameFile(null);
-            setContentShow(null);
-            setNameFileSend(null);
-            setUrlFile(null);
-            setUrlFileType(null);
-            setOnPushFile(false);
-        });
-    }
-    
+                    if (!supportedTypes.some(type => mimeType.startsWith(type))) {
+                        alert(`Formato no soportado: ${mimeType.split('/')[1]}`);
+                        return;
+                    }
+
+                    const ext = mimeToExt[mimeType] || mimeType.split('/')[1].split(';')[0];
+                    const fileName = `archivo-${Date.now()}.${ext}`;
+                    const file = new File([blob], fileName, { type: mimeType });
+                    
+                    setNameFile(file.name);
+                    setToUpload(file);
+                    fileUpload(file);
+                } catch (error) {
+                    console.error('Error processing pasted file:', error);
+                    alert('Error al procesar archivo del portapapeles');
+                }
+            }
+        };
+
+        document.addEventListener('paste', handlePaste, { passive: true });
+        return () => document.removeEventListener('paste', handlePaste);
+    }, []);
 
     const fileUpload = file => {
-        const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
-    
-        if (file.size > maxFileSize) {
-            alert("El archivo es demasiado grande. El tamaño máximo permitido es 20MB.");
+        const maxFileSize = 20 * 1024 * 1024;
+        const supportedTypes = [
+            'image/',
+            'application/pdf',
+            'application/vnd.openxmlformats',
+            'application/vnd.ms-excel'
+        ];
+
+        if (!supportedTypes.some(type => file.type.startsWith(type))) {
+            alert(`Tipo de archivo no soportado: ${file.type.split('/')[1]}`);
             return;
         }
-    
+
+        if (file.size > maxFileSize) {
+            alert("El archivo es demasiado grande. Máximo 20MB");
+            return;
+        }
+
         setOnUpload(true);
         setContentShow(null);
         setShowModal(true);
+        
         const url = process.env.REACT_APP_CENTRALITA + '/sendFile/' + channel + '/' + folio;
         const formData = new FormData();
         formData.append("file", file);
-    
-        const config = {
-            headers: {
-                "Content-type": "multipart/form-data"
-            }
-        };
+
         setOnPushFile(true);
-        return post(url, formData, config).then((data) => {
-    
+        post(url, formData, {
+            headers: { "Content-type": "multipart/form-data" }
+        }).then((data) => {
             setToUpload(null);
             setOnPushFile(false);
-            setNameFileSend(data.data.file.originalFilename)
+            setNameFileSend(data.data.file.originalFilename);
             setUrlFile(data.data.url);
-            let classFile = data.data.file.mimetype.split('/');
-    
-            if (classFile[0] === 'image') {
-                setUrlFileType(classFile[0]);
-            } else {
-                setUrlFileType('document');
-            }
-    
-            if (classFile[0] === 'image') {
-                setContentShow(<Image centered size='medium' src={data.data.url} />)
-            } else {
-                setContentShow(<a color='blue' target='blank' href={data.data.url}><Icon name='folder open'></Icon>{data.data.file.originalFilename}</a>)
-            }
-    
-            // setShowModal(true)
-    
+            
+            const [fileType] = data.data.file.mimetype.split('/');
+            setUrlFileType(fileType === 'image' ? fileType : 'document');
+
+            setContentShow(
+                fileType === 'image' 
+                    ? <Image centered size='medium' src={data.data.url} />
+                    : <a href={data.data.url} target="_blank" rel="noopener noreferrer">
+                        <Icon name='file' /> {data.data.file.originalFilename}
+                      </a>
+            );
+        }).catch(error => {
+            console.error('Upload error:', error);
+            alert('Error al subir archivo');
+            setOnPushFile(false);
+            setShowModal(false);
         });
     };
-    return (<>
-        <Dropzone maxFiles={2} onDrop={acceptedFiles => {
-            console.log(acceptedFiles);
-            setNameFile(acceptedFiles[0].name);
-            setToUpload(acceptedFiles[0])
-            fileUpload(acceptedFiles[0]);
-        }} >
-        {({getRootProps, getInputProps}) => (
-            
-            <div {...getRootProps()} className='dnd'>
-                <input {...getInputProps()} />
-                <a class="camera icon">Arrastra un archivo o Clic</a>
-            </div>
-            
-        )}
-        </Dropzone>
-        {/* <Button
-            content={nameFile ? nameFile : 'Archivo'}
-            labelPosition="left"
-            icon="file"
-            disabled={onUpload}
-            loading={onUpload}
-            onClick={() => fileInputRef.current.click()}
-        />
-        <input
-            ref={fileInputRef}
-            type="file"
-            hidden
-            onChange={fileChange}
-            multiple={false}
-        /> */}
 
-        <Modal
-        basic
-        //onClose={() => setOpen(false)}
-        //onOpen={() => setOpen(true)}
-        open={showModal}
-        size='small'
-        >
-            <Header icon>
-                <Icon name={onPushFile ? 'cloud upload' : 'archive'} />
-                {onPushFile ? 'Cargando Archivo...' : '¿Quiere enviar el archivo "'+nameFileSend+'"?' }
-            </Header>
-            <Modal.Content>
-                <Message style={{minHeight : 100}}>
-                {onPushFile && <Dimmer active inverted>
-                    <Loader inverted>Cargando Archivo</Loader>
-                </Dimmer>}
-                {contentShow}
-                </Message>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setShowModal(false); setOnUpload(false); setNameFile('Archivo')}} loading={onPushFile} disabled={onPushFile}>
-                <Icon name='remove' /> No
-                </Button>
-                <Button color='blue' inverted onClick={sendFileMessage} loading={onPushFile} disabled={onPushFile}>
-                <Icon name='checkmark'  /> Enviar
-                </Button>
-            </Modal.Actions>
-        </Modal>
-        
-    </>);
-}
- 
+    return (
+        <>
+            <Dropzone maxFiles={2} onDrop={acceptedFiles => {
+                setNameFile(acceptedFiles[0].name);
+                setToUpload(acceptedFiles[0]);
+                fileUpload(acceptedFiles[0]);
+            }}>
+                {({getRootProps, getInputProps}) => (
+                    <div {...getRootProps()} className='dnd'>
+                        <input {...getInputProps()} />
+                        <a className="camera icon">Arrastra archivo o haz clic</a>
+                    </div>
+                )}
+            </Dropzone>
+
+            <Modal
+                basic
+                open={showModal}
+                size='small'
+                onClose={() => setShowModal(false)}
+            >
+                <Header icon>
+                    <Icon name={onPushFile ? 'cloud upload' : 'archive'} />
+                    {onPushFile ? 'Subiendo archivo...' : `Enviar "${nameFileSend}"?`}
+                </Header>
+                <Modal.Content>
+                    <Message style={{minHeight: 100}}>
+                        {onPushFile && <Dimmer active inverted>
+                            <Loader inverted>Procesando archivo</Loader>
+                        </Dimmer>}
+                        {contentShow}
+                    </Message>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button basic color='red' inverted 
+                        onClick={() => {
+                            setShowModal(false);
+                            setOnUpload(false);
+                            setNameFile('Archivo');
+                        }}
+                        disabled={onPushFile}
+                    >
+                        <Icon name='remove' /> Cancelar
+                    </Button>
+                    <Button color='blue' inverted 
+                        onClick={() => {
+                            setOnPushFile(true);
+                            const urlFixed = urlFile.startsWith('http') 
+                                ? urlFile 
+                                : `https://${urlFile}`;
+                            
+                            socket.connection.emit('sendMessage', {
+                                token: localStorage.getItem('sdToken'),
+                                folio,
+                                message: urlFixed,
+                                caption: nameFile,
+                                class: urlFileType
+                            }, (result) => {
+                                const index = listFolios.current.findIndex(x => x.folio._id === folio);
+                                listFolios.current[index].folio.message.push(result.body.lastMessage);
+                                setRefresh(Math.random());
+                                setShowModal(false);
+                                setOnUpload(false);
+                                setToUpload(null);
+                                setNameFile(null);
+                                setContentShow(null);
+                                setNameFileSend(null);
+                                setUrlFile(null);
+                                setUrlFileType(null);
+                                setOnPushFile(false);
+                            });
+                        }}
+                        disabled={onPushFile}
+                    >
+                        <Icon name='checkmark' /> Enviar
+                    </Button>
+                </Modal.Actions>
+            </Modal>
+        </>
+    );
+};
+
 export default UploadFile;
