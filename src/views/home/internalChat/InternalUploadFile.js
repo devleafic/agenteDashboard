@@ -26,7 +26,9 @@ const InternalUploadFile = ({sendFile}) => {
             'application/vnd.ms-excel': 'xls',
             'text/plain': 'txt',
             'application/zip': 'zip',
-            'application/x-zip-compressed': 'zip'
+            'application/x-zip-compressed': 'zip',
+            'application/msword': 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
         };
 
         const handlePaste = (e) => {
@@ -46,7 +48,9 @@ const InternalUploadFile = ({sendFile}) => {
                         'application/vnd.ms-excel',
                         'text/plain',
                         'application/zip',
-                        'application/x-zip-compressed'
+                        'application/x-zip-compressed',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml'
                     ];
 
                     if (!supportedTypes.some(type => mimeType.startsWith(type))) {
