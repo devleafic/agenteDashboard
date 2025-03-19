@@ -86,9 +86,38 @@ const Login = () => {
                             {msgError && <div className="error-message">{msgError}</div>}
                         </Form>
                         
-                        <div className="version-info">
-                            <p>Versión UI {process.env.REACT_APP_SYSTEM_VERSION}</p>
-                            <p>Kernel {process.env.REACT_APP_SYSTEM_REACTOR}</p>
+                        <div style={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            backgroundColor: '#f7fafc',
+                            padding: '16px',
+                            borderRadius: '8px',
+                            marginTop: '16px',
+                            border: '1px solid #e2e8f0'
+                         }}>
+                            <div style={{ 
+                                textAlign: 'center',
+                                paddingBottom: '12px',
+                                borderBottom: '1px solid #e2e8f0'
+                             }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2c5282" strokeWidth="2">
+                                        <path d="M2 6h20v12H2V6zm2 12h16V8H4v10z"/>
+                                    </svg>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#2c5282' }}>
+                                        Versión UI {process.env.REACT_APP_SYSTEM_VERSION}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="1.8">
+                                    <path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 14.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13z"/>
+                                </svg>
+                                <span style={{ fontSize: '0.95rem', color: '#4a5568' }}>
+                                    Kernel {process.env.REACT_APP_SYSTEM_REACTOR}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
