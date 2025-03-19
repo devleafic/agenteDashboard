@@ -1,4 +1,4 @@
-import React, {useRef, useState, useContext, useCallback} from 'react';
+import React, {useRef, useState, useContext, useCallback, useEffect} from 'react';
 import { Icon, Loader, Button, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
 import axios, {post} from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
@@ -7,8 +7,6 @@ import Dropzone  from 'react-dropzone';
 
 
 const InternalUploadFile = ({sendFile}) => {
-
-
     
     const [onPushFile, setOnPushFile] = useState(false);
     
@@ -19,6 +17,61 @@ const InternalUploadFile = ({sendFile}) => {
     const [urlFile, setUrlFile ] = useState(null);
     const [urlFileType, setUrlFileType ] = useState(null);
 
+    useEffect(() => {
+        const mimeToExt = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'application/pdf': 'pdf',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+            'application/vnd.ms-excel': 'xls',
+            'text/plain': 'txt',
+            'application/zip': 'zip',
+            'application/x-zip-compressed': 'zip'
+        };
+
+        const handlePaste = (e) => {
+            if (!e.clipboardData) return;
+            
+            const items = e.clipboardData.items || [];
+            for (let i = 0; i < items.length; i++) {
+                try {
+                    if (items[i].kind !== 'file' || !items[i].getAsFile()) continue;
+                    
+                    const blob = items[i].getAsFile();
+                    const mimeType = blob.type;
+                    const supportedTypes = [
+                        'image/',
+                        'application/pdf',
+                        'application/vnd.openxmlformats',
+                        'application/vnd.ms-excel',
+                        'text/plain',
+                        'application/zip',
+                        'application/x-zip-compressed'
+                    ];
+
+                    if (!supportedTypes.some(type => mimeType.startsWith(type))) {
+                        alert(`Formato no soportado: ${mimeType.split('/')[1]}`);
+                        return;
+                    }
+
+                    if (blob.size > 20 * 1024 * 1024) {
+                        alert("El archivo es demasiado grande. Máximo 20MB");
+                        return;
+                    }
+
+                    const ext = mimeToExt[mimeType] || mimeType.split('/')[1];
+                    const file = new File([blob], `archivo-${Date.now()}.${ext}`, { type: mimeType });
+                    fileUpload(file);
+                } catch (error) {
+                    console.error('Error processing pasted file:', error);
+                    alert('Error al procesar archivo del portapapeles');
+                }
+            }
+        };
+
+        document.addEventListener('paste', handlePaste);
+        return () => document.removeEventListener('paste', handlePaste);
+    }, []);
 
     const fileUpload = file => {
         
