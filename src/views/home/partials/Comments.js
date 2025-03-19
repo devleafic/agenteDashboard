@@ -109,6 +109,27 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
             func();
         }, delay);
     }, []);
+
+    useEffect(() => {
+        const container = boxMessage.current;
+        
+        if (!container) {
+          console.warn('Scroll container ref not attached');
+          return;
+        }
+      
+        if (folio?.message?.length) {
+          // Scroll to bottom with smooth behavior
+        //   container.scrollTo({
+        //     top: container.scrollHeight,
+        //     behavior: 'smooth'
+        //   });
+          
+          // Only show "Nuevos mensajes" if not at bottom
+          const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+          setShowBtnUn(prev => !isAtBottom);        
+        }
+      }, [folio?.message && folio?.message?.length]);
     
     // Function to save draft for a specific folio with debounce
     const saveDraftForFolio = useCallback((folioId) => {
