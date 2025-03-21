@@ -9,6 +9,8 @@ import NotificationSettings from './NotificationSettings';
 
 import { useNotifications } from '../../../controladores/NotificationContext';
 
+import ModalFiles from '../../../componentes/internalChat/ModalFiles';
+
 import axios from 'axios';
 import {
     DropdownMenu,
@@ -34,6 +36,8 @@ export default function InternalChat({userInfo}) {
     const [activeTab, setActiveTab] = useState(0); // 0 for chats, 1 for archived
     const [clickedId, setClickedId] = useState(null);
     const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+    const [openFileMedia, setOpenFileMedia] = useState(false);
     
     const listActivites = [
         {
@@ -737,6 +741,11 @@ export default function InternalChat({userInfo}) {
                             ))}
                             </DropdownMenu>
                         </Dropdown>
+
+                        <Button
+                            onClick={() => setOpenFileMedia(!openFileMedia)}
+                        >Contenido Compartido</Button>
+
                     </div>
                 </div>
                 <div className="internal-chat-message-container" ref={messageContainerRef}>
@@ -852,5 +861,7 @@ export default function InternalChat({userInfo}) {
     open={showNotificationSettings} 
     onClose={() => setShowNotificationSettings(false)} 
 />
+        {/* Modal para ver los archivos */}
+        {viewChat && <ModalFiles open={openFileMedia} setOpen={setOpenFileMedia} chatId={viewChat._id}/>}
     </>)
 }

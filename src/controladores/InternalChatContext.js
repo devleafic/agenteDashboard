@@ -35,6 +35,15 @@ const { queueNotification } = useNotifications();
     });
   }
 
+  const goToMedia = (chatId) => {
+    return new Promise((resolve, reject) => {
+      console.log('Getting media for chat', chatId);
+      socket.emit('getMedia', {token: window.localStorage.getItem('sdToken'), chatId}, (data) => {
+        resolve(data);
+      });
+    });
+  }
+
   const archiveChat = (chatId) => {
     const chatToArchive = inboxList.find(chat => chat._id === chatId);
     if (!chatToArchive) return;
@@ -211,7 +220,8 @@ const { queueNotification } = useNotifications();
       unarchiveChat, 
       unreadMessages, 
       setUnreadMessages, 
-      activitiesUsers
+      activitiesUsers,
+      goToMedia
     }}>
       {children}
     </SocketContext.Provider>
