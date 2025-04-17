@@ -79,6 +79,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
         const maxFileSize = 20 * 1024 * 1024;
         const supportedTypes = [
             'image/',
+            'video/',
             'application/pdf',
             'application/vnd.openxmlformats',
             'application/vnd.ms-excel'
