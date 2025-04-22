@@ -27,7 +27,9 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             'image/jpeg': 'jpg',
             'application/pdf': 'pdf',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-            'application/vnd.ms-excel': 'xls'
+            'application/vnd.ms-excel': 'xls',
+            'video/quicktime': 'mov',
+            'video/x-msvideo': 'avi'
         };
 
         const handlePaste = (e) => {
@@ -49,7 +51,9 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                         'image/',
                         'application/pdf',
                         'application/vnd.openxmlformats',
-                        'application/vnd.ms-excel'
+                        'application/vnd.ms-excel',
+                        'video/quicktime',
+                        'video/x-msvideo'
                     ];
 
                     if (!supportedTypes.some(type => mimeType.startsWith(type))) {
