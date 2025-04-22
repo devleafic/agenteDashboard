@@ -49,6 +49,7 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                     const mimeType = blob.type;
                     const supportedTypes = [
                         'image/',
+                        'video/',
                         'application/pdf',
                         'application/vnd.openxmlformats',
                         'application/vnd.ms-excel',
@@ -86,7 +87,9 @@ const UploadFile = ({folio, channel, setRefresh}) => {
             'video/',
             'application/pdf',
             'application/vnd.openxmlformats',
-            'application/vnd.ms-excel'
+            'application/vnd.ms-excel',
+            'video/quicktime',
+            'video/x-msvideo'
         ];
 
         if (!supportedTypes.some(type => file.type.startsWith(type))) {
