@@ -63,21 +63,20 @@ export default function ModalFiles({open, setOpen, chatId}) {
     },[open]);
     
 
-  return (<Modal
-    onClose={() => setOpen(false)}
-    onOpen={() => setOpen(true)}
-    open={open}
-    trigger={<Button>Show Modal</Button>}
-  >
-    <ModalHeader>Select a Photo</ModalHeader>
-    <ModalContent image>
-      <ModalDescription>
-        <Header>Contenido compartido</Header>
-        <Tab panes={panes} menu={{ secondary: true, pointing: true }} />
-      </ModalDescription>
-    </ModalContent>
-    <ModalActions>
-      <Button color='black' onClick={() => setOpen(false)}>Cerrar</Button>
-    </ModalActions>
-  </Modal>)
+  return (
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+    >
+      <ModalHeader>Contenido compartido</ModalHeader>
+      <ModalContent image>
+        <ModalDescription>
+          <Tab panes={panes} menu={{ secondary: true, pointing: true }} />
+        </ModalDescription>
+      </ModalContent>
+      <ModalActions>
+        <Button color='black' onClick={() => setOpen(false)}>Cerrar</Button>
+      </ModalActions>
+    </Modal>
+  )
 }
