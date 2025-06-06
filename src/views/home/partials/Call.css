@@ -1,0 +1,194 @@
+/* Estilos base y animaciones para el componente de llamada */
+@import './CallComponents.css';
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes status-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes ripple {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Estilos base del contenedor */
+.call-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    max-width: 100%;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    will-change: transform, opacity;
+}
+
+/* Estilos del estado de la llamada */
+.call-status {
+    animation: fadeIn 0.3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(-10px);
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.call-status.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.call-status.exiting {
+    animation: fadeOut 0.2s ease-in forwards;
+}
+
+.call-status.connected {
+    background-color: #e3f9e5;
+    color: #1b5e20;
+}
+
+.call-status.disconnected {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.call-status.calling {
+    background-color: #fff3e0;
+    color: #e65100;
+    animation: pulse 1.5s infinite;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4caf50;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    animation: status-pulse 1.5s infinite;
+}
+
+/* Estilos para botones de pie de página */
+.footer-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.footer-btn:hover:not(:disabled) {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+.footer-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.footer-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.footer-btn.save-btn {
+    border-color: #ffb74d;
+    color: #e65100;
+}
+
+.footer-btn.save-btn:hover:not(:disabled) {
+    background: #fff3e0;
+}
+
+.footer-btn.resolve-btn {
+    border-color: #81c784;
+    color: #2e7d32;
+}
+
+.footer-btn.resolve-btn:hover:not(:disabled) {
+    background: #e8f5e9;
+}
+
+/* Estilos responsivos */
+@media (max-width: 480px) {
+    .call-container {
+        padding: 1rem;
+    }
+    
+    .call-actions {
+        gap: 0.75rem;
+    }
+    
+    .action-btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .footer-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+        height: 52px;
+    }
+    
+    .footer-btn {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Optimizaciones para evitar repaints costosos */
+.call-container * {
+    will-change: auto;
+}
+
+/* Mejora de rendimiento para animaciones */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
