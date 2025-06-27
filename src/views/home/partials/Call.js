@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Mic, MicOff, Phone, PhoneOff, PhoneCall, Save, CheckCircle } from 'react-feather';
+import { Mic, MicOff, Phone, PhoneOff, PhoneCall, Save, CheckCircle, Grid as KeypadIcon } from 'react-feather';
 import SocketContext from './../../../controladores/SocketContext';
 import CallContext from '../../../controladores/CallContext';
 import './Call.css';
 import './CallComponents.css';
+import NumericKeypad from './NumericKeypad'; // Assuming NumericKeypad.js is in the same directory
 
 // Componente optimizado para evitar re-renders innecesarios
 const CallButton = React.memo(({ 
@@ -45,6 +46,7 @@ const Call = React.memo(({
     const callC = useContext(CallContext);
     const socket = useContext(SocketContext);
     const [isMuted, setIsMuted] = useState(false);
+    const [showKeypad, setShowKeypad] = useState(false);
     const [callDuration, setCallDuration] = useState(0);
     const [formattedTime, setFormattedTime] = useState('00:00:00');
     const timerRef = useRef(null);
@@ -159,16 +161,25 @@ const Call = React.memo(({
     // Funciones de llamada memorizadas
     const hangUp = useCallback(() => {
         const now = Date.now();
-        // Evitar múltiples llamadas rápidas
         if (now - lastCallTimeRef.current < 1000) return;
         lastCallTimeRef.current = now;
+
+        if (callC.activeCall && typeof callC.activeCall.disconnect === 'function') {
+            console.log('Call.js: Disconnecting call via callC.activeCall.disconnect()');
+            callC.activeCall.disconnect();
+        } else {
+            console.warn('Call.js: hangUp - activeCall not available or disconnect is not a function. Falling back to UI update.');
+            // If there's no active Twilio call object, still update UI and inform backend
+            setOnCall('disconnect'); 
+        }
         
+        // Your existing backend notification for hangup
         window.localStorage.setItem('autoAccept', 'false');
-        socket.connection.emit('hangUp', { sidCall }, () => {
-            setOnCall('disconnect');
-            setRefresh(prev => prev + 1);
+        socket.connection.emit('hangUp', { sidCall: sidCall || callC.activeCall?.parameters?.CallSid }, () => {
+            // setOnCall('disconnect'); // This should be handled by Call.EventName.Disconnect listener in Home.js
+            setRefresh(prev => prev + 1); // May or may not be needed if Home.js handles UI updates
         });
-    }, [sidCall, setOnCall, setRefresh, socket.connection]);
+    }, [callC.activeCall, sidCall, setOnCall, setRefresh, socket.connection]);
 
     const makeCall = useCallback(() => {
         const now = Date.now();
@@ -190,12 +201,53 @@ const Call = React.memo(({
     }, [currentFolio._id, setOnCall, setRefresh, setSidCall, socket.connection]);
 
     const muteCall = useCallback(() => {
-        if (callC.connection && callC.connection.activeConnection) {
-            const newMutedState = !callC.connection.activeConnection().isMuted();
-            callC.connection.activeConnection().mute(newMutedState);
-            setIsMuted(newMutedState);
+        if (callC.activeCall && typeof callC.activeCall.isMuted === 'function' && typeof callC.activeCall.mute === 'function') {
+            const currentMuteState = callC.activeCall.isMuted();
+            callC.activeCall.mute(!currentMuteState);
+            setIsMuted(!currentMuteState);
+            console.log(`Call.js: Call mute toggled to ${!currentMuteState}`);
+        } else {
+            console.warn('Call.js: muteCall - activeCall not available or mute functions are missing.');
         }
-    }, [callC.connection]);
+    }, [callC.activeCall, setIsMuted]);
+
+    const toggleKeypad = useCallback(() => {
+        setShowKeypad(prev => !prev);
+    }, []);
+
+    const handleKeyPress = useCallback((digit) => {
+        if (!callC.activeCall || typeof callC.activeCall.sendDigits !== 'function') {
+            console.warn('Call.js: Cannot send DTMF - activeCall not available or sendDigits is not a function.', { activeCall: callC.activeCall });
+            return;
+        }
+
+        const activeTwilioCall = callC.activeCall;
+
+        console.log('Call.js: Attempting to send DTMF on Call object:', activeTwilioCall);
+        // The CallSid is usually available as activeTwilioCall.parameters.CallSid or similar, or just activeTwilioCall.sid
+        // For logging purposes, let's assume it's on parameters if it exists.
+        if (activeTwilioCall.parameters && activeTwilioCall.parameters.CallSid) {
+            console.log('Call.js: Call SID from activeCall:', activeTwilioCall.parameters.CallSid);
+        } else {
+            console.log('Call.js: Call SID not directly available on activeCall.parameters. It might be activeCall.sid.');
+        }
+
+        // The @twilio/voice-sdk Call object doesn't have a .status() method like the old Connection.
+        // Its state is typically inferred from events (connected, disconnected, etc.) or properties like call.status()
+        // For DTMF, we primarily care that the call is live, which is implied if activeCall exists and onCall === 'connect'.
+        console.log(`Call.js: Current UI call state (onCall): ${onCall}`);
+
+        if (onCall !== 'connect') {
+            console.warn(`Call.js: UI indicates call is not connected (onCall: ${onCall}), but attempting to send DTMF. This might fail if the call is not truly active.`);
+        }
+
+        try {
+            activeTwilioCall.sendDigits(digit);
+            console.log(`Call.js: Sent DTMF: ${digit}`);
+        } catch (error) {
+            console.error('Call.js: Error sending DTMF:', error);
+        }
+    }, [callC.activeCall, onCall]);
 
     // Estado para manejar la visibilidad del estado de llamada
     const [callStatus, setCallStatus] = useState({ text: '', className: '', visible: false });
@@ -305,14 +357,21 @@ const Call = React.memo(({
             </div>
 
             <div className="call-actions">
-                <CallButton
+                <CallButton 
                     icon={isMuted ? MicOff : Mic}
-                    label={isMuted ? 'Activar micrófono' : 'Silenciar'}
+                    label={isMuted ? 'Unmute' : 'Mute'}
                     onClick={muteCall}
                     disabled={onCall !== 'connect'}
-                    className={isMuted ? 'active' : ''}
+                    className={isMuted ? 'muted' : ''}
                 />
-                
+                {onCall === 'connect' && (
+                    <CallButton
+                        icon={KeypadIcon}
+                        label={showKeypad ? 'Hide Keypad' : 'Show Keypad'}
+                        onClick={toggleKeypad}
+                        className={showKeypad ? 'active' : ''}
+                    />
+                )}
                 <CallButton
                     icon={PhoneOff}
                     label="Colgar"
@@ -330,6 +389,12 @@ const Call = React.memo(({
                     showPulse={onCall === 'calling'}
                 />
             </div>
+
+            {showKeypad && onCall === 'connect' && (
+                <div className="keypad-section" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                    <NumericKeypad onKeyPress={handleKeyPress} disabled={onCall !== 'connect'} />
+                </div>
+            )}
 
             {/* Los botones de Guardar y Resolver se manejan desde el componente padre Comments */}
             {onSave && onResolve && (
