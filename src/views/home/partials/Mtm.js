@@ -7,20 +7,20 @@ import { toast } from 'react-toastify';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
-const Mtm = ({mtm, person, setRefresh, folio}) => {
+const initialMtmState = { _id: null, name: null, text: null, locale: null, service: null, channel: null, parameters: [], parametersHeader: [] };
 
-    const initializeMtmToSend= {...mtmToSend, _id : null, name: null, text : null, locale: null, service :null, channel :null };
+const Mtm = ({ mtm, person, setRefresh, folio }) => {
     const [openModal, setOpenModal] = useState(false);
-    const [titleModal, setTitleModal ] = useState('');
+    const [titleModal, setTitleModal] = useState('');
     const [contentMessage, setContentMessage] = useState(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
     const [onLoading, setOnLoading] = useState(false);
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
-    const [mtmToSend, setMtmToSend] = useState({_id: null, name: null, text : null, locale : null, service : null, channel: null});
+    const [mtmToSend, setMtmToSend] = useState(initialMtmState);
 
-    const initLoadModal = () => { //reset values for Modal 
+    const initLoadModal = () => { //reset values for Modal
         setOpenModal(!openModal);
-        setMtmToSend(initializeMtmToSend);
+        setMtmToSend(initialMtmState);
         setContentMessage(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
         console.log(mtmToSend)
     }
@@ -101,7 +101,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
             if(!result.body.success){
                 toast.error(result.body.message);
                 initLoadModal();
-                setMtmToSend(initializeMtmToSend)
+                setMtmToSend(initialMtmState)
                 setOnLoading(false);
                 return false;
             }
@@ -113,7 +113,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
         })
         setRefresh(Math.random());
         initLoadModal();
-        setMtmToSend(initializeMtmToSend)
+        setMtmToSend(initialMtmState)
         setOnLoading(false);
         //});
         toast.info('Enviando Plantilla... 📨', {
@@ -128,7 +128,7 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
     }
     
     useEffect( () => {
-        setMtmToSend(initializeMtmToSend);
+        setMtmToSend(initialMtmState);
         console.log('refrescando componente de mtm')},
     [person])
 

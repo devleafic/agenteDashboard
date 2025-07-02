@@ -125,8 +125,6 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         const content = msg.content;
         const caption = msg.caption;
         const recording = msg.callRecordUrl;
-        adstring = '';
-
         let adstring = '';
 
         if (msg.ads) {

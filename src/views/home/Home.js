@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import { Device, Call } from '@twilio/voice-sdk';
 import { toast } from 'react-toastify';
-import { Modal, Header, Icon, Button, Popup} from 'semantic-ui-react';
+import { Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button as HeroButton, Tooltip } from "@heroui/react";
 
 /* Contexto */
 import ListFoliosContext from './../../controladores/FoliosContext';
@@ -19,6 +19,38 @@ import Follow from './partials/Follow';
 import Contacts from './partials/Contacts';
 import Calendar from './partials/Calendar';
 import InternalChat from './internalChat/InternalChat';
+
+// --- SVG Icon Components ---
+const AlertTriangleIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+  </svg>
+);
+
+const LogoutIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+  </svg>
+);
+
+const PhoneIncomingIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 3l-3 3m0 0l3 3m-3-3h6" />
+  </svg>
+);
+
+const HangUpIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.5 1.591L5.22 15.22a2.25 2.25 0 01-3.182 0l-.962-.962a2.25 2.25 0 010-3.182l5.714-5.714a2.25 2.25 0 011.591-.5zM9.75 3.104c1.132 0 2.23.448 3.037 1.253l.962.962a2.25 2.25 0 010 3.182l-5.714 5.714a2.25 2.25 0 01-1.591.5v-5.714a2.25 2.25 0 01.5-1.591L9.75 3.104z" />
+  </svg>
+);
+
+const AnswerIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+  </svg>
+);
 
 window.mobileAndTabletCheck = function() {
     let check = false;
@@ -608,76 +640,92 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
         setPage(option);
     }
 
-    return ( <>
-        
-        <div className={getColorStatusBar()}></div>
-        <div className='sideBarHome'>
-            <SideBarMenu page={page} selectedComponent={selectedComponent} setOnConnect={setOnConnect} onConnect={onConnect} unReadMessages={unReadMessages} isConnected={isConnected}/>
+    return (
+    <>
+      <div className="flex flex-col h-screen bg-gray-50 dark:bg-neutral-900">
+        {/* Status Bar */}
+        <div className={`w-full h-1 ${getColorStatusBar()}`}></div>
+
+        <div className="flex flex-1 min-h-0">
+          {/* --- Sidebar --- */}
+          <div className="flex-shrink-0">
+            <SideBarMenu 
+              page={page} 
+              selectedComponent={selectedComponent} 
+              setOnConnect={setOnConnect} 
+              onConnect={onConnect} 
+              unReadMessages={unReadMessages} 
+              isConnected={isConnected}
+            />
+          </div>
+
+          {/* --- Main Content --- */}
+          <div className="flex flex-col flex-1 min-w-0">
+            {/* Toolbar */}
+            <Toolbar 
+              isInbound={isInbound} 
+              setIsUnbound={setIsUnbound} 
+              isReady={isReady} 
+              userInfo={userInfo} 
+              setIsReady={setIsReady} 
+              setIsConnected={setIsConnected} 
+              isConnected={isConnected}
+            />
+            
+            {/* Main view area - This will grow and scroll */}
+            <main className="flex-1 overflow-y-auto">
+              {component.home && <HomeViewer vFolio={vFolio} setVFolio={setVFolio} dispatch={dispatch} countunReadMsg={countunReadMsg} dispatchCount={dispatchCount} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>}
+              {component.inbox && <Inbox  vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>}
+              {component.follow && <Follow  vFolio={vFolio} setVFolio={setVFolio} show={component.follow} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>}
+              {component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}  userInfo={userInfo} />}
+              {component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>}
+              {component.InternalChat && <InternalChat  show={component.InternalChat} selectedComponent={selectedComponent} userInfo={userInfo}/>}
+            </main>
+          </div>
         </div>
-        <div className='contentDashboard'>
-            <Toolbar isInbound={isInbound} setIsUnbound={setIsUnbound} isReady={isReady} userInfo={userInfo} setIsReady={setIsReady} setIsConnected={setIsConnected} isConnected={isConnected}/>
-            {
-                component.home && <HomeViewer vFolio={vFolio} setVFolio={setVFolio} dispatch={dispatch} countunReadMsg={countunReadMsg} dispatchCount={dispatchCount} unReadFolios={unReadFolios} sidCall={sidCall} setSidCall={setSidCall} isConnected={isConnected} userInfo={userInfo} show={component.home} listFolios={listFolios} refresh={refresh} setRefresh={setRefresh} onCall={onCall} setOnCall={setOnCall}/>
-            }
-            {
-                component.inbox && <Inbox  vFolio={vFolio} setVFolio={setVFolio} show={component.inbox} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
-            }
-                        {
-                component.follow && <Follow  vFolio={vFolio} setVFolio={setVFolio} show={component.follow} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
-            }
-            {
-                component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}  userInfo={userInfo} />
-            } 
-            {
-                component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>
-            }
-            {
-                component.InternalChat && <InternalChat  show={component.InternalChat} selectedComponent={selectedComponent} userInfo={userInfo}/>
-            }        
-        </div>
-        
+      </div>
 
+      {/* --- Modals (HeroUI) --- */}
+      <HeroModal isOpen={open} isDismissable={false} hideCloseButton>
+        <ModalContent>
+          <ModalHeader className="flex flex-col items-center gap-2 text-lg font-semibold">
+            <AlertTriangleIcon className="w-8 h-8 text-warning-500" />
+            Aviso
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-center">{message}</p>
+          </ModalBody>
+          <ModalFooter className="justify-center">
+            <Tooltip content='Iniciar Sesión con otro usuario' placement="top">
+              <HeroButton color="danger" variant="flat" onClick={closeSession} startContent={<LogoutIcon className="w-5 h-5" />}>
+                Cerrar Sesión
+              </HeroButton>
+            </Tooltip>
+          </ModalFooter>
+        </ModalContent>
+      </HeroModal>
 
-        <Modal
-            basic
-            open={open}
-            size='small'
-            >
-            <Header icon>
-                <Icon name='unlinkify' />
-                Aviso
-            </Header>
-            <Modal.Content>
-                <center>{message} <br></br>
-                <Popup content='Iniciar Sesión con otro usuario' trigger={<Button icon='log out' onClick={closeSession}/>} position='right center'/></center>
-                
-            </Modal.Content>
-            </Modal>
-
-        <Modal
-            basic
-            open={openInComingCall}
-            size='small'
-            >
-            <Header icon>
-                <Icon name='phone volume' />
-                ¿Deseas Contestar la Llamada de {phoneNumber}?
-            </Header>
-            <Modal.Content>
-                
-            </Modal.Content>
-            <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {
-                    SocketActions.rejectCall()
-                }}>
-                    <Icon name='remove' /> Colgar
-                </Button>
-                <Button color='green' inverted onClick={() => {SocketActions.acceptCall()}}>
-                    <Icon name='checkmark'/> Contestar
-                </Button>
-            </Modal.Actions>
-            </Modal>
-    </> );
+      <HeroModal isOpen={openInComingCall} isDismissable={false} hideCloseButton>
+        <ModalContent>
+          <ModalHeader className="flex flex-col items-center gap-2 text-lg font-semibold">
+            <PhoneIncomingIcon className="w-8 h-8 text-primary-500" />
+            Llamada Entrante
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-center">¿Deseas contestar la llamada de <strong>{phoneNumber}</strong>?</p>
+          </ModalBody>
+          <ModalFooter>
+            <HeroButton color="danger" startContent={<HangUpIcon />} onClick={() => SocketActions.rejectCall()}>
+              Colgar
+            </HeroButton>
+            <HeroButton color="success" startContent={<AnswerIcon />} onClick={() => SocketActions.acceptCall()}>
+              Contestar
+            </HeroButton>
+          </ModalFooter>
+        </ModalContent>
+      </HeroModal>
+    </>
+  );
 }
  
 export default Home;

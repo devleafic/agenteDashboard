@@ -1,528 +1,314 @@
-import React, {useState, useEffect, useContext} from 'react';
-import {Modal, Checkbox, Icon, Dropdown, Button, Select, Header, Form, Divider, Segment, Popup, Image, Grid, Label} from 'semantic-ui-react';
-import {toast } from 'react-toastify';
+import React, { useState, useEffect, useContext } from 'react';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
-import moment from 'moment';
-
-//import avatar from './../../../img/avatars/matt.jpg';
-
 import ListFoliosContext from '../../../controladores/FoliosContext';
-
 import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
+import {
+    Navbar,
+    NavbarBrand,
+    NavbarContent,
+    NavbarItem,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    User,
+    Chip,
+    Switch,
+    Badge,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button as HeroButton,
+    Input,
+    Select,
+    SelectItem
+} from "@heroui/react";
 
-const Toolbar = ({userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected}) => {
+const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected }) => {
 
     const [listFilesOubounds, setListFilesOubounds] = useState([]);
     const socketC = useContext(SocketContext);
-    const [showBlankFolio, setShowBlankFolio] = useState(false);
-    const [infoBlankFolio, seteInfoBlankFolio] = useState(null);
-
     const [activities, setActivities] = useState([]);
-    const [fullActivities, setFullActivities ] = useState([]);
+    const [fullActivities, setFullActivities] = useState([]);
     const [currentActivity, setCurrentActivity] = useState(1);
     const [outboundAva, setOutboundAva] = useState(false);
-
     const listFolios = useContext(ListFoliosContext);
-    const avatar  = 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg'; 
-    const [userDetail, setUserDetail] = useState({name : "Esperando..", prefetch:"Esperando...", profilePicture: avatar});
-    const [automaticActivity, setAutomaticActivity ] = useState(null);
-
-    const [agentList, setAgentList ] = useState(null);
-    const [timing, setTiming ] = useState(null);
+    const avatar = 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg';
+    const [userDetail, setUserDetail] = useState({ name: "Esperando..", prefetch: "Esperando...", profilePicture: avatar });
+    const [automaticActivity, setAutomaticActivity] = useState(null);
+    const [agentList, setAgentList] = useState(null);
+    const [timing, setTiming] = useState(null);
     const [inAtention, setInAtention] = useState(null);
+    const { notifications, clear, markAllAsRead, markAsRead, unreadCount } = useNotificationCenter();
+    const [analytics, setAnalytics] = useState({ foliosOnHoldAll: '°°°', foliosOnBotAt: '°°°' });
 
-    //notification center
-    const {
-        notifications,
-        clear,
-        markAllAsRead,
-        markAsRead,
-        unreadCount
-    } = useNotificationCenter();
-    const [showUnreadOnly, setShowUnreadOnly] = useState(false);
-    const showToast = () => {
-        toast('Hello World', {
-            data: {
-                title: 'Hello World Again',
-                text: 'We are here again with another article'
-            }
-        });
-    };     
-    //notificaction center -----------------
-    //const [lastActivity, setlastActivity] = useState(currentActivity); //save last activity, before change a new one
-    const iniatilaze = {
-        anchor : null,
-        channel : null,
-        queue : null,
-        crm : {}
-    }
-    const [dataToBlank, setDataToBlank] = useState(iniatilaze);
+    // State for Blank Folio Modal
+    const [showBlankFolio, setShowBlankFolio] = useState(false);
+    const [infoBlankFolio, setInfoBlankFolio] = useState(null);
+    const initialBlankFolioState = { anchor: '', channel: '', queue: '', crm: {} };
+    const [dataToBlank, setDataToBlank] = useState(initialBlankFolioState);
     const [onCreateBlank, setOnCreateBlank] = useState(false);
 
-
-    const [analytics, setAnalytics] = useState({
-        //foliosPerDay : '-',
-        //foliosEndPerDay : '-',
-        //foliosSavePerDay: '-',
-        foliosOnHoldAll: '°°°',
-        foliosOnBotAt: '°°°'
-    })
-
-    
-
-    const getAgentActivitie = () => {    
-        socketC.connection.emit('activitieAgent', {
-          //date : 'today',
-          agent :  userInfo._id
-        },(result) => {
+    const getAgentActivitie = () => {
+        socketC.connection.emit('activitieAgent', { agent: userInfo._id }, (result) => {
             setInAtention(result.inAtention);
             setTiming(result.timing);
             setAgentList(result.agentList);
         });
-      };
-
-      const getTiming = (agent) => {
-        if (typeof agent === 'undefined' || agent === null) {
-            return 'Agente no definido';
-        }
-
-        if (typeof timing === 'undefined' || timing === null) {
-            return 'Calculando tiempo de conexión';
-        }
-        
-        const timingLast = timing.find((x) => {
-            return agent === x.agent;
-        });
-        
-        if (!timingLast) {
-            return 'Sin tiempo de conexión';
-        }
-
-        const lastActivitie = timingLast.activities[timingLast.activities.length -1];
-        let diffTime = moment().diff(moment(lastActivitie.timing.start), 'seconds');
-        //console.log( moment().diff(moment(lastActivitie.timing.start), 'seconds'));
-        return <Label>
-                    <Icon name='hourglass half' />  { moment.utc(diffTime * 1000).format("HH:mm:ss")}
-                </Label>
-              
-      
-          
-    }  
+    };
 
     const getAnalytics = () => {
-        
         if (userInfo) {
-            socketC.connection.emit('getAnalyticsAgent', {
-            proccess : '/folio/all',
-            date : 'today',
-            service : userInfo.service.id
-            },(result) => {
+            socketC.connection.emit('getAnalyticsAgent', { proccess: '/folio/all', date: 'today', service: userInfo.service.id }, (result) => {
                 setAnalytics(result.data)
             });
-
             getAgentActivitie()
         }
     };
 
-    const getIcon = (option) => {
-       
-        switch (option){
-            case 'queue':
-                if( analytics.foliosOnHoldAll > 0){
-                    return (
-                        <Icon.Group>
-                            <Icon circular name='stack exchange' />
-                            <Icon corner name='circle' color='red'/>
-                        </Icon.Group>        
-                    )
-                }else{
-                    return (
-                        <Icon circular name='stack exchange' />
-                    )
-                }
-            break;
-            case 'notification': 
-                return (
-                    <Icon.Group>
-                        <Icon circular name='bell' />
-                        <Icon corner name='circle' color='red'   />
-                    </Icon.Group> 
-                )
-            break;
-        }
-    }    
-
-    const createFolioBlank = () => {
-
-        setOnCreateBlank(true);
-        socketC.connection.emit('createFolioBlank', {
-            token : window.localStorage.getItem('sdToken'),
-            blank : dataToBlank
-        }, (result) => {
-            setOnCreateBlank(false);
-            setShowBlankFolio(false);
-        })
-    }
-
     const changeConnection = () => {
-        if(isConnected === -1){
-            return false
-        }
+        if (isConnected === -1) return false;
         const value = !isInbound;
         setIsUnbound(value);
-        toast.success('Se cambio el tipo de conexión a '+(isInbound ? 'Outbound' : 'Inbound'));
+        toast.success('Se cambio el tipo de conexión a ' + (isInbound ? 'Outbound' : 'Inbound'));
         setIsReady(false);
-        if(!value){
-            socketC.connection.emit('disconnectToQueue', {
-                token : window.localStorage.getItem('sdToken')
-            }, (result) => {
-                console.log(result);
+        if (!value) {
+            socketC.connection.emit('disconnectToQueue', { token: window.localStorage.getItem('sdToken') }, (result) => {
                 setIsReady(true);
-            })
-        }else if (value){
-            socketC.connection.emit('connecToQueue', {
-                token : window.localStorage.getItem('sdToken')
-            },() => {
+            });
+        } else if (value) {
+            socketC.connection.emit('connecToQueue', { token: window.localStorage.getItem('sdToken') }, () => {
                 setIsReady(true);
             });
         }
-    }
+    };
 
-    const getToFolioBlank = () => {
-        seteInfoBlankFolio(null);
-        socketC.connection.emit('getToFolioBlank', {
-            token : window.localStorage.getItem('sdToken'),
-            service : userInfo.service.id
-        },(result) => {
-            setShowBlankFolio(true)
-            seteInfoBlankFolio(result);
-            
-            if(result.channels.length === 0){
-                
+    const createFolioBlank = () => {
+        if (!dataToBlank.anchor || !dataToBlank.channel) {
+            toast.warning("El identificador y el canal son obligatorios.");
+            return;
+        }
+        setOnCreateBlank(true);
+        socketC.connection.emit('createBlankFolio', {
+            token: window.localStorage.getItem('sdToken'),
+            ...dataToBlank
+        }, (response) => {
+            setOnCreateBlank(false);
+            if (response.success) {
+                toast.success("Folio creado exitosamente.");
+                setShowBlankFolio(false);
+                setDataToBlank(initialBlankFolioState);
+            } else {
+                toast.error(ERRORS[response.codeError] || "Error al crear el folio.");
             }
-
-            const temp = {};
-            result.crm.map((x) => {
-                temp[x._id] = '';
-            })
-            setDataToBlank({...dataToBlank, crm : temp})
         });
-    }
+    };
 
-    useEffect( () => {
-
-        
-        async function getInfo (){
-        if(userInfo && !isInbound){
-            const responseOutbounds = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id+'/outbound/list');
-            console.log(responseOutbounds.data);
-            const tmpList = responseOutbounds.data.outboundFiles.map((x) => {
-                
-                return {
-                    key: x._id,
-                    text: x.nameList,
-                    value: x._id,
-                    icon : 'hand paper outline',
-                    onClick : requestItemList
-                }
-            });
-            setListFilesOubounds(tmpList);
-            
+    useEffect(() => {
+        async function getInfo() {
+            if (userInfo && !isInbound) {
+                const responseOutbounds = await axios.get(process.env.REACT_APP_CENTRALITA + '/service/' + userInfo.service.id + '/outbound/list');
+                const tmpList = responseOutbounds.data.outboundFiles.map((x) => ({ key: x._id, text: x.nameList, value: x._id }));
+                setListFilesOubounds(tmpList);
+            }
         }
-        }
-        
+        getInfo();
+    }, [isInbound, userInfo]);
 
-    },[isInbound]);
-
-    useEffect( () => {
+    useEffect(() => {
         const getPlugin = async () => {
-            
-            const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA+'/plugins/available')
-            
-            const outboundPlugin = resPlugin.data.plugins.find((x) => {
-                return x.id === 'outbound';
-            });
-            if(outboundPlugin){setOutboundAva(true)}
+            const resPlugin = await axios.get(process.env.REACT_APP_CENTRALITA + '/plugins/available');
+            const outboundPlugin = resPlugin.data.plugins.find((x) => x.id === 'outbound');
+            if (outboundPlugin) { setOutboundAva(true) }
         }
+        getPlugin();
+    }, []);
 
-         getPlugin();
-    },[])
-
-    useEffect(  () => {
-        const loadActivities = async () => {
-            const resService = await axios.get(process.env.REACT_APP_CENTRALITA+'/service/'+userInfo.service.id);
-            const acti = resService.data.body.service.activities;
-
-            const availableAc = acti.filter((x) => {return x.status === true});
-            const toActivities = availableAc.map((x) => {
-                return {key : x._id, value : x._id, text : x.label}
-            });
-
-            const checkAutomaticActivity = acti.find((x) => {return (x.status === true && x.setAutomaticActivity === true)});
-
-
+    useEffect(() => {
+        const loadActivitiesAndConfig = async () => {
+            if (!userInfo) return;
+            const resService = await axios.get(process.env.REACT_APP_CENTRALITA + '/service/' + userInfo.service.id);
+            const serviceData = resService.data.body.service;
+            const acti = serviceData.activities;
+            const availableAc = acti.filter((x) => x.status === true);
+            const toActivities = availableAc.map((x) => ({ key: x._id, value: x._id, text: x.label, description: x.isConnect ? 'Recibe interacciones' : 'No recibe interacciones' }));
+            const checkAutomaticActivity = acti.find((x) => (x.status === true && x.setAutomaticActivity === true));
             setFullActivities(acti);
             setActivities(toActivities);
-            setAutomaticActivity(checkAutomaticActivity)
+            setAutomaticActivity(checkAutomaticActivity);
 
-
- 
-        }
-        async function validateUser (){
-            if(userInfo){
-                setInterval(getAnalytics, 8000);
-                setUserDetail({...userDetail, name: userInfo.profile.name, prefetch : 'Asignación automatica: ' + userInfo.service.prefetch})
-                loadActivities();
+            if (serviceData) {
+                const blankFolioConfig = {
+                    channels: serviceData.channels?.filter(ch => ch.status && ch.allowCreateBlank) || [],
+                    crm: serviceData.crm || []
+                }
+                setInfoBlankFolio(blankFolioConfig);
             }
         }
-        validateUser()
 
-    }, [isReady]);
+        if (userInfo) {
+            const analyticsInterval = setInterval(getAnalytics, 8000);
+            setUserDetail({ ...userDetail, name: userInfo.profile.name, prefetch: 'Asignación automatica: ' + userInfo.service.prefetch });
+            loadActivitiesAndConfig();
+            return () => clearInterval(analyticsInterval);
+        }
+    }, [isReady, userInfo]);
 
-    const requestItemList = async (e, {value}) => {
-        console.time('asignando')
-        socketC.connection.emit('outboundItem', {
-            token : window.localStorage.getItem('sdToken'),
-            service : userInfo.service.id,
-            list : value
-        }, (responseItem) => {
-            if(!responseItem.success){
-                toast.error((ERRORS[responseItem.codeError]||responseItem.message));
+    const requestItemList = async (e, { value }) => {
+        socketC.connection.emit('outboundItem', { token: window.localStorage.getItem('sdToken'), service: userInfo.service.id, list: value }, (responseItem) => {
+            if (!responseItem.success) {
+                toast.error((ERRORS[responseItem.codeError] || responseItem.message));
             }
-            console.timeEnd('asignando')
         });
     }
 
-    useEffect( () => {
-        if (!userInfo.onlyteamchat && automaticActivity && isInbound ){changeActivity()}
-    }, [automaticActivity]);
+    useEffect(() => {
+        if (!userInfo.onlyteamchat && automaticActivity && isInbound) { changeActivity(automaticActivity._id) }
+    }, [automaticActivity, isInbound, userInfo]);
 
-    const changeActivity = async (e) => {    
-
+    const changeActivity = async (key) => {
         if (userInfo.onlyteamchat) {
-            toast.warning('No puedes cambiar de actividad, solo tienes acceso a TeamChat',{
-                position: "top-right",
-                autoClose: 5000,
-                closeOnClick: true,
-                pauseOnHover: false,
-            });
+            toast.warning('No puedes cambiar de actividad, solo tienes acceso a TeamChat');
             return false;
         }
-
-        let value = e ?  e.target.value : automaticActivity._id
-        let activityObj = fullActivities.find((x) => {
-            return x._id === value;
-        });
-
-        if (activityObj) { 
-          if(listFolios.current.length > 1 && activityObj.isConnect){
-              toast.warning('Finaliza ó Guarda los folios en pantalla para poder cambiar a "'+activityObj.label+'"',{
-                position: "top-right",
-                autoClose: 5000,
-                closeOnClick: true,
-                pauseOnHover: false,
-                });
-                setCurrentActivity(-1)
-              return false;
-          }
-          socketC.connection.emit('changeActivity', {
-                token : window.localStorage.getItem('sdToken'),
-                activity : activityObj
-            }, (result) => {
-                if(!result.success){
+        let value = key;
+        let activityObj = fullActivities.find((x) => x._id === value);
+        if (activityObj) {
+            if (listFolios.current.length > 1 && activityObj.isConnect) {
+                toast.warning('Finaliza ó Guarda los folios en pantalla para poder cambiar a "' + activityObj.label + '"');
+                setCurrentActivity(-1);
+                return false;
+            }
+            socketC.connection.emit('changeActivity', { token: window.localStorage.getItem('sdToken'), activity: activityObj }, (result) => {
+                if (!result.success) {
                     toast.error('La actividad no es válida');
                     return false;
                 }
                 setIsConnected(activityObj.isConnect ? 1 : 2);
                 setCurrentActivity(value);
-                //setlastActivity(value)
-                toast.success('Se cambió la actividad a "'+activityObj.label+'"',{
-                    position: "top-right",
-                    autoClose: 1500,
-                    closeOnClick: true,
-                    pauseOnHover: false,
-                    });
-            })
+                toast.success('Se cambió la actividad a "' + activityObj.label + '"');
+            });
         }
-
     }
 
-    //<Button basic color='blue' onClick={getToFolioBlank}>Folio en Blanco</Button>
+    const selectedActivity = activities.find(act => act.key === currentActivity);
+
     return (
-        <div className="toolbar" style={{textAlign:'right', margintRight: '20px'}} >
-            {
-                <div style={{float: 'left'}}  >
-                  {/*  <Popup trigger={getIcon("notification")} flowing hoverable>
-                        <Grid centered divided columns={2}>
-                        <Grid.Column textAlign='center'>
-                            <Header as='h4'>En pila de espera</Header>
-                            <p>
-                            <b>{analytics.foliosOnHoldAll}</b> usuarios
-                            </p>
-                            <p>
-                            <b>Pendientes de asignación acumulados en pilas configuradas.</b>
-                            </p>
-                        </Grid.Column>
-                        <Grid.Column textAlign='center'>
-                            <Header as='h4'>Bot</Header>
-                            <p>
-                            <b>{analytics.foliosOnBotAt}</b> usuarios
-                            </p>
-                            <p>
-                            <b>En atención por Bot 🤖</b>
-                            </p>
-                        </Grid.Column>
-                        </Grid>
-            </Popup>   */}                 
-                  <Popup trigger={getIcon("queue")} flowing hoverable>
-                    <Grid centered divided columns={2}>
-                    <Grid.Column textAlign='center'>
-                        <Header as='h4'>En pila de espera</Header>
-                        <p>
-                        <b>{analytics.foliosOnHoldAll}</b> usuarios
-                        </p>
-                        <p>
-                        <b>Pendientes de asignación acumulados en pilas configuradas.</b>
-                        </p>
-                    </Grid.Column>
-                    <Grid.Column textAlign='center'>
-                        <Header as='h4'>Bot</Header>
-                        <p>
-                        <b>{analytics.foliosOnBotAt}</b> usuarios
-                        </p>
-                        <p>
-                        <b>En atención por Bot 🤖</b>
-                        </p>
-                    </Grid.Column>
-                    </Grid>
-                </Popup>
-               </div>
-               
-            }
-            {
-                isReady && !isInbound && (<><Dropdown
-                    button
-                    className='icon'
-                    floating
-                    labeled
-                    icon='list alternate outline'
-                    options={listFilesOubounds}
-                    search
-                    text='Listas de Outbounds'
-                    style={{marginRight : 20}}
-                /></>)
-            }
-            {
-                !isReady ? <>Conectando . . . <Icon loading name='spinner' size='large'/></> : (outboundAva && <Checkbox toggle color='blue' checked={isInbound} onClick={changeConnection} disabled={isConnected === -1 ? true : false}/> )
-            }
-            
-            {
-                
-                isReady && (
-                    <div >
-                        <Popup href="#"
-                        content={userDetail.prefetch}
-                        key={userDetail.name}
-                        header={userDetail.name}
-                        trigger={<Image src={avatar} avatar />}
-                        />  
-                        {getTiming(userInfo._id)}
-                    <select name='selectedAtivity' onChange={changeActivity} className='selectActivity'>
-                        <option value={-1} selected={currentActivity === -1}>Selecciona una actividad</option>
-                        {
-                            activities.map((x) => {return <option value={x.value} key={x.key} selected={currentActivity === x.key}>{x.text}</option>})
-                        }
-                    </select>
-                    </div>
-                )
-            }
- 
-            {
-                showBlankFolio && infoBlankFolio && (<>
-                    <Modal
-                    onClose={() => setShowBlankFolio(false)}
-                    onOpen={() => setShowBlankFolio(true)}
-                    open={showBlankFolio}
-                    closeOnEscape={false}
-                    closeOnDimmerClick={false}
-                    trigger={<Button>Show Modal</Button>}
-                    >
-                    <Modal.Header>Nuevo Folio en Blanco</Modal.Header>
-                    <Modal.Content>
-                        <Modal.Description>
-                            
-                            
-                            <Form key={'form-blank'}>
-                                <Segment>
-                                    <Header as='h3'>
-                                        <Icon name='ticket alternate' />
-                                        <Header.Content>Datos del Folio</Header.Content>
-                                    </Header>
-                                    <Form.Field key={'field-blank-anchor'}>
-                                        <label>Identificador</label>
-                                        <input key={'blank-anchor'} placeholder={'(Télefono, Whatsapp)'} value={dataToBlank.anchor} onChange={(e) => {
-                                            setDataToBlank({...dataToBlank, anchor : e.target.value, queue : userInfo.service.queue})
-                                        }}/>
-                                    </Form.Field>
-                                    <Form.Field key={'field-blank-channel'}>
-                                        <label>Canal</label>
-                                        <Select placeholder='Selecciona un canal' options={infoBlankFolio.channels.map((x) => {
-                                            return {
-                                                key : x._id,
-                                                value : x._id,
-                                                text : x.title
-                                            }
-                                        })} onChange={(e, {value}) => {
-                                            setDataToBlank({...dataToBlank, channel : value})
-                                        }}/>
-                                    </Form.Field>
-                                    <Form.Field key={'field-blank-queue'}>
-                                        <label>Queue</label>
-                                        <input readOnly={true} key={'blank-anchor'} value={userInfo.service.queue}/>
-                                    </Form.Field>
-                                    <Divider section />
-                                    
-                                    <Header as='h3'>
-                                        <Icon name='address book' />
-                                        <Header.Content>Datos de contacto</Header.Content>
-                                    </Header>
-                                    {
-                                    infoBlankFolio.crm.map((x) => {
-                                        return (
-                                            <Form.Field key={'field-blank-'+x._id}>
-                                                <label>{x.name}</label>
-                                                <input key={'blank-'+x._id} placeholder={x.name} value={dataToBlank.crm[x._id]} onChange={(e) => {
-                                                    const tempCrm = {...dataToBlank.crm}
-                                                    tempCrm[x._id] = e.target.value;
-                                                    setDataToBlank({...dataToBlank, crm : tempCrm});
-                                                }}/>
-                                            </Form.Field>
-                                        )
-                                    })
-                                    }
-                                </Segment>
-                                
-                                
-                            </Form>
-                        </Modal.Description>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color='black' loading={onCreateBlank} disabled={onCreateBlank} onClick={() => {setDataToBlank(iniatilaze); setShowBlankFolio(false)}}>Cancelar</Button>
-                        <Button
-                        loading={onCreateBlank} disabled={onCreateBlank}
-                        content="Crear"
-                        labelPosition='right'
-                        icon='file text'
-                        onClick={() => {createFolioBlank(); }}
-                        positive
-                        />
-                    </Modal.Actions>
-                    </Modal>
-                </>)
-            }
-        </div>)
+        <>
+            <Navbar isBordered maxWidth="full" className="bg-gray-800 text-white h-16 shadow-md">
+                <NavbarBrand className="mr-4">
+                    <p className="font-bold text-inherit">Agente</p>
+                </NavbarBrand>
+
+                <NavbarContent className="hidden sm:flex gap-4" justify="start">
+                    <NavbarItem>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Chip color={isConnected === 1 ? "success" : isConnected === 2 ? "warning" : "default"} variant="shadow" className="cursor-pointer hover:scale-105 transition-transform">
+                                    {selectedActivity ? selectedActivity.text : 'Seleccionar...'}
+                                </Chip>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Agent Activities" items={activities} onAction={changeActivity}>
+                                {(item) => (<DropdownItem key={item.key} description={item.description}>{item.text}</DropdownItem>)}
+                            </DropdownMenu>
+                        </Dropdown>
+                    </NavbarItem>
+                    <NavbarItem>
+                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">En Cola</span></Badge>
+                    </NavbarItem>
+                    <NavbarItem>
+                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot</span></Badge>
+                    </NavbarItem>
+                </NavbarContent>
+
+                <NavbarContent justify="end">
+
+                    {!isInbound && (
+                        <NavbarItem>
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Chip color="primary" variant="bordered" className="cursor-pointer">Campañas</Chip>
+                                </DropdownTrigger>
+                                <DropdownMenu aria-label="Outbound Campaigns" items={listFilesOubounds} onAction={(key) => requestItemList(null, { value: key })}>
+                                    {(item) => (<DropdownItem key={item.key}>{item.text}</DropdownItem>)}
+                                </DropdownMenu>
+                            </Dropdown>
+                        </NavbarItem>
+                    )}
+                    <NavbarItem>
+                        <User name={userDetail.name} description={userDetail.prefetch} avatarProps={{ src: userDetail.profilePicture }} />
+                    </NavbarItem>
+                </NavbarContent>
+            </Navbar>
+
+            <Modal isOpen={showBlankFolio} onOpenChange={setShowBlankFolio} size="2xl" scrollBehavior="inside">
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Nuevo Folio en Blanco</ModalHeader>
+                            <ModalBody>
+                                <h3 className="font-semibold text-lg mb-2">Datos del Folio</h3>
+                                <div className="flex flex-col gap-4">
+                                    <Input
+                                        isRequired
+                                        label="Identificador"
+                                        placeholder="Teléfono, Email, etc."
+                                        value={dataToBlank.anchor}
+                                        onValueChange={(value) => setDataToBlank({ ...dataToBlank, anchor: value, queue: userInfo.service.queue })}
+                                    />
+                                    <Select
+                                        isRequired
+                                        label="Canal"
+                                        placeholder="Selecciona un canal"
+                                        items={infoBlankFolio?.channels || []}
+                                        selectedKeys={dataToBlank.channel ? [dataToBlank.channel] : []}
+                                        onChange={(e) => setDataToBlank({ ...dataToBlank, channel: e.target.value })}
+                                    >
+                                        {(channel) => <SelectItem key={channel._id} value={channel._id}>{channel.title}</SelectItem>}
+                                    </Select>
+                                    <Input
+                                        isReadOnly
+                                        label="Queue"
+                                        value={userInfo.service.queue}
+                                    />
+                                </div>
+                                <hr className="my-4"/>
+                                <h3 className="font-semibold text-lg mb-2">Datos de Contacto</h3>
+                                <div className="flex flex-col gap-4">
+                                    {infoBlankFolio?.crm.map((field) => (
+                                        <Input
+                                            key={field._id}
+                                            label={field.name}
+                                            placeholder={field.name}
+                                            value={dataToBlank.crm[field._id] || ''}
+                                            onValueChange={(value) => {
+                                                const tempCrm = { ...dataToBlank.crm };
+                                                tempCrm[field._id] = value;
+                                                setDataToBlank({ ...dataToBlank, crm: tempCrm });
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <HeroButton color="danger" variant="light" onPress={() => { setDataToBlank(initialBlankFolioState); onClose(); }}>
+                                    Cancelar
+                                </HeroButton>
+                                <HeroButton color="primary" isLoading={onCreateBlank} onPress={createFolioBlank}>
+                                    Crear Folio
+                                </HeroButton>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
+    );
 }
- 
+
 export default Toolbar;
