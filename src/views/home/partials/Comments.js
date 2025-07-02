@@ -224,8 +224,11 @@ const Comments = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, se
                         <div className='imessage'>
                             {
                                 res.folio.message.map((msg) => {
+                                    if (typeFolio === '_EMAIL_') {
+                                        return <MessageBubbleEmail key={msg._id} message={msg} />;
+                                    }
                                     return (
-                                        <MessageBubbleEmail key={msg._id} message={msg}/>
+                                        <MessageBubble key={msg._id} allMsg={folio.message} message={msg} responseToMessage={responseToMessage} reactToMessage={reactToMessage} typeFolio={typeFolio}/>
                                     );
                                 })
                             }
@@ -998,7 +1001,22 @@ return ( <>
                 
                 (
                     <div style={{height:'calc(100% - 460px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
-                        {folio.message.map((msg) => {return (<MessageBubbleEmail key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
+                        {folio.message.map((msg) => {
+                            if (typeFolio === '_EMAIL_') {
+                                return <MessageBubbleEmail key={msg._id} message={msg} />;
+                            }
+                            return (
+                                <MessageBubble 
+                                    key={msg._id} 
+                                    allMsg={folio.message} 
+                                    message={msg} 
+                                    responseToMessage={responseToMessage} 
+                                    reactToMessage={reactToMessage} 
+                                    typeFolio={typeFolio}
+                                    contact={folio.person}
+                                />
+                            );
+                        })}
                     </div>
                 ) 
                 
@@ -1006,11 +1024,41 @@ return ( <>
                 
                 (
                     <div style={{height:'calc(100% - 244px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
-                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
+                        {folio.message.map((msg) => {
+                            if (typeFolio === '_EMAIL_') {
+                                return <MessageBubbleEmail key={msg._id} message={msg} />;
+                            }
+                            return (
+                                <MessageBubble 
+                                    key={msg._id} 
+                                    allMsg={folio.message} 
+                                    message={msg} 
+                                    responseToMessage={responseToMessage} 
+                                    reactToMessage={reactToMessage} 
+                                    typeFolio={typeFolio}
+                                    contact={folio.person}
+                                />
+                            );
+                        })}
                     </div>
                 ) :
                     <div style={{height:'calc(100% - 234px)', overflowY:'scroll'}} id={'boxMessage-'+folio._id} className='imessage' ref={boxMessage}>
-                        {folio.message.map((msg) => {return (<MessageBubble key={msg._id} message={msg} responseToMessage={responseToMessage}  reactToMessage={reactToMessage}  allMsg={folio.message} typeFolio={folio.typeFolio}/>);})}
+                        {folio.message.map((msg) => {
+                            if (typeFolio === '_EMAIL_') {
+                                return <MessageBubbleEmail key={msg._id} message={msg} />;
+                            }
+                            return (
+                                <MessageBubble 
+                                    key={msg._id} 
+                                    allMsg={folio.message} 
+                                    message={msg} 
+                                    responseToMessage={responseToMessage} 
+                                    reactToMessage={reactToMessage} 
+                                    typeFolio={typeFolio}
+                                    contact={folio.person}
+                                />
+                            );
+                        })}
                     </div>
 
             }
