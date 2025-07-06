@@ -3,7 +3,7 @@ import { Comment, Header, Form, Button, Label, Icon, Modal, Select, Divider, Seg
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
-import SocketContext from './../../../controladores/SocketContext';
+import SocketContext from '../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import Call from './Call';
