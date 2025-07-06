@@ -48,10 +48,20 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         // Mostrar el estado actual del mensaje en la consola para depuración
         console.log('Estado del mensaje (ack):', ack);
 
-        const failureReason = ack.failedDelivery || ack.failedOutofWindows;
-        if (failureReason) {
+        const failureObject = ack.failedDelivery ? { type: 'delivery', data: ack.failedDelivery } : 
+                              ack.failedOutofWindows ? { type: 'window', data: ack.failedOutofWindows } : 
+                              null;
+
+        if (failureObject) {
+            let reason = 'Razón desconocida, vuelve a intentar';
+            if (failureObject.type === 'delivery') {
+                reason = 'Error general de entrega';
+            } else if (failureObject.type === 'window') {
+                reason = 'Fuera de la ventana de 24 horas';
+            }
+
             return (
-                <Tooltip content={`Fallo en la entrega: ${failureReason}`} placement="top">
+                <Tooltip content={`Fallo en la entrega: ${reason}`} placement="top">
                     <div className="bg-red-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
                         <ExclamationCircleIcon className="w-6 h-6 text-red-600" />
                     </div>

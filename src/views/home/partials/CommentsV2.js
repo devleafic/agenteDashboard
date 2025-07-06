@@ -17,12 +17,122 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 import { Editor } from '@tinymce/tinymce-react';
 
-const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
+const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend, messageToSend: parentMessageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
+    // Crear un estado local para el mensaje
+    const [localMessageToSend, setLocalMessageToSend] = useState('');
+    
+    // Sincronizar el estado local con el prop cuando cambia el folio
+    useEffect(() => {
+        if (parentMessageToSend) {
+            setLocalMessageToSend(parentMessageToSend);
+        }
+    }, [parentMessageToSend, folio?._id]);
+
+    // --- INICIO: GESTIÓN DE BORRADORES ---
+    const [messageDrafts, setMessageDrafts] = useState({});
+    const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
+    const [indicatorMessage, setIndicatorMessage] = useState('');
+    const [indicatorColor, setIndicatorColor] = useState('green'); // Added for the indicator
+    const debounceTimerRef = useRef(null);
+    const [previousFolioId, setPreviousFolioId] = useState(null); // Added to track folio changes for drafts
+    const [currentFolio, setCurrentFolio] = useState(null); 
+
+    // Restored function to load drafts from memory
+    const restoreDraftForFolio = (folioId) => {
+        const draft = messageDrafts[folioId] || '';
+        
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            editorRef.current.setContent(draft);
+        } else if (textArea.current) {
+            textArea.current.value = draft;
+            setLocalMessageToSend(draft);
+            setParentMessageToSend(draft);
+        }
+        setHasTextContent(draft.trim() !== '');
+        
+        // Adjust textarea height after restoring draft
+        if (textArea.current) {
+            setTimeout(() => {
+                textArea.current.style.height = 'auto';
+                textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
+            }, 0);
+        }
+    };
+
+    const debounce = useCallback((func, delay = 500) => {
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = setTimeout(func, delay);
+    }, []);
+
+    const showIndicator = (message) => {
+        setIndicatorMessage(message);
+        setShowAutoSaveIndicator(true);
+        setTimeout(() => setShowAutoSaveIndicator(false), 2000);
+    };
+
+    const saveDraftForFolio = useCallback((folioId, content) => {
+        if (!folioId) return;
+        debounce(() => {
+            const newDrafts = { ...messageDrafts, [folioId]: content };
+            setMessageDrafts(newDrafts);
+            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+            if (content && content.trim() !== '') {
+                showIndicator("Guardado...");
+            }
+        });
+    }, [debounce, messageDrafts]);
+
+    const clearDraftForFolio = useCallback((folioId) => {
+        if (!folioId) return;
+        const newDrafts = { ...messageDrafts };
+        delete newDrafts[folioId];
+        setMessageDrafts(newDrafts);
+        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+        setLocalMessageToSend('');
+        setParentMessageToSend('');
+        setHasTextContent(false);
+        if (textArea.current) {
+            textArea.current.style.height = 'auto';
+        }
+    }, [messageDrafts, setParentMessageToSend]);
+
+    useEffect(() => {
+        const savedDrafts = localStorage.getItem('messageDrafts');
+        if (savedDrafts) {
+            try {
+                setMessageDrafts(JSON.parse(savedDrafts));
+            } catch (e) {
+                console.error('Error parsing drafts from localStorage', e);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (folio?._id && messageDrafts[folio._id]) {
+            const draftContent = messageDrafts[folio._id];
+            setLocalMessageToSend(draftContent);
+            setHasTextContent(draftContent.trim() !== '');
+            if (textArea.current) {
+                setTimeout(() => {
+                    textArea.current.style.height = 'auto';
+                    textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
+                }, 0);
+            }
+        } else {
+            setLocalMessageToSend('');
+            setHasTextContent(false);
+        }
+    }, [folio?._id, messageDrafts]);
+    // --- FIN: GESTIÓN DE BORRADORES ---
+
+
+
+
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
     console.log('boxMessage update',boxMessage)
-    const [currentFolio, setCurrentFolio] = useState(null);
+
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
     const [alias, setAlias] = useState(null)
@@ -67,6 +177,8 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
     const [infoForm, setInfoForm] = useState(null);
     const [showBtnUn, setShowBtnUn] = useState(false);
 
+
+
     const pipelineAssign = userInfo.service?.pipeline;
     const assignPrivateAlways = userInfo.assignPrivateAlways;
     const infoPipeline = folio.service.pipelines.find((x) => {return x._id === pipelineAssign});
@@ -77,145 +189,10 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
     const [previewEmail, setPreviewEmail] = useState(null);
     const [previewEmailHTML, setPreviewEmailHTML] = useState(null);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
+    const [messageToSend, setMessageToSend] = useState('');
 
 
-    // Para el manejo de los borradores
-    // Para el manejo de los borradores
-    const [messageDrafts, setMessageDrafts] = useState(() => {
-        // Try to load drafts from localStorage on component mount
-        try {
-            const savedDrafts = localStorage.getItem('messageDrafts');
-            return savedDrafts ? JSON.parse(savedDrafts) : {};
-        } catch (error) {
-            console.error('Error loading drafts from localStorage:', error);
-            return {};
-        }
-    });    
-    const [previousFolioId, setPreviousFolioId] = useState(null);
-    const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
-    const [indicatorMessage, setIndicatorMessage] = useState("Guardado...");
-    const [indicatorColor, setIndicatorColor] = useState("rgba(0, 128, 0, 0.7)"); // Default green color
-    const debounceTimerRef = useRef(null);
 
-    // Helper function to show indicator with specific message and color
-    const showIndicator = (message, isRestoration = false) => {
-        setIndicatorMessage(message);
-        setIndicatorColor(isRestoration ? "rgba(0, 100, 200, 0.8)" : "rgba(0, 128, 0, 0.7)");
-        setShowAutoSaveIndicator(true);
-    };
-    
-    // Debounce function
-    const debounce = useCallback((func, delay = 500) => {
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-        }
-        
-        debounceTimerRef.current = setTimeout(() => {
-            func();
-        }, delay);
-    }, []);
-
-    useEffect(() => {
-        const container = boxMessage.current;
-        
-        if (!container) {
-          console.warn('Scroll container ref not attached');
-          return;
-        }
-      
-        if (folio?.message?.length) {
-          // Scroll to bottom with smooth behavior
-        //   container.scrollTo({
-        //     top: container.scrollHeight,
-        //     behavior: 'smooth'
-        //   });
-          
-          // Only show "Nuevos mensajes" if not at bottom
-          const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
-          setShowBtnUn(prev => !isAtBottom);        
-        }
-      }, [folio?.message && folio?.message?.length]);
-    
-    // Function to save draft for a specific folio with debounce
-    const saveDraftForFolio = useCallback((folioId) => {
-        console.log('Attempting to save draft for folio:', folioId, 'Current typeFolio:', typeFolio);
-        if (typeFolio === '_EMAIL_' && editorRef.current) {
-            const emailContent = editorRef.current.getContent();
-            if (emailContent && emailContent.trim() !== '' && emailContent !== '<p></p>') {
-                debounce(() => {
-                    setMessageDrafts(prevDrafts => {
-                        const newDrafts = {...prevDrafts};
-                        newDrafts[folioId] = emailContent;
-                        console.log('Saved draft for folio:', folioId);
-                        showIndicator("Guardado...");
-                        // Save to localStorage
-                        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-                        return newDrafts;
-                    });
-                });
-            }
-        } else if (textArea.current && textArea.current.value && textArea.current.value.trim() !== '') {
-            debounce(() => {
-                setMessageDrafts(prevDrafts => {
-                    const newDrafts = {...prevDrafts};
-                    newDrafts[folioId] = textArea.current.value;
-                    console.log('Saved draft for folio:', folioId);
-                    showIndicator("Guardado...");
-                    // Save to localStorage
-                    localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-                    return newDrafts;
-                });
-            });
-        }
-    }, [typeFolio, debounce]);
-    
-    // Function to restore draft for a specific folio
-    const restoreDraftForFolio = (folioId) => {
-        console.log('Attempting to restore draft for folio:', folioId, 'Draft exists:', !!messageDrafts[folioId], 'Current typeFolio:', typeFolio);
-        console.log('All drafts:', messageDrafts);
-        
-        if (messageDrafts[folioId]) {
-            if (typeFolio === '_EMAIL_' && editorRef.current) {
-                // For email type folios
-                console.log('Restoring email draft:', messageDrafts[folioId]);
-                editorRef.current.setContent(messageDrafts[folioId]);
-                // Show indicator
-                showIndicator("Borrador restaurado", true);
-                setHasTextContent(true);
-            } else if (textArea.current) {
-                // For other types of folios
-                console.log('Restoring text draft:', messageDrafts[folioId]);
-                textArea.current.value = messageDrafts[folioId];
-                // Show indicator
-                showIndicator("Borrador restaurado", true);
-                setHasTextContent(true);
-                
-                // Trigger an input event to ensure React knows about the change
-                const event = new Event('input', { bubbles: true });
-                textArea.current.dispatchEvent(event);
-            }
-        }
-    };
-    
-    // Function to clear draft for a specific folio
-    const clearDraftForFolio = (folioId) => {
-        setMessageDrafts(prevDrafts => {
-            const newDrafts = {...prevDrafts};
-            delete newDrafts[folioId];
-            
-            // Update localStorage
-            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-            
-            return newDrafts;
-        });
-    };
-
-    useEffect(() => {
-        if (showAutoSaveIndicator) {
-            const timer = setTimeout(() => setShowAutoSaveIndicator(false), 1500);
-            return () => clearTimeout(timer);
-        }
-    }, [showAutoSaveIndicator]);
 
     //historic folio 
     const getFolioMessages = (folio) => {
@@ -295,56 +272,49 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
     }
 
     const prepareMessage = async (msg) => {
-        
-        let _msg = '' 
-         
-        if (msg && typeof msg === 'string') {_msg = msg} 
-
-        if (_msg.trim() === '' ){
-
-            if(messageToSend.trim() === ''){
-                return false;
-            } else { 
-                _msg = messageToSend
-            }
-
+        const messageContent = msg || localMessageToSend;
+        if (messageContent.trim() === '') {
+            return;
         }
 
         setIsLoading(true);
 
         socket.connection.emit('sendMessage', {
-            token : window.localStorage.getItem('sdToken'),
-            folio : folio._id,
-            message : _msg,//messageToSend,
-            responseTo : showResponseTo,
-            class : 'text'
+            token: window.localStorage.getItem('sdToken'),
+            folio: folio._id,
+            message: messageContent,
+            responseTo: showResponseTo,
+            class: 'text'
         }, (result) => {
-
-            if(!result.body.success){
-                toast.error(result.body.message);
-                return false;
-            }
-            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
-            listFolios.current[index].folio.message.push(result.body.lastMessage);
             setIsLoading(false);
-            setMessageToSend('');
-            textArea.current.value='';
-            textArea.current.focus();
+
+            if (!result.body.success) {
+                toast.error(result.body.message);
+                return;
+            }
+
+            if (listFolios?.current) {
+                const index = listFolios.current.findIndex((x) => x.folio._id === folio._id);
+                if (index !== -1) {
+                    listFolios.current[index].folio.message.push(result.body.lastMessage);
+                }
+            }
+
+            if (folio?._id) {
+                clearDraftForFolio(folio._id);
+            }
+
+            if (textArea.current) {
+                textArea.current.focus();
+            }
+
             setShowResponseTo(null);
             setMessageToResponse(null);
-            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
-            
-            // Clear draft for current folio
-            console.log('Message sent successfully, clearing draft for folio:', folio._id);
-
-            if (folio && folio._id  ) {
-                clearDraftForFolio(folio._id);
-               
+            if (listFolios.currentBox) {
+                listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
             }
-            setHasTextContent(false);
-
         });
-    }
+    };
     const previewEmailF = (content) => {
         if (content.length > 0) {
             setPreviewEmailHTML(content)
@@ -498,9 +468,17 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
         setOpenModal(true);
 
         //save last message from current folio
-        let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
-        let lastMessage = listFolios?.current[index].folio.message[listFolios.current[index].folio.message.length-1];
-        if (lastMessage) {setLastMessageFolio(lastMessage.content);} else {setLastMessageFolio(null)}
+        if (listFolios?.current) {
+            let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+            if (index !== -1 && listFolios.current[index]?.folio?.message) {
+                let lastMessage = listFolios.current[index].folio.message[listFolios.current[index].folio.message.length-1];
+                if (lastMessage) {setLastMessageFolio(lastMessage.content);} else {setLastMessageFolio(null)}
+            } else {
+                setLastMessageFolio(null);
+            }
+        } else {
+            setLastMessageFolio(null);
+        }
     }
 
     const closeFolio = () => {
@@ -831,9 +809,10 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
     useEffect( () => {
 
         async function validations(){
-            if(textArea.current && messageToSend.length > 0){
-                textArea.current.value = messageToSend;
-                setMessageToSend('')
+            if(textArea.current && localMessageToSend.length > 0){
+                textArea.current.value = localMessageToSend;
+                setLocalMessageToSend('');
+                setParentMessageToSend('')
             } 
         
             if(channel != 'call'){
@@ -863,29 +842,6 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
         
  
     });
-
-    const clearTextArea = () => {
-        if (typeFolio === '_EMAIL_' && editorRef.current) {
-            editorRef.current.setContent('');
-        } else if (textArea.current) {
-            textArea.current.value = '';
-        }
-        setHasTextContent(false);
-        
-        // Clear draft for current folio
-        if (folio && folio._id) {
-            setMessageDrafts(prevDrafts => {
-                const newDrafts = {...prevDrafts};
-                delete newDrafts[folio._id];
-                
-                // Update localStorage
-                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-                
-                return newDrafts;
-            });
-            showIndicator("Borrador eliminado", true);
-        }
-    };
 
     const handleTextAreaChange = (e) => {
         setHasTextContent(e.target.value.trim() !== '');
@@ -991,7 +947,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            prepareMessage(messageToSend);
+            prepareMessage(localMessageToSend);
         }
     };
 
@@ -1129,12 +1085,6 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
                                     {showAutoSaveIndicator && <span style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {hasTextContent && (
-                                        <HeroButton size="sm" variant="light" color="danger" onClick={clearTextArea}>
-                                            <XCircle className="w-4 h-4 mr-1" />
-                                            Limpiar
-                                        </HeroButton>
-                                    )}
                                     <HeroButton size="sm" variant='ghost' onClick={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
                                         <Save className="w-4 h-4 mr-1" />
                                         Guardar y Cerrar
@@ -1223,45 +1173,80 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend, messageToSend, onCall, 
                                     </Chip>
                                 )}
                             </div>
-                            <div className="relative flex items-center">
-                                <div className="flex-grow relative bg-gray-100 rounded-full p-2 flex items-center">
+                            <div className="flex flex-col">
+                                <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
                                     <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}>
                                         <HeroButton variant="light" isIconOnly aria-label="Adjuntar archivo" className="mr-2">
                                             <Paperclip className="w-5 h-5 text-gray-500" />
                                         </HeroButton>
                                     </UploadFile>
-                                    <Textarea
-                                        key={'msg-' + folio._id}
-                                        ref={textArea}
-                                        minRows={1}
-                                        maxRows={5}
-                                        placeholder="Escribe un mensaje... (Shift + Enter para enviar)"
-                                        className="flex-grow bg-transparent focus:outline-none resize-none"
-                                        onChange={handleTextAreaChange}
-                                        onPaste={handlePaste}
-                                        disabled={isLoading}
-                                        onKeyDown={(e) => {
-                                            if (e.shiftKey && e.key === 'Enter') {
-                                                e.preventDefault();
-                                                prepareMessage(e.target.value);
-                                            }
-                                        }}
-                                    />
-                                    <HeroButton
-                                        isIconOnly variant="solid" color="primary" aria-label="Enviar mensaje"
-                                        isLoading={isLoading} disabled={isLoading || !hasTextContent}
-                                        onClick={() => prepareMessage(textArea.current.value)} className="ml-2"
-                                    >
-                                        <Send className="w-5 h-5" />
-                                    </HeroButton>
+                                    <div className="flex-grow relative">
+                                        <textarea
+                                            ref={textArea}
+                                            placeholder="Escribe un mensaje..."
+                                            value={localMessageToSend}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setLocalMessageToSend(value);
+                                                setParentMessageToSend(value);
+                                                setHasTextContent(value.trim() !== '');
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                                                if (folio?._id) {
+                                                    saveDraftForFolio(folio._id, value);
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && e.shiftKey) {
+                                                    e.preventDefault();
+                                                    prepareMessage(localMessageToSend);
+                                                }
+                                            }}
+                                            onPaste={handlePaste}
+                                            className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[200px] overflow-y-auto p-2"
+                                            rows={1}
+                                            style={{ display: 'block', width: '100%' }}
+                                        />
+                                        {hasTextContent && (
+                                            <HeroButton 
+                                                isIconOnly 
+                                                variant="light" 
+                                                color="danger" 
+                                                size="sm" 
+                                                onClick={() => clearDraftForFolio(folio._id)}
+                                                className="absolute bottom-1 right-1"
+                                            >
+                                                <XCircle className="w-4 h-4" />
+                                            </HeroButton>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1 ml-2">
+                                        <HeroButton 
+                                            isIconOnly 
+                                            color="primary" 
+                                            aria-label="Enviar mensaje"
+                                            onClick={() => prepareMessage(localMessageToSend)}
+                                            isLoading={isLoading}
+                                            disabled={isLoading || !hasTextContent}
+                                            size="sm"
+                                        >
+                                            <Send className="w-5 h-5" />
+                                        </HeroButton>
+                                    </div>
                                 </div>
-                                <div className="flex items-center ml-4">
-                                    <HeroButton key={'btnsave-'+folio} variant='ghost' onClick={e => {prepareCloseFolio('save')}} isLoading={isEndingFolio} disabled={isEndingFolio} isIconOnly aria-label="Guardar">
-                                        <Save className="w-5 h-5 text-yellow-500" />
-                                    </HeroButton>
-                                    <HeroButton key={'btnend-'+folio} variant='ghost' onClick={e => {prepareCloseFolio('end')}} isLoading={isEndingFolio} disabled={isEndingFolio} isIconOnly aria-label="Finalizar" className="ml-2">
-                                        <LogOut className="w-5 h-5 text-green-500" />
-                                    </HeroButton>
+                                <div className="flex justify-between items-center pt-1 text-xs text-gray-500">
+                                    <div>
+                                        {showAutoSaveIndicator && <span className="transition-opacity duration-300" style={{ color: indicatorColor }}>{indicatorMessage}</span>}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <HeroButton size="sm" variant='ghost' onClick={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
+                                            <Save className="w-4 h-4 mr-1" />
+                                            Guardar y Cerrar
+                                        </HeroButton>
+                                        <HeroButton key={'btnend-'+folio} variant='ghost' onClick={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio} isIconOnly aria-label="Finalizar">
+                                            <LogOut className="w-5 h-5 text-green-500" />
+                                        </HeroButton>
+                                    </div>
                                 </div>
                             </div>
                         </div>
