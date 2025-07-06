@@ -5,7 +5,7 @@ import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import Dropzone from 'react-dropzone';
 
-const UploadFile = ({folio, channel, setRefresh}) => {
+const UploadFile = ({folio, channel, setRefresh, children}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     
@@ -145,9 +145,9 @@ const UploadFile = ({folio, channel, setRefresh}) => {
                 fileUpload(acceptedFiles[0]);
             }}>
                 {({getRootProps, getInputProps}) => (
-                    <div {...getRootProps()} className='dnd'>
+                    <div {...getRootProps()}>
                         <input {...getInputProps()} />
-                        <a className="camera icon">Arrastra archivo o haz clic</a>
+                        {children ? children : <a className="camera icon">Arrastra archivo o haz clic</a>}
                     </div>
                 )}
             </Dropzone>

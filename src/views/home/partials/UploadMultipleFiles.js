@@ -6,7 +6,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import Dropzone  from 'react-dropzone';
 
 
-const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFiles}) => {
+const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFiles, children}) => {
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {
@@ -62,7 +62,7 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
             <div style={{display:'flex'}}>
                 <div {...getRootProps()} className='dnd-uploadmultiplefiles' style={{ marginRight: 10 }}>
                     <input {...getInputProps()} />
-                    {onUpload ? <div class="spinner"></div> : <a className="camera icon">Arrastra un archivo o Clic</a>}
+                    {children ? children : (onUpload ? <div class="spinner"></div> : <a className="camera icon">Arrastra un archivo o Clic</a>)}
                 </div>
                 <div style={{background:'red'}}>
                     <div style={{
