@@ -37,28 +37,88 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
     const [previousFolioId, setPreviousFolioId] = useState(null); // Added to track folio changes for drafts
     const [currentFolio, setCurrentFolio] = useState(null); 
 
-    // Restored function to load drafts from memory
+    // Function to restore draft for a specific folio
     const restoreDraftForFolio = (folioId) => {
-        const draft = messageDrafts[folioId] || '';
+        console.log('Attempting to restore draft for folio:', folioId, 'Draft exists:', !!messageDrafts[folioId], 'Current typeFolio:', typeFolio);
         
-        if (typeFolio === '_EMAIL_' && editorRef.current) {
-            editorRef.current.setContent(draft);
-        } else if (textArea.current) {
-            textArea.current.value = draft;
-            setLocalMessageToSend(draft);
-            setParentMessageToSend(draft);
-        }
-        setHasTextContent(draft.trim() !== '');
-        
-        // Adjust textarea height after restoring draft
-        if (textArea.current) {
-            setTimeout(() => {
-                textArea.current.style.height = 'auto';
-                textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
-            }, 0);
+        if (messageDrafts[folioId]) {
+            const draftContent = messageDrafts[folioId];
+            
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                // For email type folios
+                console.log('Restoring email draft:', draftContent);
+                editorRef.current.setContent(draftContent);
+                setHasTextContent(draftContent.trim() !== '');
+                showIndicator("Borrador restaurado", true);
+            } else {
+                // For other types of folios
+                console.log('Restoring text draft:', draftContent);
+                setLocalMessageToSend(draftContent);
+                setParentMessageToSend(draftContent);
+                setHasTextContent(draftContent.trim() !== '');
+                showIndicator("Borrador restaurado", true);
+                
+                // Adjust textarea height after restoring draft
+                if (textArea.current) {
+                    setTimeout(() => {
+                        textArea.current.style.height = 'auto';
+                        textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
+                    }, 0);
+                }
+            }
+        } else {
+            // No draft found, clear the textarea
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                editorRef.current.setContent('');
+            } else {
+                setLocalMessageToSend('');
+                setParentMessageToSend('');
+            }
+            setHasTextContent(false);
         }
     };
-
+    // Función para limpiar el área de texto y eliminar el borrador
+    const clearTextArea = () => {
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            editorRef.current.setContent('');
+        } else {
+            setLocalMessageToSend('');
+            setParentMessageToSend('');
+        }
+        setHasTextContent(false);
+        
+        // Clear draft for current folio
+        if (folio && folio._id) {
+            setMessageDrafts(prevDrafts => {
+                const newDrafts = {...prevDrafts};
+                delete newDrafts[folio._id];
+                
+                // Update localStorage
+                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                
+                return newDrafts;
+            });
+            showIndicator("Borrador eliminado", true);
+        }
+    };
+    
+    // Función para manejar cambios en el textarea
+    const handleTextAreaChange = (e) => {
+        const value = e.target.value;
+        setLocalMessageToSend(value);
+        setParentMessageToSend(value);
+        setHasTextContent(value.trim() !== '');
+        
+        // Auto-resize textarea
+        e.target.style.height = 'auto';
+        e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+        
+        // Save draft with debounce
+        if (folio?._id) {
+            saveDraftForFolio(folio._id, value);
+        }
+    };
+    
     const debounce = useCallback((func, delay = 500) => {
         if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
         debounceTimerRef.current = setTimeout(func, delay);
@@ -843,14 +903,15 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
  
     });
 
-    const handleTextAreaChange = (e) => {
-        setHasTextContent(e.target.value.trim() !== '');
-    };
-    
     const handleEditorChange = () => {
         if (editorRef.current) {
             const content = editorRef.current.getContent();
             setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
+            
+            // Save draft for email type
+            if (folio?._id && typeFolio === '_EMAIL_') {
+                saveDraftForFolio(folio._id, content);
+            }
         }
     };
 
@@ -1050,36 +1111,80 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                     </Chip>
                                 )}
                             </div>
-                            <div className="relative">
-                                <Textarea
-                                    ref={textArea}
-                                    value={messageToSend}
-                                    onChange={(e) => setMessageToSend(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    onPaste={handlePaste}
-                                    placeholder="Escribe un mensaje..."
-                                    className="w-full pr-20"
-                                    minRows={1}
-                                    maxRows={5}
-                                />
-                                <div className="absolute top-1/2 right-2 transform -translate-y-1/2 flex items-center gap-1">
-                                    <UploadFile folio={folio} channel={channel} setRefresh={setRefresh}>
-                                        <HeroButton isIconOnly variant="light" aria-label="Adjuntar archivo">
+                            <div className="flex flex-col">
+                                <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
+                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}>
+                                        <HeroButton variant="light" isIconOnly aria-label="Adjuntar archivo" className="mr-2">
                                             <Paperclip className="w-5 h-5 text-gray-500" />
                                         </HeroButton>
                                     </UploadFile>
-                                    <HeroButton 
-                                        isIconOnly 
-                                        color="primary" 
-                                        aria-label="Enviar mensaje"
-                                        onClick={() => {prepareMessage(textArea.current.value)}}
-                                        isLoading={isLoading}
-                                        disabled={isLoading || !messageToSend.trim()}
-                                    >
-                                        <Send className="w-5 h-5" />
-                                    </HeroButton>
+                                    <div className="flex-grow relative">
+                                        <textarea
+                                            ref={textArea}
+                                            placeholder="Escribe un mensaje..."
+                                            defaultValue={localMessageToSend || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setLocalMessageToSend(value);
+                                                setParentMessageToSend(value);
+                                                setHasTextContent(value.trim() !== '');
+                                                
+                                                // Auto-resize textarea
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                                                
+                                                // Save draft with debounce
+                                                if (folio?._id) {
+                                                    saveDraftForFolio(folio._id, value);
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && e.shiftKey) {
+                                                    e.preventDefault();
+                                                    prepareMessage();
+                                                }
+                                            }}
+                                            onPaste={handlePaste}
+                                            className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[200px] overflow-y-auto p-2"
+                                            rows={1}
+                                            style={{ display: 'block', width: '100%' }}
+                                            disabled={isLoading}
+                                        />
+                                        {/* Auto-save indicator */}
+                                        {showAutoSaveIndicator && (
+                                            <div className="absolute -top-6 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-md transition-opacity duration-300">
+                                                {indicatorMessage}
+                                            </div>
+                                        )}
+                                        {hasTextContent && (
+                                            <HeroButton 
+                                                isIconOnly 
+                                                variant="light" 
+                                                color="danger" 
+                                                size="sm" 
+                                                onClick={clearTextArea}
+                                                className="absolute bottom-1 right-1"
+                                            >
+                                                <XCircle className="w-4 h-4" />
+                                            </HeroButton>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1 ml-2">
+                                        <HeroButton 
+                                            isIconOnly 
+                                            color="primary" 
+                                            aria-label="Enviar mensaje"
+                                            onClick={() => prepareMessage(localMessageToSend)}
+                                            isLoading={isLoading}
+                                            disabled={isLoading || !hasTextContent}
+                                            size="sm"
+                                        >
+                                            <Send className="w-5 h-5" />
+                                        </HeroButton>
+                                    </div>
                                 </div>
                             </div>
+
                             <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                                 <div>
                                     {showAutoSaveIndicator && <span style={{ color: indicatorColor }}>{indicatorMessage}</span>}
