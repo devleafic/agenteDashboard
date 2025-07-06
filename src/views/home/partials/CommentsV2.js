@@ -1,6 +1,6 @@
 import React, {useContext, useState, useRef, useEffect, useCallback} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
-import { Textarea, Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input} from "@heroui/react";
+import { Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input} from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
@@ -17,177 +17,7 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 import { Editor } from '@tinymce/tinymce-react';
 
-const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend, messageToSend: parentMessageToSend, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
-    // Crear un estado local para el mensaje
-    const [localMessageToSend, setLocalMessageToSend] = useState('');
-    
-    // Sincronizar el estado local con el prop cuando cambia el folio
-    useEffect(() => {
-        if (parentMessageToSend) {
-            setLocalMessageToSend(parentMessageToSend);
-        }
-    }, [parentMessageToSend, folio?._id]);
-
-    // --- INICIO: GESTIÓN DE BORRADORES ---
-    const [messageDrafts, setMessageDrafts] = useState({});
-    const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
-    const [indicatorMessage, setIndicatorMessage] = useState('');
-    const [indicatorColor, setIndicatorColor] = useState('green'); // Added for the indicator
-    const debounceTimerRef = useRef(null);
-    const [previousFolioId, setPreviousFolioId] = useState(null); // Added to track folio changes for drafts
-    const [currentFolio, setCurrentFolio] = useState(null); 
-
-    // Function to restore draft for a specific folio
-    const restoreDraftForFolio = (folioId) => {
-        console.log('Attempting to restore draft for folio:', folioId, 'Draft exists:', !!messageDrafts[folioId], 'Current typeFolio:', typeFolio);
-        
-        if (messageDrafts[folioId]) {
-            const draftContent = messageDrafts[folioId];
-            
-            if (typeFolio === '_EMAIL_' && editorRef.current) {
-                // For email type folios
-                console.log('Restoring email draft:', draftContent);
-                editorRef.current.setContent(draftContent);
-                setHasTextContent(draftContent.trim() !== '');
-                showIndicator("Borrador restaurado", true);
-            } else {
-                // For other types of folios
-                console.log('Restoring text draft:', draftContent);
-                setLocalMessageToSend(draftContent);
-                setParentMessageToSend(draftContent);
-                setHasTextContent(draftContent.trim() !== '');
-                showIndicator("Borrador restaurado", true);
-                
-                // Adjust textarea height after restoring draft
-                if (textArea.current) {
-                    setTimeout(() => {
-                        textArea.current.style.height = 'auto';
-                        textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
-                    }, 0);
-                }
-            }
-        } else {
-            // No draft found, clear the textarea
-            if (typeFolio === '_EMAIL_' && editorRef.current) {
-                editorRef.current.setContent('');
-            } else {
-                setLocalMessageToSend('');
-                setParentMessageToSend('');
-            }
-            setHasTextContent(false);
-        }
-    };
-    // Función para limpiar el área de texto y eliminar el borrador
-    const clearTextArea = () => {
-        if (typeFolio === '_EMAIL_' && editorRef.current) {
-            editorRef.current.setContent('');
-        } else {
-            setLocalMessageToSend('');
-            setParentMessageToSend('');
-        }
-        setHasTextContent(false);
-        
-        // Clear draft for current folio
-        if (folio && folio._id) {
-            setMessageDrafts(prevDrafts => {
-                const newDrafts = {...prevDrafts};
-                delete newDrafts[folio._id];
-                
-                // Update localStorage
-                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-                
-                return newDrafts;
-            });
-            showIndicator("Borrador eliminado", true);
-        }
-    };
-    
-    // Función para manejar cambios en el textarea
-    const handleTextAreaChange = (e) => {
-        const value = e.target.value;
-        setLocalMessageToSend(value);
-        setParentMessageToSend(value);
-        setHasTextContent(value.trim() !== '');
-        
-        // Auto-resize textarea
-        e.target.style.height = 'auto';
-        e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
-        
-        // Save draft with debounce
-        if (folio?._id) {
-            saveDraftForFolio(folio._id, value);
-        }
-    };
-    
-    const debounce = useCallback((func, delay = 500) => {
-        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-        debounceTimerRef.current = setTimeout(func, delay);
-    }, []);
-
-    const showIndicator = (message) => {
-        setIndicatorMessage(message);
-        setShowAutoSaveIndicator(true);
-        setTimeout(() => setShowAutoSaveIndicator(false), 2000);
-    };
-
-    const saveDraftForFolio = useCallback((folioId, content) => {
-        if (!folioId) return;
-        debounce(() => {
-            const newDrafts = { ...messageDrafts, [folioId]: content };
-            setMessageDrafts(newDrafts);
-            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-            if (content && content.trim() !== '') {
-                showIndicator("Guardado...");
-            }
-        });
-    }, [debounce, messageDrafts]);
-
-    const clearDraftForFolio = useCallback((folioId) => {
-        if (!folioId) return;
-        const newDrafts = { ...messageDrafts };
-        delete newDrafts[folioId];
-        setMessageDrafts(newDrafts);
-        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
-        setLocalMessageToSend('');
-        setParentMessageToSend('');
-        setHasTextContent(false);
-        if (textArea.current) {
-            textArea.current.style.height = 'auto';
-        }
-    }, [messageDrafts, setParentMessageToSend]);
-
-    useEffect(() => {
-        const savedDrafts = localStorage.getItem('messageDrafts');
-        if (savedDrafts) {
-            try {
-                setMessageDrafts(JSON.parse(savedDrafts));
-            } catch (e) {
-                console.error('Error parsing drafts from localStorage', e);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (folio?._id && messageDrafts[folio._id]) {
-            const draftContent = messageDrafts[folio._id];
-            setLocalMessageToSend(draftContent);
-            setHasTextContent(draftContent.trim() !== '');
-            if (textArea.current) {
-                setTimeout(() => {
-                    textArea.current.style.height = 'auto';
-                    textArea.current.style.height = `${Math.min(textArea.current.scrollHeight, 200)}px`;
-                }, 0);
-            }
-        } else {
-            setLocalMessageToSend('');
-            setHasTextContent(false);
-        }
-    }, [folio?._id, messageDrafts]);
-    // --- FIN: GESTIÓN DE BORRADORES ---
-
-
-
-
+const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -249,11 +79,146 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
     const [previewEmail, setPreviewEmail] = useState(null);
     const [previewEmailHTML, setPreviewEmailHTML] = useState(null);
     const [isEndingFolio, setIsEndingFolio] = useState(false);
+
+    const [currentFolio, setCurrentFolio] = useState(null);
     const [messageToSend, setMessageToSend] = useState('');
+    
+    //Gestion de drafts 
+    const [messageDrafts, setMessageDrafts] = useState(() => {
+        // Try to load drafts from localStorage on component mount
+        try {
+            const savedDrafts = localStorage.getItem('messageDrafts');
+            return savedDrafts ? JSON.parse(savedDrafts) : {};
+        } catch (error) {
+            console.error('Error loading drafts from localStorage:', error);
+            return {};
+        }
+    });    
+    const [previousFolioId, setPreviousFolioId] = useState(null);
+    const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
+    const [indicatorMessage, setIndicatorMessage] = useState("Guardado...");
+    const [indicatorColor, setIndicatorColor] = useState("rgba(0, 128, 0, 0.7)"); // Default green color
+    const debounceTimerRef = useRef(null);
 
+    // Helper function to show indicator with specific message and color
+    const showIndicator = (message, isRestoration = false) => {
+        setIndicatorMessage(message);
+        setIndicatorColor(isRestoration ? "rgba(0, 100, 200, 0.8)" : "rgba(0, 128, 0, 0.7)");
+        setShowAutoSaveIndicator(true);
+    };
+    
+    // Debounce function
+    const debounce = useCallback((func, delay = 500) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            func();
+        }, delay);
+    }, []);
 
+    useEffect(() => {
+        const container = boxMessage.current;
+        
+        if (!container) {
+          console.warn('Scroll container ref not attached');
+          return;
+        }
+      
+        if (folio?.message?.length) {
+          // Scroll to bottom with smooth behavior
+        //   container.scrollTo({
+        //     top: container.scrollHeight,
+        //     behavior: 'smooth'
+        //   });
+          
+          // Only show "Nuevos mensajes" if not at bottom
+          const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+          setShowBtnUn(prev => !isAtBottom);        
+        }
+      }, [folio?.message && folio?.message?.length]);
+    
+    // Function to save draft for a specific folio with debounce
+    const saveDraftForFolio = useCallback((folioId) => {
+        console.log('Attempting to save draft for folio:', folioId, 'Current typeFolio:', typeFolio);
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            const emailContent = editorRef.current.getContent();
+            if (emailContent && emailContent.trim() !== '' && emailContent !== '<p></p>') {
+                debounce(() => {
+                    setMessageDrafts(prevDrafts => {
+                        const newDrafts = {...prevDrafts};
+                        newDrafts[folioId] = emailContent;
+                        console.log('Saved draft for folio:', folioId);
+                        showIndicator("Guardado...");
+                        // Save to localStorage
+                        localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                        return newDrafts;
+                    });
+                });
+            }
+        } else if (textArea.current && textArea.current.value && textArea.current.value.trim() !== '') {
+            debounce(() => {
+                setMessageDrafts(prevDrafts => {
+                    const newDrafts = {...prevDrafts};
+                    newDrafts[folioId] = textArea.current.value;
+                    console.log('Saved draft for folio:', folioId);
+                    showIndicator("Guardado...");
+                    // Save to localStorage
+                    localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                    return newDrafts;
+                });
+            });
+        }
+    }, [typeFolio, debounce]);
+    
+    // Function to restore draft for a specific folio
+    const restoreDraftForFolio = (folioId) => {
+        console.log('Attempting to restore draft for folio:', folioId, 'Draft exists:', !!messageDrafts[folioId], 'Current typeFolio:', typeFolio);
+        console.log('All drafts:', messageDrafts);
+        
+        if (messageDrafts[folioId]) {
+            if (typeFolio === '_EMAIL_' && editorRef.current) {
+                // For email type folios
+                console.log('Restoring email draft:', messageDrafts[folioId]);
+                editorRef.current.setContent(messageDrafts[folioId]);
+                // Show indicator
+                showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
+            } else if (textArea.current) {
+                // For other types of folios
+                console.log('Restoring text draft:', messageDrafts[folioId]);
+                textArea.current.value = messageDrafts[folioId];
+                // Show indicator
+                showIndicator("Borrador restaurado", true);
+                setHasTextContent(true);
+                
+                // Trigger an input event to ensure React knows about the change
+                const event = new Event('input', { bubbles: true });
+                textArea.current.dispatchEvent(event);
+            }
+        }
+    };
+    
+    // Function to clear draft for a specific folio
+    const clearDraftForFolio = (folioId) => {
+        setMessageDrafts(prevDrafts => {
+            const newDrafts = {...prevDrafts};
+            delete newDrafts[folioId];
+            
+            // Update localStorage
+            localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+            
+            return newDrafts;
+        });
+    };
 
-
+    useEffect(() => {
+        if (showAutoSaveIndicator) {
+            const timer = setTimeout(() => setShowAutoSaveIndicator(false), 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [showAutoSaveIndicator]);
     //historic folio 
     const getFolioMessages = (folio) => {
         setTitleModal('Historial de Folio #'+folio)
@@ -331,50 +296,58 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
         });
     }
 
-    const prepareMessage = async (msg) => {
-        const messageContent = msg || localMessageToSend;
-        if (messageContent.trim() === '') {
-            return;
-        }
-
-        setIsLoading(true);
-
-        socket.connection.emit('sendMessage', {
-            token: window.localStorage.getItem('sdToken'),
-            folio: folio._id,
-            message: messageContent,
-            responseTo: showResponseTo,
-            class: 'text'
-        }, (result) => {
-            setIsLoading(false);
-
-            if (!result.body.success) {
-                toast.error(result.body.message);
-                return;
-            }
-
-            if (listFolios?.current) {
-                const index = listFolios.current.findIndex((x) => x.folio._id === folio._id);
-                if (index !== -1) {
-                    listFolios.current[index].folio.message.push(result.body.lastMessage);
-                }
-            }
-
-            if (folio?._id) {
-                clearDraftForFolio(folio._id);
-            }
-
-            if (textArea.current) {
-                textArea.current.focus();
-            }
-
-            setShowResponseTo(null);
-            setMessageToResponse(null);
-            if (listFolios.currentBox) {
-                listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
-            }
-        });
-    };
+      const prepareMessage = async (msg) => {
+          
+          let _msg = '' 
+           
+          if (msg && typeof msg === 'string') {_msg = msg} 
+  
+          if (_msg.trim() === '' ){
+  
+              if(messageToSend.trim() === ''){
+                  toast.error('No se puede enviar un mensaje vacio');
+                  return false;
+              } else { 
+                  _msg = messageToSend
+              }
+  
+          }
+  
+          setIsLoading(true);
+  
+          socket.connection.emit('sendMessage', {
+              token : window.localStorage.getItem('sdToken'),
+              folio : folio._id,
+              message : _msg,//messageToSend,
+              responseTo : showResponseTo,
+              class : 'text'
+          }, (result) => {
+  
+              if(!result.body.success){
+                  toast.error(result.body.message);
+                  return false;
+              }
+              let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
+              listFolios.current[index].folio.message.push(result.body.lastMessage);
+              setIsLoading(false);
+              setMessageToSend('');
+              textArea.current.value='';
+              textArea.current.focus();
+              setShowResponseTo(null);
+              setMessageToResponse(null);
+              listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+              
+              // Clear draft for current folio
+              console.log('Message sent successfully, clearing draft for folio:', folio._id);
+  
+              if (folio && folio._id  ) {
+                  clearDraftForFolio(folio._id);
+                 
+              }
+              setHasTextContent(false);
+  
+          });
+      }
     const previewEmailF = (content) => {
         if (content.length > 0) {
             setPreviewEmailHTML(content)
@@ -464,6 +437,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
         if (_msg.trim() === '' ){
 
             if(messageToSend.trim() === ''){
+                toast.error('No se puede enviar un mensaje vacio');
                 return false;
             } else { 
                 _msg = messageToSend
@@ -548,8 +522,8 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
             return false;
         }
        
-        let validate;
-        if(infoForm){
+        let validate = [];
+        if(infoForm && infoForm.form && Array.isArray(infoForm.form)){
             let fRequire = infoForm.form.filter((x) => {return x.require && x.status});
             validate = fRequire.map((xField) => {
                 let findContent = Object.keys(formClassification).find((x) => {return x === xField._id});
@@ -645,6 +619,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
             setIsFolioAttachedAgent(false);
         });
     }
+
 
     useEffect(  () => {
         
@@ -784,6 +759,11 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
 
 
     const renderForm = (formData) => {
+        // Verificar que formData y formData.form existan y sean un array
+        if (!formData || !formData.form || !Array.isArray(formData.form)) {
+            return null;
+        }
+        
         const render = formData.form.filter((x) => x.status === true).map((x) => {
             const label = (
                 <span className="flex items-center">
@@ -812,21 +792,26 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                     );
                 case 'select':
                     return (
-                        <HeroSelect
-                            key={x._id}
-                            label={label}
-                            placeholder="Selecciona una opción"
-                            items={x.options}
-                            selectedKeys={[formClassification[x._id]]}
-                            onChange={(e) => {
-                                const copy = { ...formClassification, [x._id]: e.target.value };
-                                setFormClassification(copy);
-                            }}
-                            fullWidth
-                            className="mb-4"
-                        >
-                            {(item) => <SelectItem key={item.value}>{item.label}</SelectItem>}
-                        </HeroSelect>
+                        <div key={x._id} className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {label}
+                            </label>
+                            <select
+                                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                value={formClassification[x._id] || -1}
+                                onChange={(e) => {
+                                    const copy = { ...formClassification, [x._id]: e.target.value };
+                                    setFormClassification(copy);
+                                }}
+                            >
+                                <option value={-1}>Selecciona una opción</option>
+                                {x.options && Array.isArray(x.options) && x.options.map((option, index) => (
+                                    <option key={index} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     );
                 default:
                     return <div key={x._id}>Item no soportado</div>;
@@ -869,10 +854,9 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
     useEffect( () => {
 
         async function validations(){
-            if(textArea.current && localMessageToSend.length > 0){
-                textArea.current.value = localMessageToSend;
-                setLocalMessageToSend('');
-                setParentMessageToSend('')
+            if(textArea.current && messageToSend.length > 0){
+                textArea.current.value = messageToSend;
+                setMessageToSend('')
             } 
         
             if(channel != 'call'){
@@ -903,15 +887,37 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
  
     });
 
+   const clearTextArea = () => {
+        if (typeFolio === '_EMAIL_' && editorRef.current) {
+            editorRef.current.setContent('');
+        } else if (textArea.current) {
+            textArea.current.value = '';
+        }
+        setHasTextContent(false);
+        
+        // Clear draft for current folio
+        if (folio && folio._id) {
+            setMessageDrafts(prevDrafts => {
+                const newDrafts = {...prevDrafts};
+                delete newDrafts[folio._id];
+                
+                // Update localStorage
+                localStorage.setItem('messageDrafts', JSON.stringify(newDrafts));
+                
+                return newDrafts;
+            });
+            showIndicator("Borrador eliminado", true);
+        }
+    };
+
+    const handleTextAreaChange = (e) => {
+        setHasTextContent(e.target.value.trim() !== '');
+    };
+    
     const handleEditorChange = () => {
         if (editorRef.current) {
             const content = editorRef.current.getContent();
             setHasTextContent(content && content.trim() !== '' && content !== '<p></p>');
-            
-            // Save draft for email type
-            if (folio?._id && typeFolio === '_EMAIL_') {
-                saveDraftForFolio(folio._id, content);
-            }
         }
     };
 
@@ -971,23 +977,23 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
     }
 
 
-  useEffect(() => {
-    console.log('Setting up auto-save interval');
-    const intervalo = setInterval(() => {
-        // Auto-save draft every 5 seconds if there's content
-        setContador((prevContador) => prevContador + 1);
-        console.log('Auto-save check for folio:', folio?._id, 'Type:', typeFolio);
-        
-        // Auto-save current draft if there's content
-        if (folio && folio._id) {
-            saveDraftForFolio(folio._id);
-        }
-    }, 5000);
+    useEffect(() => {
+        console.log('Setting up auto-save interval');
+        const intervalo = setInterval(() => {
+            // Auto-save draft every 5 seconds if there's content
+            setContador((prevContador) => prevContador + 1);
+            console.log('Auto-save check for folio:', folio?._id, 'Type:', typeFolio);
+            
+            // Auto-save current draft if there's content
+            if (folio && folio._id) {
+                saveDraftForFolio(folio._id);
+            }
+        }, 5000);
 
         return () => {
-            clearInterval(intervalo);
+        clearInterval(intervalo);
         };
-    }, [folio, typeFolio, saveDraftForFolio, hasTextContent, messageToSend]);
+    }, [folio, typeFolio, saveDraftForFolio]);
 
     const handlePaste = async (event) => {
         const items = event.clipboardData.items;
@@ -1002,13 +1008,6 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                 toast.info('Subiendo imagen pegada...');
                 await uploadPastedImage(imageFile);
             }
-        }
-    };
-
-    const handleKeyDown = (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            prepareMessage(localMessageToSend);
         }
     };
 
@@ -1104,7 +1103,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                     {typeFolio === '_MESSAGES_' && fullFolio ? (
                         <div>
                             <div className="flex justify-center mb-2 h-7">
-                                {showBtnUn && <Chip color="warning" variant="flat">Nuevos mensajes</Chip>}
+                                {showBtnUn && <Chip color="secondary" variant="flat">Nuevos mensajes</Chip>}
                                 {showResponseTo && (
                                     <Chip color="primary" variant="flat" onClose={() => removeResponseTo()}>
                                         {messageToResponse}
@@ -1120,33 +1119,42 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                     </UploadFile>
                                     <div className="flex-grow relative">
                                         <textarea
+                                            key={folio?._id || 'no-folio'}
                                             ref={textArea}
                                             placeholder="Escribe un mensaje..."
-                                            defaultValue={localMessageToSend || ''}
+                                            defaultValue={messageToSend}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    if (e.shiftKey) {
+                                                        // Allow new line when Shift+Enter is pressed
+                                                        return;
+                                                    } else {
+                                                        // Send message when only Enter is pressed
+                                                        e.preventDefault();
+                                                        prepareMessage(e.target.value);
+                                                    }
+                                                }
+                                            }}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                setLocalMessageToSend(value);
-                                                setParentMessageToSend(value);
+                                                setMessageToSend(value);
                                                 setHasTextContent(value.trim() !== '');
-                                                
+                                
+
                                                 // Auto-resize textarea
                                                 e.target.style.height = 'auto';
                                                 e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
                                                 
                                                 // Save draft with debounce
                                                 if (folio?._id) {
-                                                    saveDraftForFolio(folio._id, value);
+                                                    saveDraftForFolio(folio._id, e.target.value);
                                                 }
+                            
                                             }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && e.shiftKey) {
-                                                    e.preventDefault();
-                                                    prepareMessage();
-                                                }
-                                            }}
+
                                             onPaste={handlePaste}
                                             className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[200px] overflow-y-auto p-2"
-                                            rows={1}
+                                            rows={4}
                                             style={{ display: 'block', width: '100%' }}
                                             disabled={isLoading}
                                         />
@@ -1162,7 +1170,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                                 variant="light" 
                                                 color="danger" 
                                                 size="sm" 
-                                                onClick={clearTextArea}
+                                                onPress={clearTextArea}
                                                 className="absolute bottom-1 right-1"
                                             >
                                                 <XCircle className="w-4 h-4" />
@@ -1174,11 +1182,11 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                             isIconOnly 
                                             color="primary" 
                                             aria-label="Enviar mensaje"
-                                            onClick={() => prepareMessage(localMessageToSend)}
+                                            onPress ={() => prepareMessage(textArea.current.value)}
                                             isLoading={isLoading}
                                             disabled={isLoading || !hasTextContent}
                                             size="sm"
-                                        >
+                                        >   
                                             <Send className="w-5 h-5" />
                                         </HeroButton>
                                     </div>
@@ -1248,7 +1256,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                     <HeroButton 
                                         color="primary" 
                                         aria-label="Enviar correo"
-                                        onClick={() => previewEmailF(editorRef.current.getContent())}
+                                        onPress={() => previewEmailF(editorRef.current.getContent())}
                                         isLoading={isLoading}
                                         disabled={isLoading || !hasTextContent}
                                         startContent={<Send className="w-4 h-4"/>}
@@ -1271,9 +1279,9 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                     ) : (
                         <div>
                             <div className="flex justify-center mb-2 h-7">
-                                {showBtnUn && <Chip color="warning" variant="flat">Nuevos mensajes</Chip>}
+                                {showBtnUn && <Chip color="secondary" variant="flat">Nuevos mensajes</Chip>}
                                 {showResponseTo && (
-                                    <Chip color="primary" variant="flat" onClose={() => removeResponseTo()}>
+                                    <Chip color="blue" variant="flat" onClose={() => removeResponseTo()}>
                                         {messageToResponse}
                                     </Chip>
                                 )}
@@ -1286,25 +1294,20 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                         </HeroButton>
                                     </UploadFile>
                                     <div className="flex-grow relative">
-                                        <textarea
+                                        <textArea
                                             ref={textArea}
                                             placeholder="Escribe un mensaje..."
-                                            value={localMessageToSend}
+                                            value={messageToSend}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                setLocalMessageToSend(value);
-                                                setParentMessageToSend(value);
                                                 setHasTextContent(value.trim() !== '');
                                                 e.target.style.height = 'auto';
                                                 e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
                                                 if (folio?._id) {
                                                     saveDraftForFolio(folio._id, value);
                                                 }
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && e.shiftKey) {
-                                                    e.preventDefault();
-                                                    prepareMessage(localMessageToSend);
+                                                if(e.shiftKey && e.key==='Enter'){
+                                                    prepareMessage(e.target.value)
                                                 }
                                             }}
                                             onPaste={handlePaste}
@@ -1330,7 +1333,7 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                             isIconOnly 
                                             color="primary" 
                                             aria-label="Enviar mensaje"
-                                            onClick={() => prepareMessage(localMessageToSend)}
+                                            onPress={() => prepareMessage(messageToSend)}
                                             isLoading={isLoading}
                                             disabled={isLoading || !hasTextContent}
                                             size="sm"
@@ -1411,9 +1414,9 @@ const CommentsV2 = ({folio, fullFolio, setMessageToSend: setParentMessageToSend,
                                                 }
                                             }}
                                         >
-                                            {(classification) => <SelectItem key={classification._id} value={classification._id}>{classification.name}</SelectItem>}
+                                            {(classification) => <SelectItem key={classification._id} value={classification._id}>{classification.text}</SelectItem>}
                                         </HeroSelect>
-                                        {formClassification && renderForm(formClassification)}
+                                        {infoForm && renderForm(infoForm)}
                                     </div>
                                 </ModalBody>
                                 <ModalFooter>
