@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Button, Modal, Select, Input, Card, CardBody, CardHeader, Divider } from '@heroui/react';
+import { Button, Modal, Select, Input, Card, CardBody, CardHeader, Divider, Chip, Image, Loader, Icon, Message, Dimmer } from '@heroui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiUser, FiMail, FiClock, FiFolder, FiSearch, FiX, FiMessageSquare, 
@@ -13,12 +13,13 @@ import CRM from './CRM';
 import Alerts from './Alerts';
 import ViewTicket from './ViewTicket';
 import FindTicket from './FindTicket';
+import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal';
+import TransferFolioQueueGeneric from './TransferFolioQueueGeneric';
 import HistoryFolios from './HistoryFolios';
 import TransferFolio from './TransferFolio';
 import TransferFolioPrivado from './TranferirFolioPrivado';
 import TransferFolioQueueGlobal from './TransferFolioQueueGlobal';
-import TransferFolioQueueGeneric from './TransferFolioQueueGeneric';
-import TransferirFolioQueueGlobal_QueueLocal from './TransferirFolioQueueGlobal_QueueLocal';
+
 import Mtm from './Mtm';
 import Zohocrm from './plugins/zohocrm/Zohocrm';
 import MailingTemplate from './plugins/mailingTemplate/MailingTemplate';
@@ -84,327 +85,257 @@ const ToolsV2 = ({
   service: infoService,
   setInsertHtml
 }) => {
-  // Estado para controlar qué sección está abierta
-  const [openSection, setOpenSection] = useState({
-    crm: false,
-    plugins: false,
-    templates: false,
-    history: false,
-    quickResponses: false,
-    transfer: false,
-    tickets: false,
-    files: false
-  });
-
-  // Función para alternar una sección
-  const toggleSection = (section) => {
-    setOpenSection(prev => ({
-      ...Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}),
-      [section]: !prev[section]
-    }));
-  };
-
-  // Funciones para manejo de tickets
-  const openCreateTicket = () => setOpenModalTicket(true);
-
-  const handleOpenViewTicket = (ticket) => {
-    setTicketSelected(ticket);
-    setOpenViewTicket(true);
-  };
-
-  const closeViewTicket = () => {
-    setOpenViewTicket(false);
-    setTicketSelected(null);
-  };
-  // Estados
-  const [indexPane, setIndexPane] = useState(-1);
+  const [openAccordion, setOpenAccordion] = useState(null);
   const socket = useContext(SocketContext);
-  const [isEndingFolio, setIsEndingFolio] = useState(false);
   const listFolios = useContext(ListFoliosContext);
+
+  const [isEndingFolio, setIsEndingFolio] = useState(false);
   const [typeClose, setTypeClose] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [classification, setClassification] = useState(-1);
   const [openModalTicket, setOpenModalTicket] = useState(false);
-  const [openAlert, setOpenAlert] = useState(false);
-  const [messageAlert, setMessageAlert] = useState('');
-  const [listClassification, setListClassification] = useState([]);
   const [openViewTicket, setOpenViewTicket] = useState(false);
   const [ticketSelected, setTicketSelected] = useState(null);
   const [openFindTicket, setOpenFindTicket] = useState(false);
   const [allQA, setAllQA] = useState([]);
   const [textFilter, setTextFilter] = useState('');
-  
-  // Filtrar plugins activos
-  const pluginsToTools = folio.folio.service.plugins.filter((x) => {
-    return ['zohocrm', 'mailingTemplate'].includes(x.plugin) && x.isActive;
-  });
+  const [listClassification, setListClassification] = useState([]);
 
-  // Inicializar datos del ticket
-  const [dataTicket, setDataTicket] = useState({
-    area: null,
-    message: ''
-  });
+  const toggleAccordion = (id) => {
+    setOpenAccordion(openAccordion === id ? null : id);
+  };
 
-  // Cargar clasificaciones al montar el componente
   useEffect(() => {
-    const loadListClassifications = async () => {
-      const tmpClass = [];
-      for (let item of folio.clasifications) {
-        tmpClass.push({
-          key: item._id,
-          value: item._id,
-          text: item.name
-        });
-      }
+    if (folio?.clasifications) {
+      const tmpClass = folio.clasifications.map(item => ({
+        key: item._id,
+        value: item._id,
+        text: item.name
+      }));
       setListClassification(tmpClass);
-      setAllQA(quicklyAnswer);
-    };
-    
-    loadListClassifications();
-  }, [folio.clasifications, quicklyAnswer]);
+    }
+    setAllQA(quicklyAnswer);
+  }, [folio, quicklyAnswer]);
 
-  // Función para buscar en las respuestas rápidas
   const findQA = (filter) => {
     setTextFilter(filter);
-    if (filter.length <= 3) {
+    if (filter.length <= 2) {
       setAllQA(quicklyAnswer);
       return;
     }
-    const filtered = quicklyAnswer.filter(qa => 
+    const filtered = quicklyAnswer.filter(qa =>
       qa.text.toLowerCase().includes(filter.toLowerCase())
     );
     setAllQA(filtered);
   };
 
-  // Función para enviar archivo
   const sendFile = (file) => {
-    socket.connection.emit('sendMessage', {
-      token: window.localStorage.getItem('sdToken'),
-      folio: folio.folio._id,
-      message: file.url,
-      caption: file.name,
-      class: file.mimeType === 'application/pdf' ? 'document' : 'image'
-    }, (result) => {
-      const index = listFolios.current.findIndex(x => x.folio._id === folio.folio._id);
-      if (index !== -1) {
-        listFolios.current[index].folio.message.push(result.body.lastMessage);
-        setRefresh(prev => prev + 1);
-      }
-    });
-  };
-
-  // Función para cerrar folio
-  const closeFolio = () => {
-    if (classification === -1) {
-      alert('Selecciona una clasificación');
-      return false;
-    }
-
-    setIsEndingFolio(true);
-    const actionClose = typeClose === 'guardar' ? 'save' : 'end';
-
-    socket.connection.emit('closeFolio', {
-      folio: folio.folio._id,
-      token: window.localStorage.getItem('sdToken'),
-      actionClose,
-      classification
-    }, (result) => {
-      const index = listFolios.current.findIndex(x => x.folio._id === folio.folio._id);
-      if (index !== -1) {
-        delete listFolios.current[index];
-        setRefresh(prev => prev + 1);
-      }
-      setOpenModal(false);
-      setIsEndingFolio(false);
-    });
-  };
-
-  // Función para obtener el ícono según el tipo de archivo
-  const getFileIcon = (type) => {
-    switch (type) {
-      case 'image/png':
-      case 'image/jpeg':
-        return <FiImage className="mr-2 text-gray-500" />;
-      case 'application/pdf':
-        return <FiFileText className="mr-2 text-gray-500" />;
-      default:
-        return <FiFile className="mr-2 text-gray-500" />;
-    }
-  };
-
-  // Función para cargar plugins
-  const loadPlugins = (plugin) => {
-    switch (plugin.plugin) {
-      case 'zohocrm':
-        return (
-          <div key={`accordion-${plugin.plugin}`} className="mb-4">
-            <Card className="shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-gray-50 px-4 py-3 border-b">
-                <div className="flex items-center">
-                  <FiFileText className="mr-2 text-blue-500" />
-                  <span className="font-medium">Zoho CRM (Preview)</span>
-                </div>
-              </CardHeader>
-              <CardBody className="p-4">
-                {folio && <Zohocrm template={crm} person={person} folio={folio} setRefresh={setRefresh} />}
-              </CardBody>
-            </Card>
-          </div>
-        );
-      
-      case 'mailingTemplate':
-        const hasEnabledPlugin = folio.folio.service.plugins.find((p) => p.plugin === 'mailingTemplate');
-        if (!hasEnabledPlugin) return null;
+    
+      socket.connection.emit('sendMessage', {
+        token: window.localStorage.getItem('sdToken'),
+        folio: folio.folio._id,
+        message: file.url,
+        caption: file.name,
+        class: file.mimeType.includes('pdf') ? 'document' : 'image'
+      }, (result) => {
+          const index = listFolios.current.findIndex(x => x.folio._id === folio.folio._id);
+          if (index !== -1) {
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setRefresh(Math.random());
+          }
         
-        return (
-          <div key={`accordion-${plugin.plugin}`} className="mb-4">
-            <Card className="shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="bg-gray-50 px-4 py-3 border-b">
-                <div className="flex items-center">
-                  <FiMail className="mr-2 text-blue-500" />
-                  <span className="font-medium">Plantillas de Correo</span>
-                </div>
-              </CardHeader>
-              <CardBody className="p-4">
-                <MailingTemplate 
-                  template={crm} 
-                  person={person} 
-                  folio={_.cloneDeep(folio)} 
-                  setRefresh={setRefresh} 
-                  setMessageToSend={setMessageToSend} 
-                  onClick={(htmlMail) => {
-                    setMessageToSend(htmlMail);
-                  }}
-                />
-              </CardBody>
-            </Card>
-          </div>
-        );
-      
-      default:
-        return null;
-    }
+      });
+    
   };
 
-  // Función para renderizar el contenido de respuestas rápidas
-  const renderQuickResponsesContent = () => {
-    return (
-      <>
-        <div className="mb-4">
-          <Input 
-            placeholder="Buscar respuestas..." 
-            value={textFilter}
-            onChange={(e) => findQA(e.target.value)}
-            rightIcon={
-              textFilter && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    findQA('');
-                    setTextFilter('');
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <FiX />
-                </button>
-              )
-            }
-            className="w-full"
-          />
-        </div>
-        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-          {allQA.map((item) => (
-            <div 
-              key={item._id} 
-              className="p-2 hover:bg-gray-100 rounded cursor-pointer"
-              onClick={() => setMessageToSend(item.text)}
-            >
-              <p className="text-sm">{item.text}</p>
-              <Divider className="my-2" />
-            </div>
-          ))}
-        </div>
-      </>
-    );
-  };
+  const renderCrmSection = () => (
+    <>{folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh} />}</>
+  );
 
-  // Función para renderizar la sección de tickets
-  const renderTicketsSection = () => {
+  const renderPluginsSection = () => {
+    const pluginsToTools = folio.folio.service.plugins.filter(p => ['zohocrm', 'mailingTemplate'].includes(p.plugin) && p.isActive);
     return (
       <div className="space-y-4">
-        <Button 
-          color="primary" 
-          variant="light" 
-          onClick={openCreateTicket}
-          className="w-full"
-        >
-          Crear Ticket
-        </Button>
-        <Button 
-          color="primary" 
-          variant="bordered" 
-          onClick={() => setOpenFindTicket(true)}
-          className="w-full"
-        >
-          Buscar Ticket
-        </Button>
-        <div className="space-y-2 max-h-60 overflow-y-auto">
-          {tickets?.map((ticket) => (
-            <div 
-              key={ticket._id} 
-              className="p-2 hover:bg-gray-100 rounded cursor-pointer"
-              onClick={() => handleOpenViewTicket(ticket)}
-            >
-              <p className="text-sm font-medium">{ticket.subject}</p>
-              <p className="text-xs text-gray-500">#{ticket.ticketNumber}</p>
-              <Divider className="my-2" />
-            </div>
-          ))}
-        </div>
+        {pluginsToTools.map((plugin) => {
+          switch (plugin.plugin) {
+            case 'zohocrm':
+              return <Zohocrm key={plugin.plugin} template={crm} person={person} folio={folio} setRefresh={setRefresh} />;
+            case 'mailingTemplate':
+              return (
+                <MailingTemplate
+                  key={plugin.plugin}
+                  template={crm}
+                  person={person}
+                  folio={_.cloneDeep(folio)}
+                  setRefresh={setRefresh}
+                  setMessageToSend={setMessageToSend}
+                  onClick={(htmlMail) => setInsertHtml(htmlMail)}
+                />
+              );
+            default: return null;
+          }
+        })}
       </div>
     );
   };
 
-  // Función para renderizar la sección de archivos
+  const renderTemplatesSection = () => (
+    <Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio} />
+  );
+
+  const renderHistorySection = () => (
+    <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+      {historyFolios && historyFolios.length > 0 ? (
+        historyFolios.map((item) => {
+          const personName = item.person?.name || item.person || 'Sin nombre';
+          return (
+            <Card key={item._id} className="p-3 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start">
+                <div className="flex-grow min-w-0">
+                  <p className="font-semibold text-sm text-gray-800 truncate" title={personName}>
+                    {personName}
+                  </p>
+                  <p className="text-xs text-gray-600 truncate">{item.subject || 'Sin asunto'}</p>
+                </div>
+                <Chip size="sm" variant="flat" color={item.status === 'SOLVED' ? 'success' : 'default'} className="ml-2 flex-shrink-0">
+                  {item.status}
+                </Chip>
+              </div>
+              <Divider className="my-2" />
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-gray-500">#{item.ticketNumber}</p>
+                <p className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleString()}</p>
+              </div>
+            </Card>
+          );
+        })
+      ) : (
+        <p className="text-sm text-gray-500 text-center py-4">No hay historial disponible</p>
+      )}
+    </div>
+  );
+
+  const renderQuickResponsesSection = () => (
+    <>
+      <Input
+        aria-label="Search"
+        placeholder="Buscar respuestas..."
+        value={textFilter}
+        onChange={(e) => findQA(e.target.value)}
+        className="w-full mb-4"
+        endContent={<FiX onClick={() => findQA('')} className="cursor-pointer text-gray-400 hover:text-gray-600" />}
+      />
+      <div className="space-y-1 max-h-60 overflow-y-auto pr-2">
+        {allQA.map((item) => (
+          <div
+            key={item._id}
+            className="p-2.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
+            onClick={() => setMessageToSend(item.text)}
+          >
+            <p className="text-sm font-medium text-gray-800">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
+  // Handle accordion item click
+  const handleAccordionClick = (id) => {
+    setOpenAccordion(openAccordion === id ? null : id);
+  };
+
+  // Close folio handler
+  const closeFolio = async () => {
+    if (classification === -1) return;
+    
+    setIsEndingFolio(true);
+    try {
+      // Implement your close folio logic here
+      // await someApiCall({ folioId: folio.folio._id, classification });
+      setOpenModal(false);
+      setRefresh(prev => prev + 1);
+    } catch (error) {
+      console.error('Error closing folio:', error);
+    } finally {
+      setIsEndingFolio(false);
+    }
+  };
+
+  // Open create ticket modal
+  const openCreateTicket = () => {
+    // Implement open create ticket logic
+    console.log('Open create ticket');
+  };
+
+  // Handle open view ticket
+  const handleOpenViewTicket = (ticket) => {
+    setTicketSelected(ticket);
+    setOpenViewTicket(true);
+  };
+
+  // Close view ticket
+  const closeViewTicket = () => {
+    setOpenViewTicket(false);
+    setTicketSelected(null);
+  };
+
+  // Render tickets section
+  const renderTicketsSection = () => (
+    <div className="space-y-4">
+      <Button color="primary" variant="light" onClick={openCreateTicket} className="w-full">
+        <FiFileText className="mr-2" />
+        Crear Ticket
+      </Button>
+      <Button color="primary" variant="bordered" onClick={() => setOpenFindTicket(true)} className="w-full">
+        <FiSearch className="mr-2" />
+        Buscar Ticket
+      </Button>
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+        {tickets?.map((ticket) => (
+          <Card key={ticket._id} isPressable onPress={() => handleOpenViewTicket(ticket)} className="p-3">
+            <p className="font-semibold text-sm">{ticket.subject}</p>
+            <p className="text-xs text-gray-500">#{ticket.ticketNumber}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderFilesSection = () => {
-    if (folio.folio.typeFolio !== '_MESSAGES_') return null;
+    if (!folio?.folio?.typeFolio || folio.folio.typeFolio !== '_MESSAGES_') return null;
+    const files = infoService?.repoFiles || [];
     
     return (
-      <div className="space-y-2 max-h-60 overflow-y-auto">
-        {infoService.repoFiles && infoService.repoFiles.length > 0 ? (
-          infoService.repoFiles.map((item) => (
-            <div key={item._id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-              <div className="flex items-center min-w-0">
-                {getFileIcon(item.mimeType)}
-                <span className="text-sm truncate">{item.name}</span>
+      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+        {files.length > 0 ? (
+          files.map((file) => (
+            <Card key={file._id} className="p-2.5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center min-w-0">
+                  {getFileIcon(file.mimeType)}
+                  <span className="text-sm text-gray-700 truncate" title={file.name}>{file.name}</span>
+                </div>
+                <div className="flex items-center flex-shrink-0 ml-2">
+                  <Button isIconOnly auto size="sm" variant="light" as="a" href={file.url} target="_blank">
+                    <FiEye className="text-lg" />
+                  </Button>
+                  <Button 
+                    isIconOnly 
+                    auto 
+                    size="sm" 
+                    variant="light" 
+                    onPress={() => { 
+                      const recipientName = folio.folio.person?.aliasId || folio.folio.person?.anchor || 'Contacto';
+                      if (window.confirm(`¿Deseas enviar el archivo "${file.name}" a ${recipientName}?`)) { 
+                        sendFile(file); 
+                      } 
+                    }}
+                  >
+                    <FiSend className="text-lg text-blue-500" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center space-x-1 flex-shrink-0">
-                <Button 
-                  size="sm" 
-                  variant="light" 
-                  isIconOnly
-                  as="a"
-                  href={item.url}
-                  target="_blank"
-                  aria-label="Preview File"
-                >
-                  <FiEye className="text-gray-500 hover:text-blue-500" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="light" 
-                  isIconOnly
-                  aria-label="Send File"
-                  onClick={() => {
-                    if (window.confirm(`¿Deseas enviar el archivo "${item.name}"?`)) {
-                      sendFile(item);
-                    }
-                  }}
-                >
-                  <FiSend className="text-gray-500 hover:text-green-500" />
-                </Button>
-              </div>
-            </div>
+            </Card>
           ))
         ) : (
           <p className="text-sm text-gray-500 text-center py-4">No hay archivos disponibles</p>
@@ -413,157 +344,66 @@ const ToolsV2 = ({
     );
   };
 
-  // Función para renderizar la sección de transferencia
   const renderTransferSection = () => {
-    if (folio?.folio?.channel === 'call') return null;
-
-    // Transferir Folio (caso general)
-    if (!folio?.folio?.fromInbox && !folio?.folio?.isGlobalQueue) {
+    if (folio.folio.channel === 'call') return null;
+    if (!folio.folio.fromInbox && !folio.folio.isGlobalQueue) {
       return <TransferFolio folio={folio} setRefresh={setRefresh} userInfo={userInfo} />;
     }
-
-    // Transferir Conversación Privada
-    if (folio?.folio?.fromInbox) {
+    if (folio.folio.fromInbox) {
       return <TransferFolioPrivado folio={folio} setRefresh={setRefresh} userInfo={userInfo} />;
     }
-
-    // Transferir a Bandeja Global
-    if (folio?.folio?.isGlobalQueue && !folio?.folio?.isGlobalDistributor && !folio?.folio?.fromInbox) {
+    if (folio.folio.isGlobalQueue && !folio.folio.isGlobalDistributor && !folio.folio.fromInbox) {
       return <TransferFolioQueueGlobal folio={folio} setRefresh={setRefresh} userInfo={userInfo} />;
     }
-
-    // Transferir a Bandeja de Canal
-    if (!folio?.folio?.fromInbox && folio?.folio?.isGlobalQueue) {
-      return <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo} />;
-    }
-
-    // Transferir a Bandeja Genérica
-    if (!folio?.folio?.fromInbox && folio?.folio?.isGlobalQueue && folio?.folio?.isGlobalDistributor) {
-      return <TransferFolioQueueGeneric folio={folio} setRefresh={setRefresh} userInfo={userInfo} />;
-    }
-
     return null;
   };
 
-  // Render principal
+  const sections = [
+    { id: 'crm', title: 'CRM', icon: FiUser, content: renderCrmSection },
+    { id: 'plugins', title: 'Plugins', icon: FiGrid, content: renderPluginsSection },
+    { id: 'templates', title: 'Plantillas de mensajes', icon: FiMessageSquare, content: renderTemplatesSection },
+    { id: 'history', title: 'Historial de folios', icon: FiClock, content: renderHistorySection },
+    { id: 'quickResponses', title: 'Respuestas Rápidas', icon: FiMessageCircle, content: renderQuickResponsesSection, condition: folio.folio.channel !== 'call' },
+    { id: 'files', title: 'Catálogo de archivos', icon: FiFolder, content: renderFilesSection },
+    { id: 'tickets', title: 'Tickets', icon: FiFileText, content: renderTicketsSection },
+    { id: 'transfer', title: 'Transferir', icon: FiArrowRight, content: renderTransferSection, condition: folio.folio.channel !== 'call' },
+  ];
+
   return (
-    <div className="h-full flex flex-col space-y-2 p-4 bg-gray-50 overflow-y-auto">
-      {/* Sección de CRM */}
-      <AccordionItem
-        title={{ text: 'CRM', icon: FiUser }}
-        isOpen={openSection.crm}
-        onClick={() => toggleSection('crm')}
-      >
-        {folio && <CRM template={crm} person={person} folio={folio} setRefresh={setRefresh} />}
-      </AccordionItem>
+    <div className="h-full flex flex-col p-2 bg-white overflow-y-auto">
+   
 
-      {/* Sección de plugins */}
-      <AccordionItem
-        title={{ text: 'Plugins', icon: FiGrid }}
-        isOpen={openSection.plugins}
-        onClick={() => toggleSection('plugins')}
-      >
-        <div className="space-y-4">
-          {pluginsToTools.map((plugin) => loadPlugins(plugin))}
-        </div>
-      </AccordionItem>
-
-      {/* Sección de Plantillas de mensajes */}
-      <AccordionItem
-        title={{ text: 'Plantillas de mensajes', icon: FiFileText }}
-        isOpen={openSection.templates}
-        onClick={() => toggleSection('templates')}
-      >
-        <Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio} />
-      </AccordionItem>
-
-      {/* Sección de Historial de Folios */}
-      <AccordionItem
-        title={{ text: 'Historial de Folios', icon: FiClock }}
-        isOpen={openSection.history}
-        onClick={() => toggleSection('history')}
-      >
-        <HistoryFolios historyFolios={historyFolios} />
-      </AccordionItem>
-
-      {/* Sección de Respuestas Rápidas */}
-      {folio?.folio?.channel !== 'call' && (
+      {sections.map(section => (
+        (section.condition !== false) &&
         <AccordionItem
-          title={{ text: 'Respuestas Rápidas', icon: FiMessageCircle }}
-          isOpen={openSection.quickResponses}
-          onClick={() => toggleSection('quickResponses')}
+          key={section.id}
+          title={{ text: section.title, icon: section.icon }}
+          isOpen={openAccordion === section.id}
+          onClick={() => handleAccordionClick(section.id)}
         >
-          {renderQuickResponsesContent()}
+          {section.content()}
+        </AccordionItem>
+      ))}
+
+      {folio && !folio.folio.fromInbox && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' && (
+        <AccordionItem
+          title={{ text: 'Transferir a Bandeja de Canal', icon: FiArrowRight }}
+          isOpen={openAccordion === 'transferChannel'}
+          onClick={() => handleAccordionClick('transferChannel')}
+        >
+          <TransferirFolioQueueGlobal_QueueLocal folio={folio} setRefresh={setRefresh} userInfo={userInfo} />
         </AccordionItem>
       )}
 
-      {/* Sección de Transferencias */}
-      {folio?.folio?.channel !== 'call' && (
+      {folio && !folio.folio.fromInbox && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' && (
         <AccordionItem
-          title={{ text: 'Transferencias', icon: FiArrowRight }}
-          isOpen={openSection.transfer}
-          onClick={() => toggleSection('transfer')}
+          title={{ text: 'Transferir a Bandeja Genérica', icon: FiArrowRight }}
+          isOpen={openAccordion === 'transferGeneric'}
+          onClick={() => handleAccordionClick('transferGeneric')}
         >
-          {renderTransferSection()}
+          <TransferFolioQueueGeneric folio={folio} setRefresh={setRefresh} userInfo={userInfo} />
         </AccordionItem>
       )}
-
-      {/* Sección de Tickets */}
-      <AccordionItem
-        title={{ text: 'Tickets', icon: FiFileText }}
-        isOpen={openSection.tickets}
-        onClick={() => toggleSection('tickets')}
-      >
-        {renderTicketsSection()}
-      </AccordionItem>
-
-      {/* Sección de Archivos */}
-      {folio?.folio?.typeFolio === '_MESSAGES_' && (
-        <AccordionItem
-          title={{ text: 'Catálogo de archivos', icon: FiFolder }}
-          isOpen={openSection.files}
-          onClick={() => toggleSection('files')}
-        >
-          {renderFilesSection()}
-        </AccordionItem>
-      )}
-
-      {/* Modales de tickets */}
-      <Modal open={openModalTicket} onClose={() => setOpenModalTicket(false)}>
-        <Modal.Header>Crear Nuevo Ticket</Modal.Header>
-        <Modal.Content>
-          <ViewTicket 
-            folio={folio} 
-            onClose={() => setOpenModalTicket(false)} 
-            onRefresh={setRefresh}
-          />
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={openViewTicket} onClose={closeViewTicket}>
-        <Modal.Header>Detalles del Ticket</Modal.Header>
-        <Modal.Content>
-          {ticketSelected && (
-            <ViewTicket 
-              ticketId={ticketSelected._id} 
-              onClose={closeViewTicket}
-              onRefresh={setRefresh}
-            />
-          )}
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={openFindTicket} onClose={() => setOpenFindTicket(false)}>
-        <Modal.Header>Buscar Ticket</Modal.Header>
-        <Modal.Content>
-          <FindTicket 
-            onSelectTicket={(ticket) => {
-              setOpenFindTicket(false);
-              handleOpenViewTicket(ticket);
-            }}
-          />
-        </Modal.Content>
-      </Modal>
 
       {/* Modal de confirmación para cerrar folio */}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
