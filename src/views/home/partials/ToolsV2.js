@@ -183,37 +183,12 @@ const ToolsV2 = ({
     <Mtm mtm={mtm} person={folio.folio.person} setRefresh={setRefresh} folio={folio} />
   );
 
-  const renderHistorySection = () => (
-    <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
-      {historyFolios && historyFolios.length > 0 ? (
-        historyFolios.map((item) => {
-          const personName = item.person?.name || item.person || 'Sin nombre';
-          return (
-            <Card key={item._id} className="p-3 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start">
-                <div className="flex-grow min-w-0">
-                  <p className="font-semibold text-sm text-gray-800 truncate" title={personName}>
-                    {personName}
-                  </p>
-                  <p className="text-xs text-gray-600 truncate">{item.subject || 'Sin asunto'}</p>
-                </div>
-                <Chip size="sm" variant="flat" color={item.status === 'SOLVED' ? 'success' : 'default'} className="ml-2 flex-shrink-0">
-                  {item.status}
-                </Chip>
-              </div>
-              <Divider className="my-2" />
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-gray-500">#{item.ticketNumber}</p>
-                <p className="text-xs text-gray-500">{new Date(item.createdAt).toLocaleString()}</p>
-              </div>
-            </Card>
-          );
-        })
-      ) : (
-        <p className="text-sm text-gray-500 text-center py-4">No hay historial disponible</p>
-      )}
-    </div>
-  );
+  const renderHistorySection = () => {
+    // Crear una copia invertida del historial para mostrar los más recientes primero
+    const historyFoliosReverse = historyFolios ? [...historyFolios].reverse() : [];
+    
+    return <HistoryFolios historyFolios={historyFoliosReverse} />;
+  };
 
   const renderQuickResponsesSection = () => (
     <>
