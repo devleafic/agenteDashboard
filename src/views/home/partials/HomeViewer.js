@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Card, Avatar, Badge, Button as HeroButton, Input } from "@heroui/react";
 import Comments from './CommentsV2';
-import Tools from './Tools';
+import Tools from './ToolsV2';
 import axios from 'axios';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
