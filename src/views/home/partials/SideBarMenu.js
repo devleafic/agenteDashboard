@@ -48,10 +48,10 @@ const LogoutIcon = (props) => (
 );
 
 
-const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages }) => {
+const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, userInfo }) => {
     const { unreadMessages: unReadMessagesIC } = useSocket();
     const [hasUnread, setHasUnread] = useState(0);
-
+  console.log(userInfo);
     useEffect(() => {
         const count = Object.values(unReadMessagesIC).reduce((sum, current) => sum + current, 0);
         setHasUnread(count);
@@ -77,7 +77,7 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages }) =
             {/* Top section: Logo and main navigation */}
             <div className="flex flex-col items-center gap-4">
                 <Tooltip content={`Inbox Central v${process.env.REACT_APP_SYSTEM_VERSION}`} placement="right">
-                    <Avatar src={avatar} className="w-10 h-10 text-large" />
+                    <Avatar src={userInfo?.profile?.picture} className="w-10 h-10 text-large" />
                 </Tooltip>
                 <Spacer y={2}/>
                 <div className="flex flex-col gap-3">
@@ -89,7 +89,7 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages }) =
                                     variant={page === item.name ? "flat" : "light"}
                                     color={page === item.name ? "primary" : "default"}
                                     aria-label={item.tooltip}
-                                    onClick={() => selectedComponent(item.name)}
+                                    onPress={() => selectedComponent(item.name)}
                                     isDisabled={isConnected === -1}
                                     className="group data-[hover=true]:bg-primary-50"
                                 >
@@ -108,7 +108,7 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages }) =
                         isIconOnly
                         variant="light"
                         aria-label="Cerrar Sesión"
-                        onClick={closeSession}
+                        onPress={closeSession}
                         className="group"
                     >
                         <IconWrapper><LogoutIcon /></IconWrapper>

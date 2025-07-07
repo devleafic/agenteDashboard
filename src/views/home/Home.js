@@ -656,6 +656,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
               onConnect={onConnect} 
               unReadMessages={unReadMessages} 
               isConnected={isConnected}
+              userInfo={userInfo}
             />
           </div>
 
