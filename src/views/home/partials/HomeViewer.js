@@ -144,6 +144,8 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
         prevUnreadRef.current = unReadFolios;
     });
 
+    const foliosCount = listFolios.current ? listFolios.current.length : 0;
+
     const processedFolios = useMemo(() => {
         if (!listFolios.current) return [];
 
@@ -184,7 +186,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
             const dateB = new Date(b.folio?.lastMessage?.date || 0);
             return dateB - dateA;
         });
-    }, [filterText, showUnreadOnly, sortBy, unReadFolios]);
+    }, [foliosCount, filterText, showUnreadOnly, sortBy, unReadFolios]);
 
     return (
         <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden">
