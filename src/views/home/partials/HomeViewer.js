@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Card, Avatar, Badge, Button as HeroButton, Input } from "@heroui/react";
+import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import { Card, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
@@ -43,6 +43,12 @@ const ChevronRightIcon = (props) => (
     </svg>
 );
 
+const ChevronDownIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+    </svg>
+);
+
 const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio }) => {
 
     const boxMessage = useRef(null);
@@ -52,6 +58,8 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const [availableCh, setAvailableCh] = useState(null);
     const [loadPage, setLoadPage] = useState(false);
     const [filterText, setFilterText] = useState('');
+    const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+    const [sortBy, setSortBy] = useState('default');
 
     const hideTools = () => {
         setToolsOpen(!toolsOpen);
@@ -130,6 +138,43 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
     const activeFolioData = vFolio ? listFolios.current.find(f => f.folio._id === vFolio) : null;
 
+    const processedFolios = useMemo(() => {
+        if (!listFolios.current) return [];
+
+        const filtered = listFolios.current.filter(item => {
+            if (!item?.folio) return false;
+            
+            if (showUnreadOnly && (!unReadFolios || !unReadFolios[item.folio._id])) {
+                return false;
+            }
+
+            const searchTerm = filterText.toLowerCase();
+            if (searchTerm) {
+                const personInfo = (item.folio.person?.aliasId || item.folio.person?.anchor || '').toLowerCase();
+                const subjectInfo = (item.folio.lastEmailProcessed?.subject || '').toLowerCase();
+                if (!(personInfo.includes(searchTerm) || subjectInfo.includes(searchTerm))) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return [...filtered].sort((a, b) => {
+            if (sortBy === 'unread') {
+                const aIsUnread = unReadFolios && a.folio?._id ? !!unReadFolios[a.folio._id] : false;
+                const bIsUnread = unReadFolios && b.folio?._id ? !!unReadFolios[b.folio._id] : false;
+                if (aIsUnread !== bIsUnread) {
+                    return bIsUnread - aIsUnread;
+                }
+            }
+            
+            const dateA = new Date(a.folio?.lastMessage?.date || 0);
+            const dateB = new Date(b.folio?.lastMessage?.date || 0);
+            return dateB - dateA;
+        });
+    }, [listFolios.current, filterText, showUnreadOnly, sortBy, unReadFolios]);
+
     return (
         <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden">
             {loadPage ? (
@@ -150,79 +195,102 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                 onClear={() => setFilterText('')}
                                 className="max-w-full"
                             />
+                            <div className="flex items-center justify-between mt-4 gap-4">
+                                <Switch
+                                    isSelected={showUnreadOnly}
+                                    onValueChange={setShowUnreadOnly}
+                                    size="sm"
+                                >
+                                    <span className="text-sm text-gray-600">Solo no leídos</span>
+                                </Switch>
+                                <Dropdown>
+                                    <DropdownTrigger>
+                                        <HeroButton variant="bordered" size="sm" className="capitalize w-40 justify-between">
+                                            {sortBy === 'unread' ? 'No leídos primero' : 'Más recientes'}
+                                            <ChevronDownIcon className="w-4 h-4" />
+                                        </HeroButton>
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        aria-label="Opciones de orden"
+                                        variant="flat"
+                                        disallowEmptySelection
+                                        selectionMode="single"
+                                        selectedKeys={new Set([sortBy])}
+                                        onSelectionChange={(keys) => setSortBy(Array.from(keys)[0])}
+                                    >
+                                        <DropdownItem key="default">Más recientes</DropdownItem>
+                                        <DropdownItem key="unread">No leídos primero</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </div>
                         </div>
                         <div className="flex-grow overflow-y-auto overflow-x-hidden">
-                            {listFolios.current.length > 0 ? (
-                                listFolios.current
-                                    .filter(item => {
-                                        const searchTerm = filterText.toLowerCase();
-                                        const personInfo = (item.folio.person.aliasId || item.folio.person.anchor).toLowerCase();
-                                        const subjectInfo = (item.folio.lastEmailProcessed?.subject || '').toLowerCase();
-                                        return personInfo.includes(searchTerm) || subjectInfo.includes(searchTerm);
-                                    })
-                                    .map(item => {
-                                        const { folio } = item;
-                                        const isActive = folio._id === vFolio;
-                                        const isUnread = unReadFolios[folio._id];
+                            {processedFolios.length > 0 ? (
+                                processedFolios.map(item => {
+                                    if (!item?.folio) return null;
 
-                                        const ch = availableCh ? availableCh.find(c => c.id === folio.channel.name) : null;
-                                        let channelIcon;
-                                        if (ch?.image) {
-                                            channelIcon = <img src={ch.image} alt={folio.channel.name} className="w-5 h-5" />;
-                                        } else {
-                                            switch (folio.channel.name) {
-                                                case 'voice':
-                                                case 'call':
-                                                    channelIcon = <PhoneIcon className="w-5 h-5 text-gray-400" />;
-                                                    break;
-                                                case 'email':
-                                                    channelIcon = <EnvelopeIcon className="w-5 h-5 text-gray-400" />;
-                                                    break;
-                                                default:
-                                                    channelIcon = <ChatBubbleIcon className="w-5 h-5 text-gray-400" />;
-                                                    break;
-                                            }
+                                    const { folio } = item;
+                                    const isActive = folio._id === vFolio;
+                                    const isUnread = unReadFolios && unReadFolios[folio._id];
+
+                                    const ch = availableCh && folio.channel?.name ? availableCh.find(c => c.id === folio.channel.name) : null;
+                                    let channelIcon;
+                                    if (ch?.image) {
+                                        channelIcon = <img src={ch.image} alt={folio.channel?.name || 'channel'} className="w-5 h-5" />;
+                                    } else {
+                                        switch (folio.channel?.name) {
+                                            case 'voice':
+                                            case 'call':
+                                                channelIcon = <PhoneIcon className="w-5 h-5 text-gray-400" />;
+                                                break;
+                                            case 'email':
+                                                channelIcon = <EnvelopeIcon className="w-5 h-5 text-gray-400" />;
+                                                break;
+                                            default:
+                                                channelIcon = <ChatBubbleIcon className="w-5 h-5 text-gray-400" />;
+                                                break;
                                         }
+                                    }
 
-                                        const secondaryText = folio.channel.name === 'email' ? (folio.lastEmailProcessed?.subject || 'Sin asunto') : folio.person.anchor;
+                                    const secondaryText = folio.channel?.name === 'email' ? (folio.lastEmailProcessed?.subject || 'Sin asunto') : folio.person?.anchor;
 
-                                        return (
-                                            <div
-                                                key={folio._id}
-                                                className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
-                                                onClick={() => {
-                                                    setVFolio(folio._id);
-                                                    setMessageToSend('');
-                                                    window.localStorage.setItem('vFolio', folio._id);
-                                                    dispatch({ type: 'read', folio: folio._id });
-                                                }}
-                                            >
-                                                <div className="flex-shrink-0 relative">
-                                                    <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
-                                                        <Avatar 
-                                                            src={folio.person.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} 
-                                                            className="w-10 h-10"
-                                                        />
-                                                    </Badge>
-                                                </div>
-                                                <div className="min-w-0 flex-1 ml-3 overflow-hidden">
-                                                    <div className="flex items-center justify-between w-full">
-                                                        <p className="font-bold text-sm text-gray-800 truncate pr-2">
-                                                            {folio.person.aliasId || folio.person.anchor}
-                                                        </p>
-                                                        <div className="flex-shrink-0">
-                                                            {channelIcon}
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-xs font-medium text-gray-600 truncate">
-                                                        {secondaryText}
-                                                    </p>
-                                                </div>
+                                    return (
+                                        <div
+                                            key={folio._id}
+                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
+                                            onClick={() => {
+                                                setVFolio(folio._id);
+                                                setMessageToSend('');
+                                                window.localStorage.setItem('vFolio', folio._id);
+                                                dispatch({ type: 'read', folio: folio._id });
+                                            }}
+                                        >
+                                            <div className="flex-shrink-0 relative">
+                                                <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
+                                                    <Avatar 
+                                                        src={folio.person?.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} 
+                                                        className="w-10 h-10"
+                                                    />
+                                                </Badge>
                                             </div>
-                                        );
-                                    })
+                                            <div className="min-w-0 flex-1 ml-3 overflow-hidden">
+                                                <div className="flex items-center justify-between w-full">
+                                                    <p className="font-bold text-sm text-gray-800 truncate pr-2">
+                                                        {folio.person?.aliasId || folio.person?.anchor}
+                                                    </p>
+                                                    <div className="flex-shrink-0">
+                                                        {channelIcon}
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs font-medium text-gray-600 truncate">
+                                                    {secondaryText}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })
                             ) : (
-                                <div className="p-4 text-center text-sm text-gray-500">No hay conversaciones activas.</div>
+                                <div className="p-4 text-center text-sm text-gray-500">No hay conversaciones para mostrar.</div>
                             )}
                         </div>
                     </div>
