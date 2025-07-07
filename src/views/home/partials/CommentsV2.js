@@ -1112,7 +1112,6 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
-                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                                     <div className="flex-grow relative">
                                         <textarea
                                             key={folio?._id || 'no-folio'}
@@ -1192,19 +1191,24 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                             </HeroButton>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-1 ml-2">
+                                    <div className="flex flex-col items-center justify-start gap-1 ml-2">
                                         <HeroButton 
                                             isIconOnly 
                                             color="primary" 
                                             aria-label="Enviar mensaje"
-                                            onPress ={() => prepareMessage(textArea.current.value)}
+                                            onPress={() => prepareMessage(textArea.current.value)}
                                             isLoading={isLoading}
                                             disabled={isLoading || !hasTextContent}
-                                            size="sm"
+                                            size="md"
+                                            className="m-0 w-10 h-10"
                                         >   
-                                            <Send className="w-5 h-5" />
+                                            <Send className="w-6 h-6" />
                                         </HeroButton>
+                                        <div className="m-0 p-0">
+                                            <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
+                                        </div>
                                     </div>
+                                    
                                 </div>
                             </div>
 

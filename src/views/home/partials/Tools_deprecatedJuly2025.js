@@ -3,7 +3,7 @@ import {List, Accordion, Icon, Button, Modal, Select, Form, Divider, Input, Mess
 import _ from 'lodash';
 
 // Contextos
-import SocketContext from './../../../controladores/SocketContext';
+import SocketContext from '../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 
 // Componentes

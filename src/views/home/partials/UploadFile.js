@@ -1,9 +1,10 @@
-import React, {useRef, useState, useContext, useCallback, useEffect} from 'react';
-import { Icon, Loader, Button, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
-import axios, {post} from 'axios';
+import React, { useRef, useState, useContext, useCallback, useEffect } from 'react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Image, Spinner } from '@heroui/react';
+import { FiUpload, FiX, FiCheck, FiFile, FiImage } from 'react-icons/fi';
+import axios, { post } from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
-import Dropzone from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 
 const UploadFile = ({folio, channel, setRefresh, children}) => {
     const listFolios = useContext(ListFoliosContext);
@@ -124,10 +125,25 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
 
             setContentShow(
                 fileType === 'image' 
-                    ? <Image centered size='medium' src={data.data.url} />
-                    : <a href={data.data.url} target="_blank" rel="noopener noreferrer">
-                        <Icon name='file' /> {data.data.file.originalFilename}
-                      </a>
+                    ? (
+                        <div className="flex justify-center p-2">
+                            <Image 
+                                src={data.data.url} 
+                                alt="Preview"
+                                className="max-h-48 rounded-lg object-contain"
+                            />
+                        </div>
+                    ) : (
+                        <a 
+                            href={data.data.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                        >
+                            <FiFile className="text-blue-500 flex-shrink-0" />
+                            <span className="truncate">{data.data.file.originalFilename}</span>
+                        </a>
+                    )
             );
         }).catch(error => {
             console.error('Upload error:', error);
@@ -137,83 +153,116 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
         });
     };
 
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        maxFiles: 2,
+        onDrop: acceptedFiles => {
+            setNameFile(acceptedFiles[0].name);
+            setToUpload(acceptedFiles[0]);
+            fileUpload(acceptedFiles[0]);
+        }
+    });
+
     return (
         <>
-            <Dropzone maxFiles={2} onDrop={acceptedFiles => {
-                setNameFile(acceptedFiles[0].name);
-                setToUpload(acceptedFiles[0]);
-                fileUpload(acceptedFiles[0]);
-            }}>
-                {({getRootProps, getInputProps}) => (
-                    <div {...getRootProps()}>
-                        <input {...getInputProps()} />
-                        {children ? children : <a className="camera icon">Arrastra archivo o haz clic</a>}
+            <div 
+                {...getRootProps()} 
+                className={`p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+                }`}
+            >
+                <input {...getInputProps()} />
+                {children ? (
+                    children
+                ) : (
+                    <div className="flex flex-col items-center justify-center space-y-2 text-gray-600">
+                        <FiUpload className="w-6 h-6" />
+                        <p className="text-sm">
+                            {isDragActive ? 'Suelta el archivo aquí' : ''}
+                        </p>
                     </div>
                 )}
-            </Dropzone>
+            </div>
 
-            <Modal
-                basic
-                open={showModal}
-                size='small'
-                onClose={() => setShowModal(false)}
+            <Modal 
+                isOpen={showModal} 
+                onOpenChange={setShowModal}
+                size="md"
             >
-                <Header icon>
-                    <Icon name={onPushFile ? 'cloud upload' : 'archive'} />
-                    {onPushFile ? 'Subiendo archivo...' : `Enviar "${nameFileSend}"?`}
-                </Header>
-                <Modal.Content>
-                    <Message style={{minHeight: 100}}>
-                        {onPushFile && <Dimmer active inverted>
-                            <Loader inverted>Procesando archivo</Loader>
-                        </Dimmer>}
-                        {contentShow}
-                    </Message>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button basic color='red' inverted 
-                        onClick={() => {
-                            setShowModal(false);
-                            setOnUpload(false);
-                            setNameFile('Archivo');
-                        }}
-                        disabled={onPushFile}
-                    >
-                        <Icon name='remove' /> Cancelar
-                    </Button>
-                    <Button color='blue' inverted 
-                        onClick={() => {
-                            setOnPushFile(true);
-                            const urlFixed = urlFile.startsWith('http') 
-                                ? urlFile 
-                                : `https://${urlFile}`;
-                            
-                            socket.connection.emit('sendMessage', {
-                                token: localStorage.getItem('sdToken'),
-                                folio,
-                                message: urlFixed,
-                                caption: nameFile,
-                                class: urlFileType
-                            }, (result) => {
-                                const index = listFolios.current.findIndex(x => x.folio._id === folio);
-                                listFolios.current[index].folio.message.push(result.body.lastMessage);
-                                setRefresh(Math.random());
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                            {onPushFile ? (
+                                <FiUpload className="text-blue-500" />
+                            ) : (
+                                <FiFile className="text-blue-500" />
+                            )}
+                            <span>{onPushFile ? 'Subiendo archivo...' : `Enviar "${nameFileSend}"`}</span>
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="relative min-h-[120px] flex items-center justify-center rounded-lg border border-gray-200 p-4">
+                            {onPushFile ? (
+                                <div className="flex flex-col items-center justify-center space-y-4">
+                                    <Spinner size="lg" />
+                                    <p className="text-sm text-gray-600">Procesando archivo...</p>
+                                </div>
+                            ) : (
+                                <div className="w-full">
+                                    {contentShow}
+                                </div>
+                            )}
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button 
+                            color="danger" 
+                            variant="light" 
+                            onPress={() => {
                                 setShowModal(false);
                                 setOnUpload(false);
-                                setToUpload(null);
-                                setNameFile(null);
-                                setContentShow(null);
-                                setNameFileSend(null);
-                                setUrlFile(null);
-                                setUrlFileType(null);
-                                setOnPushFile(false);
-                            });
-                        }}
-                        disabled={onPushFile}
-                    >
-                        <Icon name='checkmark' /> Enviar
-                    </Button>
-                </Modal.Actions>
+                                setNameFile('Archivo');
+                            }}
+                            isDisabled={onPushFile}
+                            startContent={<FiX />}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button 
+                            color="primary"
+                            onPress={() => {
+                                setOnPushFile(true);
+                                const urlFixed = urlFile.startsWith('http') 
+                                    ? urlFile 
+                                    : `https://${urlFile}`;
+                                
+                                socket.connection.emit('sendMessage', {
+                                    token: localStorage.getItem('sdToken'),
+                                    folio,
+                                    message: urlFixed,
+                                    caption: nameFile,
+                                    class: urlFileType
+                                }, (result) => {
+                                    const index = listFolios.current.findIndex(x => x.folio._id === folio);
+                                    listFolios.current[index].folio.message.push(result.body.lastMessage);
+                                    setRefresh(Math.random());
+                                    setShowModal(false);
+                                    setOnUpload(false);
+                                    setToUpload(null);
+                                    setNameFile(null);
+                                    setContentShow(null);
+                                    setNameFileSend(null);
+                                    setUrlFile(null);
+                                    setUrlFileType(null);
+                                    setOnPushFile(false);
+                                });
+                            }}
+                            isDisabled={onPushFile}
+                            startContent={<FiCheck />}
+                        >
+                            Enviar
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
             </Modal>
         </>
     );
