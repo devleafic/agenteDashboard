@@ -49,27 +49,81 @@ const LogoutIcon = (props) => (
 
 
 const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, userInfo }) => {
-    const { unreadMessages: unReadMessagesIC } = useSocket();
+    const { unreadMessages: unReadMessagesIC = {} } = useSocket?.() || {};
     const [hasUnread, setHasUnread] = useState(0);
-  console.log(userInfo);
+    
     useEffect(() => {
-        const count = Object.values(unReadMessagesIC).reduce((sum, current) => sum + current, 0);
-        setHasUnread(count);
+        try {
+            if (unReadMessagesIC && typeof unReadMessagesIC === 'object') {
+                const count = Object.values(unReadMessagesIC).reduce(
+                    (sum, current) => sum + (typeof current === 'number' ? current : 0), 
+                    0
+                );
+                setHasUnread(count);
+            }
+        } catch (error) {
+            console.error('Error calculating unread messages:', error);
+            setHasUnread(0);
+        }
     }, [unReadMessagesIC]);
 
     const closeSession = () => {
-        window.localStorage.removeItem('sdToken');
-        window.localStorage.removeItem('myName');
-        window.location = '/login';
+        try {
+            if (typeof window !== 'undefined') {
+                // Clear all localStorage
+                window.localStorage?.clear();
+                
+                // Clear all sessionStorage
+                window.sessionStorage?.clear();
+                
+                // Clear any existing cookies
+                document.cookie.split(';').forEach(cookie => {
+                    const [name] = cookie.trim().split('=');
+                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                });
+                
+                // Force reload to ensure all application state is cleared
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error('Error during session close:', error);
+            // Still try to redirect even if clearing storage fails
+            window.location.href = '/login';
+        }
     };
 
     const navItems = [
-        { name: 'home', icon: <ChatIcon />, tooltip: 'Mis Conversaciones' },
-        { name: 'inbox', icon: <InboxIcon />, tooltip: 'Bandeja de Entrada', badge: unReadMessages },
-        { name: 'follow', icon: <FilterIcon />, tooltip: 'Seguimientos' },
-        { name: 'contacts', icon: <ContactsIcon />, tooltip: 'Contactos' },
-        { name: 'InternalChat', icon: <TeamChatIcon />, tooltip: 'Chat de Equipo', badge: hasUnread > 0 },
-    ];
+        { 
+            name: 'home', 
+            icon: <ChatIcon />, 
+            tooltip: 'Mis Conversaciones',
+            badge: false
+        },
+        { 
+            name: 'inbox', 
+            icon: <InboxIcon />, 
+            tooltip: 'Bandeja de Entrada', 
+            badge: Boolean(unReadMessages)
+        },
+        { 
+            name: 'follow', 
+            icon: <FilterIcon />, 
+            tooltip: 'Seguimientos',
+            badge: false
+        },
+        { 
+            name: 'contacts', 
+            icon: <ContactsIcon />, 
+            tooltip: 'Contactos',
+            badge: false
+        },
+        { 
+            name: 'InternalChat', 
+            icon: <TeamChatIcon />, 
+            tooltip: 'Chat de Equipo', 
+            badge: hasUnread > 0 
+        },
+    ].filter(Boolean); // Remove any null/undefined items
 
     return (
         <div className="h-full w-16 bg-gray-800 flex flex-col items-center justify-between py-4 shadow-md border-r border-gray-700">
