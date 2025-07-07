@@ -180,7 +180,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         return (
                                             <div
                                                 key={folio._id}
-                                                className={`flex items-start p-3 cursor-pointer border-l-4 ${isActive ? 'border-primary-500 bg-blue-50' : 'border-transparent hover:bg-gray-50'}`}
+                                                className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
                                                 onClick={() => {
                                                     setVFolio(folio._id);
                                                     setMessageToSend('');
@@ -230,6 +230,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         vFolio={vFolio}
                                         countunReadMsg={countunReadMsg}
                                         dispatchCount={dispatchCount}
+                                        availableCh={availableCh}   
                                     />
                                 </div>
                                 {toolsOpen && (
@@ -257,7 +258,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     color="primary"
                                     variant="shadow"
                                     className="absolute top-1/2 -translate-y-1/2 z-10 transition-all rounded-full"
-                                    onClick={hideTools}
+                                    onPress={hideTools}
                                     style={{ right: toolsOpen ? 'calc(24rem - 1rem)' : '0.5rem' }}
                                 >
                                     {toolsOpen ? <ChevronRightIcon className="w-5 h-5" /> : <ChevronLeftIcon className="w-5 h-5" />}

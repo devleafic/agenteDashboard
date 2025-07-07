@@ -1,7 +1,7 @@
 import React, {useContext, useState, useRef, useEffect, useCallback} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
-import { Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
-import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox } from 'lucide-react';
+import {Snippet, Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
+import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
@@ -17,11 +17,12 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 import { Editor } from '@tinymce/tinymce-react';
 
-const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo}) => {
+const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
-    console.log('boxMessage update',boxMessage)
+    //console.log('boxMessage update',boxMessage)
+    //console.log('availableCh update',availableCh)
 
     const [channel, setChannel] = useState(null);
     const [typeFolio, setTypeFolio] = useState(null);
@@ -1038,14 +1039,68 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         }
     };
 
+    const getChannelIcon = (channelName) => {
+        try {
+            if (!channelName || typeof channelName !== 'string') {
+                return <MessageCircle className="w-5 h-5 text-gray-400" />;
+            }
+
+            const ch = Array.isArray(availableCh) 
+                ? availableCh.find(c => c && c.id === channelName) 
+                : null;
+
+            if (ch?.image) {
+                return <img 
+                    src={ch.image} 
+                    alt={channelName} 
+                    className="w-5 h-5" 
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                    }}
+                />;
+            }
+
+            const iconProps = {
+                className: 'w-5 h-5 text-gray-400'
+            };
+
+            switch (channelName.toLowerCase()) {
+                case 'voice':
+                case 'call':
+                    return <PhoneCallIcon {...iconProps} />;
+                case 'email':
+                    return <MailOpen {...iconProps} />;
+                default:
+                    return <MessageCircle {...iconProps} />;
+            }
+        } catch (error) {
+            console.error('Error in getChannelIcon:', error);
+            return <MessageCircle className="w-5 h-5 text-gray-400" />;
+        }
+    }
+
     return (
         <>
             <div className="flex flex-col h-full bg-gray-50">
                 {/* Header */}
                 <div className="p-4 border-b bg-white shadow-sm shrink-0">
-                    <h2 className="text-xl font-bold text-gray-800">
-                        {typeFolio === '_CALL_' ? 'Llamada' : typeFolio === '_EMAIL_' ? `Correo con: ${folio.person.anchor}` : typeFolio === '_MESSAGES_' ? `Conversación con: ${alias}` : 'Hilo'}
-                    </h2>
+                    <div className="flex items-baseline gap-2">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            {typeFolio === '_CALL_' 
+                                ? 'Llamada' 
+                                : typeFolio === '_EMAIL_' 
+                                    ? `Correo con: ${folio.person.anchor}` 
+                                    : typeFolio === '_MESSAGES_' 
+                                        ? `Conversación con: ${alias}` 
+                                        : 'Hilo'}
+                        </h2>
+                        {typeFolio === '_MESSAGES_' && folio?.channel?.name && (
+                            <div className="flex-shrink-0 mt-1">
+                                {getChannelIcon(folio.channel.name)}
+                            </div>
+                        )}
+                    </div>
                     {typeFolio === '_EMAIL_' && (
                         <div className="mt-2 text-sm text-gray-600">
                             <div className="font-semibold">{fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}</div>
@@ -1056,11 +1111,21 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                         </div>
                     )}
                     <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <Chip color="primary" variant="bordered">#{folio._id}</Chip>
-                        <Chip color="default" variant="flat">{folio.person.anchor}</Chip>
+                        <Snippet color="primary" variant="bordered">{folio._id}</Snippet>
+                        <Snippet color="success" variant="flat">{folio.person.anchor}</Snippet>
                         {folio.isGlobalQueue && <Chip color="secondary" variant="flat" startContent={<Globe className="w-4 h-4"/>}>Global</Chip>}
-                        <Chip color="default" variant="flat">{folio.service.name}</Chip>
-                        <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Box className="w-4 h-4"/>}>{folio.channel.title}</Chip>
+                        <Chip 
+                            color="default" 
+                            variant="flat" 
+                            className='hidden sm:flex items-center gap-1' 
+                            startContent={
+                                <div className="w-4 h-4 flex items-center justify-center">
+                                    {getChannelIcon(folio.channel.name)}
+                                </div>
+                            }
+                        >
+                            {folio.channel.title}
+                        </Chip>
                         <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Inbox className="w-4 h-4"/>}>{getLabelQueue()}</Chip>
                     </div>
                 </div>
