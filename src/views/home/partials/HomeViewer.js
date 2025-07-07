@@ -184,7 +184,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
             const dateB = new Date(b.folio?.lastMessage?.date || 0);
             return dateB - dateA;
         });
-    }, [listFolios.current, filterText, showUnreadOnly, sortBy, unReadFolios]);
+    }, [filterText, showUnreadOnly, sortBy, unReadFolios]);
 
     return (
         <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden">
