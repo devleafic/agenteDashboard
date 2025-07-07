@@ -153,7 +153,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
 
         if (userInfo) {
             const analyticsInterval = setInterval(getAnalytics, 8000);
-            setUserDetail({ ...userDetail, name: userInfo.profile.name, prefetch: 'Asignación automatica: ' + userInfo.service.prefetch });
+            setUserDetail({ ...userDetail, name: userInfo.profile.name, prefetch: userInfo.service.prefetch });
             loadActivitiesAndConfig();
             return () => clearInterval(analyticsInterval);
         }
@@ -202,7 +202,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         <>
             <Navbar isBordered maxWidth="full" className="bg-gray-800 text-white h-16 shadow-md">
                 <NavbarBrand className="mr-4">
-                    <p className="font-bold text-inherit">Agente</p>
+                    <p className="font-bold text-inherit">Inbox Central</p>
                 </NavbarBrand>
 
                 <NavbarContent className="hidden sm:flex gap-4" justify="start">
@@ -219,10 +219,13 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         </Dropdown>
                     </NavbarItem>
                     <NavbarItem>
-                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">En Cola</span></Badge>
+                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">Pendientes de Asignación</span></Badge>
                     </NavbarItem>
                     <NavbarItem>
-                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot</span></Badge>
+                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot Atendiendo</span></Badge>
+                    </NavbarItem>
+                    <NavbarItem>
+                        <Badge color="secondary" content={userDetail.prefetch} shape="circle"><span className="mr-2">Asignación automática</span></Badge>
                     </NavbarItem>
                 </NavbarContent>
 
@@ -241,7 +244,10 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         </NavbarItem>
                     )}
                     <NavbarItem>
-                        <User name={userDetail.name} description={userDetail.prefetch} avatarProps={{ src: userDetail.profilePicture }} />
+                        <Chip color="primary" classNames={{
+                            base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                            content: "drop-shadow shadow-black text-white",
+                        }} variant="shadow">{userDetail.name}</Chip>
                     </NavbarItem>
                 </NavbarContent>
             </Navbar>
