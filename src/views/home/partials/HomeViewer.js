@@ -112,9 +112,17 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                 return null;
         }
         return (
-            <div className="flex items-center justify-center h-full p-10">
-                <div className={`border-l-4 p-4 rounded-r-lg ${colorClass}`} role="alert">
-                    <p className="font-bold">{icon} {header}</p>
+            <div className="flex items-center justify-center h-full p-6">
+                <div className={`w-full max-w-2xl border-l-4 p-6 rounded-2xl shadow-md transition-all duration-300 transform hover:scale-[1.01] ${colorClass}`} role="alert">
+                    <div className="flex items-center space-x-4">
+                        <span className="text-2xl">{icon}</span>
+                        <p className="text-lg font-semibold">{header}</p>
+                    </div>
+                    {isConnected === 1 && (
+                        <p className="mt-3 text-base text-gray-700">
+                            Estamos listos para atender tus mensajes y llamadas. Te notificaremos cuando tengas una nueva conversación.
+                        </p>
+                    )}
                 </div>
             </div>
         );
@@ -123,13 +131,13 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const activeFolioData = vFolio ? listFolios.current.find(f => f.folio._id === vFolio) : null;
 
     return (
-        <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50">
+        <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden">
             {loadPage ? (
                 <div className="flex items-center justify-center w-full"><p>Cargando...</p></div>
             ) : (
                 <>
                     {/* Left Column: Chat List */}
-                    <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
+                    <div className="w-80 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
                         <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10 shadow-sm">
                             <h2 className="text-xl font-extrabold text-gray-900 mb-4">Conversaciones</h2>
                             <Input
@@ -140,9 +148,10 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                 value={filterText}
                                 onValueChange={setFilterText}
                                 onClear={() => setFilterText('')}
+                                className="max-w-full"
                             />
                         </div>
-                        <div className="flex-grow overflow-y-auto">
+                        <div className="flex-grow overflow-y-auto overflow-x-hidden">
                             {listFolios.current.length > 0 ? (
                                 listFolios.current
                                     .filter(item => {
@@ -180,7 +189,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         return (
                                             <div
                                                 key={folio._id}
-                                                className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
+                                                className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
                                                 onClick={() => {
                                                     setVFolio(folio._id);
                                                     setMessageToSend('');
@@ -188,15 +197,26 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                     dispatch({ type: 'read', folio: folio._id });
                                                 }}
                                             >
-                                                <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
-                                                    <Avatar src={folio.person.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} />
-                                                </Badge>
-                                                <div className="flex-grow ml-3 overflow-hidden">
-                                                    <div className="flex justify-between items-center">
-                                                        <p className="font-bold text-sm text-gray-800 truncate">{folio.person.aliasId || folio.person.anchor}</p>
-                                                        {channelIcon}
+                                                <div className="flex-shrink-0 relative">
+                                                    <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
+                                                        <Avatar 
+                                                            src={folio.person.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} 
+                                                            className="w-10 h-10"
+                                                        />
+                                                    </Badge>
+                                                </div>
+                                                <div className="min-w-0 flex-1 ml-3 overflow-hidden">
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <p className="font-bold text-sm text-gray-800 truncate pr-2">
+                                                            {folio.person.aliasId || folio.person.anchor}
+                                                        </p>
+                                                        <div className="flex-shrink-0">
+                                                            {channelIcon}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs font-medium text-gray-600 truncate">{secondaryText}</p>
+                                                    <p className="text-xs font-medium text-gray-600 truncate">
+                                                        {secondaryText}
+                                                    </p>
                                                 </div>
                                             </div>
                                         );
