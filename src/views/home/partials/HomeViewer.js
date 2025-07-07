@@ -138,13 +138,23 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
     const activeFolioData = vFolio ? listFolios.current.find(f => f.folio._id === vFolio) : null;
 
+    // Use a ref to store the previous unread state to stabilize sorting
+    const prevUnreadRef = useRef(unReadFolios);
+    useEffect(() => {
+        prevUnreadRef.current = unReadFolios;
+    });
+
     const processedFolios = useMemo(() => {
         if (!listFolios.current) return [];
+
+        // Use the unread state from the *previous* render for filtering and sorting to prevent jarring UI changes.
+        const unreadSource = prevUnreadRef.current || unReadFolios;
 
         const filtered = listFolios.current.filter(item => {
             if (!item?.folio) return false;
             
-            if (showUnreadOnly && (!unReadFolios || !unReadFolios[item.folio._id])) {
+            // When "Unread only" is active, use the stabilized unread list.
+            if (showUnreadOnly && (!unreadSource || !unreadSource[item.folio._id])) {
                 return false;
             }
 
@@ -162,8 +172,9 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
         return [...filtered].sort((a, b) => {
             if (sortBy === 'unread') {
-                const aIsUnread = unReadFolios && a.folio?._id ? !!unReadFolios[a.folio._id] : false;
-                const bIsUnread = unReadFolios && b.folio?._id ? !!unReadFolios[b.folio._id] : false;
+                // Use the same stabilized unread list for sorting.
+                const aIsUnread = unreadSource && a.folio?._id ? !!unreadSource[a.folio._id] : false;
+                const bIsUnread = unreadSource && b.folio?._id ? !!unreadSource[b.folio._id] : false;
                 if (aIsUnread !== bIsUnread) {
                     return bIsUnread - aIsUnread;
                 }
