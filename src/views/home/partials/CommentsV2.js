@@ -1,6 +1,6 @@
 import React, {useContext, useState, useRef, useEffect, useCallback} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
-import { Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input} from "@heroui/react";
+import { Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
@@ -1112,11 +1112,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
-                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}>
-                                        <HeroButton variant="light" isIconOnly aria-label="Adjuntar archivo" className="mr-2">
-                                            <Paperclip className="w-5 h-5 text-gray-500" />
-                                        </HeroButton>
-                                    </UploadFile>
+                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                                     <div className="flex-grow relative">
                                         <textarea
                                             key={folio?._id || 'no-folio'}
@@ -1141,9 +1137,10 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                                 setHasTextContent(value.trim() !== '');
                                 
 
-                                                // Auto-resize textarea
+                                                // Limitar a 4 líneas con scroll
                                                 e.target.style.height = 'auto';
-                                                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                                                const maxHeight = 4 * 24; // 4 líneas * 24px por línea
+                                                e.target.style.overflowY = e.target.scrollHeight > maxHeight ? 'auto' : 'hidden';
                                                 
                                                 // Save draft with debounce
                                                 if (folio?._id) {
@@ -1153,15 +1150,33 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                             }}
 
                                             onPaste={handlePaste}
-                                            className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[200px] overflow-y-auto p-2"
+                                            className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[6rem] overflow-y-auto p-2"
                                             rows={4}
-                                            style={{ display: 'block', width: '100%' }}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                maxHeight: '6rem',
+                                                lineHeight: '1.25rem',
+                                                overflowY: 'auto',
+                                                scrollbarWidth: 'thin',
+                                                scrollbarColor: '#cbd5e0 #f7fafc',
+                                                '&::-webkit-scrollbar': {
+                                                    width: '6px',
+                                                },
+                                                '&::-webkit-scrollbar-track': {
+                                                    background: '#f7fafc',
+                                                },
+                                                '&::-webkit-scrollbar-thumb': {
+                                                    backgroundColor: '#cbd5e0',
+                                                    borderRadius: '3px',
+                                                },
+                                            }}
                                             disabled={isLoading}
                                         />
                                         {/* Auto-save indicator */}
                                         {showAutoSaveIndicator && (
-                                            <div className="absolute -top-6 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-md transition-opacity duration-300">
-                                                {indicatorMessage}
+                                            <div className="absolute -top-5 right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded transition-opacity duration-300">
+                                                <Save className="w-3 h-3" />
                                             </div>
                                         )}
                                         {hasTextContent && (
@@ -1198,14 +1213,16 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                     {showAutoSaveIndicator && <span style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <HeroButton size="sm" variant='ghost' onClick={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
+                                <ButtonGroup>
+                                    <HeroButton size="sm" variant='ghost' color="success" onPress={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
                                         <Save className="w-4 h-4 mr-1" />
-                                        Guardar y Cerrar
+                                        Continuar mas tarde
                                     </HeroButton>
-                                    <HeroButton size="sm" variant='ghost' color="success" onClick={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio}>
+                                    <HeroButton size="sm" variant='ghost' color="danger" onPress={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio}>
                                         <LogOut className="w-4 h-4 mr-1" />
                                         Finalizar
                                     </HeroButton>
+                                    </ButtonGroup>
                                 </div>
                             </div>
                         </div>
@@ -1253,6 +1270,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                             Adjuntar
                                         </HeroButton>
                                     </UploadMultipleFiles>
+                                    
                                     <HeroButton 
                                         color="primary" 
                                         aria-label="Enviar correo"
@@ -1288,11 +1306,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
-                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}>
-                                        <HeroButton variant="light" isIconOnly aria-label="Adjuntar archivo" className="mr-2">
-                                            <Paperclip className="w-5 h-5 text-gray-500" />
-                                        </HeroButton>
-                                    </UploadFile>
+                                    <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh}/>
                                     <div className="flex-grow relative">
                                         <textArea
                                             ref={textArea}
