@@ -26,6 +26,7 @@ import {
   Divider
 } from "@heroui/react";
 import { SearchIcon, PlusIcon, UserCircle, Phone, Mail, Calendar, User, X, Check, MessageSquare, FolderOpen } from 'lucide-react';
+import MessageBubble from './MessageBubble';
 import SocketContext from '../../../controladores/SocketContext';
 import shortParagraph from './../../../img/short-paragraph.png';
 
@@ -212,32 +213,17 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           );
         }
 
-        // Mostrar los mensajes del folio
+        // Mostrar los mensajes del folio usando el componente MessageBubble
         const messages = folioData.message?.map((msg, idx) => (
-          <div 
-            key={idx} 
-            className={`mb-4 p-3 rounded-lg max-w-[80%] ${
-              msg.from === 'agent' 
-                ? 'bg-blue-100 ml-auto' 
-                : 'bg-gray-100 mr-auto'
-            }`}
-          >
-            <div className="font-semibold">
-              {msg.from === 'agent' 
-                ? `Agente: ${msg.agentName || 'Sistema'}` 
-                : `Cliente: ${aliasIdPerson}`}
-            </div>
-            <div className="whitespace-pre-wrap">{msg.message}</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {new Date(msg.createdAt).toLocaleString()}
-            </div>
+          <div key={idx} className="w-full">
+             <MessageBubble key={msg._id} message={msg}/>
           </div>
         )) || [];
 
         setHistoryContent(
           <div className="space-y-4">
             {statusInfo}
-            <div className="space-y-2 max-h-96 overflow-y-auto p-2">
+            <div className="space-y-2 max-h-96 overflow-y-auto p-4 bg-gray-50 rounded-lg">
               {messages.length > 0 ? messages : 'No hay mensajes en este folio.'}
             </div>
           </div>
