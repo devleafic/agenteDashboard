@@ -16,7 +16,7 @@ import CallContext from '../../controladores/CallContext';
 import HomeViewer from './partials/HomeViewer';
 import Inbox from './partials/Inbox';
 import Follow from './partials/Follow';
-import Contacts from './partials/Contacts';
+import Contacts from './partials/ContactsV2';
 import Calendar from './partials/Calendar';
 import InternalChat from './internalChat/InternalChat';
 
