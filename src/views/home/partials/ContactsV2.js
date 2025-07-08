@@ -23,9 +23,9 @@ import {
   CardBody,
   CardHeader,
   Spinner,
-  Divider
+  Divider,Tooltip
 } from "@heroui/react";
-import { SearchIcon, PlusIcon, UserCircle, Phone, Mail, Calendar, User, X, Check, MessageSquare, FolderOpen } from 'lucide-react';
+import { SearchIcon, PlusIcon, UserCircle, Phone, Mail, Calendar, User, X, Check, MessageSquare, FolderOpen, XCircle } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import SocketContext from '../../../controladores/SocketContext';
 import shortParagraph from './../../../img/short-paragraph.png';
@@ -542,10 +542,12 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             <TableHeader>
               <TableColumn>#</TableColumn>
               <TableColumn>NOMBRE</TableColumn>
-              <TableColumn>TELÉFONO</TableColumn>
+              <TableColumn>ID CLIENTE</TableColumn>
               <TableColumn>ÚLTIMO FOLIO</TableColumn>
               <TableColumn>STATUS FOLIO</TableColumn>
               <TableColumn>ÚLTIMA BANDEJA</TableColumn>
+              <TableColumn>DISPONIBILIDAD</TableColumn>
+              <TableColumn>OTROS FOLIOS</TableColumn>
               <TableColumn>CANAL</TableColumn>
               <TableColumn>IDENTIFICADOR CANAL</TableColumn>
               <TableColumn>FECHA DE CREACIÓN</TableColumn>
@@ -589,18 +591,62 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      row.statusFolio === 'abierto' ? 'bg-green-100 text-green-800' : 
-                      row.statusFolio === 'cerrado' ? 'bg-red-100 text-red-800' : 
-                      'bg-gray-100 text-gray-800'
+                  <span>{row.originalData.fromInbox ? 'Privado' : 'General' }</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-md whitespace-nowrap ${
+                      row.statusFolio === 'Atención' || row.statusFolio === 'Atención Agente' 
+                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 
+                      row.statusFolio === 'Guardado' 
+                        ? 'bg-green-100 text-green-800 border border-green-200' : 
+                      row.statusFolio === 'Finalizado' 
+                        ? 'bg-red-100 text-red-800 border border-red-200' :
+                      row.statusFolio === 'Bot' 
+                        ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                      row.statusFolio === 'Fuera de horario' 
+                        ? 'bg-gray-100 text-gray-600 border border-gray-200' :
+                      'bg-gray-100 text-gray-800 border border-gray-200'
                     }`}>
-                      {row.statusFolio || 'N/A'}
+                      {row.statusFolio === 'Atención Agente' ? 'Atención' : row.statusFolio || 'N/A'}
                     </span>
                   </TableCell>
                   <TableCell>{row.queue || 'N/A'}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(row.originalData?.otherFolios) ? (
+                        <>
+                          {row.originalData.otherFolios.slice(0, 3).map((folio, idx) => {
+                            // Asegurarnos de que folio es un string válido
+                            const folioStr = String(folio || '').trim();
+                            return folioStr ? (
+                              <Tooltip key={idx} content={`Ver folio ${folioStr}`}>
+                                <span 
+                                  className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-md whitespace-nowrap hover:bg-blue-100 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    getFolioMessages(folioStr, row.anchor, row.aliasId, row.channel, row.queue);
+                                  }}
+                                >
+                                  {folioStr}
+                                </span>
+                              </Tooltip>
+                            ) : null;
+                          })}
+                          {row.originalData.otherFolios.length > 3 && (
+                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded-md">
+                              +{row.originalData.otherFolios.length - 3} más
+                            </span>
+                          )}
+                          {row.originalData.otherFolios.length === 0 && 'N/A'}
+                        </>
+                      ) : (
+                        'N/A'
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{row.channel || 'N/A'}</TableCell>
                   <TableCell>{row.channelAnchor || 'N/A'}</TableCell>
-                  <TableCell>{row.createdAt || 'N/A'}</TableCell>
+                  <TableCell>{row.createdAt ? new Date(row.createdAt).toLocaleDateString() : 'N/A'}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button 
@@ -608,21 +654,38 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                         color="primary"
                         variant="flat"
                         onPress={() => {
-                          setSelectedContact(row);
                           getFolioMessages(row.lastFolio, row.anchor, row.aliasId, row.channel, row.queue);
                         }}
                         startContent={<FolderOpen className="h-4 w-4" />}
                       >
                         Historial
                       </Button>
-                      <Button 
-                        size="sm" 
-                        color="secondary"
-                        onPress={() => setSelectedContact(row)}
-                        startContent={<MessageSquare className="h-4 w-4" />}
+                      <Tooltip 
+                        content={
+                          row.originalData.fromInbox  === true || row.originalData.fromInbox === 'true' 
+                            ? 'No se puede chatear con un contacto de inbox privado' 
+                            : row.statusFolio === 'Atención Agente' 
+                              ? 'No se puede chatear con un folio en estado "Atención Agente"' 
+                              : 'Iniciar conversación con este contacto'
+                        }
+                        placement="top"
                       >
-                        Chatear
-                      </Button>
+                        <div className="inline-block">
+                          <Button 
+                            size="sm" 
+                            color="secondary"
+                            isDisabled={
+                              row.originalData.fromInbox === true || 
+                              row.originalData.fromInbox === 'true' || 
+                              row.statusFolio === 'Atención Agente'
+                            }
+                            onPress={() => setSelectedContact(row)}
+                            startContent={<MessageSquare className="h-4 w-4" />}
+                          >
+                            Chatear
+                          </Button>
+                        </div>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -702,8 +765,40 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   const renderActionModal = () => {
     if (!selectedContact) return null;
     
-    const { lastFolio, anchor, aliasId, channel, queue, statusFolio } = selectedContact;
+    const { lastFolio, anchor, aliasId, channel, queue, statusFolio, inboxPrivado } = selectedContact;
     const isOpen = statusFolio === 'abierto' || statusFolio === 'reabierto';
+    const isInboxPrivado = inboxPrivado === true || inboxPrivado === 'true';
+    
+    // Si es un inbox privado, mostramos un mensaje de error
+    if (isInboxPrivado) {
+      return (
+        <Modal isOpen={!!selectedContact} onClose={() => setSelectedContact(null)}>
+          <ModalContent>
+            <ModalHeader className="flex flex-col gap-1">
+              Acción no permitida
+            </ModalHeader>
+            <ModalBody>
+              <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
+                <div className="flex-shrink-0">
+                  <XCircle className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-red-800">No se puede iniciar una conversación</h3>
+                  <p className="text-sm text-red-700 mt-1">
+                    No es posible iniciar una conversación con un contacto de inbox privado.
+                  </p>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={() => setSelectedContact(null)}>
+                Cerrar
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      );
+    }
     
     return (
       <Modal isOpen={!!selectedContact} onClose={() => setSelectedContact(null)}>
@@ -766,33 +861,61 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       {renderActionModal()}
       <Card className="shadow-sm">
         <CardHeader className="border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Contactos</h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Selecciona un contacto para crear o continuar una conversación
-              </p>
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Contactos</h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Selecciona un contacto para crear o continuar una conversación
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-64">
+                  <Input
+                    isClearable
+                    placeholder="Buscar por nombre, teléfono..."
+                    startContent={<SearchIcon className="h-4 w-4 text-gray-400" />}
+                    value={query}
+                    onValueChange={setQuery}
+                    onClear={() => setQuery("")}
+                    isDisabled={!userInfo.allowFindFolios}
+                    className="w-full"
+                  />
+                </div>
+                <Button 
+                  color="primary" 
+                  startContent={<PlusIcon className="h-4 w-4" />}
+                  onPress={() => setShowModalContact(true)}
+                >
+                  Nuevo Contacto
+                </Button>
+              </div>
             </div>
-            <Button 
-              color="primary" 
-              startContent={<PlusIcon className="h-4 w-4" />}
-              onPress={() => setShowModalContact(true)}
-            >
-              Nuevo Contacto
-            </Button>
-          </div>
-          
-          <div className="mt-4">
-            <Input
-              isClearable
-              placeholder="Buscar por nombre, teléfono..."
-              startContent={<SearchIcon className="h-4 w-4 text-gray-400" />}
-              value={query}
-              onValueChange={setQuery}
-              onClear={() => setQuery("")}
-              className="max-w-md"
-              isDisabled={!userInfo.allowFindFolios}
-            />
+            
+            {userInfo.allowFindFolios && (
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <span className="inline-block w-3 h-3 rounded-full bg-yellow-100 border border-yellow-300 mr-2"></span>
+                  <span>Atención</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-block w-3 h-3 rounded-full bg-green-100 border border-green-300 mr-2"></span>
+                  <span>Guardado</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-block w-3 h-3 rounded-full bg-red-100 border border-red-300 mr-2"></span>
+                  <span>Finalizado</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-block w-3 h-3 rounded-full bg-blue-100 border border-blue-300 mr-2"></span>
+                  <span>Bot</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-block w-3 h-3 rounded-full bg-gray-200 border border-gray-300 mr-2"></span>
+                  <span>Fuera de horario</span>
+                </div>
+              </div>
+            )}
           </div>
         </CardHeader>
         
