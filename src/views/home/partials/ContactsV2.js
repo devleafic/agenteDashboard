@@ -25,7 +25,7 @@ import {
   Spinner,
   Divider,Tooltip
 } from "@heroui/react";
-import { SearchIcon, PlusIcon, UserCircle, Phone, Mail, Calendar, User, X, Check, MessageSquare, FolderOpen, XCircle } from 'lucide-react';
+import { SearchIcon, CheckIcon, PlusIcon, UserCircle, Phone, Check, Calendar, User, X, MessageSquare, FolderOpen, XCircle } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import SocketContext from '../../../controladores/SocketContext';
 import shortParagraph from './../../../img/short-paragraph.png';
@@ -58,8 +58,136 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     createdByAgent: userInfo._id
   };
   
+  // Función para limpiar el formulario
+  const clearForm = () => {
+    setFormToContact(initialStateForm);
+    setShowErrorMsg(false);
+  };
+  
   const [formToContact, setFormToContact] = useState(initialStateForm);
+  const [infoService, setInfoService] = useState({ });
   const { isOpen, onOpen, onClose } = useDisclosure();
+  
+  // Cargar información del servicio al montar el componente
+  useEffect(() => {
+    const getInfoService = async () => {
+      try {
+        const result = await axios.get(`${process.env.REACT_APP_CENTRALITA}/service/${userInfo.service.id}`);
+        if (result.data) {
+          setInfoService(result.data.body.service);
+        }
+      } catch (error) {
+        console.error('Error al cargar la información del servicio:', error);
+        toast.error('Error al cargar la información del servicio');
+      }
+    };
+    
+    getInfoService();
+  }, [userInfo.service.id]);
+  
+  // Manejar cambios en los inputs del formulario
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormToContact(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+  
+  // Manejar cambios en los selects
+  const handleSelectChange = (e) => {
+    const { id, value } = e.target;
+    setFormToContact(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+  
+  // Validar el formulario
+  const validateForm = () => {
+    if (!formToContact.alias.trim() || !formToContact.anchorUser || !formToContact.idChannel) {
+      setMessageError('Todos los campos son obligatorios');
+      setShowErrorMsg(true);
+      return false;
+    }
+    
+    // Validar formato de teléfono (números únicamente, mínimo 10 dígitos)
+    const phoneRegex = /^[0-9]{10,}$/;
+    if (!phoneRegex.test(formToContact.anchorUser)) {
+      setMessageError('El teléfono debe contener al menos 10 dígitos numéricos');
+      setShowErrorMsg(true);
+      return false;
+    }
+    
+    return true;
+  };
+  
+  // Enviar el formulario
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setCreateContact(true);
+    setShowErrorMsg(false);
+    
+    
+            try{
+                Socket.connection.emit('createOrGetPerson', {
+                    formToContact : formToContact,
+                },(data) => {
+                    console.log(data)
+                    if(data.body.success){
+                        setCreateContact(true);
+                        setShowModalContact(true);
+                        clearForm();
+                        //create folio and open 
+                        let person = data.body.person
+                        let fromClosedFolio = false
+                        userInfo.service.idChannel = formToContact.idChannel
+                        createNewFolio(
+                            userInfo.service,
+                            person.anchor,
+                            person.aliasId,
+                            userInfo.service.id,
+                            userInfo.service.queue,
+                            false,
+                            person._id
+                        );
+                        setUnReadMessages(false);
+                        setOnLoad(true);
+                        // Mostrar notificación toast
+                        toast.info('Creando la conversación, por favor espera...', {
+                            position: "top-right",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                            
+                  
+
+                    }else{
+                        toast.error(data.body.message);
+                        setShowErrorMsg(true);
+                        setMessageError(data.body.message || 'Ocurrio un error al crear el usuario. Intenta mas tarde.')    
+                        setCreateContact(false);
+                        clearForm();
+                    }
+    
+                });
+           
+            } catch (error) {
+            console.error('Error al crear el contacto:', error);
+            setMessageError(error.response?.data?.message || 'Error al crear el contacto');
+            setShowErrorMsg(true);
+            clearForm();
+            } finally {
+            setCreateContact(false);
+            }
+  };
 
   // Función para cargar los contactos
   const onContactJSON = async () => {
@@ -247,6 +375,42 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     }
   };
 
+ const getFolioInfo = async (folio, anchorPerson, aliasIdPerson, status, channel, queue) => {
+    
+    try { 
+      const data = await new Promise((resolve) => {
+        Socket.connection.emit('getMessageHist', { folio }, resolve);
+      });
+      console.log(data);
+
+      if (data.success) {
+        const { folio: folioData } = data;
+        const fromInbox = folioData.fromInbox;
+        const agentName = folioData.agentAssign?.profile?.name || 'Sin asignar';
+        const contactData = {
+          lastFolio: folioData,
+          inboxPrivado: fromInbox, //text for info
+          agentName: agentName, //text for info
+          queue: queue, //text for info
+          channel: channel, //text for info
+          anchor: anchorPerson, //text for info
+          aliasId: aliasIdPerson,//text for info
+          statusFolio: status, //text for info
+        };
+        setSelectedContact(contactData);
+        return contactData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error al obtener el historial del folio:', error);
+      return null;
+    } finally {
+      console.timeEnd('getFolioInfo');
+    }
+  };
+        
+
+
   // Función para abrir un folio existente
   const openSavedFolio = async (folio, anchorPerson, aliasIdPerson, channel, queue) => {
     console.time('openSavedFolio');
@@ -265,7 +429,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       });
 
       setVFolio(folio._id);
-      toast.success(`Abriendo folio #${folio._id} - ${aliasIdPerson}`);
+      toast.success(`Abriendo conversación con ${aliasIdPerson}`);
       
       if (!data.success) {
         toast.error(data.message);
@@ -461,11 +625,6 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       console.log('Canal seleccionado:', value);
       // Aquí puedes agregar la lógica para cargar las colas si es necesario
     }
-  };
-
-  // Función para limpiar el formulario
-  const clearForm = () => {
-    setFormToContact(initialStateForm);
   };
 
   // Efecto para cargar la información del servicio y los contactos al montar el componente
@@ -679,7 +838,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                               row.originalData.fromInbox === 'true' || 
                               row.statusFolio === 'Atención Agente'
                             }
-                            onPress={() => setSelectedContact(row)}
+                            onPress={() =>  getFolioInfo(row.lastFolio, row.anchor, row.aliasId, row.statusFolio, row.channel, row.queue)}
                             startContent={<MessageSquare className="h-4 w-4" />}
                           >
                             Chatear
@@ -765,19 +924,46 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   const renderActionModal = () => {
     if (!selectedContact) return null;
     
-    const { lastFolio, anchor, aliasId, channel, queue, statusFolio, inboxPrivado } = selectedContact;
-    const isOpen = statusFolio === 'abierto' || statusFolio === 'reabierto';
+    const { lastFolio, statusFolio, inboxPrivado, aliasId, anchor, channel, queue } = selectedContact;
+    
+    // Only check for null/undefined, not falsy values like empty string or 0
+    if (
+      lastFolio == null || 
+      statusFolio == null || 
+      inboxPrivado == null || 
+      aliasId == null || 
+      anchor == null || 
+      channel == null || 
+      queue == null
+    ) {
+      console.log('Missing required fields:', { lastFolio, statusFolio, inboxPrivado, aliasId, anchor, channel, queue });
+      setSelectedContact(null);
+      toast.error('No se pudo obtener la información del folio');
+      return null;
+    }
+    
+    const openModalAction = true;
+    const isOpen = statusFolio === 'Guardado' && inboxPrivado === false;  
     const isInboxPrivado = inboxPrivado === true || inboxPrivado === 'true';
     
-    // Si es un inbox privado, mostramos un mensaje de error
-    if (isInboxPrivado) {
-      return (
-        <Modal isOpen={!!selectedContact} onClose={() => setSelectedContact(null)}>
-          <ModalContent>
-            <ModalHeader className="flex flex-col gap-1">
-              Acción no permitida
-            </ModalHeader>
-            <ModalBody>
+    const dontAllowOpenChat = lastFolio && (
+      lastFolio.fromInbox === true || 
+      lastFolio.fromInbox === 'true' || 
+      lastFolio.status === 5 || 
+      lastFolio.status === 10
+    );
+    return (
+      <Modal isOpen={openModalAction} onClose={() => setSelectedContact(null)}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            {dontAllowOpenChat
+              ? 'Acción no permitida' 
+              : !dontAllowOpenChat && (lastFolio.status === 2 || lastFolio.status === 11)
+                ? 'Continuar conversación' 
+                : 'Nueva conversación'}
+          </ModalHeader>
+          <ModalBody>
+            {isInboxPrivado ? (
               <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
                 <div className="flex-shrink-0">
                   <XCircle className="h-6 w-6 text-red-600" />
@@ -789,66 +975,59 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                   </p>
                 </div>
               </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={() => setSelectedContact(null)}>
-                Cerrar
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      );
-    }
-    
-    return (
-      <Modal isOpen={!!selectedContact} onClose={() => setSelectedContact(null)}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            {isOpen ? 'Continuar conversación' : 'Nueva conversación'}
-          </ModalHeader>
-          <ModalBody>
-            <p className="mb-4">
-              {isOpen
-                ? `¿Deseas continuar la conversación con ${aliasId}?`
-                : `¿Deseas iniciar una nueva conversación con ${aliasId}?`}
-            </p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p><strong>Teléfono:</strong> {anchor}</p>
-              <p><strong>Canal:</strong> {channel}</p>
-              <p><strong>Estado actual:</strong> {statusFolio}</p>
-            </div>
+            ) : (
+              <>
+                <p className="mb-4">
+                  {isOpen
+                    ? `¿Deseas continuar la conversación con ${aliasId}?`
+                    : `¿Deseas iniciar una nueva conversación con ${aliasId}?`}
+                </p>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p><strong>Teléfono:</strong> {anchor}</p>
+                  <p><strong>Canal:</strong> {channel}</p>
+                  <p><strong>Estado actual:</strong> {statusFolio}</p>
+                </div>
+              </>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" variant="light" onPress={() => setSelectedContact(null)}>
-              Cancelar
-            </Button>
             <Button 
-              color="primary" 
-              onPress={() => {
-                if (isOpen) {
-                  openSavedFolio(
-                    { _id: lastFolio },
-                    anchor,
-                    aliasId,
-                    channel,
-                    queue
-                  );
-                } else {
-                  createNewFolio(
-                    { _id: lastFolio },
-                    anchor,
-                    aliasId,
-                    channel,
-                    queue,
-                    false,
-                    selectedContact.originalData?._id
-                  );
-                }
-                setSelectedContact(null);
-              }}
+              color={isInboxPrivado ? "danger" : "default"} 
+              variant="light" 
+              onPress={() => setSelectedContact(null)}
             >
-              {isOpen ? 'Continuar' : 'Nueva conversación'}
+              {isInboxPrivado ? 'Cerrar' : 'Cancelar'}
             </Button>
+            
+            {!isInboxPrivado && !dontAllowOpenChat && (
+              <Button 
+                color="primary" 
+                onPress={() => {
+                  if (lastFolio.status === 2 || lastFolio.status === 11 && !lastFolio.fromInbox) {
+                    openSavedFolio(
+                      lastFolio,
+                      anchor,
+                      aliasId,
+                      channel,
+                      queue
+                    );
+                  } else if (lastFolio.status ===3) {
+                    createNewFolio(
+                      lastFolio,
+                      anchor,
+                      aliasId,
+                      channel,
+                      queue,
+                      true,
+                      lastFolio._id
+                    );
+                  }
+                  setSelectedContact(null);
+                }}
+              >
+                {isOpen ? 'Continuar' : 'Nueva conversación'}
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -859,6 +1038,106 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     <div className="p-6">
       {renderHistoryModal()}
       {renderActionModal()}
+      
+      {/* Modal de Nuevo Contacto */}
+      <Modal isOpen={showModalContact} onClose={() => {
+        setShowModalContact(false);
+        clearForm();
+      }} size="md">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            {formToContact.isNew ? 'Crear nuevo Contacto' : 'Editar Contacto'}
+          </ModalHeader>
+          <form onSubmit={handleSubmit}>
+            <ModalBody>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="alias" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre del contacto
+                  </label>
+                  <Input
+                    id="alias"
+                    placeholder="Nombre del Contacto"
+                    value={formToContact.alias}
+                    onChange={handleInputChange}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="anchorUser" className="block text-sm font-medium text-gray-700 mb-1">
+                    Télefono / Obligatorio código de país y área (50255170000)
+                  </label>
+                  <Input
+                    id="anchorUser"
+                    type="number"
+                    placeholder="Télefono"
+                    value={formToContact.anchorUser}
+                    onChange={handleInputChange}
+                    disabled={!formToContact.isNew}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="idChannel" className="block text-sm font-medium text-gray-700 mb-1">
+                    Selecciona un canal
+                  </label>
+                  <select
+                    id="idChannel"
+                    value={formToContact.idChannel}
+                    onChange={handleSelectChange}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Selecciona un canal</option>
+                    {Array.isArray(infoService?.channels) && infoService.channels
+                      .filter(channel => channel?.status && channel?.name?.toLowerCase()?.includes("wab",0))
+                      .map(channel => (
+                        <option key={channel?._id} value={channel?._id}>
+                          {channel?.title || 'Canal sin nombre'}
+                        </option>
+                      ))}
+                    {(!infoService?.channels || infoService.channels.length === 0) && (
+                      <option value="" disabled>No hay canales disponibles</option>
+                    )}
+                  </select>
+                </div>
+                
+                {showErrorMsg && (
+                  <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+                    <div className="flex items-center">
+                      <XCircle className="h-5 w-5 mr-2" />
+                      <span>{messageError}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button 
+                color="danger" 
+                variant="light" 
+                onPress={() => {
+                  setShowModalContact(false);
+                  clearForm();
+                }}
+                disabled={createContact}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                color="primary" 
+                type="submit"
+                isLoading={createContact}
+                startContent={!createContact && <CheckIcon className="h-4 w-4" />}
+              >
+                {formToContact.isNew ? 'Crear Contacto' : 'Guardar Cambios'}
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+      
       <Card className="shadow-sm">
         <CardHeader className="border-b border-gray-200 px-6 py-4">
           <div className="flex flex-col space-y-4">
@@ -924,103 +1203,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
         </CardBody>
       </Card>
 
-      {/* Modal para nuevo contacto */}
-      <Modal isOpen={showModalContact} onClose={() => setShowModalContact(false)} size="lg">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            {formToContact.isNew ? 'Nuevo Contacto' : 'Editar Contacto'}
-          </ModalHeader>
-          <ModalBody>
-            {showErrorMsg && (
-              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <X className="h-5 w-5 text-red-400" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{messageError}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Nombre del contacto</label>
-                <Input
-                  id="alias"
-                  placeholder="Nombre del contacto"
-                  value={formToContact.alias}
-                  onChange={setDataForm}
-                  fullWidth
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Teléfono <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="anchorUser"
-                  placeholder="Código de país + número (ej: 50255170000)"
-                  value={formToContact.anchorUser}
-                  onChange={setDataForm}
-                  fullWidth
-                />
-                <p className="text-xs text-gray-500 mt-1">Formato: Código de país + número sin espacios ni caracteres especiales</p>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Canal</label>
-                <Select
-                  name="idChannel"
-                  selectedKeys={formToContact.idChannel ? [formToContact.idChannel] : []}
-                  onChange={(value) => setDataFormCombo(value, 'idChannel')}
-                  className="w-full"
-                  placeholder="Selecciona un canal"
-                >
-                  <SelectItem key="whatsapp" value="whatsapp">WhatsApp</SelectItem>
-                  <SelectItem key="messenger" value="messenger">Messenger</SelectItem>
-                  <SelectItem key="instagram" value="instagram">Instagram</SelectItem>
-                  <SelectItem key="web" value="web">Web</SelectItem>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Cola</label>
-                <Select
-                  name="idQueue"
-                  selectedKeys={formToContact.idQueue ? [formToContact.idQueue] : []}
-                  onChange={(value) => setDataFormCombo(value, 'idQueue')}
-                  className="w-full"
-                  isDisabled={!formToContact.idChannel}
-                  placeholder="Selecciona una cola"
-                >
-                  <SelectItem key={userInfo.service.queue} value={userInfo.service.queue}>
-                    {userInfo.service.queueName || 'Cola predeterminada'}
-                  </SelectItem>
-                </Select>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={() => {
-              setShowModalContact(false);
-              clearForm();
-            }}>
-              Cancelar
-            </Button>
-            <Button 
-              color="primary" 
-              onPress={sendForm}
-              isLoading={createContact}
-              startContent={!createContact && <Check className="h-4 w-4" />}
-            >
-              {formToContact.isNew ? 'Crear Contacto' : 'Guardar Cambios'}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+  
     </div>
   );
 };
