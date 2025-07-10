@@ -18,6 +18,7 @@ import {
     Chip,
     Switch,
     Badge,
+    Spacer,
     Modal,
     ModalContent,
     ModalHeader,
@@ -202,7 +203,15 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         <>
             <Navbar isBordered maxWidth="full" className="bg-gray-800 text-white h-16 shadow-md">
                 <NavbarBrand className="mr-4">
-                    <p className="font-bold text-inherit">Inbox Central</p>
+                <Chip color="primary" classNames={{
+                            base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                            content: "drop-shadow shadow-black text-white",
+                        }} variant="shadow">{userDetail.name}
+                        </Chip>
+                        <Spacer x={4} />
+                    <NavbarItem>
+                        <Badge color="secondary" content={userDetail.prefetch} shape="circle"><span className="mr-2"> Asignación automática</span></Badge>
+                    </NavbarItem>
                 </NavbarBrand>
 
                 <NavbarContent className="hidden sm:flex gap-4" justify="start">
@@ -224,9 +233,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     <NavbarItem>
                         <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot Atendiendo</span></Badge>
                     </NavbarItem>
-                    <NavbarItem>
-                        <Badge color="secondary" content={userDetail.prefetch} shape="circle"><span className="mr-2">Asignación automática</span></Badge>
-                    </NavbarItem>
+
                 </NavbarContent>
 
                 <NavbarContent justify="end">
@@ -244,10 +251,11 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         </NavbarItem>
                     )}
                     <NavbarItem>
+
                         <Chip color="primary" classNames={{
                             base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
                             content: "drop-shadow shadow-black text-white",
-                        }} variant="shadow">{userDetail.name}</Chip>
+                        }} variant="shadow">Inbox Central v.{process.env.REACT_APP_SYSTEM_VERSION}</Chip>
                     </NavbarItem>
                 </NavbarContent>
             </Navbar>

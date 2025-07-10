@@ -745,8 +745,8 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
               <TableColumn>ID CLIENTE</TableColumn>
               <TableColumn>ÚLTIMO FOLIO</TableColumn>
               <TableColumn>STATUS FOLIO</TableColumn>
-              <TableColumn>ÚLTIMA BANDEJA</TableColumn>
               <TableColumn>DISPONIBILIDAD</TableColumn>
+              <TableColumn>ÚLTIMA BANDEJA</TableColumn>
               <TableColumn>OTROS FOLIOS</TableColumn>
               <TableColumn>CANAL</TableColumn>
               <TableColumn>IDENTIFICADOR CANAL</TableColumn>
@@ -777,8 +777,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <span>{row.anchor || 'Sin teléfono'}</span>
+                      <span>{row.anchor || 'Sin identificador'}</span>
                     </div>
                   </TableCell>
                   <TableCell>
