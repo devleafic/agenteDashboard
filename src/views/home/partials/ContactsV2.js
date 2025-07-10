@@ -97,17 +97,11 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   
   // Realizar búsqueda cuando cambia el query
   useEffect(() => {
-    if (query !== "") {
-      const searchTimer = setTimeout(() => {
-        onContactJSON();
-      }, 500); // Debounce de 500ms
-      
-      return () => clearTimeout(searchTimer);
-    } else {
-      // Si el query está vacío, limpiar los resultados
-      setShowRows([]);
-      setReport(null);
-    }
+    const searchTimer = setTimeout(() => {
+      onContactJSON();
+    }, 500); // Debounce de 500ms
+    
+    return () => clearTimeout(searchTimer);
   }, [query]);
 
   // Función para realizar la búsqueda
