@@ -874,9 +874,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                             size="sm" 
                             color="secondary"
                             isDisabled={
-                              row.originalData.fromInbox === true || 
-                              row.originalData.fromInbox === 'true' || 
-                              row.statusFolio === 'Atención Agente'
+                              // Si el folio está en estado 'Atención Agente', deshabilitar
+                              row.statusFolio === 'Atención Agente' 
+                             
                             }
                             onPress={() =>  getFolioInfo(row.lastFolio, row.anchor, row.aliasId, row.statusFolio, row.channel, row.queue)}
                             startContent={<MessageSquare className="h-4 w-4" />}
@@ -986,24 +986,24 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     const isOpen = statusFolio === 'Guardado' && inboxPrivado === false;  
     const isInboxPrivado = inboxPrivado === true || inboxPrivado === 'true';
     
-    const dontAllowOpenChat = lastFolio && (
-      lastFolio.fromInbox === true || 
-      lastFolio.fromInbox === 'true' || 
-      lastFolio.status === 5 || 
-      lastFolio.status === 10
-    );
+    const dontAllowOpenChat = 
+      (lastFolio.fromInbox === true && lastFolio.status === 2) || 
+      lastFolio.status === 10 || 
+      lastFolio.status === 11 ||
+      lastFolio.status === 5
+    
     return (
       <Modal isOpen={openModalAction} onClose={() => setSelectedContact(null)}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             {dontAllowOpenChat
               ? 'Acción no permitida' 
-              : !dontAllowOpenChat && (lastFolio.status === 2 || lastFolio.status === 11)
+              : !dontAllowOpenChat
                 ? 'Continuar conversación' 
                 : 'Nueva conversación'}
           </ModalHeader>
           <ModalBody>
-            {isInboxPrivado ? (
+            {dontAllowOpenChat ? (
               <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
                 <div className="flex-shrink-0">
                   <XCircle className="h-6 w-6 text-red-600" />
@@ -1011,7 +1011,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 <div>
                   <h3 className="text-sm font-medium text-red-800">No se puede iniciar una conversación</h3>
                   <p className="text-sm text-red-700 mt-1">
-                    No es posible iniciar una conversación con un contacto de inbox privado.
+                    No es posible iniciar una conversación con un contacto de inbox privado  o en atención agente.
                   </p>
                 </div>
               </div>
@@ -1032,14 +1032,14 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           </ModalBody>
           <ModalFooter>
             <Button 
-              color={isInboxPrivado ? "danger" : "default"} 
+              color={dontAllowOpenChat ? "danger" : "default"} 
               variant="light" 
               onPress={() => setSelectedContact(null)}
             >
-              {isInboxPrivado ? 'Cerrar' : 'Cancelar'}
+              {dontAllowOpenChat ? 'Cerrar' : 'Cancelar'}
             </Button>
             
-            {!isInboxPrivado && !dontAllowOpenChat && (
+            {!dontAllowOpenChat && (
               <Button 
                 color="primary" 
                 onPress={() => {
