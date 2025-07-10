@@ -11,11 +11,9 @@ import {
   CardBody,
   Avatar,
   Badge,
-  Tooltip,
-  Select,
-  SelectItem
+  Tooltip
 } from '@heroui/react';
-import { Mail, Eye, FolderOpen, ArrowRight, Filter, MoreVertical, Plus, X, RefreshCw, ArrowRightLeftIcon } from 'lucide-react';
+import { Mail, Eye, FolderOpen, ArrowRight, Filter, MoreVertical, Plus, X } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
@@ -90,7 +88,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             <p className="mt-4 text-gray-600">Cargando mensajes...</p>
         </div>
     );
-    const [isLoadTransfer, setIsLoadInboxFolio] = useState(false);
 
     // Inicializar el modal
     const initLoadModal = useCallback(() => {
@@ -125,71 +122,25 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
         // Si se movió a otra etapa
         if (sourceStage !== destinationStage) {
-            // Encontrar el folio que se está moviendo
-            let folioToMove = null;
-            Object.entries(inboxes).some(([stageId, items]) => {
-                const found = items.find(item => item._id === folioId);
-                if (found) {
-                    folioToMove = { ...found };
-                    return true;
-                }
-                return false;
-            });
+            const folioToMove = Object.values(inboxes)
+                .flat()
+                .find(item => item._id === folioId);
 
             if (folioToMove) {
-                // Actualizar la interfaz de inmediato para una mejor experiencia de usuario
-                const newInboxes = { ...inboxes };
+                setFolioToTransfer(folioToMove);
+                setDestinyPipeline(destinationStage);
                 
-                // Remover de la etapa origen
-                if (newInboxes[sourceStage]) {
-                    newInboxes[sourceStage] = newInboxes[sourceStage].filter(item => item._id !== folioId);
-                }
-                
-                // Agregar a la etapa destino
-                if (!newInboxes[destinationStage]) {
-                    newInboxes[destinationStage] = [];
-                }
-                
-                // Actualizar el pipelineStage del folio
-                const updatedFolio = {
-                    ...folioToMove,
-                    pipelineStage: destinationStage
-                };
-                
-                newInboxes[destinationStage] = [
-                    ...newInboxes[destinationStage],
-                    updatedFolio
-                ];
-                
-                setInboxes(newInboxes);
-                
-                // Mostrar confirmación y realizar la transferencia real
+                // Mostrar confirmación
                 if (window.confirm(`¿Mover a ${listPipeline.find(p => p._id === destinationStage)?.name || 'esta etapa'}?`)) {
-                    // Usar setTimeout para permitir que la UI se actualice antes de la llamada al servidor
-                    setTimeout(() => {
-                        setFolioToTransfer(updatedFolio);
-                        // Usar la función directamente en lugar de la referencia
-                        const token = window.localStorage.getItem('sdToken');
-                        if (token) {
-                            socketC.connection.emit('loadInbox', { token }, () => {
-                                // Recargar el estado después de la transferencia
-                                setFolioToTransfer(updatedFolio);
-                                sendTrasnfer(destinationStage);
-                            });
-                        } else {
-                            sendTrasnfer(destinationStage);
-                        }
-                    }, 100);
+                    sendTrasnfer(destinationStage);
                 } else {
-                    // Revertir los cambios si el usuario cancela
-                    const token = window.localStorage.getItem('sdToken');
-                    if (token) {
-                        socketC.connection.emit('loadInbox', { token });
-                    }
+                    // Revertir el arrastre si el usuario cancela
+                    setFolioToTransfer(null);
+                    setDestinyPipeline(null);
                 }
             }
         }
-    }, [inboxes, listPipeline, socketC]);
+    }, [inboxes, listPipeline]);
 
     const transferPipeline = (folio) => {
         if (!folio) return;
@@ -248,6 +199,8 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         } catch (error) {
             console.error('Error en sendTrasnfer:', error);
             toast.error('Error al procesar la transferencia');
+        }
+            toast.error('Error al procesar la transferencia');
             setOpenModalTransfer(false);
         }
     };
@@ -256,42 +209,22 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         if (!inb || !mapSort) return {};
         
         const tmpSort = {};
-        
-        // Inicializar todas las etapas del pipeline
         mapSort.forEach(x => {
             if (x?._id) {
                 tmpSort[x._id] = [];
             }
         });
         
-        // Primero, procesar los elementos con pipelineStage definido
-        inb.forEach(x => {
-            if (x?.pipelineStage) {
-                if (!tmpSort[x.pipelineStage]) {
-                    // Si la etapa no existe en el mapa, la creamos
-                    tmpSort[x.pipelineStage] = [];
-                }
-                tmpSort[x.pipelineStage].push(x);
-            }
-        });
-        
-        // Luego, procesar los elementos sin pipelineStage (para compatibilidad)
-        inb.forEach(x => {
-            if (!x?.pipelineStage && x?.folio?.fromPipeline) {
-                // Si no tiene pipelineStage pero tiene fromPipeline, lo asignamos a la primera etapa
-                const firstStage = mapSort[0]?._id;
-                if (firstStage) {
-                    if (!tmpSort[firstStage]) {
-                        tmpSort[firstStage] = [];
+        inb
+            .filter(x => x?.folio?.fromPipeline === true)
+            .forEach(x => {
+                if (x?.pipelineStage) {
+                    if (!tmpSort[x.pipelineStage]) {
+                        tmpSort[x.pipelineStage] = [];
                     }
-                    // Verificar que el elemento no esté ya en el array
-                    const exists = tmpSort[firstStage].some(item => item._id === x._id);
-                    if (!exists) {
-                        tmpSort[firstStage].push(x);
-                    }
+                    tmpSort[x.pipelineStage].push(x);
                 }
-            }
-        });
+            });
 
         return tmpSort;
     }
@@ -370,19 +303,18 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                             {item.folio?.status === 3 ? (
                                 <Badge color="danger" size="sm">Finalizado</Badge>
                             ) : (
-                                <div onClick={(e) => e.stopPropagation()}>
-                                    <Tooltip content="Transferir a otra etapa">
-                                    <Button
-                                        isIconOnly
-                                        size="sm"
-                                        variant="light"
-                                        onPress={() => transferPipeline(item)}
-                                        className="text-purple-600 hover:bg-purple-50"
-                                    >
-                                        <ArrowRightLeftIcon className="w-3.5 h-3.5" />
-                                    </Button>
-                                    </Tooltip>
-                                </div>
+                                <Button
+                                    isIconOnly
+                                    size="sm"
+                                    variant="light"
+                                    onPress={(e) => {
+                                        e.stopPropagation();
+                                        transferPipeline(item);
+                                    }}
+                                    className="text-purple-600 hover:bg-purple-50"
+                                >
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                </Button>
                             )}
                         </div>
                     </div>
@@ -432,6 +364,16 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     )}
                 </Droppable>
                 
+                <div className="p-2 border-t border-gray-200">
+                    <Button 
+                        fullWidth 
+                        variant="light" 
+                        startContent={<Plus className="w-4 h-4" />}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                    >
+                        Agregar tarjeta
+                    </Button>
+                </div>
             </div>
         );
     };
@@ -482,18 +424,12 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     return;
                 }
                 
-                // Actualizar el listado de pipelines
-                setListPipeline(pipelineConfig.pipelines || []);
-                
-                // Ordenar los inboxes según las etapas del pipeline
                 const sortedInboxes = sortInboxes(data.inboxes, pipelineConfig.pipelines);
                 setInboxes(sortedInboxes || {});
                 
-                // Actualizar estado de mensajes no leídos
                 const hasUnread = filteredArray.some(x => x.status === 1);
                 setUnReadMessages(!!hasUnread);
                 
-                // Inicializar el estado de carga de folios
                 const folioList = {};
                 filteredArray.forEach(x => {
                     if (x?.folio?._id) {
@@ -629,7 +565,45 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         }
     };
 
-
+    // Función para transferir un folio a otra etapa
+                
+    const sendTrasnfer = () => {
+        if (!socketC?.connection || !folioToTransfer?._id || !destinyPipeline) {
+            toast.error('Error: Conexión o folio no válido');
+            return;
+        }
+        
+        const token = window.localStorage.getItem('sdToken');
+        if (!token) {
+            toast.error('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            return;
+        }
+        
+        try {
+            socketC.connection.emit('sendTrasnfer', {
+                token,
+                folio: folioToTransfer,
+                destinyPipeline
+            }, (res) => {
+                if (!res) {
+                    toast.error('No se recibió respuesta del servidor');
+                    return;
+                }
+                
+                if (res.success) {
+                    toast.success('Se transfirió el folio correctamente');
+                    setDestinyPipeline(null);
+                    setFolioToTransfer(null);
+                    loadInbox();
+                } else {
+                    toast.error(res.message || 'Error al transferir el folio');
+                }
+            });
+        } catch (error) {
+            console.error('Error en sendTrasnfer:', error);
+            toast.error('Error al procesar la transferencia');
+        }
+    };
 
     return (
         <div className="p-4 bg-gray-100 min-h-screen">
@@ -640,7 +614,14 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         <h2 className="text-xl font-semibold text-gray-800">Tablero de Seguimiento</h2>
                     </div>
                     <div className="flex items-center space-x-2">
- 
+                        <Button 
+                            color="primary" 
+                            variant="light" 
+                            startContent={<Plus className="w-4 h-4" />}
+                            size="sm"
+                        >
+                            Nueva Etapa
+                        </Button>
                         <Button 
                             color="primary" 
                             startContent={<RefreshCw className="w-4 h-4" />}
