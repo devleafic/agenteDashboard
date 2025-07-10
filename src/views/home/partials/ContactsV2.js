@@ -39,6 +39,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   const [showRows, setShowRows] = useState([]);
   const [query, setQuery] = useState("");
   const [isLoadInboxFolio, setIsLoadInboxFolio] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [showModalContact, setShowModalContact] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [createContact, setCreateContact] = useState(false);
@@ -94,6 +95,52 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     }));
   };
   
+  // Realizar búsqueda cuando cambia el query
+  useEffect(() => {
+    if (query !== "") {
+      const searchTimer = setTimeout(() => {
+        onContactJSON();
+      }, 500); // Debounce de 500ms
+      
+      return () => clearTimeout(searchTimer);
+    } else {
+      // Si el query está vacío, limpiar los resultados
+      setShowRows([]);
+      setReport(null);
+    }
+  }, [query]);
+
+  // Función para realizar la búsqueda
+  // const handleSearch = async () => {
+  //   if (!query.trim()) return;
+    
+  //   setIsSearching(true);
+  //   try {
+  //     const serviceId = userInfo.service.id;
+  //     const result = await axios.get(`${process.env.REACT_APP_CENTRALITA}/searchData/json/${serviceId}`, {
+  //       params: {
+  //         typeReport: 'r_crmData',
+  //         query: query
+  //       }
+  //     });
+      
+  //     setReport(result.data.report.result);
+  //     setShowRows(result.data.report.result.slice(0, numRows));
+  //     setCurrentPag(1); // Resetear a la primera página
+  //   } catch (error) {
+  //     console.error('Error al realizar la búsqueda:', error);
+  //     toast.error('Error al realizar la búsqueda');
+  //   } finally {
+  //     setIsSearching(false);
+  //   }
+  // };
+
+      // useEffect( () =>
+      // {
+      //     console.log("Load Contacts")
+      //     if (query.length === 0 || query.length > 2)  onContactJSON();
+      // },[query]);
+
   // Manejar cambios en los selects
   const handleSelectChange = (e) => {
     const { id, value } = e.target;
