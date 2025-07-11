@@ -1183,7 +1183,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Contactos</h2>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Contactos
+                </h2>
                 <p className="mt-1 text-sm text-gray-500">
                   Selecciona un contacto para crear o continuar una conversación
                 </p>

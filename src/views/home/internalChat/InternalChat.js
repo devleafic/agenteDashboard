@@ -563,40 +563,61 @@ export default function InternalChat({userInfo}) {
 
     return (<>
                  
-        <div style={{margin : 20}}>
-            <Message
-                attached
-                icon="chat"
-                header='TeamChat - Versión Beta 0.9' 
-                content='Comunicate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.'
-            /> 
+        <div className="p-5 bg-white dark:bg-zinc-800 rounded-xl shadow-sm mb-4 mx-5 mt-5 border border-gray-100 dark:border-zinc-700">
+            <div className="flex items-center">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        TeamChat
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Versión Beta 0.9</p>
+                </div>
+            </div>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                Comunícate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.
+            </p>
         </div>
         <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
    
-            <div className="internal-chat-list">
-                <div style={{marginBottom: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <div>
-                            Mi estado: {listActivites.find((x) => {return x.id === myActivitie}).emoji}
+            <div className="internal-chat-list px-5">
+                <div className="flex justify-between items-center mb-2 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                        <div className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <span className="mr-2">Mi estado:</span>
+                            <span className="text-lg">{listActivites.find((x) => x.id === myActivitie)?.emoji}</span>
                         </div>
-                        <Dropdown text='Cambiar estado' style={{marginLeft: '10px'}}>
-                            <DropdownMenu>
-                                {
-                                    listActivites.map((activity) => {
-                                        return <DropdownItem onClick={() => {
-                                            setActivitie(activity.id);
-                                        }} key={activity.id} text={`${activity.emoji} ${activity.label}`} />
-                                    })
-                                }
-                            </DropdownMenu>
-                        </Dropdown>
+                        <div className="relative">
+                            <select
+                                value={myActivitie}
+                                onChange={(e) => setActivitie(e.target.value)}
+                                className="appearance-none bg-white dark:bg-zinc-700 border border-gray-300 dark:border-zinc-600 rounded-lg pl-3 pr-8 py-1.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                            >
+                                {listActivites.map((activity) => (
+                                    <option key={activity.id} value={activity.id} className="flex items-center">
+                                        {activity.emoji} {activity.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
-                    <Button 
-                        icon="bell" 
-                        size="small" 
-                        onClick={() => setShowNotificationSettings(true)} 
+                    <button
+                        onClick={() => setShowNotificationSettings(true)}
+                        className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors duration-200"
                         title="Configuración de notificaciones"
-                    />
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
                 </div>
                 <div style={{ position: 'relative' }}>
                     <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%', marginBottom: '10px'}}

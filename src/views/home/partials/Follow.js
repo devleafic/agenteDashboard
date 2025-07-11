@@ -602,7 +602,9 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <Filter className="w-5 h-5 text-blue-600 mr-2" />
-                        <h2 className="text-xl font-semibold text-gray-800">Tablero de Seguimiento</h2>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Tablero de Seguimiento
+                        </h2>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Button 
