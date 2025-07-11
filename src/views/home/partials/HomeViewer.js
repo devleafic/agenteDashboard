@@ -238,11 +238,12 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                             wrapper: "group-data-[selected=true]:bg-gradient-to-r from-indigo-500 to-pink-500 mt-0.5",
                                         }}
                                     >
-                                        <span className="text-sm font-medium text-gray-700 ml-2">Mostrar solo no leídos</span>
+                                        <span className="text-sm font-medium text-gray-700">Solo no leídos</span>
                                     </Switch>
                                 </div>
                                 
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 flex flex-col items-end">
+                                    <span className="text-xs font-medium text-gray-500 mb-1">Ordenar por</span>
                                     <Dropdown>
                                         <DropdownTrigger>
                                             <HeroButton 
