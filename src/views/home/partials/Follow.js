@@ -134,33 +134,41 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
     }, [inboxes]);
 
     const confirmTransfer = useCallback(() => {
-        if (!pendingTransfer) return;
+        if (!folioToTransfer || !destinyPipeline) {
+            toast.error('Folio o etapa de destino no válidos');
+            return;
+        }
 
-        const { folio, sourceStage, destinationStage, sourceIndex, destinationIndex } = pendingTransfer;
+        // Si hay un pendingTransfer (flujo de arrastre), actualizar inboxes
+        if (pendingTransfer) {
+            const { folio, sourceStage, destinationStage, sourceIndex, destinationIndex } = pendingTransfer;
 
-        const newInboxes = { ...inboxes };
-        const newSourceItems = [...inboxes[sourceStage]];
-        const newDestinationItems = destinationStage in newInboxes 
-            ? [...newInboxes[destinationStage]] 
-            : [];
+            const newInboxes = { ...inboxes };
+            const newSourceItems = [...inboxes[sourceStage]];
+            const newDestinationItems = destinationStage in newInboxes 
+                ? [...newInboxes[destinationStage]] 
+                : [];
 
-        newSourceItems.splice(sourceIndex, 1);
-        const updatedFolio = {
-            ...folio,
-            pipelineStage: destinationStage
-        };
-        newDestinationItems.splice(destinationIndex, 0, updatedFolio);
+            newSourceItems.splice(sourceIndex, 1);
+            const updatedFolio = {
+                ...folio,
+                pipelineStage: destinyPipeline
+            };
+            newDestinationItems.splice(destinationIndex, 0, updatedFolio);
 
-        setInboxes({
-            ...newInboxes,
-            [sourceStage]: newSourceItems,
-            [destinationStage]: newDestinationItems
-        });
+            setInboxes({
+                ...newInboxes,
+                [sourceStage]: newSourceItems,
+                [destinationStage]: newDestinationItems
+            });
+        }
 
-        sendTrasnfer(destinationStage);
+        sendTrasnfer(destinyPipeline);
         setOpenModalTransfer(false);
         setPendingTransfer(null);
-    }, [pendingTransfer, inboxes]);
+        setFolioToTransfer(null);
+        setDestinyPipeline(null);
+    }, [pendingTransfer, inboxes, folioToTransfer, destinyPipeline]);
 
     const cancelTransfer = useCallback(() => {
         setOpenModalTransfer(false);
@@ -173,16 +181,8 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
         if (!folio) return;
 
         setFolioToTransfer(folio);
-
-        if (destinationStage) {
-            setDestinyPipeline(destinationStage);
-            sendTrasnfer(destinationStage);
-        } else {
-            setOpenModalTransfer(true);
-            if (folio.pipelineStage) {
-                setDestinyPipeline(folio.pipelineStage);
-            }
-        }
+        setOpenModalTransfer(true);
+        setDestinyPipeline(destinationStage || folio.pipelineStage || null);
     };
 
     const sendTrasnfer = async (newStage = null) => {
