@@ -332,11 +332,23 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
               listFolios.current[index].folio.message.push(result.body.lastMessage);
               setIsLoading(false);
               setMessageToSend('');
-              textArea.current.value='';
-              textArea.current.focus();
+              textArea.current.value = '';
+              // Forzar un nuevo renderizado del textarea
+              const textarea = textArea.current;
+              textarea.blur();
+              
+              // Usar setTimeout para asegurar que el foco se establezca después de que React haya actualizado el DOM
+              setTimeout(() => {
+                if (textarea) {
+                  textarea.focus({ preventScroll: true });
+                }
+              }, 0);
+              
               setShowResponseTo(null);
               setMessageToResponse(null);
-              listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight
+              if (listFolios.currentBox) {
+                listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
+              }
               
               // Clear draft for current folio
               console.log('Message sent successfully, clearing draft for folio:', folio._id);
@@ -1215,6 +1227,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
 
                                             onPaste={handlePaste}
                                             className="w-full bg-transparent focus:outline-none resize-none min-h-[40px] max-h-[6rem] overflow-y-auto p-2"
+                                            autoFocus
                                             rows={4}
                                             style={{
                                                 display: 'block',
@@ -1255,6 +1268,9 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                                 <XCircle className="w-4 h-4" />
                                             </HeroButton>
                                         )}
+                                        <div className="text-xs text-gray-400 text-right mt-1 pr-2">
+                                            Presiona Shift+Enter para un salto de línea
+                                        </div>
                                     </div>
                                     <div className="flex flex-col items-center justify-start gap-1 ml-2">
                                         <HeroButton 
@@ -1499,6 +1515,9 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                         >
                                             {(classification) => <SelectItem key={classification._id} value={classification._id}>{classification.text}</SelectItem>}
                                         </HeroSelect>
+                                        <div className="text-xs text-gray-400 text-right mt-1 pr-2">
+                                            Presiona Shift+Enter para un salto de línea
+                                        </div>
                                         {infoForm && renderForm(infoForm)}
                                     </div>
                                 </ModalBody>
