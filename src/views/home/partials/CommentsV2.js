@@ -1168,7 +1168,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                     {typeFolio === '_MESSAGES_' && fullFolio ? (
                         <div>
                             <div className="flex justify-center mb-2 h-7">
-                                {showBtnUn && <Chip color="secondary" variant="flat">Nuevos mensajes</Chip>}
+                                {showBtnUn && <Chip color="danger" variant="flat">Nuevos mensajes</Chip>}
                                 {showResponseTo && (
                                     <Chip color="primary" variant="flat" onClose={() => removeResponseTo()}>
                                         {messageToResponse}
@@ -1366,7 +1366,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                     ) : (
                         <div>
                             <div className="flex justify-center mb-2 h-7">
-                                {showBtnUn && <Chip color="secondary" variant="flat">Nuevos mensajes</Chip>}
+                                {showBtnUn && <Chip color="warning" variant="flat">Nuevos mensajes</Chip>}
                                 {showResponseTo && (
                                     <Chip color="blue" variant="flat" onClose={() => removeResponseTo()}>
                                         {messageToResponse}

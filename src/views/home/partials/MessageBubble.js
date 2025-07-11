@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
+import AudioPlayer from './AudioPlayer';
 
 // --- SVG Icons ---
 const PaperclipIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>;
@@ -148,10 +149,29 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'image':
                 case 'sticker':
                     return (
-                        <Card isPressable isFooterBlurred className="border-none w-full h-[300px]">
-                            <Image removeWrapper alt={msg.caption || 'Imagen'} className="z-0 w-full h-full object-cover" src={msg.content} />
+                        <Card className="border-none w-full h-[300px] group relative overflow-hidden">
+                            <a 
+                                href={msg.content} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="block w-full h-full"
+                            >
+                                <Image 
+                                    removeWrapper 
+                                    alt={msg.caption || 'Imagen'} 
+                                    className="z-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                    src={msg.content} 
+                                />
+                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <div className="bg-black/50 text-white rounded-full p-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </a>
                             {msg.caption && (
-                                <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
+                                <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 w-full">
                                     <p className="text-tiny text-white/80">{msg.caption}</p>
                                 </CardFooter>
                             )}
@@ -164,7 +184,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'voice':
                 case 'ptt':
                 case 'call':
-                    return <audio controls src={msg.callRecordUrl || msg.content} className="w-full" />;
+                    return <AudioPlayer src={msg.callRecordUrl || msg.content} />;
                 case 'document':
                     return (
                         <Card shadow="sm" className="w-full">
@@ -180,10 +200,56 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                         </Card>
                     );
                 case 'location':
-                    const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${msg.content}&zoom=16&size=400x400&key=${process.env.REACT_APP_MAPS_APIKEY}&markers=purple|${msg.content}`;
+                    // Validar que el contenido sea una coordenada válida
+                    const isValidCoordinate = (coord) => {
+                        if (typeof coord !== 'string') return false;
+                        const [lat, lng] = coord.split(',').map(Number);
+                        return !isNaN(lat) && !isNaN(lng) && 
+                               lat >= -90 && lat <= 90 && 
+                               lng >= -180 && lng <= 180;
+                    };
+
+                    if (!isValidCoordinate(msg.content)) {
+                        return (
+                            <Snippet color="warning" className="w-full">
+                                Ubicación no válida: {String(msg.content).substring(0, 30)}{String(msg.content).length > 30 ? '...' : ''}
+                            </Snippet>
+                        );
+                    }
+
+                    const [lat, lng] = msg.content.split(',');
+                    const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${process.env.REACT_APP_MAPS_APIKEY}`;
+                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
                     return (
-                        <Card isPressable onPress={() => window.open(`https://www.google.com/maps/search/?api=1&query=${msg.content}`, '_blank')}>
-                            <Image removeWrapper src={mapUrl} alt="Ubicación" className="w-full h-auto object-cover" />
+                        <Card className="w-full overflow-hidden">
+                            <CardBody className="p-0">
+                                <div 
+                                    className="relative w-full h-48 bg-gray-100 hover:opacity-90 transition-opacity cursor-pointer"
+                                    onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => e.key === 'Enter' && window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
+                                >
+                                    <img 
+                                        src={mapUrl} 
+                                        alt="Ubicación en el mapa" 
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = `https://via.placeholder.com/600x300?text=No+se+pudo+cargar+el+mapa`;
+                                        }}
+                                    />
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+                                        <div className="flex items-center justify-between">
+                                            <span>Ver en Google Maps</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardBody>
                         </Card>
                     );
                 case 'notify':
