@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
 import AudioPlayer from './AudioPlayer';
+import MapPreview from './MapPreview';
 
 // --- SVG Icons ---
 const PaperclipIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.122 2.122l7.81-7.81" /></svg>;
@@ -218,40 +219,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                     }
 
                     const [lat, lng] = msg.content.split(',');
-                    const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${process.env.REACT_APP_MAPS_APIKEY}`;
-                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
-                    return (
-                        <Card className="w-full overflow-hidden">
-                            <CardBody className="p-0">
-                                <div 
-                                    className="relative w-full h-48 bg-gray-100 hover:opacity-90 transition-opacity cursor-pointer"
-                                    onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => e.key === 'Enter' && window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
-                                >
-                                    <img 
-                                        src={mapUrl} 
-                                        alt="Ubicación en el mapa" 
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = `https://via.placeholder.com/600x300?text=No+se+pudo+cargar+el+mapa`;
-                                        }}
-                                    />
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
-                                        <div className="flex items-center justify-between">
-                                            <span>Ver en Google Maps</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    );
+                    return <MapPreview lat={lat} lng={lng} />;
                 case 'notify':
                     return <Snippet color="danger" className="w-full">{msg.content}</Snippet>;
                 case 'notify-success':
