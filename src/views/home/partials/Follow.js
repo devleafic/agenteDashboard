@@ -28,7 +28,6 @@ const getListStyle = isDraggingOver => ({
   padding: 8,
   minHeight: '70vh',
   borderRadius: 6,
-  transition: 'background-color 0.2s ease',
   flex: 1,
   overflowY: 'auto'
 });
@@ -37,15 +36,11 @@ const getListStyle = isDraggingOver => ({
 const getItemStyle = (isDragging, draggableStyle) => ({
   userSelect: 'none',
   margin: '0 0 8px 0',
-  ...draggableStyle,
-  transform: isDragging ? 'rotate(2deg)' : 'none',
-  transition: 'all 0.2s ease',
-  boxShadow: isDragging 
-    ? '0 4px 12px rgba(0, 0, 0, 0.15)' 
-    : '0 1px 3px rgba(0, 0, 0, 0.1)',
+  background: '#fff',
   borderRadius: 8,
-  background: isDragging ? '#fff' : '#fff',
-  borderLeft: isDragging ? '4px solid #4f46e5' : '1px solid #e2e8f0'
+  borderLeft: isDragging ? '4px solid #4f46e5' : '1px solid #e2e8f0',
+  boxShadow: isDragging ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
+  ...draggableStyle
 });
 
 // Estilo para las columnas
@@ -72,18 +67,16 @@ const columnHeaderStyle = {
   borderTopRightRadius: 8
 };
 
-const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
+const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => {
     const socketC = useContext(SocketContext);
-    const [inboxes, setInboxes ] = useState({});
-    const [isLoadInbox, setIsLoadInbox ] = useState(false);
+    const [inboxes, setInboxes] = useState({});
+    const [isLoadInbox, setIsLoadInbox] = useState(false);
     const [listPipeline, setListPipeline] = useState([]);
-    
-    // Estados para los modales
     const [openModal, setOpenModal] = useState(false);
     const [openModalTransfer, setOpenModalTransfer] = useState(false);
     const [folioToTransfer, setFolioToTransfer] = useState(null);
     const [destinyPipeline, setDestinyPipeline] = useState(null);
-    const [titleModal, setTitleModal ] = useState('');
+    const [titleModal, setTitleModal] = useState('');
     const [contentMessage, setContentMessage] = useState(
         <div className="flex flex-col items-center justify-center p-8">
             <Spinner size="lg" />
@@ -91,8 +84,8 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         </div>
     );
     const [isLoadTransfer, setIsLoadInboxFolio] = useState(false);
+    const [pendingTransfer, setPendingTransfer] = useState(null);
 
-    // Inicializar el modal
     const initLoadModal = useCallback(() => {
         setOpenModal(false);
         setContentMessage(
@@ -103,144 +96,144 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         );
     }, []);
 
-    // Manejador para cuando se arrastra y suelta un elemento
     const onDragEnd = useCallback((result) => {
         const { source, destination, draggableId } = result;
 
-        // Si se soltó fuera de una columna válida
-        if (!destination) return;
-
-        // Si se soltó en la misma posición
-        if (
-            source.droppableId === destination.droppableId &&
-            source.index === destination.index
-        ) {
+        if (!destination || 
+            (source.droppableId === destination.droppableId && 
+             source.index === destination.index)) {
             return;
         }
 
-        // Obtener el folio arrastrado
-        const folioId = draggableId;
         const sourceStage = source.droppableId;
         const destinationStage = destination.droppableId;
 
-        // Si se movió a otra etapa
-        if (sourceStage !== destinationStage) {
-            // Encontrar el folio que se está moviendo
-            let folioToMove = null;
-            Object.entries(inboxes).some(([stageId, items]) => {
-                const found = items.find(item => item._id === folioId);
-                if (found) {
-                    folioToMove = { ...found };
-                    return true;
-                }
-                return false;
-            });
+        let folioToMove = null;
+        let sourceStageItems = [];
 
-            if (folioToMove) {
-                // Actualizar la interfaz de inmediato para una mejor experiencia de usuario
-                const newInboxes = { ...inboxes };
-                
-                // Remover de la etapa origen
-                if (newInboxes[sourceStage]) {
-                    newInboxes[sourceStage] = newInboxes[sourceStage].filter(item => item._id !== folioId);
-                }
-                
-                // Agregar a la etapa destino
-                if (!newInboxes[destinationStage]) {
-                    newInboxes[destinationStage] = [];
-                }
-                
-                // Actualizar el pipelineStage del folio
-                const updatedFolio = {
-                    ...folioToMove,
-                    pipelineStage: destinationStage
-                };
-                
-                newInboxes[destinationStage] = [
-                    ...newInboxes[destinationStage],
-                    updatedFolio
-                ];
-                
-                setInboxes(newInboxes);
-                
-                // Mostrar confirmación y realizar la transferencia real
-                if (window.confirm(`¿Mover a ${listPipeline.find(p => p._id === destinationStage)?.name || 'esta etapa'}?`)) {
-                    // Usar setTimeout para permitir que la UI se actualice antes de la llamada al servidor
-                    setTimeout(() => {
-                        setFolioToTransfer(updatedFolio);
-                        // Usar la función directamente en lugar de la referencia
-                        const token = window.localStorage.getItem('sdToken');
-                        if (token) {
-                            socketC.connection.emit('loadInbox', { token }, () => {
-                                // Recargar el estado después de la transferencia
-                                setFolioToTransfer(updatedFolio);
-                                sendTrasnfer(destinationStage);
-                            });
-                        } else {
-                            sendTrasnfer(destinationStage);
-                        }
-                    }, 100);
-                } else {
-                    // Revertir los cambios si el usuario cancela
-                    const token = window.localStorage.getItem('sdToken');
-                    if (token) {
-                        socketC.connection.emit('loadInbox', { token });
-                    }
-                }
+        if (inboxes[sourceStage]) {
+            const foundIndex = inboxes[sourceStage].findIndex(item => item._id === draggableId);
+            if (foundIndex !== -1) {
+                folioToMove = { ...inboxes[sourceStage][foundIndex] };
+                sourceStageItems = [...inboxes[sourceStage]];
             }
         }
-    }, [inboxes, listPipeline, socketC]);
 
-    const transferPipeline = (folio) => {
-        if (!folio) return;
-        
+        if (!folioToMove) return;
+
+        setPendingTransfer({
+            folio: folioToMove,
+            sourceStage,
+            destinationStage,
+            sourceIndex: source.index,
+            destinationIndex: destination.index
+        });
+        setFolioToTransfer(folioToMove);
+        setDestinyPipeline(destinationStage);
         setOpenModalTransfer(true);
+    }, [inboxes]);
+
+    const confirmTransfer = useCallback(() => {
+        if (!pendingTransfer) return;
+
+        const { folio, sourceStage, destinationStage, sourceIndex, destinationIndex } = pendingTransfer;
+
+        const newInboxes = { ...inboxes };
+        const newSourceItems = [...inboxes[sourceStage]];
+        const newDestinationItems = destinationStage in newInboxes 
+            ? [...newInboxes[destinationStage]] 
+            : [];
+
+        newSourceItems.splice(sourceIndex, 1);
+        const updatedFolio = {
+            ...folio,
+            pipelineStage: destinationStage
+        };
+        newDestinationItems.splice(destinationIndex, 0, updatedFolio);
+
+        setInboxes({
+            ...newInboxes,
+            [sourceStage]: newSourceItems,
+            [destinationStage]: newDestinationItems
+        });
+
+        sendTrasnfer(destinationStage);
+        setOpenModalTransfer(false);
+        setPendingTransfer(null);
+    }, [pendingTransfer, inboxes]);
+
+    const cancelTransfer = useCallback(() => {
+        setOpenModalTransfer(false);
+        setPendingTransfer(null);
+        setFolioToTransfer(null);
+        setDestinyPipeline(null);
+    }, []);
+
+    const transferPipeline = (folio, destinationStage = null) => {
+        if (!folio) return;
+
         setFolioToTransfer(folio);
-        
-        // Establecer la etapa actual como destino por defecto (para el modal de confirmación)
-        if (folio.pipelineStage) {
-            setDestinyPipeline(folio.pipelineStage);
+
+        if (destinationStage) {
+            setDestinyPipeline(destinationStage);
+            sendTrasnfer(destinationStage);
+        } else {
+            setOpenModalTransfer(true);
+            if (folio.pipelineStage) {
+                setDestinyPipeline(folio.pipelineStage);
+            }
         }
     };
-    
-    // Función para transferir un folio a otra etapa
+
     const sendTrasnfer = async (newStage = null) => {
         if (!socketC?.connection || !folioToTransfer) {
             toast.error('Error de conexión o folio no válido');
             return;
         }
-        
+
         const stageId = newStage || destinyPipeline;
         if (!stageId) {
             toast.error('Selecciona una etapa de destino');
             return;
         }
-        
+
         const token = window.localStorage.getItem('sdToken');
         if (!token) {
             toast.error('Sesión expirada. Por favor, inicia sesión nuevamente.');
             return;
         }
-        
+
+        const previousInboxes = { ...inboxes };
+
+        // Depuración: Mostrar los parámetros enviados
+        console.log('Enviando transferencia:', {
+            folio: folioToTransfer,
+            newStage: stageId,
+            token
+        });
+
         try {
             socketC.connection.emit('transferStage', {
                 folio: folioToTransfer,
                 newStage: stageId,
                 token
             }, (res) => {
+                console.log('Respuesta del servidor:', res);
+
                 if (!res) {
                     toast.error('No se recibió respuesta del servidor');
+                    setInboxes(previousInboxes);
                     return;
                 }
-                
+
                 if (res.success) {
                     toast.success('Folio transferido correctamente');
-                    // Actualizar la interfaz sin recargar todo
                     loadInbox();
                 } else {
                     toast.error(res.message || 'Error al transferir el folio');
+                    setInboxes(previousInboxes);
                 }
-                
+
                 setOpenModalTransfer(false);
                 setFolioToTransfer(null);
                 setDestinyPipeline(null);
@@ -248,43 +241,38 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         } catch (error) {
             console.error('Error en sendTrasnfer:', error);
             toast.error('Error al procesar la transferencia');
+            setInboxes(previousInboxes);
             setOpenModalTransfer(false);
         }
     };
 
     const sortInboxes = (inb, mapSort) => {
         if (!inb || !mapSort) return {};
-        
+
         const tmpSort = {};
-        
-        // Inicializar todas las etapas del pipeline
+
         mapSort.forEach(x => {
             if (x?._id) {
                 tmpSort[x._id] = [];
             }
         });
-        
-        // Primero, procesar los elementos con pipelineStage definido
+
         inb.forEach(x => {
             if (x?.pipelineStage) {
                 if (!tmpSort[x.pipelineStage]) {
-                    // Si la etapa no existe en el mapa, la creamos
                     tmpSort[x.pipelineStage] = [];
                 }
                 tmpSort[x.pipelineStage].push(x);
             }
         });
-        
-        // Luego, procesar los elementos sin pipelineStage (para compatibilidad)
+
         inb.forEach(x => {
             if (!x?.pipelineStage && x?.folio?.fromPipeline) {
-                // Si no tiene pipelineStage pero tiene fromPipeline, lo asignamos a la primera etapa
                 const firstStage = mapSort[0]?._id;
                 if (firstStage) {
                     if (!tmpSort[firstStage]) {
                         tmpSort[firstStage] = [];
                     }
-                    // Verificar que el elemento no esté ya en el array
                     const exists = tmpSort[firstStage].some(item => item._id === x._id);
                     if (!exists) {
                         tmpSort[firstStage].push(x);
@@ -294,10 +282,9 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         });
 
         return tmpSort;
-    }
+    };
 
-    // Renderizar una tarjeta de folio
-    const renderFolioCard = (item, index) => {
+    const RenderFolioCard = React.memo(({ item, index }) => {
         if (!item || !item.folio) return null;
 
         return (
@@ -336,7 +323,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                 )}
                             </div>
                         </div>
-                        
                         <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100">
                             <div className="flex space-x-1">
                                 <Tooltip content="Abrir conversación">
@@ -353,7 +339,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                         <FolderOpen className="w-3.5 h-3.5" />
                                     </Button>
                                 </Tooltip>
-                                
                                 <Tooltip content="Vista previa">
                                     <Button
                                         isIconOnly
@@ -366,21 +351,20 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                     </Button>
                                 </Tooltip>
                             </div>
-                            
                             {item.folio?.status === 3 ? (
                                 <Badge color="danger" size="sm">Finalizado</Badge>
                             ) : (
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <Tooltip content="Transferir a otra etapa">
-                                    <Button
-                                        isIconOnly
-                                        size="sm"
-                                        variant="light"
-                                        onPress={() => transferPipeline(item)}
-                                        className="text-purple-600 hover:bg-purple-50"
-                                    >
-                                        <ArrowRightLeftIcon className="w-3.5 h-3.5" />
-                                    </Button>
+                                        <Button
+                                            isIconOnly
+                                            size="sm"
+                                            variant="light"
+                                            onPress={() => transferPipeline(item)}
+                                            className="text-purple-600 hover:bg-purple-50"
+                                        >
+                                            <ArrowRightLeftIcon className="w-3.5 h-3.5" />
+                                        </Button>
                                     </Tooltip>
                                 </div>
                             )}
@@ -389,15 +373,14 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 )}
             </Draggable>
         );
-    };
+    }, (prevProps, nextProps) => prevProps.item._id === nextProps.item._id && prevProps.index === nextProps.index);
 
-    // Renderizar una columna de etapa
     const renderPipelineColumn = (pipe) => {
         if (!pipe) return null;
-        
+
         const items = inboxes[pipe._id] || [];
         const itemCount = items.length;
-        
+
         return (
             <div key={pipe._id} style={{ ...columnStyle, borderTop: `4px solid ${pipe.color || '#3b82f6'}` }}>
                 <div style={columnHeaderStyle}>
@@ -411,7 +394,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         <MoreVertical className="w-4 h-4" />
                     </Button>
                 </div>
-                
                 <Droppable droppableId={pipe._id} type="CARD">
                     {(provided, snapshot) => (
                         <div
@@ -421,7 +403,9 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                             className="flex-1 overflow-y-auto"
                         >
                             {items.length > 0 ? (
-                                items.map((item, index) => renderFolioCard(item, index))
+                                items.map((item, index) => (
+                                    <RenderFolioCard item={item} index={index} key={item._id} />
+                                ))
                             ) : (
                                 <div className="text-center p-4 text-sm text-gray-500">
                                     No hay elementos en esta etapa
@@ -431,76 +415,63 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         </div>
                     )}
                 </Droppable>
-                
             </div>
         );
     };
 
     const loadInbox = async () => {
-        if (!socketC?.connection) return;
-        
+        if (!socketC?.connection) {
+            toast.error('No hay conexión con el servidor');
+            return;
+        }
+
         setIsLoadInbox(true);
         const token = window.localStorage.getItem('sdToken');
-        
+
         if (!token) {
             toast.error('No se encontró el token de autenticación');
             setIsLoadInbox(false);
             return;
         }
-        
+
         try {
             socketC.connection.emit('loadInbox', { token }, (data) => {
                 setIsLoadInbox(false);
-                
+
                 if (!data || !data.success) {
                     toast.error(data?.message || 'Error al cargar el pipeline');
-                    setInboxes([]);
+                    setInboxes({});
                     return;
                 }
-                
+
                 const filteredArray = (data.inboxes || []).filter(item => item?.pipeline !== undefined);
-                
+
                 if (filteredArray.length === 0) {
                     setInboxes({});
                     setUnReadMessages(false);
                     return;
                 }
-                
+
                 const firstItem = filteredArray[0];
                 if (!firstItem?.service?.pipelines) {
                     console.error('Datos de pipeline no encontrados');
                     setInboxes({});
                     return;
                 }
-                
+
                 const idPipe = firstItem.pipeline;
                 const pipelineConfig = firstItem.service.pipelines.find(x => x?._id === idPipe);
-                
+
                 if (!pipelineConfig?.pipelines) {
                     console.error('Configuración de pipeline no encontrada');
                     setInboxes({});
                     return;
                 }
-                
-                // Actualizar el listado de pipelines
+
                 setListPipeline(pipelineConfig.pipelines || []);
-                
-                // Ordenar los inboxes según las etapas del pipeline
-                const sortedInboxes = sortInboxes(data.inboxes, pipelineConfig.pipelines);
+                const sortedInboxes = sortInboxes(filteredArray, pipelineConfig.pipelines);
                 setInboxes(sortedInboxes || {});
-                
-                // Actualizar estado de mensajes no leídos
-                const hasUnread = filteredArray.some(x => x.status === 1);
-                setUnReadMessages(!!hasUnread);
-                
-                // Inicializar el estado de carga de folios
-                const folioList = {};
-                filteredArray.forEach(x => {
-                    if (x?.folio?._id) {
-                        folioList[x.folio._id] = false;
-                    }
-                });
-                setIsLoadInboxFolio(folioList);
+                setUnReadMessages(filteredArray.some(x => x.status === 1));
             });
         } catch (error) {
             console.error('Error en loadInbox:', error);
@@ -512,11 +483,7 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
     useEffect(() => {
         loadInbox();
-        
-        // Cleanup function
-        return () => {
-            // Cleanup if needed
-        };
+        return () => {};
     }, []);
 
     const openItemInbox = (folio, item, pipe) => {
@@ -524,15 +491,15 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             toast.error('Error: Conexión o folio no válido');
             return;
         }
-        
+
         const token = window.localStorage.getItem('sdToken');
         if (!token) {
             toast.error('Sesión expirada. Por favor, inicie sesión nuevamente.');
             return;
         }
-        
+
         console.time('openItemInbox');
-        
+
         try {
             socketC.connection.emit('openItemInbox', {
                 token,
@@ -540,16 +507,16 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 item
             }, (data) => {
                 console.timeEnd('openItemInbox');
-                
+
                 if (!data) {
                     toast.error('No se recibió respuesta del servidor');
                     return;
                 }
-                
+
                 if (data.success) {
                     setVFolio(folio._id);
                     toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
-                    
+
                     if (typeof selectedComponent === 'function') {
                         selectedComponent('home');
                     }
@@ -562,23 +529,23 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             toast.error('Error al procesar la solicitud');
         }
     };
+
     const getFolioMessages = (folioId) => {
         if (!socketC?.connection || !folioId) {
             toast.error('Error: Conexión o ID de folio no válido');
             return;
         }
-        
+
         setTitleModal(`Vista Previa #${folioId}`);
         setOpenModal(true);
-        
-        // Set loading state
+
         setContentMessage(
             <div className="flex flex-col items-center justify-center p-8">
                 <Spinner size="lg" />
                 <p className="mt-4 text-gray-600">Cargando mensajes...</p>
             </div>
         );
-        
+
         try {
             socketC.connection.emit('getMessageHist', { folio: folioId }, (res) => {
                 if (!res) {
@@ -589,7 +556,7 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     );
                     return;
                 }
-                
+
                 if (!res.success) {
                     setContentMessage(
                         <div className="p-4 text-center text-red-600">
@@ -598,7 +565,7 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     );
                     return;
                 }
-                
+
                 if (!res.folio?.message || !Array.isArray(res.folio.message)) {
                     setContentMessage(
                         <div className="p-4 text-center text-gray-600">
@@ -607,7 +574,7 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     );
                     return;
                 }
-                
+
                 setContentMessage(
                     <div className="space-y-4 p-4">
                         {res.folio.message.map((msg) => (
@@ -629,8 +596,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         }
     };
 
-
-
     return (
         <div className="p-4 bg-gray-100 min-h-screen">
             <div className="mb-6 bg-white p-4 rounded-lg shadow">
@@ -640,7 +605,6 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         <h2 className="text-xl font-semibold text-gray-800">Tablero de Seguimiento</h2>
                     </div>
                     <div className="flex items-center space-x-2">
- 
                         <Button 
                             color="primary" 
                             startContent={<RefreshCw className="w-4 h-4" />}
@@ -672,91 +636,79 @@ const Follow = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     </div>
                 </DragDropContext>
             )}
-        {/* Message Preview Modal */}
-        <Modal isOpen={openModal} onClose={() => setOpenModal(false)} size="3xl">
-            <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">
-                    {titleModal}
-                </ModalHeader>
-                <ModalBody>
-                    {contentMessage}
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="primary" onPress={() => setOpenModal(false)}>
-                        Cerrar
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
 
-        {/* Transfer Modal */}
-        <Modal isOpen={openModalTransfer} onClose={() => {
-            setOpenModalTransfer(false);
-            setDestinyPipeline(null);
-        }}>
-            <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">
-                    Mover de Etapa: {folioToTransfer?.aliasUser || 'Usuario'}
-                </ModalHeader>
-                <ModalBody>
-                    {folioToTransfer && (
-                        <div className="space-y-4">
-                            <p className="text-sm text-gray-600">
-                                Selecciona la etapa a la cual será transferido el folio 
-                                <span className="font-semibold"> #{folioToTransfer.folio?._id || ''}</span> del usuario 
-                                <span className="font-semibold"> {folioToTransfer.aliasUser || 'Usuario'}</span>
-                            </p>
-                            
-                            <Select
-                                label="Selecciona la etapa"
-                                placeholder="Elige una etapa"
-                                selectedKeys={destinyPipeline ? [destinyPipeline] : []}
-                                onSelectionChange={(keys) => {
-                                    const selectedKey = Array.from(keys)[0];
-                                    setDestinyPipeline(selectedKey);
-                                }}
-                                className="w-full"
-                                isDisabled={!folioToTransfer}
-                            >
-                                {listPipeline
-                                    .filter((x) => x._id !== folioToTransfer?.pipelineStage && x.status === true)
-                                    .map((x) => (
-                                        <SelectItem key={x._id} value={x._id}>
-                                            {x.name}
-                                        </SelectItem>
-                                    ))
-                                }
-                            </Select>
-                        </div>
-                    )}
-                </ModalBody>
-                <ModalFooter>
-                    <Button 
-                        color="danger" 
-                        variant="light" 
-                        onPress={() => {
-                            setOpenModalTransfer(false);
-                            setDestinyPipeline(null);
-                        }}
-                    >
-                        Cancelar
-                    </Button>
-                    <Button 
-                        color="primary" 
-                        onPress={() => {
-                            if (window.confirm('¿Estás seguro de transferir el folio?')) {
-                                sendTrasnfer();
-                            }
-                        }}
-                        isDisabled={!destinyPipeline || !folioToTransfer}
-                    >
-                        Transferir
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+            <Modal isOpen={openModal} onClose={() => setOpenModal(false)} size="3xl">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        {titleModal}
+                    </ModalHeader>
+                    <ModalBody>
+                        {contentMessage}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onPress={() => setOpenModal(false)}>
+                            Cerrar
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={openModalTransfer} onClose={cancelTransfer}>
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        Mover de Etapa: {folioToTransfer?.aliasUser || 'Usuario'}
+                    </ModalHeader>
+                    <ModalBody>
+                        {folioToTransfer && (
+                            <div className="space-y-4">
+                                <p className="text-sm text-gray-600">
+                                    Selecciona la etapa a la cual será transferido el folio 
+                                    <span className="font-semibold"> #{folioToTransfer.folio?._id || ''}</span> del usuario 
+                                    <span className="font-semibold"> {folioToTransfer.aliasUser || 'Usuario'}</span>
+                                </p>
+                                <Select
+                                    label="Selecciona la etapa"
+                                    placeholder="Elige una etapa"
+                                    selectedKeys={destinyPipeline ? [destinyPipeline] : []}
+                                    onSelectionChange={(keys) => {
+                                        const selectedKey = Array.from(keys)[0];
+                                        setDestinyPipeline(selectedKey);
+                                    }}
+                                    className="w-full"
+                                    isDisabled={!folioToTransfer}
+                                >
+                                    {listPipeline
+                                        .filter((x) => x._id !== folioToTransfer?.pipelineStage && x.status === true)
+                                        .map((x) => (
+                                            <SelectItem key={x._id} value={x._id}>
+                                                {x.name}
+                                            </SelectItem>
+                                        ))
+                                    }
+                                </Select>
+                            </div>
+                        )}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button 
+                            color="danger" 
+                            variant="light" 
+                            onPress={cancelTransfer}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button 
+                            color="primary" 
+                            onPress={confirmTransfer}
+                            isDisabled={!destinyPipeline || !folioToTransfer}
+                        >
+                            Transferir
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     );
-}
+};
 
 export default Follow;
