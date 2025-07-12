@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {List, Image, Icon, Loader, Modal, Segment, Dimmer,Label, Button , Header, Message} from 'semantic-ui-react';
-import shortParagraph from './../../../img/short-paragraph.png';
 import { toast } from 'react-toastify';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spinner } from '@heroui/react';
 
 // Contexto 
 import SocketContext from './../../../controladores/SocketContext';
@@ -12,7 +11,12 @@ const initialMtmState = { _id: null, name: null, text: null, locale: null, servi
 const Mtm = ({ mtm, person, setRefresh, folio }) => {
     const [openModal, setOpenModal] = useState(false);
     const [titleModal, setTitleModal] = useState('');
-    const [contentMessage, setContentMessage] = useState(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
+    const [contentMessage, setContentMessage] = useState(
+        <div className="flex items-center justify-center p-8">
+            <Spinner size="lg" />
+            <span className="ml-2">Cargando...</span>
+        </div>
+    );
     const [onLoading, setOnLoading] = useState(false);
     const socket = useContext(SocketContext);
     const listFolios = useContext(ListFoliosContext);
@@ -21,8 +25,12 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
     const initLoadModal = () => { //reset values for Modal
         setOpenModal(!openModal);
         setMtmToSend(initialMtmState);
-        setContentMessage(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
-        console.log(mtmToSend)
+        setContentMessage(
+            <div className="flex items-center justify-center p-8">
+                <Spinner size="lg" />
+                <span className="ml-2">Cargando...</span>
+            </div>
+        );
     }
     const getMtm = (mtm) => {
         setTitleModal('Plantillas de mensajes')
@@ -32,16 +40,18 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
             if(res.success){
                 setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, text : res.mtm.previewtxt, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel, parameters: res.mtm.parameters,  parametersHeader: res.mtm.parametersHeader })
                 setContentMessage(
-                    <div>
-                        {
-                            <Label size='big' as='a' color='blue'  pointing='below' >{res.mtm.previewtxt}</Label>
-                        }
-                    </div> 
+                    <div className="mt-4 mb-4">
+                        <span className="px-4 py-2 bg-blue-100 text-blue-800 text-lg font-medium rounded-lg">
+                            {res.mtm.previewtxt}
+                        </span>
+                    </div>
                 )
-            }else{
-                {
-                    setContentMessage(<Label as='a' color='red'>{res.mtm.messages}</Label>)
-                }
+            } else {
+                setContentMessage(
+                    <div className="mt-4 mb-4 text-red-500 font-medium">
+                        {res.mtm.messages}
+                    </div>
+                )
             }
         })
     }
@@ -132,47 +142,63 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
         console.log('refrescando componente de mtm')},
     [person])
 
-   return (<>
-        {
-            mtm.length <= 0 && <Message icon='ban' compact floating negative content='No existen plantillas configuradas.'/>
-        }
-        <div style={{height:250, overflowY:'scroll'}}>
-            <List >
-                {
-                    mtm.map((item) => {
-                        return (<List.Item key={'mtm-'+item._id} href='#' onClick={(e) => {getMtm(item._id);}} title={item.previewtxt}>{item.name}</List.Item>);
-                    })
-                }
-            </List>
-        </div>
-        <Modal
-            basic
-            onClose={() => initLoadModal()}
-            onOpen={() => setOpenModal(true)}
-            open={openModal}
-            size='small'
-            >
-            <Header icon>
-                <Icon name='paper plane' />
-                Enviar Plantilla
-            </Header>
-            <Modal.Content>
-                <center>
-                {contentMessage}  
-                ¿Deseas enviar la plantilla <b>{mtmToSend.name}</b> al usuario <b>"{person.aliasId ? person.aliasId: person.anchor}"</b> ?
-                </center>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => initLoadModal()}   loading={onLoading} disabled={onLoading}>
-                    <Icon name='remove' /> No
-                </Button>
-                <Button color='blue' inverted onClick={() => execSendMtm(mtmToSend)} loading={onLoading} disabled={onLoading}>
-                    <Icon name='paper plane' /> Enviar
-                </Button>
-            </Modal.Actions>
-            </Modal>
+   return (
+        <div className="flex flex-col h-full">
+            {mtm.length <= 0 && (
+                <div className="p-4 mb-4 text-red-600 bg-red-100 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    No existen plantillas configuradas.
+                </div>
+            )}
+            
+            <div className="flex-1 overflow-y-auto max-h-64 pr-2">
+                <ul className="space-y-1">
+                    {mtm.map((item) => (
+                        <li 
+                            key={'mtm-'+item._id}
+                            className="px-4 py-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors"
+                            onClick={() => getMtm(item._id)}
+                            title={item.previewtxt}
+                        >
+                            {item.name}
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
-    </>);
+            <Modal isOpen={openModal} onClose={initLoadModal} size="md">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Enviar Plantilla
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="text-center">
+                            {contentMessage}
+                            <p className="mt-4">
+                                ¿Deseas enviar la plantilla <span className="font-bold">{mtmToSend.name}</span> al usuario 
+                                <span className="font-bold"> "{person.aliasId ? person.aliasId : person.anchor}"</span>?
+                            </p>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="flat" onPress={initLoadModal} isLoading={onLoading} isDisabled={onLoading}>
+                            No
+                        </Button>
+                        <Button color="primary" onPress={() => execSendMtm(mtmToSend)} isLoading={onLoading} isDisabled={onLoading}>
+                            Enviar
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </div>
+    );
 }
  
 export default Mtm;

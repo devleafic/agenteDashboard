@@ -1,5 +1,5 @@
-import { Button, Form, Label, Select} from 'semantic-ui-react';
 import React, {useState, useContext, useEffect} from 'react';
+import { Button, Select, SelectItem } from '@heroui/react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import { toast } from 'react-toastify';
@@ -38,111 +38,162 @@ const CRM = ({template, folio, setRefresh}) => {
       }
 
     const renderFields = (item) => {
-        
-        switch(item.class){
-            case 'text':
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                    <label>{item.name}</label>
-                    <input key={item._id} placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
-                        if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                        if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                        folio.folio.person.fields[item._id] = e.target.value;
-                        setRefresh(Math.random());
-                    }}/>
-                </Form.Field>);
-            case 'currency':
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                    <label>{item.name}</label>
-                    <input type="number" min={0} key={item._id} placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
-                        const isCheck = twoDecimals(e.target.value);
-                        if(!isCheck)return false;
+        const fieldValue = folio.folio.person.fields && folio.folio.person.fields[item._id] !== undefined 
+            ? folio.folio.person.fields[item._id] 
+            : '';
+            
+        const handleFieldChange = (value) => {
+            if (!folio.folio.person.fields) folio.folio.person.fields = {};
+            folio.folio.person.fields[item._id] = value;
+            setRefresh(Math.random());
+        };
 
-                        if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                        if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                        folio.folio.person.fields[item._id] = e.target.value;
-                        setRefresh(Math.random());
-                    }}/>
-                </Form.Field>);
-            case 'number':
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                    <label>{item.name}</label>
-                    <input type="number" key={item._id} placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
-                        if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                        if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                        folio.folio.person.fields[item._id] = e.target.value;
-                        setRefresh(Math.random());
-                    }}/>
-                </Form.Field>);
-            case 'date':
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                    <label>{item.name}</label>
-                    <input type='date' key={item._id} placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} onChange={(e) => {
-                        if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                        if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                        folio.folio.person.fields[item._id] = e.target.value;
-                        setRefresh(Math.random());
-                    }}/>
-                </Form.Field>);
-            case 'select':
+        const commonInputProps = {
+            key: `field-${item._id}`,
+            className: 'w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            value: fieldValue || '',
+            placeholder: item.name,
+            onChange: (e) => handleFieldChange(e.target.value)
+        };
+
+        switch(item.class) {
+            case 'text':
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <input 
+                            type="text"
+                            {...commonInputProps}
+                        />
+                    </div>
+                );
                 
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                    <label>{item.name}</label>
-                    <Select placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : ''} options={item.options.map((op) => {
-                        return { key: op._id, value: op.value, text: op.label };
-                    })} onChange={(e, {value, id}) => {
-                        console.log('select',value);
-                        if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                        if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                        folio.folio.person.fields[item._id] = value;
-                        setRefresh(Math.random());
-                    }}/>
-                </Form.Field>)
+            case 'currency':
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <input 
+                            type="number" 
+                            min={0}
+                            step="0.01"
+                            {...commonInputProps}
+                            onChange={(e) => {
+                                const isCheck = twoDecimals(e.target.value);
+                                if (isCheck) handleFieldChange(e.target.value);
+                            }}
+                        />
+                    </div>
+                );
+                
+            case 'number':
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <input 
+                            type="number"
+                            {...commonInputProps}
+                        />
+                    </div>
+                );
+                
+            case 'date':
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <input 
+                            type="date"
+                            {...commonInputProps}
+                        />
+                    </div>
+                );
+                
+            case 'select':
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <Select 
+                            selectedKeys={fieldValue ? [fieldValue] : []}
+                            onSelectionChange={(keys) => handleFieldChange(Array.from(keys)[0])}
+                            className="w-full"
+                            placeholder={item.name}
+                        >
+                            {item.options.map((op) => (
+                                <SelectItem key={op.value} value={op.value}>
+                                    {op.label}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </div>
+                );
                 
             case 'checkbox':
-                // console.log('select',item.value);
-                return (<Form.Field key={'field-'+item._id} style={{paddingRight:5}}>
-                <label>{item.name}</label>
-                <Select multiple selection placeholder={item.name} value={folio.folio.person.fields && folio.folio.person.fields[item._id] ? folio.folio.person.fields[item._id] : []} options={item.options.map((op) => {
-                    return { key: op._id, value: op.value, text: op.label };
-                })} onChange={(e, {value, id}) => {
-                    console.log('select',value);
-                    if(!folio.folio.person.fields){folio.folio.person.fields={}}
-                    if(!folio.folio.person.fields[item._id]){folio.folio.person.fields[item._id]=null}
-                    folio.folio.person.fields[item._id] = value;
-                    setRefresh(Math.random());
-                }}/>
-            </Form.Field>)
-            
-            default :
-                    return <div>Campo no soportado</div>
-
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <Select
+                            selectionMode="multiple"
+                            selectedKeys={fieldValue || []}
+                            onSelectionChange={(keys) => handleFieldChange(Array.from(keys))}
+                            className="w-full"
+                            placeholder={item.name}
+                        >
+                            {item.options.map((op) => (
+                                <SelectItem key={op.value} value={op.value}>
+                                    {op.label}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </div>
+                );
+                
+            default:
+                return (
+                    <div key={`field-${item._id}`} className="mb-4 px-2 text-red-500">
+                        Campo no soportado: {item.class}
+                    </div>
+                );
         }
     }
 
-    return ( <>
-        
-            <Form key={'form-crm-'+folio}>
-                <div>    
-                    <img src={folio.folio.person.profilePic ? folio.folio.person.profilePic : 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepicture.jpg' } alt="profile" className='profilePic' />
+    return (
+        <div key={`form-crm-${folio}`} className="flex flex-col h-full">
+            <div className="flex flex-col items-center p-4">
+                <img 
+                    src={folio.folio.person.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepicture.jpg'} 
+                    alt="profile" 
+                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                />
+                <div className="mt-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    {folio.folio.person.aliasId ? 
+                        folio.folio.person.aliasId.length > 20 ? 
+                            `${folio.folio.person.aliasId.substring(0, 20)}...` : 
+                            folio.folio.person.aliasId : 
+                        'Anónimo'}
                 </div>
-                <div className='label-t'> 
-                    <Label as='a' pointing>  
-                        {folio.folio.person.aliasId ? folio.folio.person.aliasId.substr(0,20) : 'Anónimo'}
-                    </Label>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-2" style={{ maxHeight: '250px' }}>
+                {template.map((item) => renderFields(item))}
+            </div>
+            
+            <div className="sticky bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white z-10">
+                <div className="flex justify-center">
+                    <Button 
+                        color="primary" 
+                        onPress={saveCrm} 
+                        isLoading={isLoading} 
+                        isDisabled={isLoading}
+                        className="w-full max-w-md py-3 text-base font-medium flex items-center justify-center"
+                        style={{ minHeight: '3rem' }}
+                    >
+                        <span className="flex items-center justify-center w-full">
+                            {isLoading ? 'Guardando...' : 'Guardar'}
+                        </span>
+                    </Button>
                 </div>
-                <div style={{height:250, overflowY:'scroll'}}>
-                {
-                    template.map((item) => {
-                        return renderFields(item);
-                    })
-                }
-                </div>
-                <div style={{marginTop : 5}}>
-                    <Button color='blue' onClick={saveCrm} loading={isLoading} disabled={isLoading}>Guardar</Button>
-                </div>
-            </Form>
-        
-    </> );
+            </div>
+        </div>
+    );
 }
  
 export default CRM;
