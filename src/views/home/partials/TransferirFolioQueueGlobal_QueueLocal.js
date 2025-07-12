@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { toast } from 'react-toastify';
-import {Label, Message, Icon, Button, Modal, Dropdown, Header } from 'semantic-ui-react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from '@heroui/react';
 
 // Contexto 
 import SocketContext from './../../../controladores/SocketContext';
@@ -61,50 +61,81 @@ const TransferirFolioQueueGlobal_QueueLocal = ({folio, setRefresh, userInfo}) =>
 
     useEffect(  () => {console.log('refrescando componente de transferir')},[])
 
-    return ( <>
-        {
-            queues.length <= 0 && <Message icon='ban' compact floating negative content='No existen otras bandejas configurados'/>
-        }
-        <Label>Selecciona el queue a transferir</Label>
-        <Dropdown placeholder='Escoge un queue' value={queueToSend.queue} error={errorQueueField} selection fluid options={queues.map((x) => {
-            return { key: x._id, value: x._id, text: x.name }
-        })} onChange={(e,{value}) => {
-            setErrorQueueField(false);
-            let queueName = queues.find((x) => {
-                return x._id === value;
-            })
-            setQueueToSend({...queueToSend, queue : value, name : queueName.name})
-            
-        }} disabled={queues.length <= 0}/>
-        <div style={{marginTop:15}}>
-            <Button color='blue' onClick={() => checkToSend()} disabled={queues.length <= 0}>Transferir Folio</Button>
-        </div>
+    return (
+        <div className="space-y-4">
+            {queues.length <= 0 ? (
+                <div className="p-3 bg-red-100 text-red-700 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    No existen otras bandejas configuradas
+                </div>
+            ) : (
+                <>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona la bandeja a transferir</label>
+                    <Select
+                        placeholder="Selecciona una bandeja"
+                        selectedKeys={queueToSend.queue ? [queueToSend.queue] : []}
+                        onSelectionChange={(keys) => {
+                            const value = Array.from(keys)[0];
+                            setErrorQueueField(false);
+                            const queueName = queues.find((x) => x._id === value);
+                            setQueueToSend({
+                                ...queueToSend,
+                                queue: value,
+                                name: queueName?.name
+                            });
+                        }}
+                        isDisabled={queues.length <= 0}
+                        className={errorQueueField ? 'border-red-500' : ''}
+                    >
+                        {queues.map((queue) => (
+                            <SelectItem key={queue._id} value={queue._id}>
+                                {queue.name}
+                            </SelectItem>
+                        ))}
+                    </Select>
+                    
+                    <div className="pt-2">
+                        <Button 
+                            color="primary" 
+                            onPress={checkToSend} 
+                            isDisabled={queues.length <= 0}
+                            className="w-full"
+                        >
+                            Transferir Folio
+                        </Button>
+                    </div>
+                </>
+            )}
 
-        <Modal
-            basic
-            onOpen={() => setOpen(true)}
-            open={open}
-            size='small'
-            >
-            <Header icon>
-                <Icon name='exchange' />
-                Transferir
-            </Header>
-            <Modal.Content>
-                <center>
-                ¿Deseas transferir el folio <b>#{queueToSend.folio}</b> al queue <b>"{queueToSend.name}"</b> ?
-                </center>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setOpen(false); }} loading={onLoading} disabled={onLoading}>
-                    <Icon name='remove' /> No
-                </Button>
-                <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
-                    <Icon name='checkmark' /> Transferir
-                </Button>
-            </Modal.Actions>
+            <Modal isOpen={open} onClose={() => setOpen(false)} size="md">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                            Transferir folio
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="text-center py-4">
+                            <p>¿Deseas transferir el folio <span className="font-bold">#{queueToSend.folio}</span> a la bandeja <span className="font-bold">{queueToSend.name}</span>?</p>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="flat" onPress={() => setOpen(false)} isDisabled={onLoading}>
+                            No
+                        </Button>
+                        <Button color="primary" onPress={execTransfer} isLoading={onLoading} isDisabled={onLoading}>
+                            Transferir
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
             </Modal>
-    </>);
+        </div>
+    );
 }
  
 export default TransferirFolioQueueGlobal_QueueLocal;

@@ -33,25 +33,83 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
         );
     }
     const getMtm = (mtm) => {
-        setTitleModal('Plantillas de mensajes')
+        setTitleModal('Vista previa de la plantilla')
         setOpenModal(!openModal);
 
         socket.connection.emit('getMtmDetail', {mtm}, (res) => {
             if(res.success){
                 setMtmToSend({...mtmToSend, _id : res.mtm._id, name: res.mtm.name, text : res.mtm.previewtxt, locale : res.mtm.locale, service : res.mtm.service, channel : res.mtm.channel, parameters: res.mtm.parameters,  parametersHeader: res.mtm.parametersHeader })
-                setContentMessage(
-                    <div className="mt-4 mb-4">
-                        <span className="px-4 py-2 bg-blue-100 text-blue-800 text-lg font-medium rounded-lg">
-                            {res.mtm.previewtxt}
-                        </span>
+                
+                // Crear vista de WhatsApp
+                const whatsappPreview = (
+                    <div className="w-full max-w-xs mx-auto bg-gray-100 rounded-2xl overflow-hidden shadow-lg">
+                        {/* Encabezado de WhatsApp */}
+                        <div className="bg-emerald-600 p-3 flex items-center">
+                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="text-white">
+                                <div className="font-medium">+502 1234 5678</div>
+                                <div className="text-xs opacity-80">En línea</div>
+                            </div>
+                        </div>
+                        
+                        {/* Cuerpo del chat */}
+                        <div className="p-4 space-y-3 bg-[#e5ddd5] bg-opacity-30" style={{
+                            backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzVBRUUzOEI0QjM0MTFFQkE1QjVFNzNEMjUzQzJCMjMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzVBRUUzOEM0QjM0MTFFQkE1QjVFNzNEMjUzQzJCMjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3NUFFRTM4OTRCMzQxMUVCQTVCNUU3M0QyNTNDMkIyMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3NUFFRTNBQTRCMzQxMUVCQTVCNUU3M0QyNTNDMkIyMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Phz6lJkAAABgSURBVHjaYvz//z8DKeD//w9MTEwMDAy/f//+9+8fEwMDw9+/f//9+8fIyMjExMT4/z8jI+OfP3+YmZmZGRgY/v9nZGRkZGRkYGBgZGRkYGBgYGBgYABrBQswQjVgWYgFgJQDAwAA//8DAJfQA1nUcQbJAAAAAElFTkSuQmCC")',
+                            backgroundRepeat: 'repeat',
+                            minHeight: '200px',
+                            maxHeight: '300px',
+                            overflowY: 'auto'
+                        }}>
+                            {/* Mensaje de la plantilla */}
+                            <div className="flex justify-end mb-2">
+                                <div className="bg-green-100 rounded-lg p-2 max-w-[80%] shadow">
+                                    <div className="text-sm text-gray-800">{res.mtm.previewtxt}</div>
+                                    <div className="text-right">
+                                        <span className="text-xs text-gray-500">Ahora</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 inline-block ml-1 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Pie de conversación */}
+                            <div className="text-center text-xs text-gray-500 my-2">
+                                {new Date().toLocaleTimeString('es-GT', {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        </div>
+                        
+                        {/* Área de entrada de texto */}
+                        <div className="bg-white p-2 flex items-center">
+                            <div className="flex-1 bg-gray-100 rounded-full px-4 py-2 mx-2 flex items-center">
+                                <span className="text-gray-500 text-sm">Escribe un mensaje aquí</span>
+                            </div>
+                            <button className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                )
+                );
+                
+                setContentMessage(whatsappPreview);
             } else {
                 setContentMessage(
-                    <div className="mt-4 mb-4 text-red-500 font-medium">
-                        {res.mtm.messages}
+                    <div className="mt-4 mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+                        <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                            <span className="font-medium">Error al cargar la plantilla</span>
+                        </div>
+                        <p className="mt-2 text-sm">{res.mtm?.messages || 'No se pudo cargar la información de la plantilla.'}</p>
                     </div>
-                )
+                );
             }
         })
     }
@@ -168,31 +226,49 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                 </ul>
             </div>
 
-            <Modal isOpen={openModal} onClose={initLoadModal} size="md">
+            <Modal isOpen={openModal} onClose={initLoadModal} size="2xl">
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
-                            Enviar Plantilla
+                            Vista previa de WhatsApp
                         </div>
                     </ModalHeader>
                     <ModalBody>
-                        <div className="text-center">
-                            {contentMessage}
-                            <p className="mt-4">
-                                ¿Deseas enviar la plantilla <span className="font-bold">{mtmToSend.name}</span> al usuario 
-                                <span className="font-bold"> "{person.aliasId ? person.aliasId : person.anchor}"</span>?
-                            </p>
+                        <div className="space-y-4">
+                            <div className="text-center">
+                                <p className="text-sm text-gray-500 mb-2">Así se verá el mensaje para:</p>
+                                <p className="font-medium">{person.aliasId || person.anchor || 'Usuario'}</p>
+                            </div>
+                            
+                            <div className="border rounded-lg overflow-hidden shadow-lg">
+                                {contentMessage}
+                            </div>
+                            
+                            <div className="text-center text-sm text-gray-600">
+                                <p>¿Deseas enviar esta plantilla?</p>
+                                <p className="text-xs mt-1">Plantilla: <span className="font-medium">{mtmToSend.name || 'Sin nombre'}</span></p>
+                            </div>
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="danger" variant="flat" onPress={initLoadModal} isLoading={onLoading} isDisabled={onLoading}>
-                            No
+                        <Button color="danger" variant="flat" onPress={initLoadModal} isDisabled={onLoading}>
+                            Cancelar
                         </Button>
-                        <Button color="primary" onPress={() => execSendMtm(mtmToSend)} isLoading={onLoading} isDisabled={onLoading}>
-                            Enviar
+                        <Button 
+                            color="success" 
+                            onPress={() => execSendMtm(mtmToSend)} 
+                            isLoading={onLoading} 
+                            isDisabled={onLoading}
+                            startContent={
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
+                                </svg>
+                            }
+                        >
+                            Enviar plantilla
                         </Button>
                     </ModalFooter>
                 </ModalContent>
