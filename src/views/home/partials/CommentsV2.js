@@ -1,4 +1,4 @@
-import React, {useContext, useState, useRef, useEffect, useCallback} from 'react';
+import React, {useContext, useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
 import {Snippet, Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen } from 'lucide-react';
@@ -83,6 +83,171 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
 
     const [currentFolio, setCurrentFolio] = useState(null);
     const [messageToSend, setMessageToSend] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    
+    // Limpiar el término de búsqueda cuando cambia el folio
+    useEffect(() => {
+        setSearchTerm('');
+    }, [folio?._id]);
+
+    // Estado para el índice del mensaje resaltado actual
+    const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+    const matchesRef = useRef([]);
+    
+    // Encontrar todos los mensajes que coinciden con el término de búsqueda
+    const { messagesWithMatches, matchCount } = useMemo(() => {
+        console.log('Processing messages...', { 
+            searchTerm, 
+            hasMessages: !!folio?.message,
+            folioId: folio?._id
+        });
+
+        try {
+            // Asegurarse de que folio.message sea un array
+            const messages = Array.isArray(folio?.message) ? folio.message : [];
+            
+            // Si no hay término de búsqueda, devolver todos los mensajes sin resaltar
+            if (!searchTerm || !searchTerm.trim()) {
+                console.log('No search term, returning all messages without highlighting');
+                matchesRef.current = [];
+                setCurrentMatchIndex(-1);
+                return { 
+                    messagesWithMatches: messages.map(msg => ({ ...msg, _hasMatch: false })),
+                    matchCount: 0
+                };
+            }
+            
+            const searchTermLower = searchTerm.toLowerCase();
+            const matches = [];
+            
+            // Procesar mensajes para encontrar coincidencias
+            const processedMessages = messages.map(msg => {
+                if (!msg) return { ...msg, _hasMatch: false };
+                
+                // Buscar en diferentes propiedades del mensaje
+                const content = String(msg.content || '').toLowerCase();
+                const caption = String(msg.caption || '').toLowerCase();
+                const subject = String(msg.subject || '').toLowerCase();
+                const body = String(msg.body || '').toLowerCase();
+                
+                const hasMatch = [content, caption, subject, body].some(
+                    text => text.includes(searchTermLower)
+                );
+                
+                if (hasMatch) {
+                    matches.push(msg._id); // Guardar el ID del mensaje
+                }
+                
+                return { 
+                    ...msg, 
+                    _hasMatch: hasMatch 
+                };
+            });
+            
+            // Actualizar la referencia a los IDs de los mensajes coincidentes
+            matchesRef.current = matches;
+            setCurrentMatchIndex(matches.length > 0 ? 0 : -1);
+            
+            console.log(`Found ${matches.length} messages matching '${searchTerm}'`, matches);
+            
+            return { 
+                messagesWithMatches: processedMessages, 
+                matchCount: matches.length 
+            };
+            
+        } catch (error) {
+            console.error('Error processing messages:', error);
+            matchesRef.current = [];
+            setCurrentMatchIndex(-1);
+            return { 
+                messagesWithMatches: Array.isArray(folio?.message) ? folio.message : [], 
+                matchCount: 0 
+            };
+        }
+    }, [folio, searchTerm]);
+    
+    // Navegar entre coincidencias
+    const navigateMatch = (direction) => {
+        if (!searchTerm || matchesRef.current.length === 0) {
+            console.log('Navigation prevented: No search term or no matches.');
+            return;
+        }
+
+        // Calcular el nuevo índice usando el estado actual
+        const newIndex = direction === 'next'
+            ? (currentMatchIndex + 1) % matchesRef.current.length
+            : (currentMatchIndex - 1 + matchesRef.current.length) % matchesRef.current.length;
+
+        // Obtener el ID del mensaje en el array completo
+        const messageId = matchesRef.current[newIndex];
+
+        console.log(`Navigating to ${direction}. Current index: ${currentMatchIndex}, New index: ${newIndex}, Message ID: ${messageId}`);
+
+        // Actualizar el estado del índice actual
+        setCurrentMatchIndex(newIndex);
+
+        // Hacer scroll al elemento
+        requestAnimationFrame(() => {
+            const messageElement = document.getElementById(`message-${messageId}`);
+            console.log(`Attempting to scroll to message-${messageId}. Element found:`, !!messageElement);
+
+            if (messageElement) {
+                try {
+                    messageElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+
+                    // Limpiar resaltados anteriores y aplicar el nuevo
+                    document.querySelectorAll('.search-match-highlight').forEach(el => {
+                        el.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
+                    });
+                    messageElement.classList.add('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
+
+                    setTimeout(() => {
+                        messageElement.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
+                    }, 2000);
+                } catch (error) {
+                    console.error('Error scrolling to message:', error);
+                }
+            }
+        });
+    };
+    
+    // Manejar teclas de navegación
+    useEffect(() => {
+        if (!searchTerm) return;
+        
+        const handleKeyDown = (e) => {
+            // Solo actuar si no estamos en un campo de entrada de texto
+            const isInputField = e.target.tagName === 'INPUT' || 
+                               e.target.tagName === 'TEXTAREA' || 
+                               e.target.isContentEditable;
+            
+            // Si es un campo de entrada que no es nuestro campo de búsqueda, ignorar
+            if (isInputField && e.target.placeholder !== 'Buscar en la conversación...') {
+                return;
+            }
+            
+            // Enter: Siguiente coincidencia
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                navigateMatch('next');
+            } 
+            // Shift+Enter: Coincidencia anterior
+            else if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                navigateMatch('prev');
+            }
+        };
+        
+        document.addEventListener('keydown', handleKeyDown, true); // Usar capture phase
+        return () => document.removeEventListener('keydown', handleKeyDown, true);
+    }, [searchTerm, navigateMatch]);
     
     //Gestion de drafts 
     const [messageDrafts, setMessageDrafts] = useState(() => {
@@ -1095,6 +1260,121 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
     return (
         <>
             <div className="flex flex-col h-full bg-gray-50">
+                {/* Barra de búsqueda con HeroUI */}
+                <div className="p-3 border-b border-default-200 bg-default-50">
+                    <div className="relative">
+                        <div className="flex items-center gap-2">
+                            <Input
+                                type="text"
+                                placeholder="Buscar en la conversación..."
+                                className="flex-1 text-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onBlur={() => setIsSearchFocused(false)}
+                                onKeyDown={(e) => {
+                                    // Prevenir el envío del formulario al presionar Enter en la búsqueda
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        // Si hay texto de búsqueda, navegar a la siguiente coincidencia
+                                        if (searchTerm) {
+                                            if (e.shiftKey) {
+                                                navigateMatch('prev');
+                                            } else {
+                                                navigateMatch('next');
+                                            }
+                                        }
+                                    }
+                                }}
+                                startContent={
+                                    <svg className="w-4 h-4 text-default-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                }
+                                endContent={
+                                    searchTerm && (
+                                        <button 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setSearchTerm('');
+                                            }} 
+                                            className="text-default-400 hover:text-default-600"
+                                            type="button"
+                                        >
+                                            <XCircle className="w-4 h-4" />
+                                        </button>
+                                    )
+                                }
+                                classNames={{
+                                    input: 'text-sm',
+                                    inputWrapper: 'bg-default-100 hover:bg-default-200 flex-grow',
+                                }}
+                            />
+                            
+                            {searchTerm && matchCount > 0 && (
+                                <div className="flex items-center gap-1">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log('Previous button clicked');
+                                            navigateMatch('prev');
+                                        }}
+                                        disabled={matchCount === 0}
+                                        className="p-1 rounded-md hover:bg-default-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        title="Coincidencia anterior (Shift+Enter)"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <span className="text-xs text-default-500 mx-1">
+                                        {currentMatchIndex + 1}/{matchCount}
+                                    </span>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log('Next button clicked');
+                                            navigateMatch('next');
+                                        }}
+                                        disabled={matchCount === 0}
+                                        className="p-1 rounded-md hover:bg-default-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        title="Siguiente coincidencia (Enter)"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {searchTerm && (
+                            <div className="mt-2 text-xs text-default-500 flex items-center gap-2 flex-wrap">
+                                <span>
+                                    {matchCount} {matchCount === 1 ? 'coincidencia' : 'coincidencias'} 
+                                    {matchCount > 0 && `(Enter siguiente, Shift+Enter anterior)`}
+                                </span>
+                                {searchTerm && (
+                                    <Chip 
+                                        size="sm" 
+                                        color="primary" 
+                                        variant="flat"
+                                        classNames={{
+                                            base: 'ml-2',
+                                            content: 'text-xs font-medium'
+                                        }}
+                                    >
+                                        {searchTerm}
+                                    </Chip>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                
                 {/* Header */}
                 <div className="p-4 border-b bg-white shadow-sm shrink-0">
                     <div className="flex items-baseline gap-2">
@@ -1143,7 +1423,12 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                 </div>
     
                 {/* Scrollable Message Area */}
-                <div className="flex-grow overflow-y-auto p-4" id={`boxMessage-${folio._id}`} ref={boxMessage}>
+                <div 
+                    className="flex-grow overflow-y-auto p-4 relative" 
+                    id={`boxMessage-${folio._id}`} 
+                    ref={boxMessage}
+                    style={{ scrollBehavior: 'smooth' }}
+                >
                     {typeFolio === '_CALL_' && fullFolio ? (
                         <Call 
                             currentFolio={fullFolio.folio} 
@@ -1157,21 +1442,35 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                             isEndingFolio={isEndingFolio}
                         />
                     ) : fullFolio ? (
-                        folio.message.map((msg) => 
-                            typeFolio === '_EMAIL_' ? (
-                                <MessageBubbleEmail key={msg._id} message={msg} />
+                        messagesWithMatches.map((msg, index) => {
+                            const isMatch = msg._hasMatch || false;
+                            const isCurrentMatch = isMatch && matchesRef.current[msg._matchIndex] === index;
+                            
+                            const messageElement = typeFolio === '_EMAIL_' ? (
+                                <MessageBubbleEmail 
+                                    key={`${msg._id}-${index}`}
+                                    id={`message-${index}`}
+                                    message={msg} 
+                                    highlight={isMatch ? searchTerm : ''}
+                                    className={`${isCurrentMatch ? 'bg-blue-50 dark:bg-blue-900/30 transition-colors duration-300' : ''} message-container`}
+                                />
                             ) : (
                                 <MessageBubble 
-                                    key={msg._id} 
+                                    key={`${msg._id}-${index}`}
+                                    id={`message-${index}`}
                                     allMsg={folio.message} 
                                     message={msg} 
                                     responseToMessage={responseToMessage} 
                                     reactToMessage={reactToMessage} 
                                     typeFolio={typeFolio}
                                     contact={folio.person}
+                                    highlight={isMatch ? searchTerm : ''}
+                                    className={`${isCurrentMatch ? 'bg-blue-50 dark:bg-blue-900/30 transition-colors duration-300' : ''} message-container`}
                                 />
-                            )
-                        )
+                            );
+                            
+                            return messageElement;
+                        })
                     ) : null}
                 </div>
     

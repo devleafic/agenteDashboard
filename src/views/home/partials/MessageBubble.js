@@ -27,7 +27,19 @@ const DoubleCheckIcon = ({ className }) => (
     </svg>
 );
 
-const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact }) => {
+// Función para resaltar texto en un mensaje
+const highlightText = (text, highlight) => {
+    if (!highlight || !text) return text;
+    
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return parts.map((part, i) => 
+        part.toLowerCase() === highlight.toLowerCase() 
+            ? <mark key={i} className="bg-yellow-200 text-current">{part}</mark> 
+            : part
+    );
+};
+
+const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact, highlight = '' }) => {
 
     const isOutgoing = message.direction === 'out';
 
@@ -120,7 +132,12 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         return (
             <div className="bg-black/10 p-2 rounded-lg mb-2 border-l-2 border-primary">
                 <p className="text-xs font-bold">{originalMsg.direction === 'out' ? getNameAuthor(originalMsg.origin) : (contact?.aliasId || contact?.name || contact?.alias || 'Desconocido')}</p>
-                <p className="text-sm truncate">{contentPreview}</p>
+                <p className="text-sm truncate">
+                    {highlight && typeof contentPreview === 'string' 
+                        ? highlightText(contentPreview, highlight) 
+                        : contentPreview
+                    }
+                </p>
             </div>
         );
     };
@@ -137,13 +154,18 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'buttonreply':
                     return (
                         <div className="whitespace-pre-wrap break-words">
-                            {msg.content}
+                            {highlight 
+                                ? highlightText(msg.content, highlight) 
+                                : msg.content
+                            }
                         </div>
                     );
                 case 'mtm':
                     return (
                         <div>
-                            <p className="font-bold text-sm">Plantilla: {msg.content}</p>
+                            <p className="font-bold text-sm">
+                                Plantilla: {highlight ? highlightText(msg.content, highlight) : msg.content}
+                            </p>
                             {msg.caption && <p className="text-sm mt-1">{msg.caption}</p>}
                         </div>
                     );
@@ -173,7 +195,12 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             </a>
                             {msg.caption && (
                                 <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 w-full">
-                                    <p className="text-tiny text-white/80">{msg.caption}</p>
+                                    <p className="text-tiny text-white/80">
+                                        {highlight && msg.caption 
+                                            ? highlightText(msg.caption, highlight) 
+                                            : msg.caption
+                                        }
+                                    </p>
                                 </CardFooter>
                             )}
                         </Card>
@@ -192,7 +219,12 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             <CardBody className="flex flex-row items-center gap-3 p-3">
                                 <PaperclipIcon className="w-8 h-8 text-gray-500" />
                                 <div className="flex-grow">
-                                    <p className="text-sm font-semibold truncate">{msg.caption || 'Archivo adjunto'}</p>
+                                    <p className="text-sm font-semibold truncate">
+                                        {highlight && msg.caption 
+                                            ? highlightText(msg.caption, highlight) 
+                                            : (msg.caption || 'Archivo adjunto')
+                                        }
+                                    </p>
                                 </div>
                                 <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
                                     <DownloadIcon className="w-5 h-5" />
@@ -244,7 +276,11 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
     const reaction = getReaction(message.reaction);
 
     return (
-        <div className={`flex items-start gap-2.5 my-2 ${isOutgoing ? 'flex-row-reverse' : ''}`}>
+        <div 
+            id={`message-${message._id}`}
+            key={message._id} 
+            className={`flex items-start gap-2.5 my-2 ${isOutgoing ? 'flex-row-reverse' : ''}`}
+        >
             {isOutgoing ? (
                 <div className="flex flex-col items-center">
                     <Avatar
