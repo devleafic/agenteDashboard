@@ -49,6 +49,13 @@ const ChevronDownIcon = (props) => (
     </svg>
 );
 
+const InboxIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+    </svg>
+);
+
+
 const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall, userInfo, sidCall, setSidCall, dispatch, unReadFolios, countunReadMsg, dispatchCount, vFolio, setVFolio }) => {
 
     const boxMessage = useRef(null);
@@ -290,6 +297,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
                                     const ch = availableCh && folio.channel?.name ? availableCh.find(c => c.id === folio.channel.name) : null;
                                     let channelIcon;
+                                    let inboxIcon = null;
                                     if (ch?.image) {
                                         channelIcon = <img src={ch.image} alt={folio.channel?.name || 'channel'} className="w-5 h-5" />;
                                     } else {
@@ -305,6 +313,11 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                 channelIcon = <ChatBubbleIcon className="w-5 h-5 text-gray-400" />;
                                                 break;
                                         }
+                                    }
+
+                                   
+                                    if (folio.fromInbox){
+                                        inboxIcon = <InboxIcon className="w-5 h-5 text-red-500" />;
                                     }
 
                                     const secondaryText = folio.channel?.name === 'email' ? (folio.lastEmailProcessed?.subject || 'Sin asunto') : folio.person?.anchor;
@@ -335,11 +348,15 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                     </p>
                                                     <div className="flex-shrink-0">
                                                         {channelIcon}
+                                                       
                                                     </div>
                                                 </div>
-                                                <p className="text-xs font-medium text-gray-600 truncate">
-                                                    {secondaryText}
-                                                </p>
+                                                <div className="flex justify-between items-center w-full">
+                                                    <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                        {secondaryText}
+                                                    </p>
+                                                    {inboxIcon}
+                                                </div>
                                             </div>
                                         </div>
                                     );

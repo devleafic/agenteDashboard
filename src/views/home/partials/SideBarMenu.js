@@ -140,31 +140,33 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
                         const isDisabled = isConnected === -1 && item.name !== 'chat';
                         
                         return (
-                            <Tooltip 
-                                key={item.name}
-                                content={item.tooltip} 
-                                placement="right" 
-                                color="primary"
-                                showArrow={true}
-                                offset={10}
-                                className="z-50"
+              
+                            <Badge content="" color="danger" isInvisible={!item.badge} shape="circle">
+                                <Tooltip 
+                                    key={item.name}
+                                    content={item.tooltip} 
+                                    placement="right" 
+                                    
+                                    showArrow={true}
+                                    offset={10}
+                                    className="z-50 bg-gradient-to-br from-indigo-500 to-pink-500 text-white scale-110"
                             >
-                                <Badge content="" color="danger" isInvisible={!item.badge} shape="circle">
                                     <Button
-                                        isIconOnly
-                                        variant="flat"
-                                        color={page === item.name ? "primary" : "default"}
-                                        aria-label={item.tooltip}
-                                        onPress={() => selectedComponent(item.name)}
-                                        isDisabled={isDisabled}
-                                        className={`transition-all duration-200 ${page === item.name 
-                                            ? 'bg-gradient-to-br from-indigo-500 to-pink-500 text-white scale-110' 
-                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white hover:scale-105'}`}
-                                    >
-                                        <IconWrapper className="text-white">{item.icon}</IconWrapper>
+                                            isIconOnly
+                                            variant="flat"
+                                            color={page === item.name ? "primary" : "default"}
+                                            aria-label={item.tooltip}
+                                            onPress={() => selectedComponent(item.name)}
+                                            isDisabled={isDisabled}
+                                            className={`transition-all duration-200 ${page === item.name 
+                                                ? 'bg-gradient-to-br from-indigo-500 to-pink-500 text-white scale-110' 
+                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white hover:scale-105'}`}
+                                        >
+                                            <IconWrapper className="text-white">{item.icon}</IconWrapper>
                                     </Button>
-                                </Badge>
-                            </Tooltip>
+                                </Tooltip>       
+                            </Badge>
+                           
                         );
                     })}
                 </div>
