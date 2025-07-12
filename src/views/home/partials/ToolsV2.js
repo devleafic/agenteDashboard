@@ -336,11 +336,11 @@ const ToolsV2 = ({
   const sections = [
     { id: 'crm', title: 'CRM', icon: FiUser, content: renderCrmSection },
     { id: 'plugins', title: 'Plugins', icon: FiGrid, content: renderPluginsSection },
-    { id: 'templates', title: 'Plantillas de mensajes', icon: FiMessageSquare, content: renderTemplatesSection },
+    { id: 'templates', title: 'Plantillas de mensajes', icon: FiMessageSquare, content: renderTemplatesSection, condition: folio.folio.channel !== 'call' },
     { id: 'history', title: 'Historial de folios', icon: FiClock, content: renderHistorySection },
     { id: 'quickResponses', title: 'Respuestas Rápidas', icon: FiMessageCircle, content: renderQuickResponsesSection, condition: folio.folio.channel !== 'call' },
-    { id: 'files', title: 'Catálogo de archivos', icon: FiFolder, content: renderFilesSection },
-    { id: 'tickets', title: 'Tickets', icon: FiFileText, content: renderTicketsSection },
+    { id: 'files', title: 'Catálogo de archivos', icon: FiFolder, content: renderFilesSection, condition: folio.folio.channel !== 'call' },
+    { id: 'tickets', title: 'Tickets', icon: FiFileText, content: renderTicketsSection, condition: folio.folio.channel !== 'call' },
     { id: 'transfer', title: 'Transferir', icon: FiArrowRight, content: renderTransferSection, condition: folio.folio.channel !== 'call' },
   ];
 

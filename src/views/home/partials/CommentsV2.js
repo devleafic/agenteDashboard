@@ -17,7 +17,7 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 import { Editor } from '@tinymce/tinymce-react';
 
-const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh}) => {
+const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend,}) => {
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -82,7 +82,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
     const [isEndingFolio, setIsEndingFolio] = useState(false);
 
     const [currentFolio, setCurrentFolio] = useState(null);
-    const [messageToSend, setMessageToSend] = useState('');
+    //const [messageToSend, setMessageToSend] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     
