@@ -166,7 +166,7 @@ const HistoryFolios = ({ historyFolios = [] }) => {
       </div>
 
       {/* Modal de detalle */}
-      <Modal isOpen={openModal} onOpenChange={setOpenModal} size="5xl">
+      <Modal isOpen={openModal} scrollBehavior="inside" onOpenChange={setOpenModal} size="5xl">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             {titleModal}
