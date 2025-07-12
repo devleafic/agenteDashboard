@@ -204,11 +204,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                     document.querySelectorAll('.search-match-highlight').forEach(el => {
                         el.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
                     });
-                    messageElement.classList.add('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
+                    messageElement.classList.add('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative','rounded-lg');
 
                     setTimeout(() => {
-                        messageElement.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
-                    }, 2000);
+                        messageElement.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative','rounded-lg');
+                    }, 3000);
                 } catch (error) {
                     console.error('Error scrolling to message:', error);
                 }
@@ -1443,14 +1443,19 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                         />
                     ) : fullFolio ? (
                         folio.message.map((msg, index) => {
-                            const isMatch = msg._hasMatch || false;
-                            const isCurrentMatch = isMatch && matchesRef.current[msg._matchIndex] === index;
+                            // Verificar si el mensaje actual tiene un match en messagesWithMatches
+                            const matchedMessage = messagesWithMatches.find(m => m._id === msg._id);
+                            const isMatch = matchedMessage?._hasMatch || false;
+                            const isCurrentMatch = isMatch && matchesRef.current[matchedMessage?._matchIndex] === index;
+                            
+                            // Agregar _hasMatch al objeto msg
+                            const msgWithMatch = { ...msg, _hasMatch: isMatch };
                             
                             const messageElement = typeFolio === '_EMAIL_' ? (
                                 <MessageBubbleEmail 
                                     key={`${msg._id}-${index}`}
                                     id={`message-${index}`}
-                                    message={msg} 
+                                    message={msgWithMatch} 
                                     highlight={isMatch ? searchTerm : ''}
                                     className={`${isCurrentMatch ? 'bg-blue-50 dark:bg-blue-900/30 transition-colors duration-300' : ''} message-container`}
                                 />
@@ -1459,7 +1464,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                     key={`${msg._id}-${index}`}
                                     id={`message-${index}`}
                                     allMsg={folio.message} 
-                                    message={msg} 
+                                    message={msgWithMatch} 
                                     responseToMessage={responseToMessage} 
                                     reactToMessage={reactToMessage} 
                                     typeFolio={typeFolio}

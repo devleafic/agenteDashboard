@@ -34,7 +34,7 @@ const highlightText = (text, highlight) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
     return parts.map((part, i) => 
         part.toLowerCase() === highlight.toLowerCase() 
-            ? <mark key={i} className="bg-yellow-200 text-current">{part}</mark> 
+            ? <mark key={i} className="bg-yellow-400 text-current">{part}</mark> 
             : part
     );
 };
