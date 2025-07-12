@@ -1442,7 +1442,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                             isEndingFolio={isEndingFolio}
                         />
                     ) : fullFolio ? (
-                        messagesWithMatches.map((msg, index) => {
+                        folio.message.map((msg, index) => {
                             const isMatch = msg._hasMatch || false;
                             const isCurrentMatch = isMatch && matchesRef.current[msg._matchIndex] === index;
                             

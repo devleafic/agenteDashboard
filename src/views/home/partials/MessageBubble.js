@@ -84,32 +84,42 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         }
 
         if (ack.readByRecipient) return (
-            <div className="bg-blue-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                <DoubleCheckIcon className="w-6 h-6 text-blue-600" />
-            </div>
+            <Tooltip content="Mensaje leído por el destinatario" placement="top">
+                <div className="bg-blue-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
+                    <DoubleCheckIcon className="w-6 h-6 text-blue-600" />
+                </div>
+            </Tooltip>
         );
         if (ack.deliveryToRecipient) return (
-            <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                <DoubleCheckIcon className="w-6 h-6 text-gray-700" />
-            </div>
+            <Tooltip content="Mensaje entregado al dispositivo del destinatario" placement="top">
+                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
+                    <DoubleCheckIcon className="w-6 h-6 text-gray-700" />
+                </div>
+            </Tooltip>
         );
         if (ack.deliveryToServers || ack.sent) return (
-            <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                <CheckIcon className="w-6 h-6 text-gray-700" />
-            </div>
+            <Tooltip content="Mensaje enviado al servidor" placement="top">
+                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
+                    <CheckIcon className="w-6 h-6 text-gray-700" />
+                </div>
+            </Tooltip>
         );
         if (ack.enqueued) return (
-            <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                <ClockIcon className="w-6 h-6 text-gray-700" />
-            </div>
+            <Tooltip content="Mensaje en cola para ser enviado" placement="top">
+                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
+                    <ClockIcon className="w-6 h-6 text-gray-700" />
+                </div>
+            </Tooltip>
         );
         
         // Si llegamos aquí, no se reconoció ningún estado específico
         // Mostramos un reloj como estado predeterminado
         return (
-            <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                <ClockIcon className="w-6 h-6 text-gray-700" />
-            </div>
+            <Tooltip content="Mensaje no enviado, vuelve a intentar" placement="top">
+                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
+                    <ClockIcon className="w-6 h-6 text-gray-700" />
+                </div>
+            </Tooltip>
         );
     };
 
