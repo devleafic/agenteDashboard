@@ -1,9 +1,8 @@
-import React, {useRef, useState, useContext, useCallback, useEffect} from 'react';
-import { Icon, Loader, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
-import axios, {post} from 'axios';
-import SocketContext from './../../../controladores/SocketContext';
-import ListFoliosContext from '../../../controladores/FoliosContext';
-import Dropzone  from 'react-dropzone';
+import React, { useState, useEffect } from 'react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spinner, Image, Card, CardBody } from '@heroui/react';
+import { Upload, X, Check, Paperclip, Folder } from 'lucide-react';
+import axios, { post } from 'axios';
+import Dropzone from 'react-dropzone';
 
 
 const InternalUploadFile = ({sendFile}) => {
@@ -108,7 +107,17 @@ const InternalUploadFile = ({sendFile}) => {
             if(classFile[0] === 'image'){
                 setContentShow(<Image centered size='medium' src={data.data.url}/>)
             }else{
-                setContentShow(<a color='blue'target='blank' href={data.data.url}><Icon name='folder open'></Icon>{data.data.file.originalFilename}</a>)
+                setContentShow(
+                    <a 
+                        href={data.data.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    >
+                        <Folder className="w-5 h-5" />
+                        {data.data.file.originalFilename}
+                    </a>
+                )
             }
             
             // setShowModal(true)
@@ -116,70 +125,84 @@ const InternalUploadFile = ({sendFile}) => {
             
         });
     };
-    return (<>
-        <Dropzone maxFiles={1} onDrop={acceptedFiles => { fileUpload(acceptedFiles[0]); }} noClick>
-        {({ getRootProps, getInputProps, open }) => (
-            <div {...getRootProps()}>
-                <input {...getInputProps()} />
-                <button
-                  type="button"
-                  onClick={open}
-                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
-                  aria-label="Adjuntar archivo"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                </button>
-            </div>
-        )}
-        </Dropzone>
+    return (
+        <div className="relative">
+            <Dropzone maxFiles={1} onDrop={acceptedFiles => { fileUpload(acceptedFiles[0]); }} noClick>
+                {({ getRootProps, getInputProps, open }) => (
+                    <div {...getRootProps()}>
+                        <input {...getInputProps()} />
+                        <button
+                            type="button"
+                            onClick={open}
+                            className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                            aria-label="Adjuntar archivo"
+                        >
+                            <Paperclip className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+            </Dropzone>
 
-        <Modal
-        basic
-        open={showModal}
-        size='small'
-        >
-            <Header icon>
-                <Icon name={onPushFile ? 'cloud upload' : 'archive'} />
-                {onPushFile ? 'Cargando Archivo...' : '¿Quiere enviar el archivo "'+nameFileSend+'"?' }
-            </Header>
-            <Modal.Content>
-                <Message style={{minHeight : 100}}>
-                {onPushFile && <Dimmer active inverted>
-                    <Loader inverted>Cargando Archivo</Loader>
-                </Dimmer>}
-                {contentShow}
-                </Message>
-            </Modal.Content>
-            <Modal.Actions>
-                <button 
-                  type="button"
-                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
-                  aria-label="Cancelar"
-                  onClick={() => {setShowModal(false);}}
-                  disabled={onPushFile}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                <button 
-                  type="button"
-                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
-                  aria-label="Enviar"
-                  onClick={() => {
-                    let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
-                    sendFile({
-                        url : urlFixed,
-                        typeFile : urlFileType
-                    });
-                    setShowModal(false);
-                  }}
-                  disabled={onPushFile}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                </button>
-            </Modal.Actions>
-        </Modal>
-        
-    </>);
+            <Modal isOpen={showModal} onClose={() => !onPushFile && setShowModal(false)}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    {onPushFile ? (
+                                        <Upload className="w-5 h-5 text-blue-500" />
+                                    ) : (
+                                        <Paperclip className="w-5 h-5 text-blue-500" />
+                                    )}
+                                    {onPushFile ? 'Cargando Archivo...' : `¿Quiere enviar el archivo "${nameFileSend}"?`}
+                                </div>
+                            </ModalHeader>
+                            <ModalBody>
+                                <div className="min-h-[200px] flex items-center justify-center relative">
+                                    {onPushFile ? (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-lg">
+                                            <Spinner size="lg" />
+                                            <span className="ml-2">Cargando archivo...</span>
+                                        </div>
+                                    ) : (
+                                        <div className="w-full">
+                                            {contentShow}
+                                        </div>
+                                    )}
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button 
+                                    color="danger" 
+                                    variant="light" 
+                                    onPress={onClose}
+                                    isDisabled={onPushFile}
+                                    startContent={<X className="w-4 h-4" />}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button 
+                                    color="primary" 
+                                    onPress={() => {
+                                        let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
+                                        sendFile({
+                                            url: urlFixed,
+                                            typeFile: urlFileType
+                                        });
+                                        onClose();
+                                    }}
+                                    isDisabled={onPushFile}
+                                    startContent={<Check className="w-4 h-4" />}
+                                >
+                                    Enviar
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </div>
+    );
 }
  
 export default InternalUploadFile;
