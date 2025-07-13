@@ -1,24 +1,25 @@
 import {useEffect, useState, useRef} from 'react';
 import { useSocket } from '../../../controladores/InternalChatContext';
-import { Input } from 'semantic-ui-react'
 import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
-import { Message } from 'semantic-ui-react';
-import { Table, Icon, Menu, Tab, Button } from 'semantic-ui-react';
 import NotificationSettings from './NotificationSettings';
-
 import { useNotifications } from '../../../controladores/NotificationContext';
-
 import ModalFiles from '../../../componentes/internalChat/ModalFiles';
-
 import axios from 'axios';
-import {
-    DropdownMenu,
-    DropdownItem,
-    DropdownHeader,
-    Dropdown,
-  } from 'semantic-ui-react'
 import InternalUploadFile from './InternalUploadFile';
+
+// HeroUI components
+import { 
+  Input, 
+  Button, 
+  Spinner, 
+  Dropdown, 
+  DropdownTrigger, 
+  DropdownMenu, 
+  DropdownItem, 
+  Tabs, 
+  Tab 
+} from '@heroui/react';
 
 export default function InternalChat({userInfo}) {
 
@@ -316,183 +317,65 @@ export default function InternalChat({userInfo}) {
     // Render chat item with archive/unarchive option
     const renderChatItem = (chat, isArchived) => {
         return (
-            <div className="internal-chat-item" key={chat._id} onClick={() => {
-                setClickedId(chat._id);
-                openChat(chat._id);
-            }}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px 15px',
-                borderBottom: '1px solid #f0f0f0',
-                cursor: 'pointer',
-                backgroundColor: clickedId === chat._id ? '#f5f8ff' : 'white',
-                borderRadius: '8px',
-                margin: '5px 0',
-                transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-                if (clickedId !== chat._id) {
-                    e.currentTarget.style.backgroundColor = '#f8f9fa';
-                }
-            }}
-            onMouseLeave={(e) => {
-                if (clickedId !== chat._id) {
-                    e.currentTarget.style.backgroundColor = 'white';
-                }
-            }}
+            <div 
+                className={`flex items-center p-3 border-b border-gray-100 dark:border-zinc-700 cursor-pointer rounded-lg my-1 transition-colors duration-200 ${clickedId === chat._id ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700'}`}
+                key={chat._id} 
+                onClick={() => {
+                    setClickedId(chat._id);
+                    openChat(chat._id);
+                }}
             >
-                <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    position: 'relative'
-                }}>
-                    <div style={{
-                        width: '45px',
-                        height: '45px',
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        border: '2px solid #f0f0f0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative'
-                    }}>
+                <div className="relative flex items-center">
+                    <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-gray-200 dark:border-zinc-600 flex items-center justify-center relative">
                         {getPictures(chat.isPrivate, chat.members, chat.picture)}
                     </div>
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '-2px',
-                        right: '-2px',
-                        fontSize: '14px'
-                    }}>
+                    <div className="absolute -bottom-0.5 -right-0.5 text-sm">
                         {getActivitie(chat.isPrivate, chat.members)}
                     </div>
                 </div>
-                <div style={{ 
-                    flex: 1, 
-                    margin: '0 12px',
-                    overflow: 'hidden'
-                }}>
-                    <div style={{
-                        fontWeight: 'bold',
-                        fontSize: '15px',
-                        color: '#333',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}>
+                <div className="flex-1 mx-3 overflow-hidden">
+                    <div className="font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap overflow-hidden text-ellipsis">
                         {getNames(chat.isPrivate, chat.members, chat.label)}
                     </div>
-                    <div style={{
-                        fontSize: '13px',
-                        color: '#666',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">
                         {chat.lastMessage ? (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 30) + '...' : chat.lastMessage) : 'No hay mensajes'}
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="flex items-center">
                     {!isArchived ? (
-                        <Icon 
-                            name="archive" 
-                            style={{ 
-                                marginRight: '10px', 
-                                cursor: 'pointer',
-                                color: '#888',
-                                transition: 'color 0.2s',
-                                ':hover': { color: '#333' }
-                            }}
+                        <button 
+                            className="mr-2 p-1.5 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors duration-200"
                             onClick={(e) => handleArchiveChat(chat._id, e)}
                             title="Archivar chat"
-                            onMouseEnter={(e) => e.currentTarget.style.color = '#333'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = '#888'}
-                        />
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                        </button>
                     ) : (
-                        <Icon 
-                            name="undo" 
-                            style={{ 
-                                marginRight: '10px', 
-                                cursor: 'pointer',
-                                color: '#888',
-                                transition: 'color 0.2s',
-                                ':hover': { color: '#333' }
-                            }}
+                        <button 
+                            className="mr-2 p-1.5 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors duration-200"
                             onClick={(e) => handleUnarchiveChat(chat._id, e)}
                             title="Desarchivar chat"
-                            onMouseEnter={(e) => e.currentTarget.style.color = '#333'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = '#888'}
-                        />
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                        </button>
                     )}
                     {unreadMessages && unreadMessages[chat._id] ? (
-                        <div style={{
-                            minWidth: '22px',
-                            height: '22px',
-                            borderRadius: '11px',
-                            backgroundColor: '#25D366',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            padding: '0 6px'
-                        }}>
+                        <div className="min-w-[22px] h-[22px] rounded-full bg-green-500 flex justify-center items-center text-white text-xs font-bold px-1.5">
                             {unreadMessages[chat._id]}
                         </div>
                     ) : (
-                        <div style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: '#ddd'
-                        }}></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                     )}
                 </div>
             </div>
         );
     };
 
-    const panes = [
-        {
-            menuItem: (
-                <Menu.Item key='chats'>
-                    Chats <span style={{ marginLeft: '5px' }}>{inboxList.length}</span>
-                </Menu.Item>
-            ),
-            render: () => (
-                <Tab.Pane>
-                    {inboxList.length > 0 ? (
-                        inboxList.map(chat => renderChatItem(chat, false))
-                    ) : (
-                        <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
-                            No hay chats activos
-                        </div>
-                    )}
-                </Tab.Pane>
-            ),
-        },
-        {
-            menuItem: (
-                <Menu.Item key='archived'>
-                    Archivados <span style={{ marginLeft: '5px' }}>{archivedChats.length}</span>
-                </Menu.Item>
-            ),
-            render: () => (
-                <Tab.Pane>
-                    {archivedChats.length > 0 ? (
-                        archivedChats.map(chat => renderChatItem(chat, true))
-                    ) : (
-                        <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
-                            No hay chats archivados
-                        </div>
-                    )}
-                </Tab.Pane>
-            ),
-        },
-    ];
+    // Los panes ahora están integrados directamente en el componente Tabs de HeroUI
 
 
     // Scroll infitinito
@@ -581,7 +464,7 @@ export default function InternalChat({userInfo}) {
                 Comunícate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.
             </p>
         </div>
-        <div className="internal-chat-container" style={{height:'calc(100% - 140px)'}}>
+        <div className="internal-chat-container" style={{height:'calc(100% - 200px)'}}>
    
             <div className="internal-chat-list px-5">
                 <div className="flex justify-between items-center mb-2 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
@@ -619,205 +502,197 @@ export default function InternalChat({userInfo}) {
                         </svg>
                     </button>
                 </div>
-                <div style={{ position: 'relative' }}>
-                    <Input icon='search' placeholder='Buscar usuario' variant='large' style={{ width: '100%', marginBottom: '10px'}}
+                <div className="relative mb-3">
+                    <Input
+                        type="text"
+                        placeholder="Buscar usuario"
                         value={findUser}
                         onChange={(e) => {
                             setFindUser(e.target.value);
                             getContactList(e.target.value);
                         }}
+                        className="w-full"
+                        startContent={
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        }
                     />
-                    {contactList.length > 0 && <div style={{ 
-                        position: 'absolute', 
-                        top: '40px', 
-                        left: '0', 
-                        width: '100%', 
-                        backgroundColor: '#fff', 
-                        boxShadow: '0 8px 16px rgba(0,0,0,0.1)', 
-                        padding: '12px', 
-                        borderRadius: '8px',
-                        zIndex: 1000,
-                        maxHeight: '300px',
-                        overflowY: 'auto',
-                        border: '1px solid #f0f0f0'
-                    }}>
-                        <div style={{ fontWeight: 'bold', marginBottom: '12px', color: '#333', fontSize: '14px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' }}>Usuarios Encontrados</div>
-                        {contactList.map((user) => (
-                            <div className="internal-chat-item" key={user._id} onClick={() => {
-                                createChat(user);
-                                setFindUser(''); // Clear search after selection
-                                setContactList([]); // Clear results after selection
-                            }}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '10px 12px',
-                                borderBottom: '1px solid #f5f5f5',
-                                cursor: 'pointer',
-                                borderRadius: '6px',
-                                transition: 'all 0.2s ease',
-                                backgroundColor: 'white',
-                                marginBottom: '6px',
-                                ':hover': {
-                                    backgroundColor: '#f8f9fa'
-                                }
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                            >
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    borderRadius: '50%',
-                                    overflow: 'hidden',
-                                    marginRight: '12px',
-                                    border: '2px solid #f0f0f0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <img 
-                                        src={user.profile.picture && user.profile.picture.length > 0 ? user.profile.picture : avatarUser} 
-                                        alt="User Icon" 
-                                        style={{ 
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover'
-                                        }}
-                                    />
-                                </div>
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column'
-                                }}>
-                                    <span style={{ 
-                                        color: '#333', 
-                                        fontSize: '15px', 
-                                        fontWeight: 'bold',
-                                        marginBottom: '2px'
-                                    }}>
-                                        {user.profile.name}
-                                    </span>
-                                    <span style={{
-                                        color: '#666',
-                                        fontSize: '13px'
-                                    }}>
-                                        {user.user}
-                                    </span>
-                                </div>
+                    {contactList.length > 0 && (
+                        <div className="absolute top-12 left-0 w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg z-50 max-h-[300px] overflow-y-auto border border-gray-200 dark:border-zinc-700">
+                            <div className="font-semibold p-3 border-b border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300">
+                                Usuarios Encontrados
                             </div>
-                        ))}
-                    </div>}
+                            <div className="p-2">
+                                {contactList.map((user) => (
+                                    <div 
+                                        className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-md cursor-pointer transition-colors duration-200 mb-1"
+                                        key={user._id} 
+                                        onClick={() => {
+                                            createChat(user);
+                                            setFindUser(''); // Clear search after selection
+                                            setContactList([]); // Clear results after selection
+                                        }}
+                                    >
+                                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 dark:border-zinc-600 flex-shrink-0 mr-3">
+                                            <img 
+                                                src={user.profile.picture && user.profile.picture.length > 0 ? user.profile.picture : avatarUser} 
+                                                alt={user.profile.name} 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-medium text-gray-800 dark:text-gray-200">
+                                                {user.profile.name}
+                                            </span>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                {user.user}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
                 
-                <Tab 
-                    panes={panes} 
-                    onTabChange={(e, { activeIndex }) => setActiveTab(activeIndex)}
-                    activeIndex={activeTab}
-                    style={{
-                        marginTop: '15px',
-                        borderRadius: '8px',
-                        overflow: 'hidden'
-                    }}
-                    menu={{ 
-                        secondary: true, 
-                        pointing: true,
-                        style: {
-                            borderBottom: '1px solid #f0f0f0',
-                            padding: '0 10px'
-                        }
-                    }}
-                />
+                <Tabs 
+                    selectedKey={activeTab === 0 ? "chats" : "archived"}
+                    onSelectionChange={(key) => setActiveTab(key === "chats" ? 0 : 1)}
+                    className="mt-4 rounded-lg overflow-hidden"
+                    variant="underlined"
+                    color="primary"
+                >
+                    <Tab key="chats" title={
+                        <div className="flex items-center">
+                            <span>Chats</span>
+                            <span className="ml-2 px-2 py-0.5 text-xs bg-gray-100 dark:bg-zinc-700 rounded-full">{inboxList.length}</span>
+                        </div>
+                    }>
+                        <div className="py-2">
+                            {inboxList.length > 0 ? (
+                                inboxList.map(chat => renderChatItem(chat, false))
+                            ) : (
+                                <div className="p-5 text-center text-gray-500 dark:text-gray-400">
+                                    No hay chats activos
+                                </div>
+                            )}
+                        </div>
+                    </Tab>
+                    <Tab key="archived" title={
+                        <div className="flex items-center">
+                            <span>Archivados</span>
+                            <span className="ml-2 px-2 py-0.5 text-xs bg-gray-100 dark:bg-zinc-700 rounded-full">{archivedChats.length}</span>
+                        </div>
+                    }>
+                        <div className="py-2">
+                            {archivedChats.length > 0 ? (
+                                archivedChats.map(chat => renderChatItem(chat, true))
+                            ) : (
+                                <div className="p-5 text-center text-gray-500 dark:text-gray-400">
+                                    No hay chats archivados
+                                </div>
+                            )}
+                        </div>
+                    </Tab>
+                </Tabs>
             </div>
             
             {viewChat ? <div className="internal-chat-messages">
                 
-                <div style={{borderBottom: '1px solid #ccc',
-                    paddingBottom: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',}}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '30px' }}>
-                        <img 
-                            src={!viewChat.isPrivate && viewChat.picture && viewChat.picture.length > 0 ? viewChat.picture : avatarUser} 
-                            alt="User Icon" 
-                            style={{ marginRight: '10px', width: '50px', height: '50px', borderRadius: '50%' }}
-                        />
-                        <strong>{getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}</strong>
+                <div className="border-b border-gray-200 dark:border-zinc-700 pb-3 mb-3 flex items-center justify-between">
+                    <div className="flex items-center">
+                        <div className="relative w-12 h-12 mr-3">
+                            <img 
+                                src={!viewChat.isPrivate && viewChat.picture && viewChat.picture.length > 0 ? viewChat.picture : avatarUser} 
+                                alt="User Icon" 
+                                className="w-full h-full rounded-full object-cover border-2 border-gray-200 dark:border-zinc-600"
+                            />
+                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-zinc-800"></div>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">
+                                {getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {viewChat.isPrivate ? 'Chat privado' : 'Chat grupal'}
+                            </p>
+                        </div>
                     </div>
-                    <div style={{marginLeft:10}}>
-                        <Dropdown
-                            text='Miembros'
-                            icon='users'
-                            floating
-                            labeled
-                            button
-                            className='icon'
-                        >
-                            <DropdownMenu>
-                            <DropdownHeader content='Miembros en el chat' />
-                            {viewChat && viewChat.members.map((member) => (
-                                <DropdownItem key={member.user._id}>{member.user.profile.name}</DropdownItem>
-                            ))}
+                    <div className="flex space-x-2">
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button 
+                                    variant="flat" 
+                                    className="bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                                    startContent={
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                    }
+                                >
+                                    Miembros
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Miembros del chat">
+                                <DropdownItem key="header" className="font-semibold text-gray-700 dark:text-gray-300" isReadOnly>
+                                    Miembros en el chat
+                                </DropdownItem>
+                                {viewChat && viewChat.members.map((member) => (
+                                    <DropdownItem key={member.user._id}>
+                                        {member.user.profile.name}
+                                    </DropdownItem>
+                                ))}
                             </DropdownMenu>
                         </Dropdown>
 
-                        <Button
+                        <Button 
                             onClick={() => setOpenFileMedia(!openFileMedia)}
-                        >Contenido Compartido</Button>
-
+                            variant="flat"
+                            className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:hover:bg-blue-800/40 dark:text-blue-400"
+                            startContent={
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                            }
+                        >
+                            Contenido Compartido
+                        </Button>
                     </div>
                 </div>
-                <div className="internal-chat-message-container" ref={messageContainerRef}>
+                <div className="internal-chat-message-container h-[calc(100vh-350px)] overflow-y-auto p-4 bg-gray-50 dark:bg-zinc-900/50 rounded-lg" ref={messageContainerRef}>
                     { 
-                    loading && (
-                        <div style={{display: 'flex', justifyContent: 'center', padding: '10px', alignItems:'center', height: '60vh' }}>
-                        <Table.Row>
-                            <Table.Cell collapsing={true} colSpan={6}>
-                            <Icon name='spinner' size='large'/>
-                            Cargando chat . . .
-                            </Table.Cell>
-                        </Table.Row>
+                    loading ? (
+                        <div className="flex flex-col items-center justify-center h-full">
+                            <Spinner size="lg" color="primary" className="mb-2" />
+                            <p className="text-gray-600 dark:text-gray-400">Cargando mensajes...</p>
                         </div>
-                    )
-                    }
-                    {
-                    viewChat.messages.map((msg) => (
-                        <BubbleIternalChat
-                        key={'component-'+msg._id}
-                        infoChat={viewChat}
-                        msg={msg}
-                        userInfo={userInfo}
-                        readMessage={(idMsg) => readMessage(idMsg)}
-                        />
-                    ))
-                    }
+                    ) : viewChat.messages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <p>No hay mensajes en esta conversación</p>
+                            <p className="text-sm mt-1">Envía un mensaje para comenzar a chatear</p>
+                        </div>
+                    ) : (
+                        viewChat.messages.map((msg) => (
+                            <BubbleIternalChat
+                                key={'component-'+msg._id}
+                                infoChat={viewChat}
+                                msg={msg}
+                                userInfo={userInfo}
+                                readMessage={(idMsg) => readMessage(idMsg)}
+                            />
+                        ))
+                    )}
                 </div>
-                <div className="internal-chat-input-container" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '10px',
-                    backgroundColor: '#f0f2f5',
-                    borderRadius: '8px',
-                    margin: '10px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}>
-                    <div className="internal-chat-file-container" style={{ 
-                        marginRight: '10px',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}>
+                <div className="flex items-center p-3 mt-3 bg-gray-100 dark:bg-zinc-800 rounded-lg">
+                    <div className="mr-2">
                         <InternalUploadFile sendFile={sendFile}/>
                     </div>
 
-                    <div style={{ 
-                        flex: 1,
-                        position: 'relative',
-                        backgroundColor: '#fff',
-                        borderRadius: '20px',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}>
+                    <div className="flex-1 relative bg-white dark:bg-zinc-700 rounded-full shadow-sm">
                         <textarea 
                             rows="1"
                             placeholder="Escribe tu mensaje aquí..."
@@ -834,48 +709,35 @@ export default function InternalChat({userInfo}) {
                                     sendMessage();
                                 }
                             }}
-                            style={{
-                                width: '100%',
-                                border: 'none',
-                                borderRadius: '20px',
-                                padding: '12px 20px',
-                                resize: 'none',
-                                outline: 'none',
-                                fontSize: '15px',
-                                lineHeight: '20px',
-                                maxHeight: '100px',
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
-                            }}
+                            className="w-full border-none rounded-full py-3 px-5 resize-none outline-none text-sm text-gray-800 dark:text-gray-200 dark:bg-zinc-700 max-h-[100px] font-sans"
                         />
                     </div>
 
-                    <button 
+                    <Button 
+                        isIconOnly
                         onClick={sendMessage}
-                        style={{
-                            marginLeft: '10px',
-                            backgroundColor: '#00a884',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.2s',
-                            padding: 0
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#008f6f'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#00a884'}
+                        className="ml-2 bg-green-500 hover:bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center p-0 transition-colors duration-200"
+                        aria-label="Enviar mensaje"
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor"/>
                         </svg>
-                    </button>
+                    </Button>
                 </div>
 
-            </div>:<div className="internal-chat-messages">Selecciona un chat o busca un contacto</div>}
+            </div>:
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-300px)] text-center p-6">
+                <div className="mb-4 p-4 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">No hay chats activos</h3>
+                <p className="text-gray-600 dark:text-gray-400 max-w-md">
+                    Selecciona un chat existente de la lista o busca un contacto para iniciar una nueva conversación.
+                </p>
+            </div>
+            }
         </div>
         {/* Notification Settings Modal */}
 <NotificationSettings 
