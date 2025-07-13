@@ -446,23 +446,38 @@ export default function InternalChat({userInfo}) {
 
     return (<>
                  
-        <div className="p-5 bg-white dark:bg-zinc-800 rounded-xl shadow-sm mb-4 mx-5 mt-5 border border-gray-100 dark:border-zinc-700">
-            <div className="flex items-center">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+        <div className="relative overflow-hidden p-6 mx-5 mt-5 rounded-2xl shadow-md bg-gradient-to-r from-indigo-50 to-pink-50 dark:from-zinc-800 dark:to-zinc-900 border border-indigo-100 dark:border-indigo-900/30">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                    <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl shadow-sm mr-4 ring-2 ring-indigo-200 dark:ring-indigo-900/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div className="flex items-center">
+                            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                                TeamChat
+                            </h2>
+                            <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-gradient-to-br from-indigo-100 to-pink-50 dark:from-indigo-900/40 dark:to-pink-900/30 text-indigo-800 dark:text-indigo-300 rounded-full border-small border-indigo-200/50 dark:border-indigo-700/30">
+                                Beta 0.9
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                            Comunicación en tiempo real para tu equipo
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        TeamChat
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Versión Beta 0.9</p>
-                </div>
+                
             </div>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                Comunícate con tu equipo de trabajo. Selecciona o busca un contacto para conversar.
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 max-w-2xl">
+                Comunícate con tu equipo de trabajo de forma segura y eficiente. Selecciona un contacto existente o busca uno nuevo para iniciar una conversación.
             </p>
+            
+            {/* Elementos decorativos */}
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-pink-200/30 dark:bg-pink-900/10 rounded-full blur-2xl"></div>
+            <div className="absolute -top-8 -right-8 w-24 h-24 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-xl"></div>
+            <div className="absolute -bottom-4 left-1/3 w-20 h-20 bg-indigo-100/20 dark:bg-indigo-800/10 rounded-full blur-lg"></div>
         </div>
         <div className="internal-chat-container" style={{height:'calc(100% - 200px)'}}>
    
