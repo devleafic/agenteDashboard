@@ -87,12 +87,16 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         );
     }
 
-    const renderReadCheck = (readers, direction) => {
+    const renderReadCheck = (readers, direction) => { //for private chat
+        const reader = readers.find((reader) => reader.user._id !== msg.createdBy);
+        if (!reader) return null;
      return (
          <div className={`flex ${direction === 'left' ? 'justify-end' : 'justify-start'}`}> 
+         <Tooltip content={`Lectura confirmada a ${moment(reader.createdAt).format('DD/MM/YYYY HH:mm:ss')}`}>
             <div className="flex justify-end">
                 <CheckCheck className="h-6 w-6 text-blue-500" />
             </div>
+            </Tooltip>
         </div>
     )   
     }
