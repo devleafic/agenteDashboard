@@ -1,5 +1,5 @@
 import React, {useRef, useState, useContext, useCallback, useEffect} from 'react';
-import { Icon, Loader, Button, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
+import { Icon, Loader, Image, Modal, Header, Message, Dimmer } from 'semantic-ui-react';
 import axios, {post} from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -117,18 +117,19 @@ const InternalUploadFile = ({sendFile}) => {
         });
     };
     return (<>
-        <Dropzone maxFiles={1} onDrop={acceptedFiles => {
-            //console.log(acceptedFiles);
-            
-            fileUpload(acceptedFiles[0]);
-        }} >
-        {({getRootProps, getInputProps}) => (
-            
-            <div {...getRootProps()} className='dndInternalChat' style={{ display: 'flex', justifyContent: 'center', alignItems: 'left' }}>
-            <input {...getInputProps()} />
-            <Icon name='attach' />
+        <Dropzone maxFiles={1} onDrop={acceptedFiles => { fileUpload(acceptedFiles[0]); }} noClick>
+        {({ getRootProps, getInputProps, open }) => (
+            <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                <button
+                  type="button"
+                  onClick={open}
+                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                  aria-label="Adjuntar archivo"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                </button>
             </div>
-            
         )}
         </Dropzone>
 
@@ -150,20 +151,31 @@ const InternalUploadFile = ({sendFile}) => {
                 </Message>
             </Modal.Content>
             <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => {setShowModal(false);}} loading={onPushFile} disabled={onPushFile}>
-                <Icon name='remove' /> No
-                </Button>
-                <Button color='blue' inverted onClick={() => {
+                <button 
+                  type="button"
+                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                  aria-label="Cancelar"
+                  onClick={() => {setShowModal(false);}}
+                  disabled={onPushFile}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <button 
+                  type="button"
+                  className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                  aria-label="Enviar"
+                  onClick={() => {
                     let urlFixed = urlFile.startsWith('http') ? urlFile : 'https://'+urlFile;
-                    //console.log(urlFixed, urlFileType);
                     sendFile({
                         url : urlFixed,
                         typeFile : urlFileType
                     });
                     setShowModal(false);
-                }} loading={onPushFile} disabled={onPushFile}>
-                <Icon name='checkmark'  /> Enviar
-                </Button>
+                  }}
+                  disabled={onPushFile}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
             </Modal.Actions>
         </Modal>
         
