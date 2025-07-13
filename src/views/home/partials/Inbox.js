@@ -313,9 +313,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 <div className="flex items-center mb-4 md:mb-0">
                     <Mail className="w-6 h-6 mr-3 text-blue-600" />
                     <div>
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-                            Inbox
-                        </h2>
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                            Inbox Privado
+                    </h2>
                         <p className="text-sm text-gray-600">Selecciona un contacto para continuar con la conversación.</p>
                     </div>
                 </div>

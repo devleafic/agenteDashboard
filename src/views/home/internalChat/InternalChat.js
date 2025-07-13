@@ -359,13 +359,19 @@ export default function InternalChat({ userInfo }) {
   );
 
   return (
-    <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl shadow-lg m-5 border border-gray-200 dark:border-gray-800">
-     <div className="relative overflow-hidden p-6 mx-5 mt-5 rounded-2xl shadow-md bg-gradient-to-r from-indigo-50 to-pink-50 dark:from-zinc-800 dark:to-zinc-900 border border-indigo-100 dark:border-indigo-900/30">
+    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl shadow-lg m-2 border border-gray-200 dark:border-gray-800">
+        <div className="relative overflow-hidden p-3 mx-2 mt-2 rounded-2xl shadow-md bg-gradient-to-r from-indigo-50 to-pink-50 dark:from-zinc-800 dark:to-zinc-900 border border-indigo-100 dark:border-indigo-900/30">
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
                     <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl shadow-sm mr-4 ring-2 ring-indigo-200 dark:ring-indigo-900/30">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style={{stopColor: '#4F46E5'}} />
+                                    <stop offset="100%" style={{stopColor: '#EC4899'}} />
+                                </linearGradient>
+                            </defs>
+                            <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C9.82354 20 7.80233 19.1539 6.255 17.749L3 20L4.395 16.28C3.51196 15.0424 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="url(#icon-gradient)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </div>
                     <div>
@@ -378,7 +384,7 @@ export default function InternalChat({ userInfo }) {
                             </span>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Comunicación en tiempo real para tu equipo
+                            Comunicación en tiempo real para tu equipo interno.
                         </p>
                     </div>
                 </div>
@@ -391,7 +397,7 @@ export default function InternalChat({ userInfo }) {
             <div className="absolute -top-8 -right-8 w-24 h-24 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-xl"></div>
             <div className="absolute -bottom-4 left-1/3 w-20 h-20 bg-indigo-100/20 dark:bg-indigo-800/10 rounded-full blur-lg"></div>
         </div>
-      <div className="flex h-[calc(100vh-250px)] gap-4">
+      <div className="flex h-[calc(100vh-220px)] gap-2 mt-2">
         <div className="w-1/3 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-2">

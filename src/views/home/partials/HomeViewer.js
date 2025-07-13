@@ -205,9 +205,9 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                     <div className="w-80 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
                         <div className="p-5 sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm">
                             <div className="flex flex-col items-start gap-2 mb-2">
-                                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-pink-500">
-                                    Conversaciones
-                                </h2>
+                            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                                Conversaciones
+                            </h2>
                                 <Chip 
                                     color="primary" 
                                     variant="flat"
