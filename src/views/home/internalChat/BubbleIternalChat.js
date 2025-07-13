@@ -1,5 +1,18 @@
 import { useRef, useEffect, useState } from 'react';
-import { Dropdown, Button, Image, Tooltip, Chip, Popover, PopoverTrigger, PopoverContent, Spinner } from '@heroui/react';
+import { 
+    Dropdown, 
+    DropdownTrigger, 
+    DropdownMenu, 
+    DropdownItem, 
+    Button, 
+    Image, 
+    Tooltip, 
+    Chip, 
+    Popover, 
+    PopoverTrigger, 
+    PopoverContent, 
+    Spinner 
+} from '@heroui/react';
 import { Check, CheckCheck, Eye, User, FolderOpen, X } from 'lucide-react';
 import { useSocket } from '../../../controladores/InternalChatContext';
 import moment from 'moment';
@@ -53,7 +66,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         return (
             <div className={`flex ${direction === 'left' ? 'justify-end' : 'justify-start'}`}> 
                 {reactionCount && Object.keys(reactionCount).length > 0 ? (
-                    <Popover placement="top">
+                    <Popover>
                         <PopoverTrigger>
                             <Button isIconOnly size="sm" color="primary" variant="flat" className="rounded-full p-0 min-w-0 h-6 w-6 mx-1">
                                 <Eye className="h-3 w-3" />
@@ -72,6 +85,16 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                 ))}
             </div>
         );
+    }
+
+    const renderReadCheck = (readers, direction) => {
+     return (
+         <div className={`flex ${direction === 'left' ? 'justify-end' : 'justify-start'}`}> 
+            <div className="flex justify-end">
+                <CheckCheck className="h-6 w-6 text-blue-500" />
+            </div>
+        </div>
+    )   
     }
 
     const renderGroupReaders = (readers, direction) => {   
@@ -99,7 +122,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         
         return (
             <div className={`flex items-center ${direction === 'left' ? 'justify-end' : 'justify-start'}`}>
-                <Popover placement="top">
+                <Popover>
                     <PopoverTrigger>
                         <Button isIconOnly size="sm" color="primary" variant="flat" className="rounded-full p-0 min-w-0 h-6 w-6 mx-1">
                             <Eye className="h-3 w-3" />
@@ -275,21 +298,14 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
             {convertContent(msg)}
             {userInfo._id !== msg.createdBy && !infoChat.isPrivate && getAuthor(msg.createdBy, infoChat.members)}
             
-            {userInfo._id === msg.createdBy && infoChat.isPrivate && (msg.readers.length > 1) && (
-                <div className="mr-1 flex items-center">
-                    <div className="flex">
-                        <CheckCheck className="h-3 w-3 text-blue-500" />
-                    </div>
-                </div>
-            )}
-            
             <div>
                 {!infoChat.isPrivate && renderGroupReaders(msg.readers, userInfo._id !== msg.createdBy ? 'right' : 'left')}
                 {renderAndCountReactions(msg._id, msg.reactions, userInfo._id !== msg.createdBy ? 'right' : 'left')}
+                {userInfo._id === msg.createdBy && infoChat.isPrivate && (msg.readers.length > 1) && renderReadCheck(msg.readers, userInfo._id !== msg.createdBy ? 'right' : 'left')}
             </div>
 
             <Dropdown>
-                <Dropdown.Trigger>
+                <DropdownTrigger>
                     <Button 
                         size="sm" 
                         variant="light" 
@@ -297,19 +313,19 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                     >
                         {moment(msg.createdAt).format('lll')} 💬
                     </Button>
-                </Dropdown.Trigger>
-                <Dropdown.Menu 
+                </DropdownTrigger>
+                <DropdownMenu 
                     aria-label="Reacciones" 
                     onAction={(key) => sendReaction(key)}
                     className="min-w-0"
                 >
-                    <Dropdown.Item key="🙂">🙂</Dropdown.Item>
-                    <Dropdown.Item key="🤔">🤔</Dropdown.Item>
-                    <Dropdown.Item key="😡">😡</Dropdown.Item>
-                    <Dropdown.Item key="😳">😳</Dropdown.Item>
-                    <Dropdown.Item key="👍">👍</Dropdown.Item>
-                    <Dropdown.Item key="👎">👎</Dropdown.Item>
-                </Dropdown.Menu>
+                    <DropdownItem key="🙂">🙂</DropdownItem>
+                    <DropdownItem key="🤔">🤔</DropdownItem>
+                    <DropdownItem key="😡">😡</DropdownItem>
+                    <DropdownItem key="😳">😳</DropdownItem>
+                    <DropdownItem key="👍">👍</DropdownItem>
+                    <DropdownItem key="👎">👎</DropdownItem>
+                </DropdownMenu>
             </Dropdown>
         </div>
     )
