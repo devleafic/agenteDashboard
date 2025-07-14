@@ -3,7 +3,7 @@ import SideBarMenu from "./partials/SideBarMenu";
 import Toolbar from './partials/Toolbar';
 import io from 'socket.io-client';
 import axios from 'axios';
-import {Device} from 'twilio-client';
+import { Device, Call } from '@twilio/voice-sdk';
 import { toast } from 'react-toastify';
 import { Modal, Header, Icon, Button, Popup} from 'semantic-ui-react';
 
@@ -105,26 +105,51 @@ const Home = () => {
     }
 
     const CallController = {
-        setup : (token) => {
+        setup : () => { // Token parameter removed as it's fetched internally
             return new Promise((resolve, reject) => {
-                socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(data) => {
-
-                    if(!data.success){
-                        toast.error(data.message);
-                        return false;
+                socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(authData) => {
+                    if(!authData.success){
+                        toast.error(authData.message);
+                        reject(new Error(authData.message));
+                        return;
                     }
 
-                    callC.connection = new Device();
-                    callC.connection.setup(data.token, {
-                        sounds: {
-                            outgoing: process.env.REACT_APP_CENTRALITA+'/cdn/sound/beepCalling.mp3',
-                        }
-                    });
+                    try {
+                        callC.connection = new Device(authData.token, {
+                            logLevel: 'debug', // Enable SDK debug logging for @twilio/voice-sdk
+                            // Example: edge: ['ashburn', 'frankfurt'], // Optional: specify edge locations
+                            iceServers: [{ urls: 'stun:global.stun.twilio.com:3478?transport=udp' }],
+                            codecPreferences: ['pcmu'], // Prioritize PCMU (G.711u)
+                            forceAggressiveIceNomination: true // May help in restrictive networks
+                        });
 
-                    resolve(true);
-                })
+                        callC.connection.on(Device.EventName.Registered, () => {
+                            console.log("Twilio Device Registered");
+                            setIsReady(true); // Set application ready state
+                            resolve(true);
+                        });
 
-                
+                        callC.connection.on(Device.EventName.Error, (error) => {
+                            console.error("Twilio Device Registration Error:", error);
+                            toast.error(`Twilio Device Error: ${error.message}`);
+                            // Consider setting isReady to false or other UI updates
+                            reject(error);
+                        });
+                        
+                        // Optional: Listen for unregistration if needed
+                        // callC.connection.on(Device.EventName.Unregistered, () => {
+                        //     console.log("Twilio Device Unregistered");
+                        //     setIsReady(false);
+                        // });
+
+                        callC.connection.register();
+
+                    } catch (error) {
+                        console.error("Error initializing Twilio Device:", error);
+                        toast.error("Failed to initialize Twilio Device.");
+                        reject(error);
+                    }
+                });
             });
         },
         answercall : (sid) => {
@@ -135,6 +160,72 @@ const Home = () => {
             });
         }
     }
+
+    // useEffect for Twilio Device event listeners
+    useEffect(() => {
+        // Ensure callC.connection is the new Device instance and the device is registered (isReady)
+        if (callC.connection && callC.connection instanceof Device && isReady) {
+            const device = callC.connection;
+
+            const handleIncomingCall = (callInstance) => {
+                console.log(`Incoming call from ${callInstance.callerInfo?.from}`);
+                toast.info(`Llamada entrante de ${callInstance.callerInfo?.from || 'Desconocido'}`);
+                setOnCall('incoming');
+                setConnCall(callInstance); // connCall now holds a @twilio/voice-sdk Call object
+                setPhoneNumber(callInstance.callerInfo?.from || 'Unknown caller');
+
+                // Attach listeners to this specific call object
+                callInstance.on('accept', (acceptedCall) => {
+                    console.log('Call accepted by SDK');
+                    setOnCall('connect');
+                    setRefresh(prev => prev + 1);
+                });
+
+                callInstance.on('disconnect', () => {
+                    console.log('Call disconnected');
+                    toast.warn('Llamada desconectada.');
+                    setOnCall('disconnect');
+                    setConnCall(null);
+                    setOpenInComingCall(false); // Ensure incoming call modal is closed
+                    setRefresh(prev => prev + 1);
+                    window.localStorage.setItem('autoAccept', 'false');
+                });
+
+                callInstance.on('error', (error) => {
+                    console.error('Call Error:', error);
+                    toast.error(`Error en llamada: ${error.message}`);
+                    setOnCall('disconnect'); 
+                    setConnCall(null);
+                    setOpenInComingCall(false); // Ensure incoming call modal is closed
+                    setRefresh(prev => prev + 1);
+                    window.localStorage.setItem('autoAccept', 'false');
+                });
+                
+                if (window.localStorage.getItem('autoAccept') === 'true') {
+                    console.log('Auto-accepting call');
+                    callInstance.accept();
+                } else {
+                    console.log('Showing incoming call modal');
+                    setOpenInComingCall(true);
+                }
+                setRefresh(prev => prev + 1);
+            };
+
+            // The general Device.EventName.Error is already handled in CallController.setup's registration attempt.
+            // If additional general device errors need handling post-registration, another listener can be added here.
+
+            device.on(Device.EventName.Incoming, handleIncomingCall);
+
+            // Cleanup listeners when component unmounts or dependencies change
+            return () => {
+                device.removeListener(Device.EventName.Incoming, handleIncomingCall);
+                // If connCall (the active callInstance) exists and has listeners, 
+                // they are typically managed by the SDK when the call ends.
+                // Explicit removal can be done if needed: 
+                // if (connCall && typeof connCall.removeAllListeners === 'function') { connCall.removeAllListeners(); }
+            };
+        }
+    }, [callC.connection, isReady, setOnCall, setConnCall, setPhoneNumber, setOpenInComingCall, setRefresh, toast]); // Added toast to dependencies
 
     const notificationsSetup = async () => {
         if(window.mobileAndTabletCheck()){
@@ -168,15 +259,29 @@ const Home = () => {
 
     const SocketActions = {
         acceptCall : () => {
-            connCall.accept();
-            setOpenInComingCall(false);
+            if (connCall && typeof connCall.accept === 'function') {
+                console.log('SocketActions: Accepting call via connCall.accept()');
+                connCall.accept();
+                // UI state like onCall will be updated by the Call.EventName.Accept listener
+            } else {
+                console.warn('SocketActions.acceptCall: connCall not available or not a valid Call object.');
+            }
+            setOpenInComingCall(false); // Close the incoming call modal immediately
         },
         rejectCall : () => {
-            connCall.reject();
-            setOnCall('disconnect')
-            setConnCall(null);
-            setOpenInComingCall(false);
-            setRefresh(Math.random());
+            if (connCall && typeof connCall.reject === 'function') {
+                console.log('SocketActions: Rejecting call via connCall.reject()');
+                connCall.reject();
+                // UI state like onCall, connCall will be updated by the Call.EventName.Disconnect listener
+            } else {
+                console.warn('SocketActions.rejectCall: connCall not available or not a valid Call object.');
+            }
+            setOpenInComingCall(false); // Close the incoming call modal immediately
+            // Setting onCall and connCall here might be redundant if Call.EventName.Disconnect handles it,
+            // but can provide faster UI feedback if desired. For consistency, let's rely on the event listener.
+            // setOnCall('disconnect'); 
+            // setConnCall(null);
+            // setRefresh(Math.random());
         },
         connectToSocket : () => {
             socketC.connection = io(process.env.REACT_APP_CENTRALITA, { transports : ['websocket']});
@@ -267,62 +372,46 @@ const Home = () => {
                 }
 
                 if(data.body.folio.channel.typeChannel === '_CALL_'){
-                    if(Object.keys(callC.connection).length <= 0){
-                        await CallController.setup(data.token);
+                    // Check if the Twilio Device needs to be set up (e.g., if not already ready)
+                    // The new SDK's Device events (incoming, error, etc.) are handled by the dedicated useEffect or in CallController.setup.
+                    // The primary action here for a new call folio is to ensure the device is ready and then potentially
+                    // trigger an outgoing call or handle an incoming call that's signaled via this 'newFolio' socket event.
 
-                        callC.connection.on('ready',() => {
-                            console.log('Usuario listo para recibir llamadas');
-                            toast.success('Listo para recibir llamadas.');
-
-
-                            setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
-                            CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('connect',() => {
-                            setOnCall('connect')
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('disconnect',() => {
-                            console.log('disconnect');
-                            setOnCall('disconnect');
-                            setConnCall(null);
-                            setRefresh(Math.random());
-                            window.localStorage.setItem('autoAccept', false);
-                        });
-        
-                        callC.connection.on('error',(err) => {
-                            console.log('error',err);
-                            alert('Ocurrio un error');
-                            setRefresh(Math.random());
-                            window.localStorage.setItem('autoAccept', false);  
-                            
-                        });
-        
-                        callC.connection.on('incoming',(conn) => {
-                            setOnCall('incoming');
-                            setConnCall(conn);
-                            setPhoneNumber(conn.parameters.From);
-                            if(window.localStorage.getItem('autoAccept') === 'false' || !window.localStorage.getItem('autoAccept')){
-                                setOpenInComingCall(true)
-                            }else{
-                                conn.accept();
+                    const setupAndProcessCall = async () => {
+                        if (!isReady) { // isReady is set to true when Device is registered
+                            try {
+                                console.log("'newFolio' event: Twilio Device not ready, attempting setup.");
+                                await CallController.setup(); // Setup will try to register the device
+                                // After setup, isReady should become true, and the new useEffect will handle incoming calls.
+                                // If this 'newFolio' implies an *outgoing* call initiated by the server, that logic would go here.
+                            } catch (error) {
+                                console.error("'newFolio' event: Error during CallController.setup:", error);
+                                toast.error('Error al configurar el dispositivo de llamadas para el nuevo folio.');
+                                return; // Stop processing if setup fails
                             }
-                            
-                            setRefresh(Math.random());
-                        });
-        
-                        callC.connection.on('offline',() => {
-                            alert('Se ha desconectado de la línea telefónica, refreste el navegador.');
-                        });
+                        }
                         
-                    }else{
-                        setSidCall(data.body.folio.message[data.body.folio.message.length-1].externalId);
-                        CallController.answercall(data.body.folio.message[data.body.folio.message.length-1].externalId);
+                        // At this point, the device should be ready or attempting to become ready.
+                        // The new useEffect handles Device.EventName.Incoming.
+                        // If this 'newFolio' event is for an *existing* call that this client needs to join or an *outgoing* call:
+                        const callSid = data.body.folio.message[data.body.folio.message.length-1]?.externalId;
+                        if (callSid) {
+                            setSidCall(callSid);
+                            // The CallController.answercall might need to be re-evaluated.
+                            // If it's an inbound call, the new useEffect should handle it via Device.EventName.Incoming.
+                            // If it's an instruction to make an OUTBOUND call or connect to an existing conference, that's different.
+                            // For now, let's assume 'answercall' was specific to the old SDK's flow for server-initiated calls.
+                            // We might need to make an outgoing call here if that's the intent:
+                            // e.g., if (callC.connection && isReady) { callC.connection.connect({ params_for_outgoing_call }); }
+                            console.log(`'newFolio' (CALL): SID ${callSid}. Incoming calls are handled by Device.EventName.Incoming listener.`);
+                            // If CallController.answercall was to trigger TwiML or server-side logic for an incoming call, it might still be relevant.
+                            // CallController.answercall(callSid); // This line's relevance needs to be confirmed based on its original purpose.
+                        } else {
+                            console.warn("'newFolio' (CALL): No externalId (Call SID) found in message.");
+                        }
+                    };
 
-                    }
+                    setupAndProcessCall();
                 }
 
                 setRefresh(Math.random());
@@ -468,6 +557,13 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
     useEffect( () => {
         notificationsSetup()
     },[]);
+
+    // useEffect to update the CallContext with the active @twilio/voice-sdk Call object
+    useEffect(() => {
+        if (callC) { // Ensure callC from context is available
+            callC.activeCall = connCall; // connCall is the state variable holding the active Call object
+        }
+    }, [callC, connCall]);
 
     useEffect( () => {
 

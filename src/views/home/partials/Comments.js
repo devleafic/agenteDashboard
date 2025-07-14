@@ -982,7 +982,17 @@ return ( <>
             {/*channel === 'call' && fullFolio ? (<> */}
             { //bumbles
                 typeFolio === '_CALL_' && fullFolio ? (<> 
-                    <Call currentFolio={fullFolio.folio} onCall={onCall} setOnCall={setOnCall} setRefresh={setRefresh} sidCall={sidCall} setSidCall={setSidCall}/>    
+                    <Call 
+                        currentFolio={fullFolio.folio} 
+                        onCall={onCall} 
+                        setOnCall={setOnCall} 
+                        setRefresh={setRefresh} 
+                        sidCall={sidCall} 
+                        setSidCall={setSidCall}
+                        onSave={() => prepareCloseFolio('save')}
+                        onResolve={() => prepareCloseFolio('end')}
+                        isEndingFolio={isEndingFolio}
+                    />    
                 </>)
                 : typeFolio === '_EMAIL_' && fullFolio ? 
                 
@@ -1007,14 +1017,7 @@ return ( <>
             {/* channel === 'call' && fullFolio ? ( */}
             { 
                 // INPUT, TEXT AREA   
-                typeFolio === '_CALL_' && fullFolio ? (
-                    <Form reply style={{textAlign:'right', marginTop:50}}>
-                        <Divider/>
-                        <Button key={'btnsave-'+folio} color='orange' basic onClick={e => {prepareCloseFolio('save')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='save' />Guardar</Button>
-                        <Button key={'btnend-'+folio} color='blue' basic onClick={e => {prepareCloseFolio('end')}} loading={isEndingFolio} disabled={(isEndingFolio || onCall === 'connect')}><Icon name='sign-out'  />Resolver</Button>
-                    </Form>
-                )
-                : typeFolio === '_MESSAGES_' && fullFolio ? (
+                typeFolio === '_CALL_' ? null : typeFolio === '_MESSAGES_' && fullFolio ? (
                     <Form reply style={{textAlign:'right'}}>
                         <div style={{textAlign: 'center', marginBottom : 3, height:24}}>
                             {showBtnUn && <Label circular icon='arrow circle down' color='orange' content='Nuevos mensajes'/>}

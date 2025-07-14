@@ -11,20 +11,23 @@ import CallContext from './controladores/CallContext';
 // import { SocketProvider } from './controladores/InternalChatContext';
 
 import { BrowserRouter as Router} from "react-router-dom";
+import { HeroUIProvider } from "@heroui/react";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <Router>
-    {/* <SocketProvider> */}
-      <ListFoliosContext.Provider value={{current:[]}}>
-        <SocketContext.Provider value={{connection:{}}}>
-          <CallContext.Provider value={{connection:{}}}>
-            <App />
-          </CallContext.Provider>
-        </SocketContext.Provider>
-      </ListFoliosContext.Provider>
-    {/* </SocketProvider> */}
+  <HeroUIProvider>
+    <Router>
+      {/* <SocketProvider> */}
+        <ListFoliosContext.Provider value={{current:[]}}>
+          <SocketContext.Provider value={{connection:{}}}>
+            <CallContext.Provider value={{connection:{}}}>
+              <App />
+            </CallContext.Provider>
+          </SocketContext.Provider>
+        </ListFoliosContext.Provider>
+      {/* </SocketProvider> */}
     </Router>
+  </HeroUIProvider>
   
   //document.getElementById('root')
 );

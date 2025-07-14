@@ -1,0 +1,59 @@
+.numeric-keypad-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: #f0f0f0; /* Light grey background for the keypad area */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 10px;
+}
+
+.numeric-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px; /* Spacing between buttons */
+    max-width: 200px; /* Max width of the keypad grid */
+}
+
+.keypad-btn {
+    background-color: #ffffff; /* White background for buttons */
+    color: #333333; /* Dark grey text */
+    border: 1px solid #cccccc; /* Light grey border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Generous padding for easy clicking */
+    font-size: 1.2em; /* Larger font size for digits */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.keypad-btn:hover {
+    background-color: #e9e9e9; /* Slightly darker on hover */
+}
+
+.keypad-btn:active {
+    background-color: #dcdcdc; /* Even darker when pressed */
+    transform: scale(0.95); /* Slight shrink effect on press */
+}
+
+.keypad-btn.disabled {
+    background-color: #f8f8f8;
+    color: #aaaaaa;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
+
+/* Specific styling for * and # if needed, e.g., different font or size */
+/* 
+.keypad-btn[aria-label*="*"] {
+    font-size: 1.5em; 
+}
+
+.keypad-btn[aria-label*="#"] {
+    font-size: 1.5em; 
+}
+*/

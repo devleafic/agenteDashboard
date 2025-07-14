@@ -20,6 +20,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         'pending' : 'Pendiente de envio',
         'opened' : 'Mensaje fue abierto',
         'unknown' : 'Se desconece el estado del mensaje',
+        'enqueued' : 'Encolado'
     }
 
     const getResponseTo = (id) => {
@@ -44,7 +45,8 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 case 'video':  
                     return (<video controls><source src={originaMsg.content } type='video/mp4'/></video>) 
                 case 'document':
-                    return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                    const url = convertirURL(originaMsg.content);
+                    return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
                 case 'location':
                     const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                     return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
@@ -109,7 +111,8 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 case 'video':  
                     return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
                 case 'document':
-                    return (<a target='blank' href={originaMsg.content}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                    const url = convertirURL(originaMsg.content);   
+                    return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
                 case 'location':
                     const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                     return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
@@ -122,8 +125,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         const content = msg.content;
         const caption = msg.caption;
         const recording = msg.callRecordUrl;
-        adstring = '';
-
+       
         let adstring = '';
 
         if (msg.ads) {
@@ -143,7 +145,8 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'mtm':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':
-                return (<a target='blank' href={content}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
+                const url = convertirURL(content);
+                return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':
                return (<><a href={content} target='_blank'><Image style={{borderRadius: '15px'}} size='medium' src={content}  />{caption && <p >{caption}</p>}</a></>);
             case 'sticker':
@@ -202,6 +205,33 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         return (lastEvent ? lastEvent.event : '')
         console.log(lastEvent.event)
     }
+
+    const convertirURL = (url) => {
+        try {
+          const dominioPermitido = 'inboxcentralcdn.sfo3.digitaloceanspaces.com';
+          const parsedUrl = new URL(url);
+      
+          // Verifica que la URL pertenezca al dominio permitido
+        //  if (parsedUrl.hostname !== dominioPermitido || parsedUrl.hostname !== 'localhost') {
+        //    console.warn('La URL no pertenece al dominio permitido.');
+        //    return url;
+        //  }
+      
+          // Obtiene el nombre del archivo
+          const nombreArchivo = parsedUrl.pathname.split('/').pop();
+      
+          // Verifica que el archivo tenga extensión .pdf
+          //if (!nombreArchivo.toLowerCase().endsWith('.pdf')) {
+          //  console.warn('El archivo no es un PDF.');
+          //  return url;
+          //}
+          console.log(`https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`);
+          return `https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`;
+        } catch (error) {
+          console.error('Error al procesar la URL:', error);
+          return url;
+        }
+      }
 
     return ( <>
     {

@@ -134,7 +134,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 {
                     isLoadInbox && (
                         <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
+                            <Table.Cell collapsing={true} colSpan={9}>
                                 <Icon name='spinner' loading/>
                                 Cargando . . .
                             </Table.Cell>
@@ -144,7 +144,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 {
                     !isLoadInbox && inboxes.length === 0 && (
                         <Table.Row warning={true}>
-                            <Table.Cell collapsing={true} colSpan={6}>
+                            <Table.Cell collapsing={true} colSpan={9}>
                                 <Icon name='mail outline'/>
                                 No hay mensajes guardados
                             </Table.Cell>
