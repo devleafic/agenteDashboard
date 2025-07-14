@@ -89,7 +89,7 @@ const HomeViewer = ({isConnected, show, refresh, setRefresh, onCall, setOnCall, 
     if (hasNoSpaces){ aliasName = alias ? alias.substr(0,8) + '..' : anchor.substr(0,8) + '..'; }
     if (hasNoSpaceSubject){ displaySubject = subject ? subject.substr(0,8) + '..' : subject.substr(0,8) + '..'; }
 
-      ureadIcon = unread ? <Icon color='red' name='circle'/> :  <Icon name='circle outline'/>
+      ureadIcon = unread ? <Icon color='red' name='circle'/> : null
   
 
     switch (typeFolio) {
