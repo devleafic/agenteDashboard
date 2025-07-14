@@ -45,8 +45,20 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 case 'video':  
                     return (<video controls><source src={originaMsg.content } type='video/mp4'/></video>) 
                 case 'document':
-                    const url = convertirURL(originaMsg.content);
-                    return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                    const convertedUrl = convertirURL(originaMsg.content);
+                    return (
+                      <>
+                        <a target="_blank" href={convertedUrl} rel="noopener noreferrer">
+                          <Icon name="folder open outline" />
+                          {originaMsg.caption ? originaMsg.caption : 'Abrir Archivo'}
+                        </a>
+                         <br /> <br />
+                        <a target="_blank" href={originaMsg.content} rel="noopener noreferrer">
+                          <Icon name="folder open outline" />
+                          {originaMsg.caption ? originaMsg.caption : 'Abrir Archivo URL Alterna'}
+                        </a>
+                      </>
+                    );
                 case 'location':
                     const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                     return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
@@ -111,8 +123,20 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
                 case 'video':  
                     return (<video controls><source src={originaMsg.content} type='video/mp4'/></video>) 
                 case 'document':
-                    const url = convertirURL(originaMsg.content);   
-                    return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{originaMsg.caption ? originaMsg.caption : ' Abrir Archivo'}</a>);
+                    const convertedUrl = convertirURL(originaMsg.content);
+                    return (
+                        <>
+                        <a target="_blank" href={convertedUrl} rel="noopener noreferrer">
+                            <Icon name="folder open outline" />
+                            {originaMsg.caption ? originaMsg.caption : 'Abrir Archivo'}
+                        </a>
+                        <br /> <br />
+                        <a target="_blank" href={originaMsg.content} rel="noopener noreferrer">
+                            <Icon name="folder open outline" />
+                            {originaMsg.caption ? originaMsg.caption : 'Abrir Archivo URL Alterna'}
+                        </a>
+                        </>
+                    );                
                 case 'location':
                     const apikeyMAP = process.env.REACT_APP_MAPS_APIKEY;
                     return (<><Image  style={{borderRadius: '15px'}}  src={'https://maps.googleapis.com/maps/api/staticmap?center='+originaMsg.content+'&zoom=16&size=400x400&key='+apikeyMAP+'&markers=purple|'+originaMsg.content} /> {originaMsg.caption && <div style={{marginTop:15,marginBottom:15}}>{originaMsg.caption}</div>}</>);
@@ -145,8 +169,20 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'mtm':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':
-                const url = convertirURL(content);
-                return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
+                const convertedUrl = convertirURL(content);
+                return (
+                    <>
+                    <a target="_blank" href={convertedUrl} rel="noopener noreferrer">
+                        <Icon name="folder open outline" />
+                        {caption ? caption : 'Abrir Archivo'}
+                    </a>
+                     <br /> <br />
+                    <a target="_blank" href={content} rel="noopener noreferrer">
+                        <Icon name="folder open outline" />
+                        {caption ? caption : 'Abrir Archivo URL Alterna'}
+                    </a>
+                    </>
+                );
             case 'image':
                return (<><a href={content} target='_blank'><Image style={{borderRadius: '15px'}} size='medium' src={content}  />{caption && <p >{caption}</p>}</a></>);
             case 'sticker':
