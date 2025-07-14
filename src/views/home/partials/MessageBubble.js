@@ -125,8 +125,7 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
         const content = msg.content;
         const caption = msg.caption;
         const recording = msg.callRecordUrl;
-        adstring = '';
-
+       
         let adstring = '';
 
         if (msg.ads) {
@@ -146,7 +145,6 @@ const Message = ({message, responseToMessage, reactToMessage, allMsg, typeFolio}
             case 'mtm':
                 return (<div style={{whiteSpace:'pre-line'}}>{msg.responseTo && msg.direction === 'out' ? (<div>{getResponseTo(msg.responseTo)}</div>) : null} {msg.responseFromId && msg.direction === 'incoming' ? (<div>{getResponseFrom(msg.responseFromId)}</div>) : null} <b>Plantilla: {content} </b>{caption && <p>{caption}</p>}</div>);                
             case 'document':
-
                 const url = convertirURL(content);
                 return (<a target='blank' href={url}><Icon name='folder open outline'></Icon>{caption ? caption : ' Abrir Archivo'}</a>);
             case 'image':

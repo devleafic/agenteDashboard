@@ -9,7 +9,7 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 
 const Mtm = ({mtm, person, setRefresh, folio}) => {
 
-    const initializeMtmToSend= {...mtmToSend, _id : null, name: null, text : null, locale: null, service :null, channel :null };
+  
     const [openModal, setOpenModal] = useState(false);
     const [titleModal, setTitleModal ] = useState('');
     const [contentMessage, setContentMessage] = useState(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
@@ -18,11 +18,12 @@ const Mtm = ({mtm, person, setRefresh, folio}) => {
     const listFolios = useContext(ListFoliosContext);
     const [mtmToSend, setMtmToSend] = useState({_id: null, name: null, text : null, locale : null, service : null, channel: null});
 
+    const initializeMtmToSend= {...mtmToSend, _id : null, name: null, text : null, locale: null, service :null, channel :null };
     const initLoadModal = () => { //reset values for Modal 
         setOpenModal(!openModal);
         setMtmToSend(initializeMtmToSend);
         setContentMessage(<Segment> <Dimmer active inverted> <Loader inverted>Cargando</Loader></Dimmer><Image src={shortParagraph} /></Segment>);
-        console.log(mtmToSend)
+        //console.log(mtmToSend)
     }
     const getMtm = (mtm) => {
         setTitleModal('Plantillas de mensajes')
