@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { toast } from 'react-toastify';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
@@ -14,9 +13,7 @@ import {
     DropdownTrigger,
     DropdownMenu,
     DropdownItem,
-    User,
     Chip,
-    Switch,
     Badge,
     Spacer,
     Modal,
@@ -28,7 +25,9 @@ import {
     Input,
     Select,
     SelectItem,
-    Tooltip
+    Tooltip,
+    addToast,
+    ToastProvider,
 } from "@heroui/react";
 
 const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected }) => {
@@ -55,6 +54,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
     const initialBlankFolioState = { anchor: '', channel: '', queue: '', crm: {} };
     const [dataToBlank, setDataToBlank] = useState(initialBlankFolioState);
     const [onCreateBlank, setOnCreateBlank] = useState(false);
+    const [placement, setPlacement] = useState('top-right');//heroui toast
 
     const getAgentActivitie = () => {
         socketC.connection.emit('activitieAgent', { agent: userInfo._id }, (result) => {
@@ -77,7 +77,11 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         if (isConnected === -1) return false;
         const value = !isInbound;
         setIsUnbound(value);
-        toast.success('Se cambio el tipo de conexión a ' + (isInbound ? 'Outbound' : 'Inbound'));
+        addToast({
+            title: 'Se cambio el tipo de conexión',
+            description: 'Se cambio el tipo de conexión a ' + (isInbound ? 'Outbound' : 'Inbound'),
+            color: 'success'
+        });
         setIsReady(false);
         if (!value) {
             socketC.connection.emit('disconnectToQueue', { token: window.localStorage.getItem('sdToken') }, (result) => {
@@ -92,7 +96,11 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
 
     const createFolioBlank = () => {
         if (!dataToBlank.anchor || !dataToBlank.channel) {
-            toast.warning("El identificador y el canal son obligatorios.");
+            addToast({
+                title: 'Error al crear el folio',
+                description: 'El identificador y el canal son obligatorios.',
+                color: 'warning'
+            });
             return;
         }
         setOnCreateBlank(true);
@@ -102,11 +110,19 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         }, (response) => {
             setOnCreateBlank(false);
             if (response.success) {
-                toast.success("Folio creado exitosamente.");
+                addToast({
+                    title: 'Folio creado exitosamente',
+                    description: 'Folio creado exitosamente.',
+                    color: 'success'
+                });
                 setShowBlankFolio(false);
                 setDataToBlank(initialBlankFolioState);
             } else {
-                toast.error(ERRORS[response.codeError] || "Error al crear el folio.");
+                addToast({
+                    title: 'Error al crear el folio',
+                    description: (ERRORS[response.codeError] || "Error al crear el folio."),
+                    color: 'danger'
+                });
             }
         });
     };
@@ -164,7 +180,12 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
     const requestItemList = async (e, { value }) => {
         socketC.connection.emit('outboundItem', { token: window.localStorage.getItem('sdToken'), service: userInfo.service.id, list: value }, (responseItem) => {
             if (!responseItem.success) {
-                toast.error((ERRORS[responseItem.codeError] || responseItem.message));
+                setPlacement('top-right');
+                addToast({
+                    title: 'Error al obtener la lista',
+                    description: (ERRORS[responseItem.codeError] || responseItem.message),
+                    color: 'danger'
+                });
             }
         });
     }
@@ -175,25 +196,44 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
 
     const changeActivity = async (key) => {
         if (userInfo.onlyteamchat) {
-            toast.warning('No puedes cambiar de actividad, solo tienes acceso a TeamChat');
+            setPlacement('top-right');
+            addToast({
+                title: 'No puedes cambiar de actividad',
+                description: 'Solo tienes acceso a TeamChat',
+                color: 'warning',
+            });
             return false;
         }
         let value = key;
         let activityObj = fullActivities.find((x) => x._id === value);
         if (activityObj) {
             if (listFolios.current.length > 1 && activityObj.isConnect) {
-                toast.warning('Finaliza ó Guarda los folios en pantalla para poder cambiar a "' + activityObj.label + '"');
+                addToast({
+                    title: 'Finaliza ó Guarda los folios en pantalla para poder cambiar a "' + activityObj.label + '"',
+                    description: 'Finaliza ó Guarda los folios en pantalla para poder cambiar a "' + activityObj.label + '"',
+                    type: 'warning',
+                    duration: 5000,
+                    position: 'top-right'
+                });
                 setCurrentActivity(-1);
                 return false;
             }
             socketC.connection.emit('changeActivity', { token: window.localStorage.getItem('sdToken'), activity: activityObj }, (result) => {
                 if (!result.success) {
-                    toast.error('La actividad no es válida');
+                    addToast({
+                        title: 'Error al cambiar de actividad',
+                        description: 'La actividad no es válida',
+                        color: 'danger'
+                    });
                     return false;
                 }
                 setIsConnected(activityObj.isConnect ? 1 : 2);
                 setCurrentActivity(value);
-                toast.success('Se cambió la actividad a "' + activityObj.label + '"');
+                addToast({
+                    title: 'Se cambió la actividad',
+                    description: 'Se cambió la actividad a "' + activityObj.label + '"',
+                    color: 'success'
+                });
             });
         }
     }
@@ -201,7 +241,9 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
     const selectedActivity = activities.find(act => act.key === currentActivity);
 
     return (
-        <>
+        <><div className="fixed z-[100]">
+            <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
+         </div>
             <Navbar isBordered maxWidth="full" className="bg-gray-800 text-white h-16 shadow-md">
                 <NavbarBrand className="mr-4">
                 <Tooltip color="success" content= {"Asignación automática: " + userDetail.prefetch} placement="bottom">

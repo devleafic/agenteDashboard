@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 import { useNotifications } from './NotificationContext';
+import { ToastProvider, addToast } from "@heroui/react";
+
 const SocketContext = createContext();
 
 
@@ -13,6 +15,7 @@ export const SocketProvider = ({ children }) => {
   const [archivedChats, setArchivedChats] = useState([]); 
   const [unreadMessages, setUnreadMessages] = useState({});
   const [activitiesUsers, setActivitiesUsers] = useState({});
+  const [placement, setPlacement] = useState('top-right');
   
 // Get notification functions from context
 const { queueNotification } = useNotifications();
@@ -55,7 +58,7 @@ const { queueNotification } = useNotifications();
     const archivedChatIds = savedArchivedChats ? JSON.parse(savedArchivedChats) : [];
     localStorage.setItem('archivedChats', JSON.stringify([...archivedChatIds, chatId]));
     
-    toast.info('Chat archivado');
+    addToast('Chat archivado');
   }
   
   const unarchiveChat = (chatId) => {
@@ -71,7 +74,11 @@ const { queueNotification } = useNotifications();
       localStorage.setItem('archivedChats', JSON.stringify(archivedChatIds.filter(id => id !== chatId)));
     }
     
-    toast.info('Chat desarchivado');
+    addToast({
+        title: 'Chat desarchivado',
+        description: 'Chat desarchivado',
+        color: 'success'
+    });
   }
 
   useEffect(() => {
@@ -84,16 +91,13 @@ const { queueNotification } = useNotifications();
 
     newSocket.on('connect', () => {
         if (newSocket.connected) {
-          toast.success('Conectado a TeamChat', {
-            position: "top-center",
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            });
+          addToast({
+            title: 'Conectado a TeamChat',
+            description: 'Conectado a TeamChat',
+            color: 'secondary',
+           
+          });
+
           console.log('Conectado al servidor de Socket.IO');
 
           let lastActivitie = window.sessionStorage.getItem('lastActivitie');
@@ -106,7 +110,12 @@ const { queueNotification } = useNotifications();
           getInboxChat(newSocket);
         }else {
           console.log('No se pudo conectar al servidor de TeamChat');
-          toast.error('No se pudo conectar al servidor de TeamChat');
+          addToast({
+            title: 'No se pudo conectar al servidor de TeamChat',
+            description: 'No se pudo conectar al servidor de TeamChat',
+            color: 'danger',
+            placement: 'top-center'
+          });
         }
     });
 
@@ -195,7 +204,12 @@ const { queueNotification } = useNotifications();
             if (chatToMove) {
               setInboxList(prevInbox => [...prevInbox, chatToMove]);
               localStorage.setItem('archivedChats', JSON.stringify(archivedChatIds.filter(id => id !== data.body.chatId)));
-              toast.info('Chat desarchivado por nuevo mensaje');
+              addToast({
+                title: 'Chat desarchivado por nuevo mensaje',
+                description: 'Chat desarchivado por nuevo mensaje',
+                color: 'info',
+                placement: 'top-center'
+              });
             }
             return prev.filter(chat => chat._id !== data.body.chatId);
           });
@@ -210,6 +224,7 @@ const { queueNotification } = useNotifications();
   }, [queueNotification] );
 
   return (
+    
     <SocketContext.Provider value={{
       socket, 
       inboxList, 
@@ -223,6 +238,9 @@ const { queueNotification } = useNotifications();
       activitiesUsers,
       goToMedia
     }}>
+    <div className="fixed z-[100]">
+            <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
+    </div>
       {children}
     </SocketContext.Provider>
   );

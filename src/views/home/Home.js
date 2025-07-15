@@ -4,8 +4,8 @@ import Toolbar from './partials/Toolbar';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { Device, Call } from '@twilio/voice-sdk';
-import { toast } from 'react-toastify';
-import { Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button as HeroButton, Tooltip } from "@heroui/react";
+//import { toast } from 'react-toastify';
+import { Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button as HeroButton, Tooltip, addToast, ToastProvider } from "@heroui/react";
 
 /* Contexto */
 import ListFoliosContext from './../../controladores/FoliosContext';
@@ -129,6 +129,7 @@ const Home = () => {
     const [unReadMessages, setUnReadMessages] = useState(false);
 
     const [vFolio, setVFolio] = useState(null);
+    const [placement, setPlacement] = useState('top-right');
 
     const closeSession = () => {
         window.localStorage.removeItem('sdToken');
@@ -141,7 +142,11 @@ const Home = () => {
             return new Promise((resolve, reject) => {
                 socketC.connection.emit('authCall', {token : window.localStorage.getItem('sdToken')},(authData) => {
                     if(!authData.success){
-                        toast.error(authData.message);
+                        addToast({
+                            title: 'Error al iniciar la llamada',
+                            description: authData.message,
+                            color: 'warning'
+                        });
                         reject(new Error(authData.message));
                         return;
                     }
@@ -163,7 +168,11 @@ const Home = () => {
 
                         callC.connection.on(Device.EventName.Error, (error) => {
                             console.error("Twilio Device Registration Error:", error);
-                            toast.error(`Twilio Device Error: ${error.message}`);
+                            addToast({
+                                title: 'Twilio Device Registration Error:',
+                                description: error.message,
+                                color: 'warning'
+                            });
                             // Consider setting isReady to false or other UI updates
                             reject(error);
                         });
@@ -178,7 +187,11 @@ const Home = () => {
 
                     } catch (error) {
                         console.error("Error initializing Twilio Device:", error);
-                        toast.error("Failed to initialize Twilio Device.");
+                        addToast({
+                            title: 'Error initializing Twilio Device:',
+                            description: error.message,
+                            color: 'warning'
+                        });
                         reject(error);
                     }
                 });
@@ -201,7 +214,11 @@ const Home = () => {
 
             const handleIncomingCall = (callInstance) => {
                 console.log(`Incoming call from ${callInstance.callerInfo?.from}`);
-                toast.info(`Llamada entrante de ${callInstance.callerInfo?.from || 'Desconocido'}`);
+                addToast({
+                    title: 'Llamada entrante',
+                    description: `Llamada entrante de ${callInstance.callerInfo?.from || 'Desconocido'}`,
+                    color: 'info'
+                });
                 setOnCall('incoming');
                 setConnCall(callInstance); // connCall now holds a @twilio/voice-sdk Call object
                 setPhoneNumber(callInstance.callerInfo?.from || 'Unknown caller');
@@ -215,7 +232,11 @@ const Home = () => {
 
                 callInstance.on('disconnect', () => {
                     console.log('Call disconnected');
-                    toast.warn('Llamada desconectada.');
+                    addToast({
+                        title: 'Llamada desconectada',
+                        description: 'Llamada desconectada.',
+                        color: 'warning'
+                    });
                     setOnCall('disconnect');
                     setConnCall(null);
                     setOpenInComingCall(false); // Ensure incoming call modal is closed
@@ -225,7 +246,11 @@ const Home = () => {
 
                 callInstance.on('error', (error) => {
                     console.error('Call Error:', error);
-                    toast.error(`Error en llamada: ${error.message}`);
+                    addToast({
+                        title: 'Error en llamada',
+                        description: `Error en llamada: ${error.message}`,
+                        color: 'warning'
+                    });
                     setOnCall('disconnect'); 
                     setConnCall(null);
                     setOpenInComingCall(false); // Ensure incoming call modal is closed
@@ -257,7 +282,7 @@ const Home = () => {
                 // if (connCall && typeof connCall.removeAllListeners === 'function') { connCall.removeAllListeners(); }
             };
         }
-    }, [callC.connection, isReady, setOnCall, setConnCall, setPhoneNumber, setOpenInComingCall, setRefresh, toast]); // Added toast to dependencies
+    }, [callC.connection, isReady, setOnCall, setConnCall, setPhoneNumber, setOpenInComingCall, setRefresh, addToast]); // Added toast to dependencies
 
     const notificationsSetup = async () => {
         if(window.mobileAndTabletCheck()){
@@ -330,7 +355,11 @@ const Home = () => {
             });
 
             socketC.connection.io.on("reconnect", () => {
-                toast.info('Reconectando con el servidor');
+                addToast({
+                    title: 'Reconectando con el servidor',
+                    description: 'Reconectando con el servidor',
+                    color: 'info'
+                });
                 window.localStorage.setItem('event','reconnect');
                 
                 
@@ -345,16 +374,11 @@ const Home = () => {
                 if(data.success){
 
                     
-                    toast.success('Se ha conectado al servidor correctamente', {
-                        position: "top-right",
-                        autoClose: 1000,
-                        hideProgressBar: true,
-                        closeOnClick: true,
-                        pauseOnHover: false,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "colored",
-                        });
+                    addToast({
+                        title: 'Se ha conectado al servidor correctamente',
+                        description: 'Se ha conectado al servidor correctamente',
+                        color: 'success'
+                    });
 
                     // let pulgins = window.localStorage.getItem('plugins')
                     // let chCall = pulgins.find((x) => {
@@ -393,7 +417,11 @@ const Home = () => {
                 })
 
                 if(isOpenFolio){
-                    toast.info('El folio ya se encuentra abierto');
+                    addToast({
+                        title: 'El folio ya se encuentra abierto',
+                        description: 'El folio ya se encuentra abierto',
+                        color: 'warning'
+                    });
                     return false;
                 }
                 
@@ -418,7 +446,11 @@ const Home = () => {
                                 // If this 'newFolio' implies an *outgoing* call initiated by the server, that logic would go here.
                             } catch (error) {
                                 console.error("'newFolio' event: Error during CallController.setup:", error);
-                                toast.error('Error al configurar el dispositivo de llamadas para el nuevo folio.');
+                                addToast({
+                                    title: 'Error al configurar el dispositivo de llamadas para el nuevo folio',
+                                    description: 'Error al configurar el dispositivo de llamadas para el nuevo folio',
+                                    color: 'danger'
+                                });
                                 return; // Stop processing if setup fails
                             }
                         }
@@ -500,7 +532,11 @@ const Home = () => {
             });
 
             socketC.connection.on('newInbox', (data) => {
-                toast.warning('Nuevo Inbox de '+data.aliasId + ' #'+data.anchor);
+                addToast({
+                    title: 'Nuevo Inbox de '+data.aliasId + ' #'+data.anchor,
+                    description: 'Nuevo Inbox de '+data.aliasId + ' #'+data.anchor,
+                    color: 'warning'
+                });
                 showMessage('Nuevo Inbox de  '+data.aliasId + ' #'+data.anchor);
                 setUnReadMessages(true);
                 //Automatic assign 
@@ -527,21 +563,33 @@ const Home = () => {
            
             //setIsLoadInboxFolio(false);
             if(!data.success && data.automaticAssign){
-                toast.error(data.message);
+                addToast({
+                    title: 'Error al abrir el folio',
+                    description: data.message,
+                    color: 'danger'
+                });
                 return false;
             } else if (!data.success && !data.automaticAssign){
                 return false;
             }
 
             //setVFolio(folio._id)
-            toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
+            addToast({
+                title: 'Se abrió el folio',
+                description: <label>Se abrió el folio <b>#{folio._id}</b></label>,
+                color: 'success'
+            });
             //selectedComponent('home')
             const isOpenFolio = listFolios.current.find((x) => {
                 return x.folio._id === folio._id;
             })
 
             if(isOpenFolio){
-                toast.info('El folio ya se encuentra abierto');
+                addToast({
+                    title: 'El folio ya se encuentra abierto',
+                    description: 'El folio ya se encuentra abierto',
+                    color: 'warning'
+                });
                 return false;
             }
             
@@ -642,6 +690,9 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
 
     return (
     <>
+    <div className="fixed z-[100]">
+            <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
+    </div>
       <div className="flex flex-col h-screen bg-gray-50 dark:bg-neutral-900">
         {/* Status Bar */}
         <div className={`w-full h-1 ${getColorStatusBar()}`}></div>
