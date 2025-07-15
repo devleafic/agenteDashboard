@@ -123,6 +123,38 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         );
     };
 
+    const generateButtons = (botones) => {
+        
+        if (botones && botones.length > 0) {
+
+            return (
+                <div className='botones-container'>
+                
+                        {botones.map((boton) => (
+                            <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
+                        ))}
+                    
+                </div>
+            );
+        } else {
+            return '';
+        }
+
+    }
+
+    const responseButton = (id, text) => { //response from the client
+        console.log(text)
+
+        if (text && text.length > 0) {
+
+            return (
+            <div className='botones-container'>
+                <Button  color='green' key={id}>{text}</Button>
+            </div>
+            );
+        }
+    };
+
     const getReaction = (reaction) => {
         if (!reaction || reaction.length === 0) return null;
         const lastEvent = reaction[reaction.length - 1];
@@ -134,23 +166,159 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         const originalMsg = allMessages.find(m => m.externalId === id);
         if (!originalMsg) return <Snippet size="sm" color="warning">Mensaje no disponible</Snippet>;
 
-        let contentPreview = originalMsg.content;
-        if (originalMsg.class !== 'text') {
-            contentPreview = `[${originalMsg.class}]`;
-        }
+        const renderPreview = () => {
+            switch (originalMsg.class) {
+                case 'text':
+                case 'buttonreply':
+                case 'interactive':
+                case 'button':
+                    return (
+                        <p className="whitespace-pre-wrap break-words">
+                            {highlight ? highlightText(originalMsg.content, highlight) : originalMsg.content}
+                        </p>
+                    );
+                case 'image':
+                    return (
+                        <a href={originalMsg.content} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline">
+                            <Image src={originalMsg.content} width={40} height={40} alt="Imagen respondida" className="rounded-md object-cover" />
+                            <span className="text-sm italic text-current">{originalMsg.caption || 'Imagen'}</span>
+                        </a>
+                    );
+                case 'document':
+                case 'video':
+                case 'audio':
+                    const iconMap = {
+                        document: <PaperclipIcon className="w-5 h-5 text-gray-500" />,
+                        audio: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" /></svg>,
+                        video: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm14.553 1.106a1 1 0 00-1.447.894L15 8v4l.106.001a1 1 0 001.447-.894l2-4A1 1 0 0017.553 6L15.553 7.106z" /></svg>
+                    };
+                    const textMap = {
+                        document: 'Documento',
+                        audio: 'Mensaje de voz',
+                        video: 'Video'
+                    };
+                    return (
+                        <a href={originalMsg.content} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline">
+                            {iconMap[originalMsg.class]}
+                            <span className="text-sm italic text-current">{originalMsg.caption || textMap[originalMsg.class]}</span>
+                        </a>
+                    );
+                case 'location':
+                     return (
+                        <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                            <span className="text-sm italic">Ubicación</span>
+                        </div>
+                    );
+                default:
+                    return <p className="text-sm italic">[{originalMsg.class}]</p>;
+            }
+        };
 
         return (
-            <div className="bg-black/10 p-2 rounded-lg mb-2 border-l-2 border-primary">
+            <div className="bg-black/10 p-2 rounded-lg mb-2 border-l-2 border-primary cursor-pointer">
                 <p className="text-xs font-bold">{originalMsg.direction === 'out' ? getNameAuthor(originalMsg.origin) : (contact?.aliasId || contact?.name || contact?.alias || 'Desconocido')}</p>
-                <p className="text-sm truncate">
-                    {highlight && typeof contentPreview === 'string' 
-                        ? highlightText(contentPreview, highlight) 
-                        : contentPreview
-                    }
-                </p>
+                {renderPreview()}
             </div>
         );
     };
+
+    // const getResponseFrom = (id) => {
+    //     if (!allMsg) {
+    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se pudo recuperar.</Snippet>;
+    //     }
+
+    //     const originaMsg = allMsg.find((x) => x.externalId === id);
+
+    //     if (!originaMsg) {
+    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se encuentra en este folio.</Snippet>;
+    //     }
+
+    //     switch (originaMsg.class) {
+    //         case 'text':
+    //         case 'buttonreply':
+    //             return <p className="text-sm italic">{originaMsg.content}</p>;
+            
+    //         case 'image':
+    //             return <Image src={originaMsg.content} width={80} height={80} alt="Imagen respondida" className="rounded-md object-cover" />;
+            
+    //         case 'audio':
+    //             return <AudioPlayer src={originaMsg.content} minimal />;
+
+    //         case 'video':
+    //             return <video controls src={originaMsg.content} className="w-full max-w-xs rounded-md" />;
+
+    //         case 'document':
+    //             return (
+    //                 <a href={originaMsg.content} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline">
+    //                     <PaperclipIcon className="w-4 h-4" />
+    //                     <span>{originaMsg.caption || 'Ver Archivo Adjunto'}</span>
+    //                 </a>
+    //             );
+
+    //         case 'location':
+    //             const isValidCoordinate = (coord) => {
+    //                 if (typeof coord !== 'string') return false;
+    //                 const [lat, lng] = coord.split(',').map(Number);
+    //                 return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+    //             };
+
+    //             if (!isValidCoordinate(originaMsg.content)) {
+    //                 return (
+    //                     <Snippet color="danger" size="sm" className="w-full">
+    //                         Ubicación no válida
+    //                     </Snippet>
+    //                 );
+    //             }
+
+    //             const [lat, lng] = originaMsg.content.split(',');
+    //             return <MapPreview lat={lat} lng={lng} />;
+
+    //         default:
+    //             return <Snippet size="sm">[Tipo de mensaje no soportado: {originaMsg.class}]</Snippet>;
+    //     }
+    // };
+
+    // const getResponseTo = (id) => {
+    //     if (!allMsg) {
+    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se pudo recuperar.</Snippet>;
+    //     }
+
+    //     const originaMsg = allMsg.find((x) => x.externalId === id);
+
+    //     if (!originaMsg) {
+    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se encuentra en este folio.</Snippet>;
+    //     }
+
+    //     switch (originaMsg.class) {
+    //         case 'text':
+    //             return <p className="text-sm italic">{originaMsg.content}</p>;
+
+    //         case 'image':
+    //             return <Image src={originaMsg.content} width={80} height={80} alt="Imagen respondida" className="rounded-md object-cover" />;
+
+    //         case 'audio':
+    //             return <AudioPlayer src={originaMsg.content} minimal />;
+
+    //         case 'video':
+    //             return <video controls src={originaMsg.content} className="w-full max-w-xs rounded-md" />;
+
+    //         case 'document':
+    //             return (
+    //                 <a href={originaMsg.content} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline">
+    //                     <PaperclipIcon className="w-4 h-4" />
+    //                     <span>{originaMsg.caption || 'Ver Archivo Adjunto'}</span>
+    //                 </a>
+    //             );
+
+    //         case 'location':
+    //             const [lat, lng] = originaMsg.content.split(',');
+    //             return <MapPreview lat={lat} lng={lng} />;
+
+    //         default:
+    //             return <Snippet size="sm">[Tipo de mensaje no soportado: {originaMsg.class}]</Snippet>;
+    //     }
+    // };
 
     const renderContent = (msg) => {
         const repliedToId = msg.direction === 'out' ? msg.responseTo : msg.responseFromId;
@@ -159,9 +327,6 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         const mainContent = (() => {
             switch (msg.class) {
                 case 'text':
-                case 'interactive':
-                case 'button':
-                case 'buttonreply':
                     return (
                         <div className="whitespace-pre-wrap break-words">
                             {highlight 
@@ -170,6 +335,20 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             }
                         </div>
                     );
+                case 'interactive':
+                case 'buttonreply':
+                case 'button':
+                    return (
+                        <div className="flex flex-col gap-2">
+                            <div className="whitespace-pre-wrap break-words">
+                                {highlight ? highlightText(msg.content, highlight) : msg.content}
+                            </div>
+                            {msg.class === 'buttonreply' && msg.interaction && generateButtons(msg.interaction)}
+                            {msg.class === 'button' && responseButton(msg.externalId, msg.content)}
+                            {msg.class === 'interactive' && <Button  color='primary' key={msg._id}>{msg.content}</Button>}
+                        </div>
+                    );
+    
                 case 'mtm':
                     return (
                         <div>
