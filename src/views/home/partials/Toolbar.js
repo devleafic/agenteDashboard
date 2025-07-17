@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
+import { FiClock } from "react-icons/fi";
 import {
     Navbar,
     NavbarBrand,
@@ -30,31 +31,101 @@ import {
     ToastProvider,
 } from "@heroui/react";
 
+// Helper function to format time
+const formatTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Helper function to get today's date key for local storage
+const getTodayKey = (activityId) => {
+  const today = new Date().toISOString().split('T')[0];
+  return `activity_timer_${activityId}_${today}`;
+};
+
+
 const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected }) => {
+  // Timer related state
+  const [activityTimer, setActivityTimer] = useState(0);
+  const [currentActivityId, setCurrentActivityId] = useState(null);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const intervalRef = React.useRef(null);
 
-    const [listFilesOubounds, setListFilesOubounds] = useState([]);
-    const socketC = useContext(SocketContext);
-    const [activities, setActivities] = useState([]);
-    const [fullActivities, setFullActivities] = useState([]);
-    const [currentActivity, setCurrentActivity] = useState(1);
-    const [outboundAva, setOutboundAva] = useState(false);
-    const listFolios = useContext(ListFoliosContext);
-    const avatar = 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg';
-    const [userDetail, setUserDetail] = useState({ name: "Esperando..", prefetch: "Esperando...", profilePicture: avatar });
-    const [automaticActivity, setAutomaticActivity] = useState(null);
-    const [agentList, setAgentList] = useState(null);
-    const [timing, setTiming] = useState(null);
-    const [inAtention, setInAtention] = useState(null);
-    const { notifications, clear, markAllAsRead, markAsRead, unreadCount } = useNotificationCenter();
-    const [analytics, setAnalytics] = useState({ foliosOnHoldAll: '°°°', foliosOnBotAt: '°°°' });
+  // Component state
+  const [listFilesOubounds, setListFilesOubounds] = useState([]);
+  const socketC = useContext(SocketContext);
+  const [activities, setActivities] = useState([]);
+  const [fullActivities, setFullActivities] = useState([]);
+  const [currentActivity, setCurrentActivity] = useState(1);
+  const [outboundAva, setOutboundAva] = useState(false);
+  const listFolios = useContext(ListFoliosContext);
+  const avatar = 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg';
+  const [userDetail, setUserDetail] = useState({ name: "Esperando..", prefetch: "Esperando...", profilePicture: avatar });
+  const [automaticActivity, setAutomaticActivity] = useState(null);
+  const [agentList, setAgentList] = useState(null);
+  const [timing, setTiming] = useState(null);
+  const [inAtention, setInAtention] = useState(null);
+  const { notifications, clear, markAllAsRead, markAsRead, unreadCount } = useNotificationCenter();
+  const [analytics, setAnalytics] = useState({ foliosOnHoldAll: '°°°', foliosOnBotAt: '°°°' });
 
-    // State for Blank Folio Modal
-    const [showBlankFolio, setShowBlankFolio] = useState(false);
-    const [infoBlankFolio, setInfoBlankFolio] = useState(null);
-    const initialBlankFolioState = { anchor: '', channel: '', queue: '', crm: {} };
-    const [dataToBlank, setDataToBlank] = useState(initialBlankFolioState);
-    const [onCreateBlank, setOnCreateBlank] = useState(false);
-    const [placement, setPlacement] = useState('top-right');//heroui toast
+  // State for Blank Folio Modal
+  const [showBlankFolio, setShowBlankFolio] = useState(false);
+  const [infoBlankFolio, setInfoBlankFolio] = useState(null);
+  const initialBlankFolioState = { anchor: '', channel: '', queue: '', crm: {} };
+  const [dataToBlank, setDataToBlank] = useState(initialBlankFolioState);
+  const [onCreateBlank, setOnCreateBlank] = useState(false);
+  const [placement, setPlacement] = useState('top-right'); // heroui toast
+  
+  // Timer functions
+  const loadTimerData = useCallback((activityId) => {
+    if (!activityId) return 0;
+    const savedTimer = localStorage.getItem(getTodayKey(activityId));
+    return savedTimer ? parseInt(savedTimer, 10) : 0;
+  }, []);
+
+  const saveTimerData = useCallback((activityId, seconds) => {
+    if (!activityId) return;
+    localStorage.setItem(getTodayKey(activityId), seconds.toString());
+  }, []);
+
+  const startTimer = useCallback((activityId) => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    setCurrentActivityId(activityId);
+    const savedTime = loadTimerData(activityId);
+    setActivityTimer(savedTime);
+    
+    intervalRef.current = setInterval(() => {
+      setActivityTimer(prev => {
+        const newTime = prev + 1;
+        saveTimerData(activityId, newTime);
+        return newTime;
+      });
+    }, 1000);
+    
+    setIsTimerRunning(true);
+  }, [loadTimerData, saveTimerData]);
+
+  const stopTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setIsTimerRunning(false);
+  }, []);
+  
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
     const getAgentActivitie = () => {
         socketC.connection.emit('activitieAgent', { agent: userInfo._id }, (result) => {
@@ -127,6 +198,28 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         });
     };
 
+    // Check for new day and reset timer if needed
+    useEffect(() => {
+        const checkForNewDay = () => {
+            if (!currentActivityId) return;
+            const today = new Date().toISOString().split('T')[0];
+            const lastUpdated = localStorage.getItem(`activity_timer_${currentActivityId}_last_updated`);
+            
+            if (lastUpdated !== today) {
+                // It's a new day, reset the timer
+                setActivityTimer(0);
+                saveTimerData(currentActivityId, 0);
+                localStorage.setItem(`activity_timer_${currentActivityId}_last_updated`, today);
+            }
+        };
+
+        // Check every minute if it's a new day
+        const dayCheckInterval = setInterval(checkForNewDay, 60000);
+        checkForNewDay(); // Initial check
+
+        return () => clearInterval(dayCheckInterval);
+    }, [currentActivityId, saveTimerData]);
+
     useEffect(() => {
         async function getInfo() {
             if (userInfo && !isInbound) {
@@ -146,6 +239,8 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         }
         getPlugin();
     }, []);
+
+
 
     useEffect(() => {
         const loadActivitiesAndConfig = async () => {
@@ -191,8 +286,11 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
     }
 
     useEffect(() => {
-        if (!userInfo.onlyteamchat && automaticActivity && isInbound) { changeActivity(automaticActivity._id) }
-    }, [automaticActivity, isInbound, userInfo]);
+        if (!userInfo.onlyteamchat && automaticActivity && isInbound) { 
+            changeActivity(automaticActivity._id);
+            startTimer(automaticActivity._id);
+        }
+    }, [automaticActivity, isInbound, userInfo, startTimer]);
 
     const changeActivity = async (key) => {
         if (userInfo.onlyteamchat) {
@@ -218,6 +316,12 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                 setCurrentActivity(-1);
                 return false;
             }
+            
+            // Stop current timer if running
+            if (isTimerRunning) {
+                stopTimer();
+            }
+            
             socketC.connection.emit('changeActivity', { token: window.localStorage.getItem('sdToken'), activity: activityObj }, (result) => {
                 if (!result.success) {
                     addToast({
@@ -227,6 +331,12 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     });
                     return false;
                 }
+                
+                // Start timer for the new activity
+                if (value !== currentActivity) {
+                    startTimer(value);
+                }
+                
                 setIsConnected(activityObj.isConnect ? 1 : 2);
                 setCurrentActivity(value);
                 addToast({
@@ -257,6 +367,13 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                 </NavbarBrand>
 
                 <NavbarContent className="hidden sm:flex gap-4" justify="start">
+                    {currentActivity && (
+                        <NavbarItem className="flex items-center">
+                            <Chip color="primary" startContent={<FiClock className="text-white" />} variant="flat" className="flex items-center gap-2">
+                                <span className="font-mono text-white"> Tiempo en actividad: {formatTime(activityTimer)}</span>
+                            </Chip>
+                        </NavbarItem>
+                    )}
                     <NavbarItem>
                         <Dropdown>
                             <DropdownTrigger>
@@ -275,6 +392,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     <NavbarItem>
                         <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot Atendiendo</span></Badge>
                     </NavbarItem>
+       
 
                 </NavbarContent>
 
