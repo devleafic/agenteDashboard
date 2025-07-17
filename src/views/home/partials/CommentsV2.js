@@ -1,7 +1,7 @@
 import React, {useContext, useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
 import {Snippet, Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
-import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen } from 'lucide-react';
+import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
 
@@ -262,8 +262,10 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
     });    
     const [previousFolioId, setPreviousFolioId] = useState(null);
     const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
-    const [indicatorMessage, setIndicatorMessage] = useState("Guardado...");
-    const [indicatorColor, setIndicatorColor] = useState("rgba(0, 128, 0, 0.7)"); // Default green color
+    const [indicatorMessage, setIndicatorMessage] = useState('');
+    const [indicatorColor, setIndicatorColor] = useState('green');
+    const [showAIModal, setShowAIModal] = useState(false);
+    const [aiModalContent, setAiModalContent] = useState('');
     const debounceTimerRef = useRef(null);
 
     // Helper function to show indicator with specific message and color
@@ -1602,16 +1604,59 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                     {showAutoSaveIndicator && <span style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                <ButtonGroup>
-                                    <HeroButton size="sm" variant='ghost' color="success" onPress={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
-                                        <Save className="w-4 h-4 mr-1" />
-                                        Continuar mas tarde
+                                    <div className="flex items-center gap-2">
+                                        <HeroButton 
+                                            size="sm" 
+                                            variant="flat"
+                                            startContent={<Sparkles className="w-4 h-4 text-purple-600" />}
+                                            className="bg-white text-purple-700 hover:bg-purple-50 border border-purple-100 transition-colors"
+                                            onPress={() => {
+                                                setAiModalContent('Para activar la función de Resumir con IA, por favor consulta con tu supervisor.');
+                                                setShowAIModal(true);
+                                            }}
+                                        >
+                                            Resumir con IA
+                                        </HeroButton>   
+                                        <HeroButton 
+                                            size="sm" 
+                                            variant="flat"
+                                            startContent={<MessageSquareText className="w-4 h-4 text-blue-600" />}
+                                            className="bg-white text-blue-700 hover:bg-blue-50 border border-blue-100 transition-colors"
+                                            onPress={() => {
+                                                setAiModalContent('Para activar la función de Contestar con IA, por favor consulta con tu supervisor.');
+                                                setShowAIModal(true);
+                                            }}
+                                        >
+                                            Contestar con IA
+                                        </HeroButton>
+                                    </div>
+                                <div className="flex items-center gap-2">
+                                    
+                                    <HeroButton 
+                                        size="sm" 
+                                        color="primary" 
+                                        variant="flat"
+                                        startContent={<Save className="w-4 h-4" />}
+                                        onPress={() => prepareCloseFolio('save')} 
+                                        isLoading={isEndingFolio} 
+                                        disabled={isEndingFolio}
+                                        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90 transition-opacity"
+                                    >
+                                        Continuar más tarde
                                     </HeroButton>
-                                    <HeroButton size="sm" variant='ghost' color="danger" onPress={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio}>
-                                        <LogOut className="w-4 h-4 mr-1" />
+                                    <HeroButton 
+                                        size="sm" 
+                                        color="danger" 
+                                        variant="flat"
+                                        startContent={<LogOut className="w-4 h-4" />}
+                                        onPress={() => prepareCloseFolio('end')} 
+                                        isLoading={isEndingFolio} 
+                                        disabled={isEndingFolio}
+                                        className="bg-gradient-to-r from-red-500 to-pink-600 text-white hover:opacity-90 transition-opacity"
+                                    >
                                         Finalizar
                                     </HeroButton>
-                                    </ButtonGroup>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -1750,12 +1795,29 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                         {showAutoSaveIndicator && <span className="transition-opacity duration-300" style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <HeroButton size="sm" variant='ghost' onClick={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio}>
-                                            <Save className="w-4 h-4 mr-1" />
+                                        <HeroButton 
+                                            size="sm" 
+                                            color="primary" 
+                                            variant="flat"
+                                            startContent={<Save className="w-4 h-4" />}
+                                            onClick={() => prepareCloseFolio('save')} 
+                                            isLoading={isEndingFolio} 
+                                            disabled={isEndingFolio}
+                                            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90 transition-opacity"
+                                        >
                                             Guardar y Cerrar
                                         </HeroButton>
-                                        <HeroButton key={'btnend-'+folio} variant='ghost' onClick={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio} isIconOnly aria-label="Finalizar">
-                                            <LogOut className="w-5 h-5 text-green-500" />
+                                        <HeroButton 
+                                            key={'btnend-'+folio} 
+                                            color="success" 
+                                            variant="flat"
+                                            startContent={<LogOut className="w-4 h-4" />}
+                                            onClick={() => prepareCloseFolio('end')} 
+                                            isLoading={isEndingFolio} 
+                                            disabled={isEndingFolio} 
+                                            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-opacity"
+                                        >
+                                            Finaliza
                                         </HeroButton>
                                     </div>
                                 </div>
@@ -1765,6 +1827,21 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                 </div>
             </div>
     
+            {/* AI Feature Modal */}
+            <HeroModal isOpen={showAIModal} onOpenChange={setShowAIModal} backdrop="blur">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">Función no disponible</ModalHeader>
+                    <ModalBody>
+                        <p>{aiModalContent}</p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <HeroButton color="primary" onPress={() => setShowAIModal(false)}>
+                            Entendido
+                        </HeroButton>
+                    </ModalFooter>
+                </ModalContent>
+            </HeroModal>
+
             {/* Modals */}
             {folio && (
                 <HeroModal isOpen={openModal} onOpenChange={setOpenModal} backdrop="blur">
