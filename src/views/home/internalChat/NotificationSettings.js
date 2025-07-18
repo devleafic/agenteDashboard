@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Header, Button, Icon, Checkbox, Segment, Divider } from 'semantic-ui-react';
 import { useNotifications } from '../../../controladores/NotificationContext';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@heroui/modal';
+import { Button } from '@heroui/button';
+import { Switch } from '@heroui/switch';
+import { Slider } from '@heroui/slider';
+import { Divider } from '@heroui/divider';
 
 const NotificationSettings = ({ open, onClose }) => {
   const { 
@@ -42,21 +46,28 @@ const NotificationSettings = ({ open, onClose }) => {
     onClose();
   };
 
-  const requestNotificationPermission = async () => {
+  const handleBrowserNotificationPermission = async () => {
     if (!("Notification" in window)) {
       alert("Este navegador no soporta notificaciones de escritorio");
       return;
     }
     
-    const permission = await Notification.requestPermission();
-    
-    if (permission === "granted") {
-      setTempSettings({
-        ...tempSettings,
-        browserNotificationsEnabled: true
-      });
+    if (!tempSettings.browserNotificationsEnabled) {
+      const permission = await Notification.requestPermission();
+      
+      if (permission === "granted") {
+        setTempSettings({
+          ...tempSettings,
+          browserNotificationsEnabled: true
+        });
+      } else {
+        alert("Se requieren permisos para mostrar notificaciones");
+        setTempSettings({
+          ...tempSettings,
+          browserNotificationsEnabled: false
+        });
+      }
     } else {
-      alert("Se requieren permisos para mostrar notificaciones");
       setTempSettings({
         ...tempSettings,
         browserNotificationsEnabled: false
@@ -71,81 +82,91 @@ const NotificationSettings = ({ open, onClose }) => {
   };
 
   return (
-    <Modal open={open} onClose={onClose} size="tiny">
-      <Header icon="bell" content="Configuración de Notificaciones" />
-      <Modal.Content>
-        <Segment>
-          <Header as="h4">Sonidos</Header>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-            <Checkbox 
-              toggle 
-              checked={tempSettings.soundEnabled} 
-              onChange={() => setTempSettings({...tempSettings, soundEnabled: !tempSettings.soundEnabled})}
-              label="Activar sonidos de notificación"
-            />
-            {tempSettings.soundEnabled && (
-              <Button 
-                icon="play" 
-                size="mini" 
-                circular 
-                color="blue" 
-                style={{ marginLeft: '10px' }} 
-                onClick={playTestSound}
-                title="Probar sonido"
-              />
-            )}
+    <Modal isOpen={open} onClose={onClose} size="md">
+      <ModalContent>
+        <ModalHeader className="flex items-center gap-2">
+          <i className="ri-notification-3-line text-xl"></i>
+          <span className="text-lg font-semibold">Configuración de Notificaciones</span>
+        </ModalHeader>
+        <ModalBody className="space-y-4 p-4">
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-200">Sonidos</h4>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Switch 
+                  isSelected={tempSettings.soundEnabled}
+                  onValueChange={(isSelected) => setTempSettings({...tempSettings, soundEnabled: isSelected})}
+                  className={tempSettings.soundEnabled ? 'bg-primary-500' : 'bg-gray-300'}
+                />
+                <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                  Activar sonidos de notificación
+                </span>
+              </div>
+              
+              {tempSettings.soundEnabled && (
+                <div className="space-y-3 pl-10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                      Volumen: {tempSettings.notificationVolume}%
+                    </span>
+                    <Button 
+                      size="sm"
+                      variant="flat"
+                      onPress={playTestSound}
+                      startContent={<i className="ri-volume-up-line"></i>}
+                      className="ml-2"
+                    >
+                      Probar
+                    </Button>
+                  </div>
+                  <Slider
+                    aria-label="Volumen"
+                    value={tempSettings.notificationVolume}
+                    onChange={(value) => setTempSettings({...tempSettings, notificationVolume: value})}
+                    minValue={0}
+                    maxValue={100}
+                    step={5}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
+                    <span>Bajo</span>
+                    <span>Alto</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
-          {tempSettings.soundEnabled && (
-            <div>
-              <label>Volumen: {tempSettings.notificationVolume}%</label>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon name="volume down" />
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="100" 
-                  value={tempSettings.notificationVolume} 
-                  onChange={(e) => setTempSettings({...tempSettings, notificationVolume: parseInt(e.target.value)})}
-                  style={{ flex: 1, margin: '0 10px' }}
+          <Divider className="my-2" />
+          
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-200">Notificaciones del navegador</h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Switch 
+                  isSelected={tempSettings.browserNotificationsEnabled}
+                  onValueChange={handleBrowserNotificationPermission}
+                  className={tempSettings.browserNotificationsEnabled ? 'bg-primary-500' : 'bg-gray-300'}
                 />
-                <Icon name="volume up" />
+                <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                  Mostrar notificaciones cuando la aplicación esté minimizada
+                </span>
               </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 pl-10">
+                Las notificaciones del navegador te alertarán de nuevos mensajes cuando no estés viendo la aplicación.
+              </p>
             </div>
-          )}
-        </Segment>
-        
-        <Divider />
-        
-        <Segment>
-          <Header as="h4">Notificaciones del Navegador</Header>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Checkbox 
-              toggle 
-              checked={tempSettings.browserNotificationsEnabled} 
-              onChange={() => {
-                if (!tempSettings.browserNotificationsEnabled) {
-                  requestNotificationPermission();
-                } else {
-                  setTempSettings({...tempSettings, browserNotificationsEnabled: false});
-                }
-              }}
-              label="Mostrar notificaciones cuando la aplicación esté minimizada"
-            />
           </div>
-          <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-            Las notificaciones del navegador te alertarán de nuevos mensajes cuando no estés viendo la aplicación.
-          </p>
-        </Segment>
-      </Modal.Content>
-      <Modal.Actions>
-        <Button color="red" onClick={onClose}>
-          <Icon name="remove" /> Cancelar
-        </Button>
-        <Button color="green" onClick={handleSave}>
-          <Icon name="checkmark" /> Guardar
-        </Button>
-      </Modal.Actions>
+        </ModalBody>
+        <ModalFooter className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
+          <Button variant="light" onPress={onClose} className="px-4">
+            Cancelar
+          </Button>
+          <Button color="primary" onPress={handleSave} className="px-6">
+            Guardar
+          </Button>
+        </ModalFooter>
+      </ModalContent>
     </Modal>
   );
 };
