@@ -297,7 +297,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
             setPlacement('top-right');
             addToast({
                 title: 'No puedes cambiar de actividad',
-                description: 'Solo tienes acceso a TeamChat',
+                description: 'Solo tienes acceso a TeamChat, no puedes cambiar de actividad',
                 color: 'warning',
             });
             return false;

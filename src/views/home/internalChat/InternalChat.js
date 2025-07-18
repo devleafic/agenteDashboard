@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSocket } from '../../../controladores/InternalChatContext';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import BubbleIternalChat from './BubbleIternalChat';
 import NotificationSettings from './NotificationSettings';
 import InternalUploadFile from './InternalUploadFile';
 import ModalFiles from '../../../componentes/internalChat/ModalFiles';
+import { addToast, ToastProvider } from '@heroui/toast';
 
 export default function InternalChat({ userInfo }) {
   const { socket, inboxList, unreadMessages, setUnreadMessages, activitiesUsers, setInboxList, archivedChats, archiveChat, unarchiveChat } = useSocket();
@@ -24,6 +25,8 @@ export default function InternalChat({ userInfo }) {
   const [openFileMedia, setOpenFileMedia] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const [pageMsg, setPageMsg] = useState(1);
+  const [placement, setPlacement] = useState('top-right');
+  const [loadingOlder, setLoadingOlder] = useState(false);
 
   const listActivites = [
     { id: '2-listo', label: 'Listo', emoji: '🟢' },
@@ -55,7 +58,11 @@ export default function InternalChat({ userInfo }) {
       });
     } catch (error) {
       console.error('Error al enviar el archivo:', error);
-      toast.error('Error al enviar el archivo');
+      addToast({
+        type: 'error',
+        title: 'Error al enviar el archivo',
+        description: 'Ocurrió un error al enviar el archivo',
+      });
     }
   };
 
@@ -87,7 +94,11 @@ export default function InternalChat({ userInfo }) {
             messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight;
         }, 100);
       } else {
-        toast.error('Ocurrió un error al abrir el chat');
+        addToast({
+          type: 'error',
+          title: 'Error al abrir el chat',
+          description: 'Ocurrió un error al abrir el chat',
+        });
       }
     });
   };
@@ -250,7 +261,9 @@ export default function InternalChat({ userInfo }) {
     const currentScrollHeight = messageContainerRef.current.scrollHeight;
 
     try {
+      setLoadingOlder(true);
       const resOlder = await getOlderMessages(viewChat._id, pageMsg);
+      setLoadingOlder(false);
       const olderMessages = resOlder.body.chat.messages;
       if (olderMessages.length > 0) {
         setPageMsg(pageMsg + 1);
@@ -275,6 +288,12 @@ export default function InternalChat({ userInfo }) {
 
   const getOlderMessages = async (chatId, page) => {
     return new Promise((resolve, reject) => {
+      if (!socket) {
+        reject(new Error('Socket is not connected'));
+        setLoadingOlder(false);
+        return;
+      }
+     
       socket.emit('getOlderMessages', { chatId, page, token: window.localStorage.getItem('sdToken') }, (data) => {
         resolve(data);
       });
@@ -359,7 +378,11 @@ export default function InternalChat({ userInfo }) {
   );
 
   return (
+
     <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl shadow-lg m-2 border border-gray-200 dark:border-gray-800">
+            <div className="fixed z-[100]">
+      <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
+    </div>
         <div className="relative overflow-hidden p-3 mx-2 mt-2 rounded-2xl shadow-md bg-gradient-to-r from-indigo-50 to-pink-50 dark:from-zinc-800 dark:to-zinc-900 border border-indigo-100 dark:border-indigo-900/30">
             <div className="flex items-center justify-between">
                 <div className="flex items-center">

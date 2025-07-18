@@ -58,7 +58,13 @@ const { queueNotification } = useNotifications();
     const archivedChatIds = savedArchivedChats ? JSON.parse(savedArchivedChats) : [];
     localStorage.setItem('archivedChats', JSON.stringify([...archivedChatIds, chatId]));
     
-    addToast('Chat archivado');
+    addToast(
+      {
+        title: 'Chat archivado',
+        description: 'Chat archivado',
+        color: 'success'
+      }
+    );
   }
   
   const unarchiveChat = (chatId) => {

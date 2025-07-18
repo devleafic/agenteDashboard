@@ -1,270 +1,259 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { toast } from 'react-toastify';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useReducer,
+} from 'react';
+import { addToast, ToastProvider } from '@heroui/toast';
 
-// Contexto para manejar las notificaciones en toda la aplicación
-const NotificationContext = createContext();
+/*******************************
+ * Constants & Defaults
+ ******************************/
+const DEFAULT_SETTINGS = {
+  soundEnabled: true,
+  browserNotificationsEnabled: false,
+  notificationVolume: 80,
+};
 
-// Límites y configuraciones para prevenir problemas de rendimiento
-const MAX_QUEUE_SIZE = 50; // Previene problemas de memoria con muchas notificaciones
-const NOTIFICATION_DEBOUNCE = 1000; // 1 segundo entre grupos de notificaciones
-const SOUND_DEBOUNCE = 300; // 300ms entre sonidos para evitar superposición
+const MAX_QUEUE_SIZE = 50; // Previene problemas de memoria
+const NOTIFICATION_DEBOUNCE = 1000; // ms entre grupos de notificaciones
+const SOUND_DEBOUNCE = 300; // ms entre sonidos para evitar superposición
 
-export const useNotifications = () => useContext(NotificationContext);
+/*******************************
+ * Context Helpers
+ ******************************/
+const NotificationContext = createContext(null);
 
-export const NotificationProvider = ({ children }) => {
-  // Cargar configuraciones guardadas de localStorage o usar valores predeterminados
-  const loadSettings = useCallback(() => {
-    try {
-      const savedSettings = localStorage.getItem('chatNotificationSettings');
-      if (savedSettings) {
-        return JSON.parse(savedSettings);
-      }
-    } catch (error) {
-      console.error('Error al cargar configuraciones de notificación:', error);
+export const useNotifications = () => {
+  const ctx = useContext(NotificationContext);
+  if (!ctx) {
+    throw new Error('useNotifications debe usarse dentro de NotificationProvider');
+  }
+  return ctx;
+};
+
+/*******************************
+ * LocalStorage Utils
+ ******************************/
+const loadSettings = () => {
+  try {
+    const saved = localStorage.getItem('chatNotificationSettings');
+    if (saved) return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+  } catch (err) {
+    console.error('Error al cargar configuraciones de notificación:', err);
+  }
+  return DEFAULT_SETTINGS;
+};
+
+const saveSettings = (settings) => {
+  try {
+    localStorage.setItem('chatNotificationSettings', JSON.stringify(settings));
+  } catch (err) {
+    console.error('Error al guardar configuraciones de notificación:', err);
+  }
+};
+
+/*******************************
+ * Reducer para la cola
+ ******************************/
+const queueReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD': {
+      const newState =
+        state.length >= MAX_QUEUE_SIZE ? [...state.slice(1), action.payload] : [...state, action.payload];
+      return newState;
     }
-    return {
-      soundEnabled: true,
-      browserNotificationsEnabled: false,
-      notificationVolume: 80
+    case 'CLEAR':
+      return [];
+    default:
+      return state;
+  }
+};
+
+/*******************************
+ * Hooks personalizados
+ ******************************/
+const useNotificationSound = (enabled, volume) => {
+  const audioRef = useRef(null);
+  const initializedRef = useRef(false);
+  const lastPlayedRef = useRef(0);
+
+  // Inicializar el audio tras la primera interacción del usuario
+  useEffect(() => {
+    const init = () => {
+      if (!audioRef.current) {
+        audioRef.current = new Audio('/notification-sound.mp3');
+        audioRef.current.preload = 'auto';
+      }
+      initializedRef.current = true;
+      document.removeEventListener('click', init);
+      document.removeEventListener('touchstart', init);
+    };
+    document.addEventListener('click', init);
+    document.addEventListener('touchstart', init);
+    return () => {
+      document.removeEventListener('click', init);
+      document.removeEventListener('touchstart', init);
     };
   }, []);
 
-  // Estados para manejar las configuraciones de notificaciones
-  const [soundEnabled, setSoundEnabled] = useState(loadSettings().soundEnabled);
-  const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState(loadSettings().browserNotificationsEnabled);
-  const [notificationVolume, setNotificationVolume] = useState(loadSettings().notificationVolume);
-  
-  // Referencias para manejar el estado sin causar re-renderizados
-  const notificationSoundRef = useRef(null);
-  const [notificationQueue, setNotificationQueue] = useState([]);
-  const processingRef = useRef(false);
-  const notificationTimeoutRef = useRef(null);
-  const lastSoundPlayedRef = useRef(0);
-  const soundInitializedRef = useRef(false);
-
-  // Inicializar el sonido de notificación y verificar permisos
-  useEffect(() => {
-    // Función para inicializar el sonido
-    const initializeSound = () => {
-      if (!notificationSoundRef.current) {
-        notificationSoundRef.current = new Audio('/notification-sound.mp3');
-        notificationSoundRef.current.preload = 'auto';
-      }
-      soundInitializedRef.current = true;
-    };
-
-    // Verificar permisos de notificación del navegador
-    const checkNotificationPermission = async () => {
-      if ("Notification" in window) {
-        try {
-          const permission = await Notification.requestPermission();
-          setBrowserNotificationsEnabled(permission === "granted" ? loadSettings().browserNotificationsEnabled : false);
-        } catch (error) {
-          console.error('Error al solicitar permisos de notificación:', error);
-          setBrowserNotificationsEnabled(false);
-        }
-      } else {
-        setBrowserNotificationsEnabled(false);
-      }
-    };
-    
-    // Inicializar sonido en respuesta a interacción del usuario
-    const handleUserInteraction = () => {
-      initializeSound();
-      // Remover listeners después de la inicialización
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-    };
-
-    // Agregar listeners para detectar interacción del usuario
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
-    
-    checkNotificationPermission();
-    
-    // Limpieza al desmontar el componente
-    return () => {
-      if (notificationSoundRef.current) {
-        notificationSoundRef.current.pause();
-        notificationSoundRef.current.src = '';
-      }
-      if (notificationTimeoutRef.current) {
-        clearTimeout(notificationTimeoutRef.current);
-      }
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-    };
-  }, [loadSettings]);
-
-  // Reproducir sonido de notificación con límite de frecuencia
-  const playNotificationSound = useCallback(() => {
-    if (!soundEnabled || !soundInitializedRef.current) return;
-
+  // Función para reproducir sonido
+  const play = useCallback(() => {
+    if (!enabled || !initializedRef.current) return;
     const now = Date.now();
-    if (now - lastSoundPlayedRef.current < SOUND_DEBOUNCE) {
-      return;
-    }
+    if (now - lastPlayedRef.current < SOUND_DEBOUNCE) return;
 
     try {
-      const audio = notificationSoundRef.current;
+      const audio = audioRef.current;
       if (audio) {
-        audio.volume = notificationVolume / 100;
+        audio.volume = volume / 100;
         audio.currentTime = 0;
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error al reproducir sonido:", error);
-            // Si falla por falta de interacción, intentamos inicializar de nuevo
-            soundInitializedRef.current = false;
-          });
-        }
-        lastSoundPlayedRef.current = now;
+        audio.play().catch((e) => console.error('Error al reproducir sonido:', e));
+        lastPlayedRef.current = now;
       }
-    } catch (error) {
-      console.error("Error crítico al reproducir sonido:", error);
-      soundInitializedRef.current = false;
+    } catch (err) {
+      addToast({ title: 'Error', description: 'Error al reproducir sonido', color: 'warning' });
+      console.error('Error crítico al reproducir sonido:', err);
     }
-  }, [soundEnabled, notificationVolume]);
+  }, [enabled, volume]);
 
-  // Mostrar notificación en el navegador
-  const showBrowserNotification = useCallback((title, body, icon) => {
-    if (!browserNotificationsEnabled || 
-        !("Notification" in window) || 
-        Notification.permission !== "granted" || 
-        document.visibilityState === "visible") {
-      return;
-    }
-    
-    try {
-      const notification = new Notification(title, {
-        body: body,
-        icon: icon || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg',
-        silent: true // Manejamos el sonido por separado
-      });
-      
-      notification.onclick = function() {
-        window.focus();
-        this.close();
-      };
-      
-      setTimeout(() => notification.close(), 5000);
-    } catch (error) {
-      console.error("Error al mostrar notificación en el navegador:", error);
-    }
-  }, [browserNotificationsEnabled]);
+  return play;
+};
 
-  // Procesar cola de notificaciones
-  const processNotificationQueue = useCallback(() => {
-    if (notificationQueue.length === 0 || processingRef.current) {
-      return;
-    }
+const useBrowserNotification = (enabled) => {
+  return useCallback(
+    (title, body, icon) => {
+      if (
+        !enabled ||
+        !('Notification' in window) ||
+        Notification.permission !== 'granted' ||
+        document.visibilityState === 'visible'
+      ) {
+        return;
+      }
 
+      try {
+        const notification = new Notification(title, {
+          body,
+          icon: icon ||
+            'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/profilepic.jpg',
+          silent: true, // sonido manejado aparte
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+        setTimeout(() => notification.close(), 5000);
+      } catch (err) {
+        console.error('Error al mostrar notificación en el navegador:', err);
+      }
+    },
+    [enabled]
+  );
+};
+
+/*******************************
+ * Provider
+ ******************************/
+export const NotificationProvider = ({ children }) => {
+  // Configuración proveniente de LocalStorage
+  const [settings, setSettings] = useState(loadSettings);
+  const { soundEnabled, browserNotificationsEnabled, notificationVolume } = settings;
+
+  // Persistencia automática
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
+
+  // Setters expuestos
+  const setSoundEnabled = (v) => setSettings((s) => ({ ...s, soundEnabled: v }));
+  const setBrowserNotificationsEnabled = (v) =>
+    setSettings((s) => ({ ...s, browserNotificationsEnabled: v }));
+  const setNotificationVolume = (v) => setSettings((s) => ({ ...s, notificationVolume: v }));
+
+  // Cola de notificaciones
+  const [queue, dispatch] = useReducer(queueReducer, []);
+
+  // Helpers
+  const playSound = useNotificationSound(soundEnabled, notificationVolume);
+  const showBrowserNotification = useBrowserNotification(browserNotificationsEnabled);
+
+  /*******************************
+   * Procesamiento de la cola
+   ******************************/
+  const processingRef = useRef(false);
+  const debounceRef = useRef(null);
+
+  const processQueue = useCallback(() => {
+    if (!queue.length || processingRef.current) return;
     processingRef.current = true;
 
     try {
-      // Agrupar notificaciones similares
-      const groups = notificationQueue.reduce((acc, notification) => {
-        const key = notification.type || 'default';
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push(notification);
+      // Agrupar por tipo
+      const groups = queue.reduce((acc, n) => {
+        const key = n.type || 'default';
+        acc[key] = acc[key] ? [...acc[key], n] : [n];
         return acc;
       }, {});
 
-      // Crear configuración para toast
-      const toastConfig = {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      };
-
-      // Procesar cada grupo
-      Object.entries(groups).forEach(([type, notifications]) => {
+      Object.values(groups).forEach((notifications) => {
         if (notifications.length === 1) {
-          const notification = notifications[0];
-          playNotificationSound();
-          showBrowserNotification(
-            notification.title,
-            notification.body,
-            notification.icon
-          );
-          
-          toast.info(
-            <div>
-              <strong>{notification.title}</strong>
-              <p>{notification.body}</p>
-            </div>,
-            toastConfig
-          );
+          const [n] = notifications;
+          playSound();
+          showBrowserNotification(n.title, n.body, n.icon);
+          addToast({ title: n.title, description: n.body, color: 'secondary' });
         } else {
           const groupTitle = `${notifications.length} nuevas notificaciones`;
-          const groupBody = type === 'message' 
-            ? `Tienes ${notifications.length} nuevos mensajes`
-            : `Tienes ${notifications.length} notificaciones pendientes`;
-          
-          playNotificationSound();
+          const groupBody =
+            notifications[0].type === 'message'
+              ? `Tienes ${notifications.length} nuevos mensajes`
+              : `Tienes ${notifications.length} notificaciones pendientes`;
+          playSound();
           showBrowserNotification(groupTitle, groupBody);
-          
-          toast.info(
-            <div>
-              <strong>{groupTitle}</strong>
-              <p>{groupBody}</p>
-            </div>,
-            toastConfig
-          );
+          addToast({ title: groupTitle, description: groupBody, color: 'secondary' });
         }
       });
-    } catch (error) {
-      console.error("Error al procesar cola de notificaciones:", error);
     } finally {
-      setNotificationQueue([]);
+      dispatch({ type: 'CLEAR' });
       processingRef.current = false;
     }
-  }, [notificationQueue, playNotificationSound, showBrowserNotification]);
+  }, [queue, playSound, showBrowserNotification]);
 
-  // Procesar cola con límite de frecuencia
+  // Debounce al procesar la cola
   useEffect(() => {
-    if (notificationQueue.length > 0 && !processingRef.current) {
-      notificationTimeoutRef.current = setTimeout(() => {
-        processNotificationQueue();
-      }, NOTIFICATION_DEBOUNCE);
+    if (!queue.length) return;
+    debounceRef.current = setTimeout(processQueue, NOTIFICATION_DEBOUNCE);
+    return () => clearTimeout(debounceRef.current);
+  }, [queue, processQueue]);
 
-      return () => {
-        if (notificationTimeoutRef.current) {
-          clearTimeout(notificationTimeoutRef.current);
-        }
-      };
-    }
-  }, [notificationQueue, processNotificationQueue]);
-
-  // Agregar notificación a la cola con límite de tamaño
+  /*******************************
+   * API pública
+   ******************************/
   const queueNotification = useCallback((title, body, type = 'default', icon) => {
-    setNotificationQueue(prev => {
-      if (prev.length >= MAX_QUEUE_SIZE) {
-        console.warn('Se alcanzó el límite de tamaño de la cola de notificaciones, se elimina la notificación más antigua');
-        return [...prev.slice(1), { title, body, type, icon }];
-      }
-      return [...prev, { title, body, type, icon }];
-    });
+    if (typeof title !== 'string' || typeof body !== 'string') {
+      console.warn('Notificación inválida:', { title, body });
+      return;
+    }
+    dispatch({ type: 'ADD', payload: { title, body, type, icon } });
   }, []);
 
+  const contextValue = {
+    soundEnabled,
+    setSoundEnabled,
+    browserNotificationsEnabled,
+    setBrowserNotificationsEnabled,
+    notificationVolume,
+    setNotificationVolume,
+    queueNotification,
+    playSound,
+  };
+
   return (
-    <NotificationContext.Provider value={{
-      soundEnabled,
-      setSoundEnabled,
-      browserNotificationsEnabled,
-      setBrowserNotificationsEnabled,
-      notificationVolume,
-      setNotificationVolume,
-      queueNotification,
-      playNotificationSound
-    }}>
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   );
