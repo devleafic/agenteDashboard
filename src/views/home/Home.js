@@ -304,12 +304,13 @@ const Home = () => {
         }
         //console.log('------------',window.localStorage.getItem('tabIsActive'));
         if(!ignore && window.localStorage.getItem('tabIsActive') === 'true'){return false;}
+        console.log('enviando notificacion');
         try {
             var notification = new Notification(message);
             //console.log('se envió el mensaje al navegador '+ message)
             notification.onclick = function(){window.focus();this.close();}
         }catch(err){
-            console.log(err)
+            console.log('Error al enviar notificacion', err)
             return false
         }
     }
@@ -525,7 +526,7 @@ const Home = () => {
                 window.localStorage.setItem('lastMessage', data.folio)
                 
                 setRefresh(Math.random());
-                showMessage('Nuevo Mensaje de #'+data.folio);
+                showMessage('Nuevo Mensaje: '+data.aliasId+' #'+data.anchor + ' '+data.lastMessage.content);
                 console.log(countunReadMsg)
                 dispatchCount({type : 'unRead', folio : data.folio});
                 
