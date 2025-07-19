@@ -3,6 +3,7 @@ import { Button, Select, SelectItem } from '@heroui/react';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import { toast } from 'react-toastify';
+import generateAvatarUrl from '../../../utils/avatarUtils';
 
 const CRM = ({template, folio, setRefresh}) => {
     
@@ -159,7 +160,7 @@ const CRM = ({template, folio, setRefresh}) => {
         <div key={`form-crm-${folio}`} className="flex flex-col h-full">
             <div className="flex flex-col items-center p-4">
                 <img 
-                    src={folio.folio.person.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepicture.jpg'} 
+                    src={folio?.folio?.person?.profilePic || generateAvatarUrl(folio?.folio?.person?.aliasId || 'User', folio?.folio?.person?.anchor || 'User')} 
                     alt="profile" 
                     className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                 />

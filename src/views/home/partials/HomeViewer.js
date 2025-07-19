@@ -4,6 +4,7 @@ import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
 import ListFoliosContext from '../../../controladores/FoliosContext';
+import generateAvatarUrl from '../../../utils/avatarUtils';
 
 // --- SVG Icon Components ---
 const SearchIcon = (props) => (
@@ -321,11 +322,11 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     }
 
                                     const secondaryText = folio.channel?.name === 'email' ? (folio.lastEmailProcessed?.subject || 'Sin asunto') : folio.person?.anchor;
-
+                                    const channelname = folio.channel?.title || '-';
                                     return (
                                         <div
                                             key={folio._id}
-                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-primary-500 bg-blue-50 shadow-sm scale-[1.01] ring-1 ring-primary-200' : 'border-transparent hover:bg-gray-50'}`}
+                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-success-500 bg-success-50/50 shadow-md scale-[1.02] ring-1 ring-success-200/60 backdrop-blur-sm' : 'border-transparent hover:bg-gray-50'}`}
                                             onClick={() => {
                                                 setVFolio(folio._id);
                                                 setMessageToSend('');
@@ -336,7 +337,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                             <div className="flex-shrink-0 relative">
                                                 <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
                                                     <Avatar 
-                                                        src={folio.person?.profilePic || 'https://inboxcentralcdn.sfo3.cdn.digitaloceanspaces.com/assets/noprofilepic2.png'} 
+                                                        src={folio.person?.profilePic || generateAvatarUrl(folio.person?.aliasId, folio.person?.anchor)} 
                                                         className="w-10 h-10"
                                                     />
                                                 </Badge>
@@ -356,6 +357,11 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                         {secondaryText}
                                                     </p>
                                                     {inboxIcon}
+                                                </div>
+                                                <div className="flex justify-between items-center w-full">
+                                                    <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                        {channelname}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
