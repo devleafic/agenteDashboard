@@ -13,11 +13,14 @@ import {
   ModalBody, 
   ModalFooter, 
   Spinner, 
-  Chip 
+  Chip,
+  addToast,
+  ToastProvider,
+
 } from '@heroui/react';
 import { Mail, Eye, FolderOpen, Circle } from 'lucide-react';
 import SocketContext from '../../../controladores/SocketContext';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import moment from 'moment';
 import MessageBubble from './MessageBubble';
 
@@ -78,7 +81,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     
                     if (!data || !Array.isArray(data.inboxes)) {
                         console.error('Invalid data received:', data);
-                        toast.error('Error al cargar los mensajes');
+                        addToast({
+                            title: 'Error al cargar los mensajes',
+                            description: 'Error al cargar los mensajes',
+                            color: 'error'
+                        });
                         return;
                     }
 
@@ -101,7 +108,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 console.error('Error loading inbox:', error);
                 if (isMounted) {
                     setIsLoadInbox(false);
-                    toast.error('Error al cargar la bandeja de entrada');
+                    addToast({
+                        title: 'Error al cargar la bandeja de entrada',
+                        description: 'Error al cargar la bandeja de entrada',
+                        color: 'error'
+                    });
                 }
             }
         };
@@ -115,19 +126,31 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
 
     const openItemInbox = (folio, item) => {
         if (!socketC?.connection) {
-            toast.error('Error de conexión');
+            addToast({
+                title: 'Error de conexión',
+                description: 'Error de conexión',
+                color: 'error'
+            });
             return;
         }
 
         if (!folio?._id) {
             console.error('Invalid folio data:', folio);
-            toast.error('Datos de folio inválidos');
+            addToast({
+                title: 'Error al abrir el folio',
+                description: 'Datos de folio inválidos',
+                color: 'error'
+            });
             return;
         }
 
         const token = window.localStorage.getItem('sdToken');
         if (!token) {
-            toast.error('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            addToast({
+                title: 'Error al abrir el folio',
+                description: 'Sesión expirada. Por favor, inicie sesión nuevamente.',
+                color: 'error'
+            });
             return;
         }
 
@@ -146,16 +169,28 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 setVFolio(folio._id);
                 
                 if (!data) {
-                    toast.error('No se recibió respuesta del servidor');
+                    addToast({
+                        title: 'Error al abrir el folio',
+                        description: 'No se recibió respuesta del servidor',
+                        color: 'error'
+                    });
                     return;
                 }
 
                 if (!data.success) {
-                    toast.error(data.message || 'Error al abrir el folio');
+                    addToast({
+                        title: 'Error al abrir el folio',
+                        description: data.message || 'Error al abrir el folio',
+                        color: 'error'
+                    });
                     return;
                 }
 
-                toast.success(<label>Se abrió el folio <b>#{folio._id}</b></label>);
+                addToast({
+                    title: 'Se abrió el folio',
+                    description: <label>Se abrió el folio <b>#{folio._id}</b></label>,
+                    color: 'warning'
+                });
                 setUnReadMessages(false);
                 
                 if (typeof selectedComponent === 'function') {
@@ -166,7 +201,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
             });
         } catch (error) {
             console.error('Error in openItemInbox:', error);
-            toast.error('Error al procesar la solicitud');
+            addToast({
+                title: 'Error al abrir el folio',
+                description: 'Error al procesar la solicitud',
+                color: 'error'
+            });
             setIsLoadInboxFolio(prev => ({
                 ...prev,
                 [folio._id]: false
@@ -175,13 +214,21 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     }
     const getFolioMessages = (folioId) => {
         if (!socketC?.connection) {
-            toast.error('Error de conexión');
+            addToast({
+                title: 'Error de conexión',
+                description: 'Error de conexión',
+                color: 'error'
+            });
             return;
         }
 
         if (!folioId) {
             console.error('No se proporcionó un ID de folio');
-            toast.error('Error: ID de folio no válido');
+            addToast({
+                title: 'Error al abrir el folio',
+                description: 'Error: ID de folio no válido',
+                color: 'error'
+            });
             return;
         }
 
@@ -481,7 +528,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 </Table>
             </div>
 
-            <Modal isOpen={openModal} onClose={initLoadModal} size="3xl">
+            <Modal isOpen={openModal} scrollBehavior="inside" onClose={initLoadModal} size="3xl">
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         {titleModal}
@@ -490,8 +537,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         {contentMessage}
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onPress={initLoadModal}>
-                            Aceptar
+                        <Button color="secondary" onPress={initLoadModal}>
+                            Cerrar
                         </Button>
                     </ModalFooter>
                 </ModalContent>

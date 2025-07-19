@@ -205,7 +205,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                     {/* Left Column: Chat List */}
                     <div className="w-80 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
                         <div className="p-5 sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm">
-                            <div className="flex flex-col items-start gap-2 mb-2">
+                            <div className="flex flex-col items-start gap-2 mb-1">
                             <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
                                 Conversaciones
                             </h2>
@@ -236,7 +236,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                 className="max-w-full shadow-sm"
                             />
                             
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-indigo-50/50 rounded-lg mt-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-indigo-50/50 rounded-lg mt-1">
                                 <div className="flex items-center">
                                     <Switch
                                         isSelected={showUnreadOnly}
@@ -326,7 +326,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     return (
                                         <div
                                             key={folio._id}
-                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-success-500 bg-success-50/50 shadow-md scale-[1.02] ring-1 ring-success-200/60 backdrop-blur-sm' : 'border-transparent hover:bg-gray-50'}`}
+                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-purple-500 bg-purple-100/100 shadow-md scale-[1.02] ring-1 ring-purple-200/60 backdrop-blur-sm' : 'border-transparent hover:bg-gray-100'}`}
                                             onClick={() => {
                                                 setVFolio(folio._id);
                                                 setMessageToSend('');
