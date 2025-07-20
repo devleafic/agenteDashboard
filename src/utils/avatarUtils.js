@@ -5,14 +5,15 @@
  * @returns {string} Data URL of the generated avatar SVG
  */
 const generateAvatarUrl = (name, anchor) => {
-    // Get initials from name or anchor
+    // Get initials from name or anchor, sanitize to ASCII
     const displayName = name || anchor || 'U';
     const initials = displayName
         .split(' ')
         .map(word => word.charAt(0))
         .join('')
         .toUpperCase()
-        .slice(0, 2);
+        .slice(0, 2)
+        .replace(/[^\x00-\x7F]/g, ''); // Remove non-ASCII characters
     
     // Color palette for avatars
     const colors = [
@@ -31,18 +32,20 @@ const generateAvatarUrl = (name, anchor) => {
     // Generate consistent color based on name
     const colorIndex = (displayName.charCodeAt(0) + displayName.charCodeAt(displayName.length - 1)) % colors.length;
     const backgroundColor = colors[colorIndex];
-    
+    console.log(displayName, initials)
     // Create SVG avatar
     const svg = `
         <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
             <circle cx="20" cy="20" r="20" fill="${backgroundColor}"/>
             <text x="20" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                  font-size="14" font-weight="600" fill="white" text-anchor="middle">${initials}</text>
+                  font-size="14" font-weight="600" fill="white" text-anchor="middle">${initials || 'U'}</text>
         </svg>
     `;
     
-    // Convert SVG to data URL
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
+    
+    // Convert SVG to data URL, handling Unicode safely for browsers
+    const base64 = btoa(unescape(encodeURIComponent(svg)));
+    return `data:image/svg+xml;base64,${base64}`;
 };
 
 export default generateAvatarUrl;
