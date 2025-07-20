@@ -4,7 +4,13 @@
  * @param {string} anchor - The user's anchor/identifier (fallback if name is not available)
  * @returns {string} Data URL of the generated avatar SVG
  */
+const avatarCache = new Map();
+
 const generateAvatarUrl = (name, anchor) => {
+    // Create cache key from inputs
+    const cacheKey = `${name || ''}:${anchor || ''}`;
+    if (avatarCache.has(cacheKey)) return avatarCache.get(cacheKey);
+
     // Get initials from name or anchor, sanitize to ASCII
     const displayName = name || anchor || 'U';
     const initials = displayName
@@ -29,23 +35,29 @@ const generateAvatarUrl = (name, anchor) => {
         '#14B8A6'  // Teal
     ];
     
-    // Generate consistent color based on name
-    const colorIndex = (displayName.charCodeAt(0) + displayName.charCodeAt(displayName.length - 1)) % colors.length;
+    // Generate consistent color based on name, with fallback for empty or invalid displayName
+    const colorIndex = displayName.length > 0 && !/^[^\x00-\x7F]+$/.test(displayName)
+        ? (displayName.charCodeAt(0) + displayName.charCodeAt(displayName.length - 1)) % colors.length
+        : 0; // Fallback to first color if displayName is empty or only non-ASCII
+    
     const backgroundColor = colors[colorIndex];
-    console.log(displayName, initials)
+    
     // Create SVG avatar
     const svg = `
         <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
             <circle cx="20" cy="20" r="20" fill="${backgroundColor}"/>
-            <text x="20" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+            <text x="20" y="20" dominant-baseline="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
                   font-size="14" font-weight="600" fill="white" text-anchor="middle">${initials || 'U'}</text>
         </svg>
     `;
     
-    
     // Convert SVG to data URL, handling Unicode safely for browsers
     const base64 = btoa(unescape(encodeURIComponent(svg)));
-    return `data:image/svg+xml;base64,${base64}`;
+    const result = `data:image/svg+xml;base64,${base64}`;
+    
+    // Store in cache
+    avatarCache.set(cacheKey, result);
+    return result;
 };
 
 export default generateAvatarUrl;
