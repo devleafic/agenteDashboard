@@ -19,6 +19,7 @@ import Follow from './partials/Follow';
 import Contacts from './partials/ContactsV2';
 import Calendar from './partials/Calendar';
 import InternalChat from './internalChat/InternalChat';
+import Help from './partials/Help';
 
 // --- SVG Icon Components ---
 const AlertTriangleIcon = (props) => (
@@ -733,6 +734,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
               {component.contacts && <Contacts  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}  userInfo={userInfo} />}
               {component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>}
               {component.InternalChat && <InternalChat  show={component.InternalChat} selectedComponent={selectedComponent} userInfo={userInfo}/>}
+              {component.help && <Help show={component.help} selectedComponent={selectedComponent} userInfo={userInfo}/>}
             </main>
           </div>
         </div>
