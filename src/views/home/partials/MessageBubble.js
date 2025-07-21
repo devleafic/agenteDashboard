@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
+import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Popover, PopoverTrigger, PopoverContent, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
 //import { PaperclipIcon, DownloadIcon, ReplyIcon, SmileIcon, ClockIcon, ExclamationCircleIcon, ExternalLinkIcon } from '@heroui/icons';
 import ContactsRender from './ContactsRender';
 import AudioPlayer from './AudioPlayer';
@@ -67,6 +67,30 @@ const convertirURL = (url) => {
       return url;
     }
   }
+
+// Common reactions array
+const REACTIONS = [
+    '👍', '👎', '❤️', '😂', '😮', '😢', '😡', '👏', '🙏', '🔥',
+    '🎉', '🤔', '👀', '🤯', '😎', '🤩', '😍', '🥳', '😭', '🤬'
+];
+
+// Simple Emoji Picker Component
+const EmojiPicker = ({ onSelect }) => (
+    <div className="flex flex-wrap gap-1 p-2 bg-content1 rounded-lg shadow-lg w-48">
+        {REACTIONS.map((emoji, index) => (
+            <Button
+                key={index}
+                isIconOnly
+                variant="light"
+                size="sm"
+                className="text-xl hover:scale-125 transition-transform"
+                onPress={() => onSelect(emoji)}
+            >
+                {emoji}
+            </Button>
+        ))}
+    </div>
+);
 
 const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact, highlight = '' }) => {
 
@@ -184,10 +208,33 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         }
     };
 
+    // Get all reactions for a message with user info
     const getReaction = (reaction) => {
-        if (!reaction || reaction.length === 0) return null;
-        const lastEvent = reaction[reaction.length - 1];
-        return lastEvent ? lastEvent.event : null;
+        if (!reaction) return null;
+        
+        // If it's an array, process as before
+        if (Array.isArray(reaction)) {
+            // Group reactions by emoji
+            return reaction.reduce((acc, r) => {
+                if (!r?.event) return acc;
+                if (!acc[r.event]) {
+                    acc[r.event] = [];
+                }
+                const userName = r.userName || 'Usuario';
+                if (!acc[r.event].includes(userName)) {
+                    acc[r.event].push(userName);
+                }
+                return acc;
+            }, {});
+        } 
+        // If it's an object, it might be a single reaction from agent
+        else if (typeof reaction === 'object' && reaction !== null) {
+            if (reaction.event) {
+                return { [reaction.event]: ['Agente'] };
+            }
+        }
+        
+        return null;
     };
 
     const getRepliedMessage = (id, allMessages, contact) => {
@@ -592,7 +639,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
 
     const messageTime = moment(message.createdAt).format('DD/MM/YY h:mm a');
     const ackStatus = getAck(message.ack);
-    const reaction = getReaction(message.reaction);
+    const reactions = getReaction(message.reaction);
 
     return (
         <div 
@@ -626,18 +673,109 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                         <p className={`text-xs font-bold mb-1 ${isOutgoing ? 'text-right text-primary-foreground/80' : 'text-primary'}`}>{authorName}</p>
                         {renderContent(message)}
                     </div>
-                    {reaction && (
-                        <div className="absolute bottom-[-10px] right-2 bg-background p-0.5 rounded-full text-lg shadow">{reaction}</div>
+                    {reactions && (
+                        <div className={`absolute bottom-[-10px] flex gap-1 ${isOutgoing ? 'left-2' : 'right-2'}`}>
+                            {Object.entries(reactions).map(([emoji, users], index) => {
+                                const userList = users.join('\n');
+                                return (
+                                    <Tooltip 
+                                        key={index} 
+                                        content={
+                                            <div className="max-w-xs">
+                                                <p className="font-semibold">{emoji} {users.length} {users.length === 1 ? 'reacción' : 'reacciones'}</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">{userList}</p>
+                                            </div>
+                                        }
+                                        placement="top"
+                                        showArrow
+                                    >
+                                        <div className="bg-background p-0.5 rounded-full text-lg shadow hover:scale-110 transition-transform cursor-default">
+                                            {emoji}
+                                        </div>
+                                    </Tooltip>
+                                );
+                            })}
+                        </div>
                     )}
                     {!isOutgoing && (
                         <div className="absolute top-0 right-[-40px] opacity-0 group-hover:opacity-100 transition-opacity">
                             <Dropdown placement="bottom-end">
                                 <DropdownTrigger>
-                                    <Button isIconOnly size="sm" variant="light">...</Button>
+                                    <Button isIconOnly size="sm" variant="light" className="react-dropdown-trigger">...</Button>
                                 </DropdownTrigger>
-                                <DropdownMenu aria-label="Message Actions">
+                                <DropdownMenu aria-label="Message Actions" disabledKeys={["react"]}>
                                     <DropdownItem key="reply" startContent={<ReplyIcon className="w-4 h-4"/>} onPress={() => responseToMessage(message._id)}>Responder</DropdownItem>
-                                    <DropdownItem key="react" startContent={<SmileIcon className="w-4 h-4"/>} onPress={() => reactToMessage(message.externalId)}>Reaccionar</DropdownItem>
+                                    <DropdownItem 
+                                        key="react" 
+                                        startContent={<SmileIcon className="w-4 h-4"/>}
+                                        onPress={(e) => {
+                                            // Close the dropdown first
+                                            const dropdownTrigger = e.target.closest('.react-dropdown-trigger') || 
+                                                                 document.querySelector('.react-dropdown-trigger');
+                                            if (dropdownTrigger) {
+                                                dropdownTrigger.click();
+                                            }
+                                            
+                                            // Check if there's already a picker and remove it
+                                            const existingPicker = document.querySelector('.emoji-picker-container');
+                                            if (existingPicker) {
+                                                document.body.removeChild(existingPicker);
+                                            }
+                                            
+                                            // Create a new picker
+                                            const picker = document.createElement('div');
+                                            picker.className = 'emoji-picker-container fixed z-50 bg-content1 rounded-lg shadow-lg p-2';
+                                            
+                                            // Position the picker near the message
+                                            const rect = e.target.getBoundingClientRect();
+                                            picker.style.top = `${rect.bottom + window.scrollY}px`;
+                                            picker.style.left = `${rect.left + window.scrollX}px`;
+                                            
+                                            // Create emoji buttons
+                                            const emojiPicker = document.createElement('div');
+                                            emojiPicker.className = 'flex flex-wrap gap-1 w-48';
+                                            
+                                            REACTIONS.forEach((emoji) => {
+                                                const btn = document.createElement('button');
+                                                btn.className = 'text-xl hover:scale-125 transition-transform p-1';
+                                                btn.textContent = emoji;
+                                                btn.onclick = (clickEvent) => {
+                                                    clickEvent.stopPropagation();
+                                                    reactToMessage(message.externalId, emoji);
+                                                    if (document.body.contains(picker)) {
+                                                        document.body.removeChild(picker);
+                                                    }
+                                                };
+                                                emojiPicker.appendChild(btn);
+                                            });
+                                            
+                                            picker.appendChild(emojiPicker);
+                                            document.body.appendChild(picker);
+                                            
+                                            // Close picker when clicking outside
+                                            const closePicker = (clickEvent) => {
+                                                if (picker && document.body.contains(picker) && !picker.contains(clickEvent.target)) {
+                                                    document.body.removeChild(picker);
+                                                    document.removeEventListener('click', closePicker);
+                                                }
+                                            };
+                                            
+                                            // Add a small delay to avoid immediate closing
+                                            setTimeout(() => {
+                                                document.addEventListener('click', closePicker);
+                                            }, 50);
+                                            
+                                            // Clean up on unmount
+                                            return () => {
+                                                if (document.body.contains(picker)) {
+                                                    document.body.removeChild(picker);
+                                                }
+                                                document.removeEventListener('click', closePicker);
+                                            };
+                                        }}
+                                    >
+                                        Reaccionar
+                                    </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>

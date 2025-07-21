@@ -448,10 +448,10 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         setMessageToResponse(null);
     }
 
-    const reactToMessage = (idMessage) => {
+    const reactToMessage = (idMessage,reactionToSend) => {
 
         socket.connection.emit('reactToMessageAgent', {
-            event : "😖",//messageToSend,
+            event : reactionToSend,
             externalId : idMessage,
         }, (result) => {
 
