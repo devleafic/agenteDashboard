@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import moment from 'moment';
 import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
+//import { PaperclipIcon, DownloadIcon, ReplyIcon, SmileIcon, ClockIcon, ExclamationCircleIcon, ExternalLinkIcon } from '@heroui/icons';
 import ContactsRender from './ContactsRender';
 import AudioPlayer from './AudioPlayer';
 import MapPreview from './MapPreview';
@@ -12,7 +13,7 @@ const ReplyIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" 
 const SmileIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const ClockIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const ExclamationCircleIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>;
-
+const ExternalLinkIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>;
 
 // SVGs precisos que imitan el estilo de WhatsApp
 const CheckIcon = ({ className }) => (
@@ -39,6 +40,33 @@ const highlightText = (text, highlight) => {
             : part
     );
 };
+
+const convertirURL = (url) => {
+    try {
+      const dominioPermitido = 'inboxcentralcdn.sfo3.digitaloceanspaces.com';
+      const parsedUrl = new URL(url);
+  
+      // Verifica que la URL pertenezca al dominio permitido
+    //  if (parsedUrl.hostname !== dominioPermitido || parsedUrl.hostname !== 'localhost') {
+    //    console.warn('La URL no pertenece al dominio permitido.');
+    //    return url;
+    //  }
+  
+      // Obtiene el nombre del archivo
+      const nombreArchivo = parsedUrl.pathname.split('/').pop();
+  
+      // Verifica que el archivo tenga extensión .pdf
+      //if (!nombreArchivo.toLowerCase().endsWith('.pdf')) {
+      //  console.warn('El archivo no es un PDF.');
+      //  return url;
+      //}
+      console.log(`https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`);
+      return `https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`;
+    } catch (error) {
+      console.error('Error al procesar la URL:', error);
+      return url;
+    }
+  }
 
 const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact, highlight = '' }) => {
 
@@ -404,23 +432,86 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'call':
                     return <AudioPlayer src={msg.callRecordUrl || msg.content} />;
                 case 'document':
+                    const alternateUrl = convertirURL(msg.content);
+                    const isSameUrl = msg.content === alternateUrl;
+                    
                     return (
-                        <Card shadow="sm" className="w-full">
-                            <CardBody className="flex flex-row items-center gap-3 p-3">
-                                <PaperclipIcon className="w-8 h-8 text-gray-500" />
-                                <div className="flex-grow">
-                                    <p className="text-sm font-semibold truncate">
-                                        {highlight && msg.caption 
-                                            ? highlightText(msg.caption, highlight) 
-                                            : (msg.caption || 'Archivo adjunto')
-                                        }
-                                    </p>
-                                </div>
-                                <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
-                                    <DownloadIcon className="w-5 h-5" />
-                                </Button>
-                            </CardBody>
-                        </Card>
+                        <div className="space-y-3 w-full">
+                            <Card shadow="sm" className="w-full">
+                                <CardBody className="flex flex-row items-center gap-3 p-3">
+                                    <PaperclipIcon className="w-8 h-8 text-gray-500" />
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-semibold truncate">
+                                            {highlight && msg.caption 
+                                                ? highlightText(msg.caption, highlight) 
+                                                : (msg.caption || 'Archivo adjunto')
+                                            }
+                                        </p>
+                                        {isSameUrl && alternateUrl && (
+                                            <div className="mt-1 flex items-center gap-1">
+                                                <span 
+                                                    className="text-xs text-blue-600 dark:text-blue-400 font-mono truncate"
+                                                    title={alternateUrl}
+                                                >
+                                                    {alternateUrl}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
+                                            <DownloadIcon className="w-5 h-5" />
+                                        </Button>
+                                        {isSameUrl && (
+                                            <Button 
+                                                isIconOnly 
+                                                as="a" 
+                                                href={alternateUrl} 
+                                                target="_blank" 
+                                                variant="light"
+                                                size="sm"
+                                            >
+                                                <ExternalLinkIcon className="w-4 h-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                </CardBody>
+                            </Card>
+                            
+                            {!isSameUrl && alternateUrl && (
+                                <Card shadow="sm" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    <CardBody className="p-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex-shrink-0 p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                                <ExternalLinkIcon className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                            </div>
+                                            <div className="flex-grow min-w-0">
+                                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">Enlace alternativo</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span 
+                                                        className="text-sm text-blue-600 dark:text-blue-400 font-mono truncate"
+                                                        title={alternateUrl}
+                                                    >
+                                                        {alternateUrl}
+                                                    </span>
+                                                    <Button 
+                                                        isIconOnly 
+                                                        as="a" 
+                                                        href={alternateUrl} 
+                                                        target="_blank" 
+                                                        variant="light"
+                                                        size="sm"
+                                                        className="flex-shrink-0"
+                                                    >
+                                                        <ExternalLinkIcon className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                            )}
+                        </div>
                     );
                 case 'location':
                     // Validar que el contenido sea una coordenada válida
