@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import moment from 'moment';
 import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
+import ContactsRender from './ContactsRender';
 import AudioPlayer from './AudioPlayer';
 import MapPreview from './MapPreview';
 
@@ -447,6 +448,44 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                     return <Snippet color="success" className="w-full">{msg.content}</Snippet>;
                 case 'html':
                     return <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: msg.content }} />;
+                case 'contacts':
+                    try {
+                        // Parse the content if it's a string, otherwise use as is
+                        const content = typeof msg.content === 'string' 
+                            ? JSON.parse(msg.content || '[]')
+                            : msg.content;
+                        
+                        // Normalize to array and transform to match our expected format
+                        const vcardData = (Array.isArray(content) ? content : [content]).map(contact => ({
+                            name: contact.name?.formatted_name || contact.name?.first_name || 'Contacto sin nombre',
+                            tel: (contact.phones || []).map(phone => ({
+                                type: phone.type || 'CELL',
+                                number: phone.phone
+                            })),
+                            // Add other fields as needed, mapping from the input format
+                            ...(contact.emails && { 
+                                email: contact.emails.map(email => ({
+                                    type: email.type || 'WORK',
+                                    address: email.email
+                                }))
+                            }),
+                            ...(contact.addresses && {
+                                address: contact.addresses.map(addr => ({
+                                    street: addr.street,
+                                    city: addr.city,
+                                    region: addr.region,
+                                    postalCode: addr.postal_code,
+                                    country: addr.country
+                                }))
+                            })
+                        }));
+                        
+                        return <ContactsRender contacts={vcardData} />;
+                    } catch (error) {
+                        console.error('Error rendering vCard:', error);
+                        return <Snippet color="warning" className="w-full">[Error al mostrar la tarjeta de contacto]</Snippet>;
+                    }
+                    
                 default:
                     return <Snippet color="warning" className="w-full">[Tipo de mensaje no soportado: {msg.class}]</Snippet>;
             }
