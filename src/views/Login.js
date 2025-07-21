@@ -46,6 +46,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [msgError, setMsgError] = useState('');
     const [isVisible, setIsVisible] = useState(false);
+    const isBeta = process.env.REACT_APP_ISBETA == 'true';
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -96,6 +97,11 @@ const Login = () => {
                             <p className="text-gray-600 text-sm mb-1">
                                 WhatsApp for Business, Messenger, Instagram
                             </p>
+                            {isBeta && (
+                                <div className="center">
+                                    <Chip color="danger" size="sm" variant="flat">BETA 2</Chip>
+                                </div>
+                            )}
                             <p className="text-gray-500 text-xs">
                                 Livechat, Llamadas y más en una bandeja para equipos
                             </p>
