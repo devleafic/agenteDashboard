@@ -4,12 +4,41 @@
  * @param {string} anchor - The user's anchor/identifier (fallback if name is not available)
  * @returns {string} Data URL of the generated avatar SVG
  */
-const avatarCache = new Map();
+class LRUCache {
+    constructor(maxSize) {
+        this.maxSize = maxSize;
+        this.cache = new Map();
+    }
+
+    get(key) {
+        if (!this.cache.has(key)) return undefined;
+        // Move accessed item to the end (most recently used)
+        const value = this.cache.get(key);
+        this.cache.delete(key);
+        this.cache.set(key, value);
+        return value;
+    }
+
+    set(key, value) {
+        // If key exists, update and move to end
+        if (this.cache.has(key)) {
+            this.cache.delete(key);
+        } else if (this.cache.size >= this.maxSize) {
+            // Remove the first (least recently used) entry
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+        this.cache.set(key, value);
+    }
+}
+
+const avatarCache = new LRUCache(1000); // Limit cache to 1000 entries
 
 const generateAvatarUrl = (name, anchor) => {
     // Create cache key from inputs
     const cacheKey = `${name || ''}:${anchor || ''}`;
-    if (avatarCache.has(cacheKey)) return avatarCache.get(cacheKey);
+    const cachedResult = avatarCache.get(cacheKey);
+    if (cachedResult) return cachedResult;
 
     // Get initials from name or anchor, sanitize to ASCII
     const displayName = name || anchor || 'U';
