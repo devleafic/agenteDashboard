@@ -5,6 +5,7 @@ import ERRORS from './../../ErrorList';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
 import { FiClock } from "react-icons/fi";
+import ConnectionStatus from '../../../components/ConnectionStatus';
 import {
     Navbar,
     NavbarBrand,
@@ -375,6 +376,9 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         </NavbarItem>
                     )}
                     <NavbarItem>
+                        <ConnectionStatus />
+                    </NavbarItem>
+                    <NavbarItem>
                         <Dropdown>
                             <DropdownTrigger>
                                 <Chip color={isConnected === 1 ? "success" : isConnected === 2 ? "warning" : "default"} variant="shadow" className="cursor-pointer hover:scale-105 transition-transform">
@@ -392,8 +396,6 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     <NavbarItem>
                         <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot Atendiendo</span></Badge>
                     </NavbarItem>
-       
-
                 </NavbarContent>
 
                 <NavbarContent justify="end">
