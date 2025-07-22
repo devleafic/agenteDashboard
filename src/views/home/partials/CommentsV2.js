@@ -1054,7 +1054,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                 let fullHeight = boxMessage.current.scrollHeight;
                 let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
     
-                if(pcPosition>=97){
+                if(pcPosition>=93){
                     boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
                 }
                 

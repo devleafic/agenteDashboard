@@ -479,87 +479,56 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'call':
                     return <AudioPlayer src={msg.callRecordUrl || msg.content} />;
                 case 'document':
-                    const alternateUrl = convertirURL(msg.content);
-                    const isSameUrl = msg.content === alternateUrl;
-                    
-                    return (
-                        <div className="space-y-3 w-full">
-                            <Card shadow="sm" className="w-full">
-                                <CardBody className="flex flex-row items-center gap-3 p-3">
-                                    <PaperclipIcon className="w-8 h-8 text-gray-500" />
-                                    <div className="flex-grow">
-                                        <p className="text-sm font-semibold truncate">
-                                            {highlight && msg.caption 
-                                                ? highlightText(msg.caption, highlight) 
-                                                : (msg.caption || 'Archivo adjunto')
-                                            }
-                                        </p>
-                                        {isSameUrl && alternateUrl && (
-                                            <div className="mt-1 flex items-center gap-1">
-                                                <span 
-                                                    className="text-xs text-blue-600 dark:text-blue-400 font-mono truncate"
-                                                    title={alternateUrl}
-                                                >
-                                                    {alternateUrl}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
-                                            <DownloadIcon className="w-5 h-5" />
-                                        </Button>
-                                        {isSameUrl && (
-                                            <Button 
-                                                isIconOnly 
-                                                as="a" 
-                                                href={alternateUrl} 
-                                                target="_blank" 
-                                                variant="light"
-                                                size="sm"
-                                            >
-                                                <ExternalLinkIcon className="w-4 h-4" />
+                    try {
+                        const alternateUrl = convertirURL(msg.content);
+                        const hasExtension = typeof msg.content === 'string' && /\.[^/.]+$/.test(msg.content);
+                        const showAlternateUrl = !isOutgoing && msg.content !== alternateUrl && hasExtension;
+
+                        return (
+                            <div className="space-y-3 w-full">
+                                <Card shadow="sm" className="w-full">
+                                    <CardBody className="flex flex-row items-center gap-3 p-3">
+                                        <PaperclipIcon className="w-8 h-8 text-gray-500" />
+                                        <div className="flex-grow min-w-0">
+                                            <p className="text-sm font-semibold truncate">
+                                                {highlight && msg.caption
+                                                    ? highlightText(msg.caption, highlight)
+                                                    : (msg.caption || 'Archivo adjunto')}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
+                                                <DownloadIcon className="w-5 h-5" />
                                             </Button>
-                                        )}
-                                    </div>
-                                </CardBody>
-                            </Card>
-                            
-                            {!isSameUrl && alternateUrl && (
-                                <Card shadow="sm" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                    <CardBody className="p-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex-shrink-0 p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                                                <ExternalLinkIcon className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-                                            </div>
-                                            <div className="flex-grow min-w-0">
-                                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">Enlace alternativo</p>
-                                                <div className="flex items-center gap-2">
-                                                    <span 
-                                                        className="text-sm text-blue-600 dark:text-blue-400 font-mono truncate"
-                                                        title={alternateUrl}
-                                                    >
-                                                        {alternateUrl}
-                                                    </span>
-                                                    <Button 
-                                                        isIconOnly 
-                                                        as="a" 
-                                                        href={alternateUrl} 
-                                                        target="_blank" 
-                                                        variant="light"
-                                                        size="sm"
-                                                        className="flex-shrink-0"
-                                                    >
-                                                        <ExternalLinkIcon className="w-3.5 h-3.5" />
-                                                    </Button>
-                                                </div>
-                                            </div>
                                         </div>
                                     </CardBody>
                                 </Card>
-                            )}
-                        </div>
-                    );
+
+                                {showAlternateUrl && (
+                                    <Card shadow="sm" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                        <CardBody className="p-2">
+                                            <div className="flex items-center gap-2">
+                                                <ExternalLinkIcon className="w-4 h-4 text-gray-500" />
+                                                <p className="text-xs text-gray-700 dark:text-gray-300 flex-grow truncate">
+                                                    <a href={alternateUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                                        {alternateUrl}
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </CardBody>
+                                    </Card>
+                                )}
+                            </div>
+                        );
+                    } catch (error) {
+                        console.error("Error rendering document message:", error);
+                        return (
+                            <div className="flex items-center gap-2 text-red-500">
+                                <ExclamationCircleIcon className="w-5 h-5" />
+                                <span>Error al mostrar documento</span>
+                            </div>
+                        );
+                    }
                 case 'location':
                     // Validar que el contenido sea una coordenada válida
                     const isValidCoordinate = (coord) => {
