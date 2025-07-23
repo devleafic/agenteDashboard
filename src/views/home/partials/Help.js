@@ -5,6 +5,15 @@ const Help = ({ show, selectedComponent }) => {
   if (!show) return null;
 
   const features = [
+    { title: "Estatus de calidad de conexión",
+      icon: "📶",
+      description: "Muestra el estado de la conexión de la plataforma a internet. Si la conexión es estable, el indicador será verde. Si la conexión es inestable, el indicador será amarillo.",
+      tips: [
+        "Si la conexión es estable, el indicador será verde.",
+        "Si la conexión es inestable, el indicador será amarillo.",
+        "Si la conexión es muy problemática, el indicador será rojo."
+      ]
+    },
     {
       title: "Conversaciones",
       icon: "💬",
@@ -32,7 +41,7 @@ const Help = ({ show, selectedComponent }) => {
       tips: [
         "Pide a tu supervisor que te agregue a los equipos o proyectos.",
         "Menciona a compañeros con @ para notificaciones directas.",
-        "Comparte archivos arrastrándolos al área de chat."
+        "Comparte archivos arrastrándolos al área de chat.",
         "Activa las notificaciones para no perderte ningún mensaje."
       ]
     },
