@@ -29,6 +29,13 @@ const DoubleCheckIcon = ({ className }) => (
     </svg>
 );
 
+// Función para truncar texto con puntos suspensivos en el medio
+const truncateMiddle = (text, maxLength) => {
+    if (!text || text.length <= maxLength) return text;
+    const half = Math.floor(maxLength / 2) - 1;
+    return `${text.substring(0, half)}...${text.substring(text.length - half)}`;
+};
+
 // Función para resaltar texto en un mensaje
 const highlightText = (text, highlight) => {
     if (!highlight || !text) return text;
@@ -42,7 +49,9 @@ const highlightText = (text, highlight) => {
 };
 
 const convertirURL = (url) => {
+    let alternateUrl = '';
     try {
+
       const dominioPermitido = 'inboxcentralcdn.sfo3.digitaloceanspaces.com';
       const parsedUrl = new URL(url);
   
@@ -61,7 +70,9 @@ const convertirURL = (url) => {
       //  return url;
       //}
       console.log(`https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`);
-      return `https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`;
+      alternateUrl = `https://artemisv1.botdynamics.app/cdn/cloud/${nombreArchivo}`;
+
+      return alternateUrl;
     } catch (error) {
       console.error('Error al procesar la URL:', error);
       return url;
@@ -480,10 +491,16 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                     return <AudioPlayer src={msg.callRecordUrl || msg.content} />;
                 case 'document':
                     try {
-                        const alternateUrl = convertirURL(msg.content);
-                        const hasExtension = typeof msg.content === 'string' && /\.[^/.]+$/.test(msg.content);
-                        const showAlternateUrl = !isOutgoing && msg.content !== alternateUrl && hasExtension;
-
+                        let alternateUrl = '';
+                        let showAlternateUrl = false;
+                        if (msg.originalUrl) {
+                            alternateUrl = msg.originalUrl;
+                            showAlternateUrl = !isOutgoing && msg.content !== alternateUrl;
+                        } else {
+                            alternateUrl = convertirURL(msg.content);
+                            const hasExtension = typeof msg.content === 'string' && /\.[^/.]+$/.test(msg.content);
+                            showAlternateUrl = !isOutgoing && msg.content !== alternateUrl && hasExtension;
+                        }
                         return (
                             <div className="space-y-3 w-full">
                                 <Card shadow="sm" className="w-full">
@@ -510,8 +527,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                                             <div className="flex items-center gap-2">
                                                 <ExternalLinkIcon className="w-4 h-4 text-gray-500" />
                                                 <p className="text-xs text-gray-700 dark:text-gray-300 flex-grow truncate">
-                                                    <a href={alternateUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                                                        {alternateUrl}
+                                                    <a href={alternateUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" title={alternateUrl}>
+                                                        {truncateMiddle(alternateUrl, 40)}
                                                     </a>
                                                 </p>
                                             </div>
