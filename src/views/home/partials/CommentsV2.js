@@ -1,6 +1,6 @@
 import React, {useContext, useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
-import {Snippet, Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup} from "@heroui/react";
+import {Snippet, Textarea as textarea , Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup, addToast, ToastProvider} from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 
@@ -12,7 +12,7 @@ import Call from './Call';
 import UploadFile from './UploadFile';
 import UploadMultipleFiles from './UploadMultipleFiles';
 
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import MessageBubbleEmail from './MessageBubbleEmail';
 // import ClassificationForm from './Classification.From';
 import { Editor } from '@tinymce/tinymce-react';
@@ -54,6 +54,7 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
     // Para finalizar folio
     const [typeClose, setTypeClose] = useState('');
     const [openModal, setOpenModal] = useState(false);
+    const lastNotifiedMessage = useRef(null);
     const [openModalError, setOpenModalError] = useState(false);
     const [messageError, setMessageError] = useState('');
     const [openModalPreview, setOpenModalPreview] = useState(false);
@@ -456,10 +457,18 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         }, (result) => {
 
             if(!result.success){
-                toast.error(result.body.message);
+                    addToast({
+                        title: 'Error',
+                        description: result.body.message,
+                        color: 'danger'
+                    });
                 return false;
             }
-            toast.success("Reaccionaste");
+            addToast({
+                title: 'Reaccionaste',
+                description: 'Reaccionaste',
+                color: 'success'
+            });
             
         });
     }
@@ -473,7 +482,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
           if (_msg.trim() === '' ){
   
               if(messageToSend.trim() === ''){
-                  toast.error('No se puede enviar un mensaje vacio');
+                  addToast({
+                      title: 'Error',
+                      description: 'No se puede enviar un mensaje vacio',
+                      color: 'danger'
+                  });
                   return false;
               } else { 
                   _msg = messageToSend
@@ -492,7 +505,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
           }, (result) => {
   
               if(!result.body.success){
-                  toast.error(result.body.message);
+                  addToast({
+                      title: 'Error',
+                      description: result.body.message,
+                      color: 'danger'
+                  });
                   return false;
               }
               let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
@@ -536,7 +553,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
             setOpenModalPreview(true);
         }
         else {
-            toast.error('No hay contenido para enviar');
+            addToast({
+                title: 'Error',
+                description: 'No hay contenido para enviar',
+                color: 'danger'
+            });
         }
     }
 
@@ -578,7 +599,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         }, (result) => {
 
             if(!result.body.success){
-                toast.error(result.body.message);
+                addToast({
+                    title: 'Error',
+                    description: result.body.message,
+                    color: 'danger'
+                });
                 return false;
             }
             let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
@@ -617,7 +642,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         if (_msg.trim() === '' ){
 
             if(messageToSend.trim() === ''){
-                toast.error('No se puede enviar un mensaje vacio');
+                addToast({
+                    title: 'Error',
+                    description: 'No se puede enviar un mensaje vacio',
+                    color: 'danger'
+                });
                 return false;
             } else { 
                 _msg = messageToSend
@@ -656,7 +685,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
         }, (result) => {
 
             if(!result.body.success){
-                toast.error(result.body.message);
+                addToast({
+                    title: 'Error',
+                    description: result.body.message,
+                    color: 'danger'
+                });
                 return false;
             }
             let index = listFolios.current.findIndex((x) => {return x.folio._id === folio._id});
@@ -1043,18 +1076,34 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                 // Remove the call to showButton function that was deleted
                 // showButton()
 
-                if(openModal && lastMessageFolio){
-                    let index = listFolios?.current.findIndex((x) => {return x.folio._id === folio._id});
-                    let lastCurrentMessage = listFolios?.current[index].folio.message[listFolios.current[index].folio.message.length-1];
-                    if(lastCurrentMessage.content !== lastMessageFolio){
-                        toast.error(lastCurrentMessage.content &&  lastCurrentMessage.content.length >14 ? 'Nuevo mensaje: ' + lastCurrentMessage.content?.substring(0, 15) + '...' : 'Nuevo mensaje: ' + lastCurrentMessage?.content);    
+                if(openModal && lastMessageFolio && folio?._id) {
+                    let index = listFolios?.current.findIndex((x) => x.folio._id === folio._id);
+                    if (index !== -1) {
+                        let lastCurrentMessage = listFolios.current[index]?.folio?.message?.slice(-1)[0];
+                        
+                        if (lastCurrentMessage?.content && 
+                            lastCurrentMessage.content !== lastMessageFolio && 
+                            lastCurrentMessage.content !== lastNotifiedMessage.current) {
+                            
+                            lastNotifiedMessage.current = lastCurrentMessage.content;
+                            let messagePreview = lastCurrentMessage.content.length > 30 
+                                ? `Nuevo mensaje: ${lastCurrentMessage.content.substring(0, 30)}...` 
+                                : lastCurrentMessage.content;
+                                
+                            addToast({
+                                title: 'Nuevo mensaje',
+                                description: messagePreview,
+                                color: 'danger',
+                                timeout: 5000,
+                            });
+                        }
                     }
                 }
 
                 let fullHeight = boxMessage.current.scrollHeight;
                 let pcPosition = ((boxMessage.current.scrollTop+boxMessage.current.clientHeight)*100)/fullHeight;
     
-                if(pcPosition>=93){
+                if(pcPosition>=96){
                     boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
                 }
                 
@@ -1185,7 +1234,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                 const fileName = `pasted-image-${Date.now()}.${file.type.split('/')[1]}`;
                 const imageFile = new File([file], fileName, { type: file.type });
 
-                toast.info('Subiendo imagen pegada...');
+                addToast({
+                    title: 'Subiendo imagen pegada...',
+                    description: 'Subiendo imagen pegada...',
+                    color: 'info'
+                });
                 await uploadPastedImage(imageFile);
             }
         }
@@ -1193,7 +1246,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
 
     const uploadPastedImage = async (file) => {
         if (!folio || !folio._id) {
-            toast.error('No se puede subir la imagen, no hay un folio activo.');
+            addToast({
+                title: 'Error',
+                description: 'No se puede subir la imagen, no hay un folio activo.',
+                color: 'danger'
+            });
             return;
         }
 
@@ -1205,7 +1262,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
             const response = await socket.uploadFile(folio._id, formData);
 
             if (response.status === 'OK' || response.status === 200 || response.status === 201) {
-                toast.success('Imagen subida y enviada con éxito!');
+                addToast({
+                    title: 'Imagen',
+                    description: 'Imagen cargada y enviada con éxito!',
+                    color: 'success'
+                });
                 if (setRefresh) {
                     setRefresh(true);
                 }
@@ -1214,7 +1275,11 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
             }
         } catch (error) {
             console.error('Error uploading pasted image:', error);
-            toast.error(`Error al subir la imagen: ${error.message}`);
+            addToast({
+                title: 'Error',
+                description: `Error al subir la imagen: ${error.message}`,
+                color: 'danger'
+            });
         }
     };
 
