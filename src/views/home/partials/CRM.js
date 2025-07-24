@@ -158,7 +158,7 @@ const CRM = ({template, folio, setRefresh}) => {
 
     return (
         <div key={`form-crm-${folio}`} className="flex flex-col h-full">
-            <div className="flex flex-col items-center p-4">
+            <div className="flex flex-col items-center">
                 <img 
                     src={folio?.folio?.person?.profilePic || generateAvatarUrl(folio?.folio?.person?.aliasId || 'User', folio?.folio?.person?.anchor || 'User')} 
                     alt="profile" 
@@ -177,19 +177,16 @@ const CRM = ({template, folio, setRefresh}) => {
                 {template.map((item) => renderFields(item))}
             </div>
             
-            <div className="sticky bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white z-10">
-                <div className="flex justify-center">
+            <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
+                <div className="w-full px-4 py-3">
                     <Button 
                         color="primary" 
                         onPress={saveCrm} 
                         isLoading={isLoading} 
                         isDisabled={isLoading}
-                        className="w-full max-w-md py-3 text-base font-medium flex items-center justify-center"
-                        style={{ minHeight: '3rem' }}
+                        className="w-full py-3 text-base font-medium"
                     >
-                        <span className="flex items-center justify-center w-full">
-                            {isLoading ? 'Guardando...' : 'Guardar'}
-                        </span>
+                        {isLoading ? 'Actualizando...' : 'Actualizar'}
                     </Button>
                 </div>
             </div>

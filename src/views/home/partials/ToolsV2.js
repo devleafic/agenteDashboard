@@ -200,7 +200,7 @@ const ToolsV2 = ({
         className="w-full mb-4"
         endContent={<FiX onClick={() => findQA('')} className="cursor-pointer text-gray-400 hover:text-gray-600" />}
       />
-      <div className="space-y-1 max-h-60 overflow-y-auto pr-2">
+      <div className="space-y-1 max-h-[25rem] overflow-y-auto pr-2">
         {allQA.map((item) => (
           <div
             key={item._id}
@@ -281,7 +281,7 @@ const ToolsV2 = ({
     const files = infoService?.repoFiles || [];
     
     return (
-      <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-[25rem] overflow-y-auto pr-2">
         {files.length > 0 ? (
           files.map((file) => (
             <Card key={file._id} className="p-2.5 shadow-sm">

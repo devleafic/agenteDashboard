@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { toast } from 'react-toastify';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spinner } from '@heroui/react';
+//import { toast } from 'react-toastify';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spinner, addToast, ToastProvider } from '@heroui/react';
 
 // Contexto 
 import SocketContext from './../../../controladores/SocketContext';
@@ -167,7 +167,13 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
         }, (result) => {
 
             if(!result.body.success){
-                toast.error(result.body.message);
+                 addToast(
+                      {
+                        title:  'Error',
+                        description: result.body.message,
+                        color: 'danger'
+                      }
+                    );
                 initLoadModal();
                 setMtmToSend(initialMtmState)
                 setOnLoading(false);
@@ -184,15 +190,13 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
         setMtmToSend(initialMtmState)
         setOnLoading(false);
         //});
-        toast.info('Enviando Plantilla... 📨', {
-
-            position: "bottom-left",
-            autoClose: 2700,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: false
-            });
+        addToast(
+            {
+              title:  'Enviando Plantilla... 📨',
+              description: mtm.text,
+              color: 'warning',
+            }
+          );
     }
     
     useEffect( () => {
