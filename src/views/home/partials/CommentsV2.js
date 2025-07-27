@@ -1639,8 +1639,8 @@ const CommentsV2 = ({folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, s
                                                 <XCircle className="w-4 h-4" />
                                             </HeroButton>
                                         )}
-                                        <div className="text-xs text-gray-400 text-right mt-1 pr-2">
-                                            Presiona Shift+Enter para un salto de línea
+                                        <div className="text-xs text-gray-500 text-right mt-1 pr-10">
+                                            Enter para enviar mensaje / Shift+Enter para un salto de línea
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-center justify-start gap-1 ml-2">

@@ -1,6 +1,7 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
-import {Label, Message, Icon, Button, Modal, Dropdown, Header } from 'semantic-ui-react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select, SelectItem } from '@heroui/react';
+import { User, X, Check, ArrowRight, Users } from 'lucide-react';
 
 // Contexto 
 import SocketContext from './../../../controladores/SocketContext';
@@ -101,69 +102,113 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
         setAgentToSend({ agent: '', name: '', folio: '' });
         console.log('refrescando componente de transferir');
     }, [folio]);
-    return ( <>
-        {
-            agents.length <= 0 && <Message icon='ban' compact floating negative content='Sin agentes disponibles'/>
-        }
-        <Label>Selecciona el agente a transferir</Label>
-        <select
-          className="modern-select" 
-                value={agentToSend.agent}
-                onChange={(e) => {
-                    setErrorAgentField(false);
-                    const value = e.target.value;
-                    let agentName = agents.find((x) => x._id.toString() === value);
-                    if (agentName && folio && folio.folio) {
-                        setAgentToSend({ ...agentToSend, agent: value, name: agentName.user, folio: folio.folio._id });
-                    } else {
-                        console.error("Agent or folio information is missing");
-                    }
-                }}
-                disabled={agents.length <= 0}
-                style={agents.length > 5 ? { maxHeight: '200px', overflowY: 'auto' } : {}}
-            >
-                <option value="" disabled>Elige un agente</option>
-                {agents.length > 0 && agents.map((x) => (
-                    <option key={x._id} value={x._id.toString()}>{x.user}</option>
-                ))}
-            </select>
-            {errorAgentField && <Message negative content='Selecciona un agente' />}
-        <div style={{ marginTop: 15 }}>
-            <Button 
-                color='blue' 
-                onClick={() => checkToSendAgent()} 
-                disabled={agents.length <= 0}
-            >
-                Transferir Folio Privado
-            </Button>
-        </div>
+    return ( 
+        <div className="space-y-4 p-4 bg-white rounded-lg shadow-sm">
+            {agents.length <= 0 ? (
+                <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-md">
+                    <Users className="w-5 h-5" />
+                    <span>Sin agentes disponibles</span>
+                </div>
+            ) : (
+                <>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Selecciona el agente a transferir
+                        </label>
+                        <Select
+                            labelPlacement="outside"
+                            placeholder="Elige un agente"
+                            className="w-full"
+                            selectedKeys={agentToSend.agent ? [agentToSend.agent] : []}
+                            onSelectionChange={(keys) => {
+                                const selectedKey = Array.from(keys)[0];
+                                if (selectedKey) {
+                                    const agent = agents.find(a => a._id === selectedKey);
+                                    if (agent && folio?.folio) {
+                                        setAgentToSend({ 
+                                            agent: selectedKey, 
+                                            name: agent.user, 
+                                            folio: folio.folio._id 
+                                        });
+                                        setErrorAgentField(false);
+                                    }
+                                }
+                            }}
+                            isDisabled={agents.length === 0}
+                        >
+                            {agents.map((agent) => (
+                                <SelectItem key={agent._id} value={agent._id}>
+                                    {agent.user}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                        
+                        {errorAgentField && (
+                            <p className="mt-1 text-sm text-red-500">Selecciona un agente</p>
+                        )}
+                    </div>
 
-        <Modal
-            basic
-            onClose={() => initLoadModal()}
-            onOpen={() => setOpen(true)}
-            open={open}
-            size='small'
+                    <Button
+                        color="primary"
+                        className="w-full mt-4"
+                        onPress={checkToSendAgent}
+                        isDisabled={!agentToSend.agent}
+                        startContent={<ArrowRight className="w-4 h-4" />}
+                    >
+                        Transferir Folio Privado
+                    </Button>
+                </>
+            )}
+
+            <Modal 
+                isOpen={open} 
+                onOpenChange={setOpen}
+                backdrop="blur"
+                classNames={{
+                    base: "max-w-md",
+                    header: "border-b border-default-200",
+                    footer: "border-t border-default-200"
+                }}
             >
-            <Header icon>
-                <Icon name='exchange' />
-                Transferir
-            </Header>
-            <Modal.Content>
-                <center>
-                ¿Deseas transferir el folio privado <b>#{agentToSend.folio}</b> al agente <b>"{agentToSend.name}"</b> ?
-                </center>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button basic color='red' inverted onClick={() => initLoadModal()}  loading={onLoading} disabled={onLoading}>
-                    <Icon name='remove' /> No
-                </Button>
-                <Button color='blue' inverted onClick={() => execTransfer()} loading={onLoading} disabled={onLoading}>
-                    <Icon name='checkmark' /> Transferir
-                </Button>
-            </Modal.Actions>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <User className="w-5 h-5 text-primary" />
+                                    <span>Transferir folio</span>
+                                </div>
+                            </ModalHeader>
+                            <ModalBody>
+                                <p className="text-center text-gray-700">
+                                    ¿Deseas transferir el folio privado <span className="font-semibold">#{agentToSend.folio}</span> al agente <span className="font-semibold">{agentToSend.name}</span>?
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button 
+                                    color="danger" 
+                                    variant="flat" 
+                                    onPress={initLoadModal}
+                                    isDisabled={onLoading}
+                                    startContent={<X className="w-4 h-4" />}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button 
+                                    color="primary" 
+                                    onPress={execTransfer}
+                                    isLoading={onLoading}
+                                    startContent={!onLoading && <Check className="w-4 h-4" />}
+                                >
+                                    {onLoading ? 'Transfiriendo...' : 'Transferir'}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
             </Modal>
-    </>);
+        </div>
+    );
 }
  
 export default TransferFolioPrivado;
