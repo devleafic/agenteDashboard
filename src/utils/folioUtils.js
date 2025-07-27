@@ -1,54 +1,41 @@
 // Utility functions for folio-related operations
 const STORAGE_KEY = 'folioAssignmentTimes';
 
+/**
+ * Clears all folio assignment times from localStorage.
+ */
 export const clearFolioAssignmentTimes = () => {
     try {
         localStorage.removeItem(STORAGE_KEY);
     } catch (e) {
-        console.error('Error clearing folio assignment times:', e);
+        console.error('Error clearing folio assignment times from localStorage:', e);
     }
 };
 
+/**
+ * Loads all folio assignment times from localStorage.
+ * @returns {Object} An object mapping folio IDs to their assignment timestamps.
+ */
 export const loadFolioAssignmentTimes = () => {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return {};
-        
-        const times = JSON.parse(saved);
-        // Filter out any entries older than 24 hours
-        const now = new Date().getTime();
-        const filteredTimes = {};
-        
-        Object.entries(times).forEach(([folioId, timestamp]) => {
-            const timeDiff = now - new Date(timestamp).getTime();
-            // Keep times that are less than 24 hours old
-            if (timeDiff < 24 * 60 * 60 * 1000) {
-                filteredTimes[folioId] = timestamp;
-            }
-        });
-        
-        // Update storage with filtered times
-        if (Object.keys(filteredTimes).length !== Object.keys(times).length) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredTimes));
-        }
-        
-        return filteredTimes;
+        return saved ? JSON.parse(saved) : {};
     } catch (e) {
-        console.error('Error loading folio assignment times:', e);
+        console.error('Error loading folio assignment times from localStorage:', e);
+        // In case of parsing error, clear the corrupted data.
+        clearFolioAssignmentTimes();
         return {};
     }
 };
 
-export const saveFolioAssignmentTime = (folioId) => {
+/**
+ * Saves a new set of assignment times to localStorage.
+ * @param {Object} times - An object mapping folio IDs to their assignment timestamps.
+ */
+export const saveFolioAssignmentTimes = (times) => {
     try {
-        const times = loadFolioAssignmentTimes();
-        if (!times[folioId]) {
-            times[folioId] = new Date().toISOString();
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
-        }
-        return times[folioId];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
     } catch (e) {
-        console.error('Error saving folio assignment time:', e);
-        return new Date().toISOString();
+        console.error('Error saving folio assignment times to localStorage:', e);
     }
 };

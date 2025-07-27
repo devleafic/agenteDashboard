@@ -12,75 +12,19 @@ import UploadMultipleFiles from './UploadMultipleFiles';
 import MessageBubbleEmail from './MessageBubbleEmail';
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
+import ElapsedTime from './ElapsedTime';
 
 const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime }) => {
     const listFolios = useContext(ListFoliosContext);
-    const [currentTime, setCurrentTime] = useState(Date.now());
-    const [elapsedTime, setElapsedTime] = useState('');
-    const assignmentTime = propAssignmentTime ? moment(propAssignmentTime) : null;
     
-    // Update elapsed time since assignment
-    useEffect(() => {
-        if (!assignmentTime) {
-            setElapsedTime('');
-            return;
-        }
-        
-        const updateElapsedTime = () => {
-            const now = moment();
-            const duration = moment.duration(now.diff(assignmentTime));
-            
-            const hours = Math.floor(duration.asHours());
-            const minutes = duration.minutes();
-            const seconds = duration.seconds();
-            
-            setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-        };
-        
-        // Update immediately
-        updateElapsedTime();
-        
-        // Then update every second
-        const interval = setInterval(updateElapsedTime, 1000);
-        
-        return () => clearInterval(interval);
-    }, [assignmentTime]);
+    // // Update current time every minute for other components
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         setCurrentTime(Date.now());
+    //     }, 60000);
 
-    // Update elapsed time since assignment
-    useEffect(() => {
-        if (!assignmentTime) {
-            setElapsedTime('');
-            return;
-        }
-        
-        const updateElapsedTime = () => {
-            const now = moment();
-            const duration = moment.duration(now.diff(assignmentTime));
-            
-            const hours = Math.floor(duration.asHours());
-            const minutes = duration.minutes();
-            const seconds = duration.seconds();
-            
-            setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-        };
-        
-        // Update immediately
-        updateElapsedTime();
-        
-        // Then update every second
-        const interval = setInterval(updateElapsedTime, 1000);
-        
-        return () => clearInterval(interval);
-    }, [assignmentTime]);
-    
-    // Update current time every minute for other components
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTime(Date.now());
-        }, 60000);
-
-        return () => clearInterval(interval);
-    }, []);
+    //     return () => clearInterval(interval);
+    // }, []);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
     const [channel, setChannel] = useState(null);
@@ -1421,18 +1365,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             </Tooltip>
                         )}
                         
-                        {assignmentTime && (
-                            <Tooltip content={`Asignado el: ${assignmentTime.format('DD/MM/YYYY HH:mm:ss')}`}>
-                                <Chip 
-                                    color="default" 
-                                    variant="flat" 
-                                    className='hidden sm:flex items-center gap-1 font-mono'
-                                    startContent={<Clock className="w-4 h-4" />}
-                                >
-                                    {elapsedTime || '00:00:00'}
-                                </Chip>
-                            </Tooltip>
-                        )}
+                        <ElapsedTime assignmentTime={propAssignmentTime} />
                     </div>
                 </div>
 
@@ -1983,4 +1916,4 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     );
 };
 
-export default CommentsV2;
+export default React.memo(CommentsV2);

@@ -3,7 +3,7 @@ import {Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, Drop
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
-import { loadFolioAssignmentTimes, clearFolioAssignmentTimes, saveFolioAssignmentTime } from './../../../utils/folioUtils';
+import { loadFolioAssignmentTimes, saveFolioAssignmentTimes, clearFolioAssignmentTimes } from './../../../utils/folioUtils';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import generateAvatarUrl from '../../../utils/avatarUtils';
 
@@ -72,57 +72,55 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [folioAssignmentTimes, setFolioAssignmentTimes] = useState(loadFolioAssignmentTimes());
 
-    // Handle cleanup on unmount or page unload
+    // Persist assignment times to localStorage whenever they change.
     useEffect(() => {
-        const handleBeforeUnload = () => {
-            // Only clear on actual page unload, not on component unmount
+        saveFolioAssignmentTimes(folioAssignmentTimes);
+    }, [folioAssignmentTimes]);
+
+    // Cleanup assignment times on logout or when the window is closed.
+    useEffect(() => {
+        const handleUnload = () => {
             clearFolioAssignmentTimes();
         };
-        
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        
-        // Clear only on logout (when show becomes false)
-        if (!show) {
-            clearFolioAssignmentTimes();
-        }
-        
+
+        window.addEventListener('beforeunload', handleUnload);
+
+        // Cleanup when the component is unmounted (e.g., on logout).
         return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('beforeunload', handleUnload);
+            // The `show` prop becoming false indicates a logout.
+            if (!show) {
+                clearFolioAssignmentTimes();
+            }
         };
     }, [show]);
 
-    // Track assignment times for folios
+    // Add assignment times for new folios that don't have one yet.
     useEffect(() => {
         if (!listFolios.current) return;
-        
-        const newAssignmentTimes = { ...folioAssignmentTimes };
-        let hasUpdates = false;
-        
+
+        const updatedTimes = { ...folioAssignmentTimes };
+        let needsUpdate = false;
+
         listFolios.current.forEach(item => {
             const folioId = item?.folio?._id;
-            if (folioId && !newAssignmentTimes[folioId]) {
-                // Use the save function to ensure proper storage
-                const savedTime = saveFolioAssignmentTime(folioId);
-                newAssignmentTimes[folioId] = savedTime;
-                hasUpdates = true;
+            if (folioId && !updatedTimes[folioId]) {
+                updatedTimes[folioId] = new Date().toISOString();
+                needsUpdate = true;
             }
         });
-        
-        if (hasUpdates) {
-            setFolioAssignmentTimes(newAssignmentTimes);
+
+        if (needsUpdate) {
+            setFolioAssignmentTimes(updatedTimes);
         }
-    }, [listFolios.current?.map(f => f.folio?._id).join(',')]); // Only run when folio IDs change
+        // We depend on the raw list of folios. The join is a stable dependency.
+    }, [listFolios.current?.map(f => f.folio?._id).join(',')]);
 
     const hideTools = () => {
         setToolsOpen(!toolsOpen);
     };
 
-    // Load initial data
     useEffect(() => {
-        // Only load times, don't clear them here
-        setFolioAssignmentTimes(loadFolioAssignmentTimes());
-        
-        // Load initial data
         const loadInitialData = async () => {
             if (!availableCh) {
                 setLoadPage(true);
