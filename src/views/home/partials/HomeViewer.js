@@ -72,6 +72,14 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [folioAssignmentTimes, setFolioAssignmentTimes] = useState(loadFolioAssignmentTimes());
 
+    const removeFolioAssignmentTime = (folioId) => {
+        setFolioAssignmentTimes(prevTimes => {
+            const newTimes = { ...prevTimes };
+            delete newTimes[folioId];
+            return newTimes;
+        });
+    };
+
     // Persist assignment times to localStorage whenever they change.
     useEffect(() => {
         saveFolioAssignmentTimes(folioAssignmentTimes);
@@ -468,6 +476,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         dispatchCount={dispatchCount}
                                         availableCh={availableCh}
                                         assignmentTime={folioAssignmentTimes[activeFolioData.folio._id]}
+                                        removeFolioAssignmentTime={removeFolioAssignmentTime}
                                     />
                                 </div>
                                 {toolsOpen && (

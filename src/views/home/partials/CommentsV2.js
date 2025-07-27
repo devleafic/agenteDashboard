@@ -14,7 +14,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
 import ElapsedTime from './ElapsedTime';
 
-const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime }) => {
+const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime }) => {
     const listFolios = useContext(ListFoliosContext);
     
     // // Update current time every minute for other components
@@ -726,6 +726,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 setMessage(result.message);
                 setIsOpenError(true);
                 return false;
+            }
+
+            // Remove the assignment time before updating the list
+            if (removeFolioAssignmentTime) {
+                removeFolioAssignmentTime(folio._id);
             }
 
             let index = listFolios.current.findIndex((x) => x.folio._id === folio._id);
