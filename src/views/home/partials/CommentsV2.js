@@ -13,15 +13,71 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
 
-const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend }) => {
+const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime }) => {
     const listFolios = useContext(ListFoliosContext);
     const [currentTime, setCurrentTime] = useState(Date.now());
+    const [elapsedTime, setElapsedTime] = useState('');
+    const assignmentTime = propAssignmentTime ? moment(propAssignmentTime) : null;
+    
+    // Update elapsed time since assignment
+    useEffect(() => {
+        if (!assignmentTime) {
+            setElapsedTime('');
+            return;
+        }
+        
+        const updateElapsedTime = () => {
+            const now = moment();
+            const duration = moment.duration(now.diff(assignmentTime));
+            
+            const hours = Math.floor(duration.asHours());
+            const minutes = duration.minutes();
+            const seconds = duration.seconds();
+            
+            setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        };
+        
+        // Update immediately
+        updateElapsedTime();
+        
+        // Then update every second
+        const interval = setInterval(updateElapsedTime, 1000);
+        
+        return () => clearInterval(interval);
+    }, [assignmentTime]);
 
-    // Update current time every minute
+    // Update elapsed time since assignment
+    useEffect(() => {
+        if (!assignmentTime) {
+            setElapsedTime('');
+            return;
+        }
+        
+        const updateElapsedTime = () => {
+            const now = moment();
+            const duration = moment.duration(now.diff(assignmentTime));
+            
+            const hours = Math.floor(duration.asHours());
+            const minutes = duration.minutes();
+            const seconds = duration.seconds();
+            
+            setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+        };
+        
+        // Update immediately
+        updateElapsedTime();
+        
+        // Then update every second
+        const interval = setInterval(updateElapsedTime, 1000);
+        
+        return () => clearInterval(interval);
+    }, [assignmentTime]);
+    
+    // Update current time every minute for other components
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTime(Date.now());
-        }, 60000); // Update every minute
+        }, 60000);
 
         return () => clearInterval(interval);
     }, []);
@@ -1365,20 +1421,15 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             </Tooltip>
                         )}
                         
-                        {folio?.assignedAt && (
-                            <Tooltip content="Asignación">
+                        {assignmentTime && (
+                            <Tooltip content={`Asignado el: ${assignmentTime.format('DD/MM/YYYY HH:mm:ss')}`}>
                                 <Chip 
                                     color="default" 
                                     variant="flat" 
-                                    className='hidden sm:flex items-center gap-1'
+                                    className='hidden sm:flex items-center gap-1 font-mono'
                                     startContent={<Clock className="w-4 h-4" />}
-                                    title={moment(folio.assignedAt).isValid() 
-                                        ? moment(folio.assignedAt).format('DD/MM/YYYY HH:mm:ss', 'es','America/Mexico_City')
-                                        : 'Fecha inválida'}
                                 >
-                                    {moment(folio.assignedAt).isValid() 
-                                        ? moment(folio.assignedAt).fromNow('es','America/Mexico_City') 
-                                        : 'Fecha inválida'}
+                                    {elapsedTime || '00:00:00'}
                                 </Chip>
                             </Tooltip>
                         )}

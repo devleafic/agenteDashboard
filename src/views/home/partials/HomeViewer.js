@@ -3,6 +3,7 @@ import {Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, Drop
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
+import { loadFolioAssignmentTimes, clearFolioAssignmentTimes, saveFolioAssignmentTime } from './../../../utils/folioUtils';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import generateAvatarUrl from '../../../utils/avatarUtils';
 
@@ -69,12 +70,59 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
     const [sortBy, setSortBy] = useState('default');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [folioAssignmentTimes, setFolioAssignmentTimes] = useState(loadFolioAssignmentTimes());
+
+    // Handle cleanup on unmount or page unload
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            // Only clear on actual page unload, not on component unmount
+            clearFolioAssignmentTimes();
+        };
+        
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Clear only on logout (when show becomes false)
+        if (!show) {
+            clearFolioAssignmentTimes();
+        }
+        
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [show]);
+
+    // Track assignment times for folios
+    useEffect(() => {
+        if (!listFolios.current) return;
+        
+        const newAssignmentTimes = { ...folioAssignmentTimes };
+        let hasUpdates = false;
+        
+        listFolios.current.forEach(item => {
+            const folioId = item?.folio?._id;
+            if (folioId && !newAssignmentTimes[folioId]) {
+                // Use the save function to ensure proper storage
+                const savedTime = saveFolioAssignmentTime(folioId);
+                newAssignmentTimes[folioId] = savedTime;
+                hasUpdates = true;
+            }
+        });
+        
+        if (hasUpdates) {
+            setFolioAssignmentTimes(newAssignmentTimes);
+        }
+    }, [listFolios.current?.map(f => f.folio?._id).join(',')]); // Only run when folio IDs change
 
     const hideTools = () => {
         setToolsOpen(!toolsOpen);
     };
 
+    // Load initial data
     useEffect(() => {
+        // Only load times, don't clear them here
+        setFolioAssignmentTimes(loadFolioAssignmentTimes());
+        
+        // Load initial data
         const loadInitialData = async () => {
             if (!availableCh) {
                 setLoadPage(true);
@@ -420,7 +468,8 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         vFolio={vFolio}
                                         countunReadMsg={countunReadMsg}
                                         dispatchCount={dispatchCount}
-                                        availableCh={availableCh}   
+                                        availableCh={availableCh}
+                                        assignmentTime={folioAssignmentTimes[activeFolioData.folio._id]}
                                     />
                                 </div>
                                 {toolsOpen && (
