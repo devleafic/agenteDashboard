@@ -1316,38 +1316,72 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                         </div>
                     )}
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <Snippet color="primary" variant="flat">{folio._id}</Snippet>
-                        <Snippet color="success" variant="flat">{folio.person.anchor}</Snippet>
-                        {/* {folio.isGlobalQueue && <Chip color="secondary" variant="flat" startContent={<Globe className="w-4 h-4"/>}>Global</Chip>} */}
-                        <Chip
-                            color="default"
-                            variant="flat"
-                            className='hidden sm:flex items-center gap-1'
-                            startContent={
-                                <div className="w-4 h-4 flex items-center justify-center">
-                                    {getChannelIcon(folio.channel.name)}
-                                </div>
-                            }
-                            
-                        >
-                            {folio.channel.title}
-                        </Chip>
+                        {folio?._id && (
+                            <Snippet color="primary" variant="flat">{folio._id}</Snippet>
+                        )}
+                        
+                        {folio?.person?.anchor && (
+                            <Snippet color="success" variant="flat">{folio.person.anchor}</Snippet>
+                        )}
+                        
+                        {folio?.channel?.name && folio?.channel?.title && (
+                            <Chip
+                                color="default"
+                                variant="flat"
+                                className='hidden sm:flex items-center gap-1'
+                                startContent={
+                                    <div className="w-4 h-4 flex items-center justify-center">
+                                        {getChannelIcon(folio.channel.name)}
+                                    </div>
+                                }
+                            >
+                                {folio.channel.title}
+                            </Chip>
+                        )}
 
-                        <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Inbox className="w-4 h-4"/>}>{getLabelQueue()}</Chip>
-                        <Tooltip content="Fecha de creación">
-                            <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Calendar className="w-4 h-4"/>}>{moment(folio.createdAt).format('DD/MM/YYYY HH:mm:ss', 'es','America/Mexico_City')}</Chip>
-                        </Tooltip>
-                        <Tooltip content="Asignación">
+                        {getLabelQueue() && (
                             <Chip 
                                 color="default" 
                                 variant="flat" 
-                                className='hidden sm:flex items-center gap-1'
-                                startContent={<Clock className="w-4 h-4" />}
-                                title={moment(folio.assignedAt).format('DD/MM/YYYY HH:mm:ss')}
+                                className='hidden sm:flex' 
+                                startContent={<Inbox className="w-4 h-4"/>}
                             >
-                                {moment(folio.assignedAt).fromNow()}
+                                {getLabelQueue()}
                             </Chip>
-                        </Tooltip>
+                        )}
+                        
+                        {folio?.createdAt && (
+                            <Tooltip content="Fecha de creación">
+                                <Chip 
+                                    color="default" 
+                                    variant="flat" 
+                                    className='hidden sm:flex' 
+                                    startContent={<Calendar className="w-4 h-4"/>}
+                                >
+                                    {moment(folio.createdAt).isValid() 
+                                        ? moment(folio.createdAt).format('DD/MM/YYYY HH:mm:ss')
+                                        : 'Fecha inválida'}
+                                </Chip>
+                            </Tooltip>
+                        )}
+                        
+                        {folio?.assignedAt && (
+                            <Tooltip content="Asignación">
+                                <Chip 
+                                    color="default" 
+                                    variant="flat" 
+                                    className='hidden sm:flex items-center gap-1'
+                                    startContent={<Clock className="w-4 h-4" />}
+                                    title={moment(folio.assignedAt).isValid() 
+                                        ? moment(folio.assignedAt).format('DD/MM/YYYY HH:mm:ss', 'es','America/Mexico_City')
+                                        : 'Fecha inválida'}
+                                >
+                                    {moment(folio.assignedAt).isValid() 
+                                        ? moment(folio.assignedAt).fromNow('es','America/Mexico_City') 
+                                        : 'Fecha inválida'}
+                                </Chip>
+                            </Tooltip>
+                        )}
                     </div>
                 </div>
 
