@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import {Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
+import { Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
+import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, MessageCircleOff, PhoneCall, MailOpen, Sparkles, MessageSquare, Search, Calendar, Clock } from 'lucide-react';
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
@@ -122,7 +123,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
             setFolioAssignmentTimes(updatedTimes);
         }
         // We depend on the raw list of folios. The join is a stable dependency.
-    }, [listFolios.current?.map(f => f.folio?._id).join(',')]);
+    }, [listFolios && listFolios.current && listFolios.current?.map(f => f.folio?._id).join(',')]);
 
     const hideTools = () => {
         setToolsOpen(!toolsOpen);
@@ -446,7 +447,12 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     );
                                 })
                             ) : (
-                                <div className="p-4 text-center text-sm text-gray-500">No hay conversaciones para mostrar.</div>
+                                <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                                    <MessageCircleOff className="w-12 h-12 mb-2" />
+                                    <p className="text-sm text-gray-500">
+                                        {isSidebarCollapsed ? 'Sin chats' : 'No hay conversaciones para mostrar'}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </div>
