@@ -108,7 +108,7 @@ const Login = () => {
                             {isBeta && (
                                 <div className="pt-1">
                                     <Chip color="danger" variant="flat" size="sm" className="font-medium">
-                                        VERSIÓN BETA
+                                        VERSIÓN BETA 4
                                     </Chip>
                                 </div>
                             )}
