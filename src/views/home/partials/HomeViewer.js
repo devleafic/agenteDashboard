@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import {Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
+import {Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
 import axios from 'axios';
@@ -68,6 +68,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const [filterText, setFilterText] = useState('');
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
     const [sortBy, setSortBy] = useState('default');
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     const hideTools = () => {
         setToolsOpen(!toolsOpen);
@@ -197,95 +198,117 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     }, [foliosCount, filterText, showUnreadOnly, sortBy, unReadFolios]);
 
     return (
-        <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden">
+        <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden relative">
+            {/* Collapse/Expand Button */}
+            <Tooltip content={isSidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}>
+            <button 
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 rounded-r-lg p-2 shadow-md hover:bg-gray-50 transition-colors"
+                aria-label={isSidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
+            >
+                {isSidebarCollapsed ? (
+                    <ChevronRightIcon className="w-4 h-4 text-white" />
+                ) : (
+                    <ChevronLeftIcon className="w-4 h-4 text-white" />
+                )}
+            </button>
+            </Tooltip>
             {loadPage ? (
                 <div className="flex items-center justify-center w-full"><p>Cargando...</p></div>
             ) : (
                 <>
                     {/* Left Column: Chat List */}
-                    <div className="w-80 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
-                        <div className="p-5 sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm">
-                            <div className="flex flex-col items-start gap-2 mb-1">
-                            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
-                                Conversaciones
-                            </h2>
-                                <Chip 
-                                    color="primary" 
-                                    variant="flat"
-                                    classNames={{
-                                        base: "bg-gradient-to-br from-indigo-100 to-pink-50 border-small border-indigo-200/50",
-                                        content: "text-indigo-800 font-medium text-sm"
-                                    }}
-                                >
-                                    {processedFolios.length} {processedFolios.length === 1 ? 'conversación' : 'conversaciones'}
-                                </Chip>
-                            </div>
-                            
-                            <Input
-                                isClearable
-                                variant="bordered"
-                                placeholder="Buscar conversaciones..."
-                                startContent={<SearchIcon className="text-gray-400" />}
-                                value={filterText}
-                                onValueChange={setFilterText}
-                                onClear={() => setFilterText('')}
-                                classNames={{
-                                    input: "text-base",
-                                    inputWrapper: "bg-white border-gray-200 hover:border-indigo-300 focus-within:!border-indigo-500",
-                                }}
-                                className="max-w-full shadow-sm"
-                            />
-                            
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-indigo-50/50 rounded-lg mt-1">
-                                <div className="flex items-center">
-                                    <Switch
-                                        isSelected={showUnreadOnly}
-                                        onValueChange={setShowUnreadOnly}
-                                        size="sm"
+                    <div 
+                        className={`${isSidebarCollapsed ? 'w-20' : 'w-80'} border-r border-gray-200 bg-white flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}
+                    >
+                        <div className={`p-4 sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
+                            {!isSidebarCollapsed && (
+                                <div className="flex flex-col items-start gap-2 mb-1 w-full">
+                                    <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                                        Conversaciones
+                                    </h2>
+                                    <Chip 
+                                        color="primary" 
+                                        variant="flat"
                                         classNames={{
-                                            wrapper: "group-data-[selected=true]:bg-gradient-to-r from-indigo-500 to-pink-500 mt-0.5",
+                                            base: "bg-gradient-to-br from-indigo-100 to-pink-50 border-small border-indigo-200/50",
+                                            content: "text-indigo-800 font-medium text-sm"
                                         }}
                                     >
-                                        <span className="text-sm font-medium text-gray-700">Solo no leídos</span>
-                                    </Switch>
+                                        {processedFolios.length} {processedFolios.length === 1 ? 'conversación' : 'conversaciones'}
+                                    </Chip>
                                 </div>
-                                
-                                <div className="flex-shrink-0 flex flex-col items-end">
-                                    <span className="text-xs font-medium text-gray-500 mb-1">Ordenar por</span>
-                                    <Dropdown>
-                                        <DropdownTrigger>
-                                            <HeroButton 
-                                                variant="flat" 
-                                                size="sm" 
-                                                className="w-[120px] justify-between bg-white border border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transition-colors h-8 px-2"
-                                                endContent={<ChevronDownIcon className="w-3 h-3 text-gray-500 ml-1" />}
+                            )}
+                            
+                            {!isSidebarCollapsed && (
+                                <>
+                                    <Input
+                                        isClearable
+                                        variant="bordered"
+                                        placeholder="Buscar conversaciones..."
+                                        startContent={<SearchIcon className="text-gray-400" />}
+                                        value={filterText}
+                                        onValueChange={setFilterText}
+                                        onClear={() => setFilterText('')}
+                                        classNames={{
+                                            input: "text-base",
+                                            inputWrapper: "bg-white border-gray-200 hover:border-indigo-300 focus-within:!border-indigo-500",
+                                        }}
+                                        className="w-full shadow-sm"
+                                    />
+                                    
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-indigo-50/50 rounded-lg mt-1">
+                                        <div className="flex items-center">
+                                            <Switch
+                                                isSelected={showUnreadOnly}
+                                                onValueChange={setShowUnreadOnly}
+                                                size="sm"
+                                                classNames={{
+                                                    wrapper: "group-data-[selected=true]:bg-gradient-to-r from-indigo-500 to-pink-500 mt-0.5",
+                                                }}
                                             >
-                                                <span className="text-xs font-medium text-gray-700 text-left flex-1 truncate">
-                                                    {sortBy === 'unread' ? 'No leídos' : 'Recientes'}
-                                                </span>
-                                            </HeroButton>
-                                        </DropdownTrigger>
-                                        <DropdownMenu
-                                            aria-label="Opciones de orden"
-                                            variant="flat"
-                                            disallowEmptySelection
-                                            selectionMode="single"
-                                            selectedKeys={new Set([sortBy])}
-                                            onSelectionChange={(keys) => setSortBy(Array.from(keys)[0])}
-                                            classNames={{
-                                                base: "border border-gray-100 shadow-lg rounded-lg overflow-hidden w-[120px] min-w-[120px] -ml-1"
-                                            }}
-                                        >
-                                            <DropdownItem key="default" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
-                                                Recientes
-                                            </DropdownItem>
-                                            <DropdownItem key="unread" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
-                                                No leídos
-                                            </DropdownItem>
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                </div>
-                            </div>
+                                                <span className="text-sm font-medium text-gray-700">Solo no leídos</span>
+                                            </Switch>
+                                        </div>
+                                        
+                                        <div className="flex-shrink-0 flex flex-col items-end">
+                                            <span className="text-xs font-medium text-gray-500 mb-1">Ordenar por</span>
+                                            <Dropdown>
+                                                <DropdownTrigger>
+                                                    <HeroButton 
+                                                        variant="flat" 
+                                                        size="sm" 
+                                                        className="w-[10px] justify-between bg-white border border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transition-colors h-8 px-2"
+                                                        endContent={<ChevronDownIcon className="w-3 h-3 text-gray-500 ml-1" />}
+                                                    >
+                                                        <span className="text-xs font-medium text-gray-700 text-left flex-1 truncate">
+                                                            {sortBy === 'unread' ? 'No leídos' : 'Recientes'}
+                                                        </span>
+                                                    </HeroButton>
+                                                </DropdownTrigger>
+                                                <DropdownMenu
+                                                    aria-label="Opciones de orden"
+                                                    variant="flat"
+                                                    disallowEmptySelection
+                                                    selectionMode="single"
+                                                    selectedKeys={new Set([sortBy])}
+                                                    onSelectionChange={(keys) => setSortBy(Array.from(keys)[0])}
+                                                    classNames={{
+                                                        base: "border border-gray-100 shadow-lg rounded-lg overflow-hidden w-[120px] min-w-[120px] -ml-1"
+                                                    }}
+                                                >
+                                                    <DropdownItem key="default" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
+                                                        Recientes
+                                                    </DropdownItem>
+                                                    <DropdownItem key="unread" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
+                                                        No leídos
+                                                    </DropdownItem>
+                                                </DropdownMenu>
+                                            </Dropdown>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="flex-grow overflow-y-auto overflow-x-hidden">
                             {processedFolios.length > 0 ? (
@@ -338,32 +361,33 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                 <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
                                                     <Avatar 
                                                         src={folio.person?.profilePic || generateAvatarUrl(folio.person?.aliasId, folio.person?.anchor)} 
-                                                        className="w-10 h-10"
+                                                        className={`${isSidebarCollapsed ? 'w-10 h-10' : 'w-10 h-10'}`}
                                                     />
                                                 </Badge>
                                             </div>
-                                            <div className="min-w-0 flex-1 ml-3 overflow-hidden">
-                                                <div className="flex items-center justify-between w-full">
-                                                    <p className="font-bold text-sm text-gray-800 truncate pr-2">
-                                                        {folio.person?.aliasId || folio.person?.anchor}
-                                                    </p>
-                                                    <div className="flex-shrink-0">
-                                                        {channelIcon}
-                                                       
+                                            {!isSidebarCollapsed && (
+                                                <div className="min-w-0 flex-1 ml-3 overflow-hidden">
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <p className="font-bold text-sm text-gray-800 truncate pr-2">
+                                                            {folio.person?.aliasId || folio.person?.anchor}
+                                                        </p>
+                                                        <div className="flex-shrink-0">
+                                                            {channelIcon}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-between items-center w-full">
+                                                        <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                            {secondaryText}
+                                                        </p>
+                                                        {inboxIcon}
+                                                    </div>
+                                                    <div className="flex justify-between items-center w-full">
+                                                        <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                            {channelname}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex justify-between items-center w-full">
-                                                    <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
-                                                        {secondaryText}
-                                                    </p>
-                                                    {inboxIcon}
-                                                </div>
-                                                <div className="flex justify-between items-center w-full">
-                                                    <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
-                                                        {channelname}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     );
                                 })
