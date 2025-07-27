@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
 import { Snippet, Textarea as textarea, Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup, addToast, ToastProvider, Tooltip } from "@heroui/react";
-import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText, Search } from 'lucide-react';
+import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText, Search, Calendar, Clock } from 'lucide-react';
 import shortParagraph from './../../../img/short-paragraph.png';
 import SocketContext from './../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
@@ -11,9 +11,20 @@ import UploadFile from './UploadFile';
 import UploadMultipleFiles from './UploadMultipleFiles';
 import MessageBubbleEmail from './MessageBubbleEmail';
 import { Editor } from '@tinymce/tinymce-react';
+import moment from 'moment';
 
 const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend }) => {
     const listFolios = useContext(ListFoliosContext);
+    const [currentTime, setCurrentTime] = useState(Date.now());
+
+    // Update current time every minute
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 60000); // Update every minute
+
+        return () => clearInterval(interval);
+    }, []);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
     const [channel, setChannel] = useState(null);
@@ -1307,7 +1318,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <Snippet color="primary" variant="flat">{folio._id}</Snippet>
                         <Snippet color="success" variant="flat">{folio.person.anchor}</Snippet>
-                        {folio.isGlobalQueue && <Chip color="secondary" variant="flat" startContent={<Globe className="w-4 h-4"/>}>Global</Chip>}
+                        {/* {folio.isGlobalQueue && <Chip color="secondary" variant="flat" startContent={<Globe className="w-4 h-4"/>}>Global</Chip>} */}
                         <Chip
                             color="default"
                             variant="flat"
@@ -1317,10 +1328,26 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                     {getChannelIcon(folio.channel.name)}
                                 </div>
                             }
+                            
                         >
                             {folio.channel.title}
                         </Chip>
+
                         <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Inbox className="w-4 h-4"/>}>{getLabelQueue()}</Chip>
+                        <Tooltip content="Fecha de creación">
+                            <Chip color="default" variant="flat" className='hidden sm:flex' startContent={<Calendar className="w-4 h-4"/>}>{moment(folio.createdAt).format('DD/MM/YYYY HH:mm:ss', 'es','America/Mexico_City')}</Chip>
+                        </Tooltip>
+                        <Tooltip content="Asignación">
+                            <Chip 
+                                color="default" 
+                                variant="flat" 
+                                className='hidden sm:flex items-center gap-1'
+                                startContent={<Clock className="w-4 h-4" />}
+                                title={moment(folio.assignedAt).format('DD/MM/YYYY HH:mm:ss')}
+                            >
+                                {moment(folio.assignedAt).fromNow()}
+                            </Chip>
+                        </Tooltip>
                     </div>
                 </div>
 
