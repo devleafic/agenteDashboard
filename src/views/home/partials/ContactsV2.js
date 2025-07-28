@@ -28,7 +28,6 @@ import {
 import { SearchIcon, CheckIcon, PlusIcon, UserCircle, Phone, Check, Calendar, User, X, MessageSquare, FolderOpen, XCircle } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import SocketContext from '../../../controladores/SocketContext';
-import shortParagraph from './../../../img/short-paragraph.png';
 
 const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, userInfo }) => {
   const Socket = useContext(SocketContext);

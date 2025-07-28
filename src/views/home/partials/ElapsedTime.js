@@ -49,7 +49,7 @@ const ElapsedTime = ({ assignmentTime }) => {
     return (
         <Tooltip content={`Asignado el: ${formattedAssignmentTime}`}>
             <Chip 
-                color="default" 
+                color="primary" 
                 variant="flat" 
                 className='hidden sm:flex items-center gap-1 font-mono'
                 startContent={<Clock className="w-4 h-4" />}

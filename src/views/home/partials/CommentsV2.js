@@ -16,15 +16,6 @@ import ElapsedTime from './ElapsedTime';
 
 const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime }) => {
     const listFolios = useContext(ListFoliosContext);
-    
-    // // Update current time every minute for other components
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setCurrentTime(Date.now());
-    //     }, 60000);
-
-    //     return () => clearInterval(interval);
-    // }, []);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
     const [channel, setChannel] = useState(null);
@@ -1330,6 +1321,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                         )}
                         
                         {folio?.channel?.name && folio?.channel?.title && (
+                            <Tooltip content="Canal de origen">
                             <Chip
                                 color="default"
                                 variant="flat"
@@ -1342,9 +1334,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             >
                                 {folio.channel.title}
                             </Chip>
+                            </Tooltip>
                         )}
 
                         {getLabelQueue() && (
+                            <Tooltip content="Flujo de trabajo">
                             <Chip 
                                 color="default" 
                                 variant="flat" 
@@ -1353,6 +1347,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             >
                                 {getLabelQueue()}
                             </Chip>
+                            </Tooltip>
                         )}
                         
                         {folio?.createdAt && (
