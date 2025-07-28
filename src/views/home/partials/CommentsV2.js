@@ -927,45 +927,55 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
         }
     }, []);
 
+    // This effect handles notifications for new messages
     useEffect(() => {
-        async function validations() {
-            if (textArea.current && messageToSend.length > 0) {
-                textArea.current.value = messageToSend;
-                setMessageToSend('');
-            }
-
-            if (channel != 'call') {
-                if (openModal && lastMessageFolio && folio?._id) {
-                    let index = listFolios?.current.findIndex((x) => x.folio._id === folio._id);
-                    if (index !== -1) {
-                        let lastCurrentMessage = listFolios.current[index]?.folio?.message?.slice(-1)[0];
-                        if (lastCurrentMessage?.content &&
-                            lastCurrentMessage.content !== lastMessageFolio &&
-                            lastCurrentMessage.content !== lastNotifiedMessage.current) {
-                            lastNotifiedMessage.current = lastCurrentMessage.content;
-                            let messagePreview = lastCurrentMessage.content.length > 30
-                                ? `Nuevo mensaje: ${lastCurrentMessage.content.substring(0, 30)}...`
-                                : lastCurrentMessage.content;
-                            addToast({
-                                title: 'Nuevo mensaje',
-                                description: messagePreview,
-                                color: 'danger',
-                                timeout: 5000,
-                            });
-                        }
-                    }
-                }
-
-                let fullHeight = boxMessage.current.scrollHeight;
-                let pcPosition = ((boxMessage.current.scrollTop + boxMessage.current.clientHeight) * 100) / fullHeight;
-
-                if (pcPosition >= 96) {
-                    boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+        if (openModal && lastMessageFolio && folio?._id && channel !== 'call') {
+            let index = listFolios?.current.findIndex((x) => x.folio._id === folio._id);
+            if (index !== -1) {
+                let lastCurrentMessage = listFolios.current[index]?.folio?.message?.slice(-1)[0];
+                if (lastCurrentMessage?.content &&
+                    lastCurrentMessage.content !== lastMessageFolio &&
+                    lastCurrentMessage.content !== lastNotifiedMessage.current) {
+                    lastNotifiedMessage.current = lastCurrentMessage.content;
+                    let messagePreview = lastCurrentMessage.content.length > 30
+                        ? `Nuevo mensaje: ${lastCurrentMessage.content.substring(0, 30)}...`
+                        : lastCurrentMessage.content;
+                    addToast({
+                        title: 'Nuevo mensaje',
+                        description: messagePreview,
+                        color: 'danger',
+                        timeout: 5000,
+                    });
                 }
             }
         }
-        validations();
-    });
+    }, [lastMessageFolio, folio?._id, openModal, channel, listFolios]);
+
+
+    // This effect handles the text area and message sending
+    useEffect(() => {
+        if (textArea.current && messageToSend.length > 0) {
+            textArea.current.value = messageToSend;
+            setMessageToSend('');
+        }
+    }, [messageToSend]);
+
+    // This effect handles auto-scrolling when new messages arrive
+    useEffect(() => {
+        if (!boxMessage.current) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = boxMessage.current;
+        const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 100;
+        
+        if (isNearBottom) {
+            const timer = setTimeout(() => {
+                if (boxMessage.current) {
+                    boxMessage.current.scrollTop = boxMessage.current.scrollHeight;
+                }
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [folio?.message?.length]); // Only trigger when messages change
 
     const clearTextArea = () => {
         if (typeFolio === '_EMAIL_' && editorRef.current) {
