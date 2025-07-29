@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import {
   Table,
   TableHeader,
@@ -23,7 +23,7 @@ import {
   CardBody,
   CardHeader,
   Spinner,
-  Divider,Tooltip
+  Divider,Tooltip, ToastProvider, addToast
 } from "@heroui/react";
 import { SearchIcon, CheckIcon, PlusIcon, UserCircle, Phone, Check, Calendar, User, X, MessageSquare, FolderOpen, XCircle } from 'lucide-react';
 import MessageBubble from './MessageBubble';
@@ -78,8 +78,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
         }
       } catch (error) {
         console.error('Error al cargar la información del servicio:', error);
-        toast.error('Error al cargar la información del servicio');
-      }
+        addToast(
+          {
+            title: 'Error al cargar la información del servicio',
+            description: 'Error al cargar la información del servicio',
+            color: 'danger'
+          }
+        );      }
     };
     
     getInfoService();
@@ -175,7 +180,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             try{
                 Socket.connection.emit('createOrGetPerson', {
                     formToContact : formToContact,
-                },(data) => {
+                }, async (data) => {
                     console.log(data)
                     if(data.body.success){
                         setCreateContact(true);
@@ -185,7 +190,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                         let person = data.body.person
                         let fromClosedFolio = false
                         userInfo.service.idChannel = formToContact.idChannel
-                        createNewFolio(
+                        let createFolio = await createNewFolio(
                             userInfo.service,
                             person.anchor,
                             person.aliasId,
@@ -194,23 +199,30 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                             false,
                             person._id
                         );
-                        setUnReadMessages(false);
-                        setOnLoad(true);
-                        // Mostrar notificación toast
-                        toast.info('Creando la conversación, por favor espera...', {
-                            position: "top-right",
-                            autoClose: 3000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                        });
+                        console.log(createFolio)
+                        if(createFolio){
+                          setUnReadMessages(false);
+                          setOnLoad(false);
+                          // Mostrar notificación toast
+                          addToast(
+                            {
+                              title: 'Creando la conversación',
+                              description: 'Creando la conversación, por favor espera...',
+                              color: 'warning'
+                            }
+                          );
+                        }
                             
                   
 
                     }else{
-                        toast.error(data.body.message);
+                        addToast(
+                          {
+                            title: 'Error al crear el folio',
+                            description: 'Error al crear el folio',
+                            color: 'danger'
+                          }
+                        );
                         setShowErrorMsg(true);
                         setMessageError(data.body.message || 'Ocurrio un error al crear el usuario. Intenta mas tarde.')    
                         setCreateContact(false);
@@ -294,8 +306,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       if (error.response) {
         console.error('Detalles del error:', error.response.data);
       }
-      toast.error('Error al cargar la lista de contactos');
-    } finally {
+      addToast(
+        {
+          title: 'Error al cargar la lista de contactos',
+          description: 'Error al cargar la lista de contactos',
+          color: 'danger'
+        }
+      );    } finally {
       setOnLoad(false);
     }
   };
@@ -468,56 +485,102 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
         }, resolve);
       });
 
-      setVFolio(folio._id);
-      toast.success(`Abriendo conversación con ${aliasIdPerson}`);
+  
       
       if (!data.success) {
-        toast.error(data.message);
+        addToast(
+          {
+            title: 'Error al abrir el folio',
+            description: 'Error al abrir el folio',
+            color: 'danger'
+          }
+        );
+        setIsLoadInboxFolio(false);
+        setShowModalContact(false);
         return false;
       }
-      
+
+      setVFolio(folio._id);
+      addToast(
+        {
+          title: 'Abriendo conversación',
+          description: 'Abriendo conversación',
+          color: 'success'
+        }
+      );
       selectedComponent('home');
       console.timeEnd('openSavedFolio');
+
     } catch (error) {
       console.error('Error al abrir folio:', error);
-      toast.error('Error al abrir el folio');
+      addToast(
+        {
+          title: 'Error al abrir el folio',
+          description: 'Error al abrir el folio',
+          color: 'danger'
+        }
+      );
     } finally {
       setIsLoadInboxFolio(false);
     }
   };
 
   // Función para crear un nuevo folio para un contacto existente
-  const createNewFolio = (service, anchorPerson, aliasIdPerson, channel, queue, fromClosedFolio, personId) => {
+  const createNewFolio = async (service, anchorPerson, aliasIdPerson, channel, queue, fromClosedFolio, personId) => {
     console.time('createNewFolio');
     setIsLoadInboxFolio(true);
     
-    Socket.connection.emit('createNewFolio', {
-      token: window.localStorage.getItem('sdToken'),
-      folio: service,
-      anchorPerson,
-      aliasIdPerson,
-      channel,
-      queue,
-      messages: "Conversación creada. Para contactar al cliente debes enviar una - Plantilla de Mensaje -. Espera que el cliente responda el mensaje para seguir chateando.",
-      fromClosedFolio,
-      personId
-    }, (data) => {
-      setVFolio(data.folio);
-      toast.success(`Creando folio #${data.folio} - ${aliasIdPerson}`);
-      
-      if (!data.success) {
-        toast.error(data.message);
-        return false;
-      }
-      
-      selectedComponent('home');
-      console.timeEnd('createNewFolio');
-      setIsLoadInboxFolio(false);
+    try {
+        // Wrap the socket.emit in a Promise
+        const data = await new Promise((resolve) => {
+            Socket.connection.emit('createNewFolio', {
+                token: window.localStorage.getItem('sdToken'),
+                folio: service,
+                anchorPerson,
+                aliasIdPerson,
+                channel,
+                queue,
+                messages: "Conversación creada. Para contactar al cliente debes enviar una - Plantilla de Mensaje -. Espera que el cliente responda el mensaje para seguir chateando.",
+                fromClosedFolio,
+                personId
+            }, resolve); // Resolve the promise with the callback data
+        });
 
-      setCreateContact(false);
-      setShowModalContact(false);
-    });
-  };
+        if (!data.success) {
+            addToast({
+                title: 'No se pudo crear el folio',
+                description: 'El contacto ya tiene un folio en bandeja de espera o atención',
+                color: 'warning'
+            });
+            setShowModalContact(false);
+            setIsLoadInboxFolio(false);
+            setOnLoad(false);
+            selectedComponent('contacts');       
+            return false;
+        }
+
+        setVFolio(data.folio);
+        addToast({
+            title: 'Folio creado',
+            description: `Folio #${data.folio} creado con éxito`,
+            color: 'success'
+        });
+        
+        selectedComponent('home');
+        return true;
+    } catch (error) {
+        console.error('Error al crear el folio:', error);
+        addToast({
+            title: 'Error al crear el folio',
+            description: 'Ocurrió un error al intentar crear el folio',
+            color: 'danger'
+        });
+        return false;
+    } finally {
+        setIsLoadInboxFolio(false);
+        console.timeEnd('createNewFolio');
+    }
+};
 
   // Función para enviar el formulario de contacto
   const sendForm = async () => {
@@ -594,8 +657,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
         
         if (response.body?.success) {
           console.log('Contacto creado exitosamente:', response.body);
-          toast.success('Contacto creado exitosamente');
-          setShowModalContact(false);
+          addToast(
+            {
+              title: 'Contacto creado exitosamente',
+              description: 'El contacto ya tiene un folio en bandeja de espera o atencion',
+              color: 'success'
+            }
+          );          setShowModalContact(false);
           clearForm();
           onContactJSON();
           
@@ -635,7 +703,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
         errorMessage = error.message;
       }
       
-      toast.error(errorMessage);
+      addToast(
+        {
+          title: 'Error al guardar el contacto',
+          description: errorMessage,
+          color: 'danger'
+        }
+      );
       setShowErrorMsg(true);
       setMessageError(errorMessage);
     } finally {
@@ -679,11 +753,23 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             idQueue: data.body.service.queue || userInfo.service.queue
           }));
         } else {
-          toast.warning('No se pudo cargar la información del servicio');
+          addToast(
+            {
+              title: 'No se pudo cargar la información del servicio',
+              description: 'No se pudo cargar la información del servicio',
+              color: 'warning'
+            }
+          );
         }
       } catch (err) {
         console.error('Error al cargar la información del servicio:', err);
-        toast.error('Error al cargar la información del servicio');
+        addToast(
+          {
+            title: 'Error al cargar la información del servicio',
+            description: 'Error al cargar la información del servicio',
+            color: 'danger'
+          }
+        );
       }
     };
     
@@ -977,7 +1063,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     ) {
       console.log('Missing required fields:', { lastFolio, statusFolio, inboxPrivado, aliasId, anchor, channel, queue });
       setSelectedContact(null);
-      toast.error('No se pudo obtener la información del folio');
+      addToast(
+        {
+          title: 'No se pudo obtener la información del folio',
+          description: 'No se pudo obtener la información del folio',
+          color: 'danger'
+        }
+      );
       return null;
     }
     
