@@ -7,6 +7,7 @@ import axios from 'axios';
 import { loadFolioAssignmentTimes, saveFolioAssignmentTimes, clearFolioAssignmentTimes } from './../../../utils/folioUtils';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import generateAvatarUrl from '../../../utils/avatarUtils';
+import ElapsedTime from './ElapsedTime';
 
 // --- SVG Icon Components ---
 const SearchIcon = (props) => (
@@ -435,12 +436,17 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                             {secondaryText}
                                                         </p>
                                                         {inboxIcon}
+                                                       
+
                                                     </div>
                                                     <div className="flex justify-between items-center w-full">
                                                         <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
                                                             {channelname}
                                                         </p>
-                                                    </div>
+                                                        <ElapsedTime assignmentTime={folioAssignmentTimes[folio._id]} />
+                                                    </div> 
+                                                    
+                                                    
                                                 </div>
                                             )}
                                         </div>

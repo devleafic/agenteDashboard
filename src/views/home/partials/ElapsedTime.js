@@ -18,24 +18,36 @@ const formatDuration = (duration) => {
 
 const ElapsedTime = ({ assignmentTime }) => {
     const [elapsed, setElapsed] = useState('00:00:00');
+    const [chipColor, setChipColor] = useState('primary');
 
     useEffect(() => {
         if (!assignmentTime) {
             setElapsed('00:00:00');
+            setChipColor('primary');
             return;
         }
 
         const startTime = moment(assignmentTime);
 
-        const interval = setInterval(() => {
+        const updateElapsed = () => {
             const now = moment();
             const duration = moment.duration(now.diff(startTime));
+            
             setElapsed(formatDuration(duration));
-        }, 1000);
 
-        // Set initial value immediately
-        const initialDuration = moment.duration(moment().diff(startTime));
-        setElapsed(formatDuration(initialDuration));
+            const totalMinutes = duration.asMinutes();
+            if (totalMinutes > 30) {
+                setChipColor('danger');
+            } else if (totalMinutes > 15) {
+                setChipColor('warning');
+            } else {
+                setChipColor('primary');
+            }
+        };
+
+        const interval = setInterval(updateElapsed, 1000);
+
+        updateElapsed(); // Set initial value immediately
 
         return () => clearInterval(interval);
     }, [assignmentTime]);
@@ -49,8 +61,9 @@ const ElapsedTime = ({ assignmentTime }) => {
     return (
         <Tooltip content={`Asignado el: ${formattedAssignmentTime}`}>
             <Chip 
-                color="primary" 
+                color={chipColor}
                 variant="flat" 
+                size="sm"
                 className='hidden sm:flex items-center gap-1 font-mono'
                 startContent={<Clock className="w-4 h-4" />}
             >
