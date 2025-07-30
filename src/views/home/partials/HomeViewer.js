@@ -412,15 +412,20 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                 window.localStorage.setItem('vFolio', folio._id);
                                                 dispatch({ type: 'read', folio: folio._id });
                                             }}
-                                        >
+                                        > 
                                             <div className="flex-shrink-0 relative">
+                                           
                                                 <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
+                                                <Tooltip content={folio.person?.aliasId + ' - ' + folio.person?.anchor + ' - ' + folio.channel?.title} placement="top" delayDuration={0}>
                                                     <Avatar 
                                                         src={folio.person?.profilePic || generateAvatarUrl(folio.person?.aliasId, folio.person?.anchor)} 
                                                         className={`${isSidebarCollapsed ? 'w-10 h-10' : 'w-10 h-10'}`}
                                                     />
+                                                    </Tooltip>
                                                 </Badge>
+                                               
                                             </div>
+                                            
                                             {!isSidebarCollapsed && (
                                                 <div className="min-w-0 flex-1 ml-3 overflow-hidden">
                                                     <div className="flex items-center justify-between w-full">
