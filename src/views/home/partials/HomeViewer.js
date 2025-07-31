@@ -416,7 +416,14 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                             <div className="flex-shrink-0 relative">
                                            
                                                 <Badge content="" color="danger" shape="circle" placement="top-right" isInvisible={!isUnread}>
-                                                <Tooltip content={folio.person?.aliasId + ' - ' + folio.person?.anchor + ' - ' + folio.channel?.title} placement="top" delayDuration={0}>
+                                                <Tooltip content={
+                                                    <div className="px-1 py-2">
+                                                        <div className="text-small font-bold">{folio.person?.aliasId + ' - ' + folio.person?.anchor}</div>
+                                                        <div className="text-tiny">{channelname}</div> 
+                                                        <div className="text-tiny">  <ElapsedTime assignmentTime={folioAssignmentTimes[folio._id]} /></div>
+                                                    </div>
+                                                } 
+                                                    placement="top" delayDuration={0}>
                                                     <Avatar 
                                                         src={folio.person?.profilePic || generateAvatarUrl(folio.person?.aliasId, folio.person?.anchor)} 
                                                         className={`${isSidebarCollapsed ? 'w-10 h-10' : 'w-10 h-10'}`}
