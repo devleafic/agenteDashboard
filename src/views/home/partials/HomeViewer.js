@@ -65,6 +65,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     const boxMessage = useRef(null);
     const listFolios = useContext(ListFoliosContext);
     const [messageToSend, setMessageToSend] = useState('');
+    const [hasTextContent, setHasTextContent] = useState(false);
     const [toolsOpen, setToolsOpen] = useState(true);
     const [availableCh, setAvailableCh] = useState(null);
     const [loadPage, setLoadPage] = useState(false);
@@ -481,6 +482,8 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                             <div className="flex flex-grow h-full">
                                 <div className="flex-grow h-full">
                                     <Comments
+              hasTextContent={hasTextContent}
+              setHasTextContent={setHasTextContent}
                                         userInfo={userInfo}
                                         person={activeFolioData.folio.person}
                                         messages={activeFolioData.folio.message}
@@ -506,6 +509,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                 {toolsOpen && (
                                     <div className="w-96 border-l border-gray-200 bg-white h-full overflow-y-auto">
                                         <Tools
+              setHasTextContent={setHasTextContent}
                                             setMessageToSend={setMessageToSend}
                                             messageToSend={messageToSend}
                                             folio={activeFolioData}
