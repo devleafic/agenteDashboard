@@ -60,7 +60,7 @@ const CRM = ({template, folio, setRefresh}) => {
         switch(item.class) {
             case 'text':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <input 
                             type="text"
@@ -71,7 +71,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             case 'currency':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <input 
                             type="number" 
@@ -88,7 +88,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             case 'number':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <input 
                             type="number"
@@ -99,7 +99,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             case 'date':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <input 
                             type="date"
@@ -110,7 +110,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             case 'select':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <Select 
                             selectedKeys={fieldValue ? [fieldValue] : []}
@@ -129,7 +129,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             case 'checkbox':
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2">
+                    <div key={`field-${item._id}`} className="mb-2 px-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
                         <Select
                             selectionMode="multiple"
@@ -173,12 +173,12 @@ const CRM = ({template, folio, setRefresh}) => {
                 </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-2" style={{ maxHeight: '250px' }}>
+            <div className="overflow-y-auto p-2" style={{ maxHeight: '190px' }}>
                 {template.map((item) => renderFields(item))}
             </div>
             
-            <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-                <div className="w-full px-4 py-3">
+            <div className="bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
+                <div className="w-full px-4 py-4">
                     <Button 
                         color="primary" 
                         onPress={saveCrm} 
