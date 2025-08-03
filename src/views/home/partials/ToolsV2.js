@@ -83,7 +83,8 @@ const ToolsV2 = ({
   userInfo,
   mtm,
   service: infoService,
-  setInsertHtml
+  setInsertHtml,
+  setHasTextContent
 }) => {
   const [openAccordion, setOpenAccordion] = useState(null);
   const socket = useContext(SocketContext);
@@ -205,7 +206,10 @@ const ToolsV2 = ({
           <div
             key={item._id}
             className="p-2.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
-            onClick={() => setMessageToSend(item.text)}
+            onClick={() => {
+              setMessageToSend(item.text);
+              setHasTextContent(true);
+            }}
           >
             <p className="text-sm font-medium text-gray-800">{item.text}</p>
           </div>

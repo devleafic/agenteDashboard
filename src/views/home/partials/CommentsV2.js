@@ -14,7 +14,8 @@ import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
 import ElapsedTime from './ElapsedTime';
 
-const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime }) => {
+const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime, hasTextContent, setHasTextContent }) => {
+   console.log('messageToSend', messageToSend);
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +28,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const [contador, setContador] = useState(0);
     const editorRef = useRef(null);
     const textArea = useRef(null);
-    const [hasTextContent, setHasTextContent] = useState(false);
+
     const [titleModal, setTitleModal] = useState('');
     const [contentMessage, setContentMessage] = useState(
         <Segment>
@@ -1462,7 +1463,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 }
                                             }}
                                             onChange={(e) => {
-                                                const value = e.target.value;
+                                                const value = e.target.value ;
                                                 setMessageToSend(value);
                                                 setHasTextContent(value.trim() !== '');
                                                 e.target.style.height = 'auto';
