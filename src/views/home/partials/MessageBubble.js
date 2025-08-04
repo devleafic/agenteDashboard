@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTextSize } from '../../../contexts/TextSizeContext';
 import moment from 'moment';
 import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Popover, PopoverTrigger, PopoverContent, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
 //import { PaperclipIcon, DownloadIcon, ReplyIcon, SmileIcon, ClockIcon, ExclamationCircleIcon, ExternalLinkIcon } from '@heroui/icons';
@@ -104,6 +105,7 @@ const EmojiPicker = ({ onSelect }) => (
 );
 
 const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact, highlight = '' }) => {
+    const { textSizeValue } = useTextSize();
 
     const isOutgoing = message.direction === 'out';
 
@@ -260,7 +262,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'interactive':
                 case 'button':
                     return (
-                        <p className="whitespace-pre-wrap break-words">
+                        <p className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
                             {highlight ? highlightText(originalMsg.content, highlight) : originalMsg.content}
                         </p>
                     );
@@ -415,7 +417,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             switch (msg.class) {
                 case 'text':
                     return (
-                        <div className="whitespace-pre-wrap break-words">
+                        <div className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
                             {highlight 
                                 ? highlightText(msg.content, highlight) 
                                 : msg.content
@@ -427,7 +429,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'button':
                     return (
                         <div className="flex flex-col gap-2">
-                            <div className="whitespace-pre-wrap break-words">
+                            <div className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
                                 {highlight ? highlightText(msg.content, highlight) : msg.content}
                             </div>
                             {msg.class === 'buttonreply' && msg.interaction && generateButtons(msg.interaction)}
