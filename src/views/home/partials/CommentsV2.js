@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect, useCallback, useMemo } 
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
 import { Snippet, Textarea as textarea, Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup, addToast, ToastProvider, Tooltip } from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText, Search, Calendar, Clock } from 'lucide-react';
+import TextSizeControl from '../../../components/TextSizeControl';
 import shortParagraph from './../../../img/short-paragraph.png';
 import SocketContext from './../../../controladores/SocketContext';
 import MessageBubble from './MessageBubble';
@@ -1165,19 +1166,23 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
             <div className="flex flex-col h-full bg-gray-50">
                 {/* Toggle Button for Search Bar */}
                 <div className="absolute top-4 left-[60%] transform -translate-x-1/2 z-20">
-                    <Tooltip content={isSearchVisible ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}>
-                        <HeroButton
-                            isIconOnly
-                            color="primary"
-                            variant="flat"
-                            size="sm"
-                            onPress={() => toggleSearchBar()}
-                            aria-label={isSearchVisible ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}
-                            className={`bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 ${isSearchVisible ? 'ring-2 ring-offset-2 ring-blue-400' : ''}`}
-                        >
-                            <Search className="w-6 h-6 text-white" />
-                        </HeroButton>
-                    </Tooltip>
+                    <div className="flex items-center gap-2">
+                        <Tooltip content={isSearchVisible ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}>
+                            <HeroButton
+                                isIconOnly
+                                color="primary"
+                                variant="flat"
+                                size="sm"
+                                onPress={() => toggleSearchBar()}
+                                aria-label={isSearchVisible ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}
+                                className={`bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 ${isSearchVisible ? 'ring-2 ring-offset-2 ring-blue-400' : ''}`}
+                            >
+                                <Search className="w-6 h-6 text-white" />
+                            </HeroButton>
+                        </Tooltip>
+                        {/* Text Size Control */}
+                        <TextSizeControl />
+                    </div>
                 </div>
 
                 {/* Floating Search Bar */}
@@ -1296,7 +1301,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 </div>
 
                 {/* Header */}
-                <div className="p-4 border-b bg-white shadow-sm shrink-0">
+                <div className="p-2 border-b bg-white shadow-sm shrink-0">
                     <div className="flex items-baseline gap-4">
                         <h2 className="text-xl font-bold text-gray-800">
                             {typeFolio === '_CALL_'
@@ -1322,7 +1327,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             </div>
                         </div>
                     )}
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <div className="flex items-center gap-1 mt-1 flex-wrap">
                         {folio?._id && (
                             <Snippet color="primary" variant="flat">{folio._id}</Snippet>
                         )}
