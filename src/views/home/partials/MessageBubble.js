@@ -657,8 +657,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             )}
             <div className={`flex flex-col w-full max-w-md ${isOutgoing ? 'items-end' : 'items-start'}`}>
                 <div className="group relative flex flex-col gap-1">
-                    <div className={`w-fit rounded-xl px-3 py-2 ${isOutgoing ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-content2 text-content2-foreground rounded-bl-none'}`}>
-                        <p className={`text-xs font-bold mb-1 ${isOutgoing ? 'text-right text-primary-foreground/80' : 'text-primary'}`}>{authorName}</p>
+                    <div className={`w-fit rounded-xl px-3 py-2 ${isOutgoing ? 'bg-green-200 text-black rounded-br-none' : 'bg-content2 text-content2-foreground rounded-bl-none'}`}>
+                        <p className={`text-xs font-bold mb-1 ${isOutgoing ? 'text-right text-black/90' : 'text-primary'}`}>{authorName}</p>
                         {renderContent(message)}
                     </div>
                     {reactions && (
