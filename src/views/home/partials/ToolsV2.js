@@ -280,9 +280,31 @@ const ToolsV2 = ({
     </div>
   );
 
+  // Función para asegurar que la URL tenga el prefijo https://
+  const ensureHttps = (url) => {
+    if (!url) return '';
+    
+    // Si la URL ya comienza con https://, devolverla tal cual
+    if (url.startsWith('https://')) {
+      return url;
+    }
+    
+    // Si la URL comienza con http://, reemplazarlo con https://
+    if (url.startsWith('http://')) {
+      return url.replace('http://', 'https://');
+    }
+    
+    // Si la URL no tiene protocolo, añadir https://
+    return `https://${url}`;
+  };
+
   const renderFilesSection = () => {
     if (!folio?.folio?.typeFolio || folio.folio.typeFolio !== '_MESSAGES_') return null;
-    const files = infoService?.repoFiles || [];
+    // Asegurar que todas las URLs de los archivos tengan el prefijo https://
+    const files = infoService?.repoFiles ? infoService.repoFiles.map(file => ({
+      ...file,
+      url: ensureHttps(file.url)
+    })) : [];
     
     return (
       <div className="space-y-2 max-h-[25rem] overflow-y-auto pr-2">
@@ -306,6 +328,7 @@ const ToolsV2 = ({
                     onPress={() => { 
                       const recipientName = folio.folio.person?.aliasId || folio.folio.person?.anchor || 'Contacto';
                       if (window.confirm(`¿Deseas enviar el archivo "${file.name}" a ${recipientName}?`)) { 
+                        // Las URLs ya están normalizadas, podemos enviar el archivo directamente
                         sendFile(file); 
                       } 
                     }}
