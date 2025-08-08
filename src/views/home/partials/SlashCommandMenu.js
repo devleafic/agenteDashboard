@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Input } from '@heroui/react';
+import { Chip } from '@heroui/react';
 
 /**
  * SlashCommandMenu
@@ -235,7 +236,7 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
       el.removeEventListener('keyup', onKeyUp);
       document.removeEventListener('mousedown', handleDocClick);
     };
-  }, [textareaRef]);
+  }, [textareaRef?.current]);
 
   // While menu is open, capture keydown at the document level for reliable navigation
   useEffect(() => {
@@ -250,7 +251,12 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
     };
     document.addEventListener('keydown', onDocKeyDown, true);
     return () => document.removeEventListener('keydown', onDocKeyDown, true);
-  }, [open, textareaRef, filtered, highlight]);
+  }, [open, textareaRef?.current, filtered, highlight]);
+
+  // When the target textarea element changes (e.g., switching conversations), ensure menu is closed/reset
+  useEffect(() => {
+    closeMenu();
+  }, [textareaRef?.current]);
 
   // Notify parent of open state changes
   useEffect(() => {
@@ -283,14 +289,14 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
   return (
     <div
       ref={containerRef}
-      className="absolute left-2 bottom-12 z-50 w-[32rem] max-w-[calc(100%-1rem)] bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+      className="absolute left-2 bottom-14 z-50 w-[36rem] max-w-[calc(100%-1rem)] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
       role="listbox"
       aria-label="Comandos rápidos"
     >
-      <div className="px-2 py-2 border-b bg-gray-50">
+      <div className="px-3 py-2 border-b bg-white/90 backdrop-blur sticky top-0 z-10">
         <Input
           ref={searchRef}
-          size="md"
+          size="lg"
           variant="bordered"
           placeholder={trigger === ':' ? 'Buscar emoji...' : 'Buscar respuestas...'}
           value={searchText}
@@ -300,15 +306,17 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
           aria-label={trigger === ':' ? 'Buscar emoji' : 'Buscar respuestas'}
         />
       </div>
-      <ul ref={listRef} className="max-h-96 overflow-auto">
+      <ul ref={listRef} className="max-h-[28rem] overflow-auto p-2 space-y-2">
         {filtered.length === 0 ? (
-          <li className="px-3 py-2 text-md text-gray-400">Sin resultados</li>
+          <li className="px-3 py-2 text-[15px] text-gray-400">Sin resultados</li>
         ) : (
           filtered.map((it, idx) => (
             <li
               key={it._id || idx}
-              className={`px-3 py-2 text-md cursor-pointer select-none whitespace-pre-wrap break-words leading-snug ${
-                idx === highlight ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50'
+              className={`group px-4 py-3 text-[15px] cursor-pointer select-none whitespace-pre-wrap break-words leading-relaxed rounded-md border transition-colors duration-150 shadow-sm ${
+                idx === highlight
+                  ? 'bg-indigo-50/80 text-indigo-800 border-indigo-300 ring-1 ring-indigo-300 border-l-4 border-l-indigo-500'
+                  : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 border-l-4 border-l-gray-200'
               }`}
               role="option"
               aria-selected={idx === highlight}
@@ -330,9 +338,10 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
           ))
         )}
       </ul>
-      <div className="px-3 py-1.5 text-[12px] text-gray-400 border-t bg-gray-50 flex items-center justify-between">
-        <span>Usa ↑/↓ o Ctrl/Alt + J/K</span>
-        <span>Enter o Tab para insertar • Esc cierra</span>
+      <div className="px-4 py-2 text-[12px] text-gray-600 border-t bg-gray-50 flex items-center justify-between">
+        <Chip color="primary" variant="flat">Usa ↑/↓ o Ctrl/Alt + J/K</Chip>
+        <Chip color="primary" variant="flat">Enter o Tab para insertar • ESC cierra</Chip>
+        <Chip color="secondary" variant="flat">Beta</Chip>
       </div>
     </div>
   );
