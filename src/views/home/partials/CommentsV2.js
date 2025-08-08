@@ -14,8 +14,9 @@ import MessageBubbleEmail from './MessageBubbleEmail';
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
 import ElapsedTime from './ElapsedTime';
+import SlashCommandMenu from './SlashCommandMenu';
 
-const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime, hasTextContent, setHasTextContent }) => {
+const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, setSidCall, boxMessage, vFolio, userInfo, availableCh, setMessageToSend, messageToSend, assignmentTime: propAssignmentTime, removeFolioAssignmentTime, hasTextContent, setHasTextContent, quicklyAnswer }) => {
    console.log('messageToSend', messageToSend);
     const listFolios = useContext(ListFoliosContext);
     const socket = useContext(SocketContext);
@@ -1455,7 +1456,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         <textarea
                                             key={folio?._id || 'no-folio'}
                                             ref={textArea}
-                                            placeholder="Escribe un mensaje..."
+                                            placeholder="Escribe un mensaje o '/' para respuestas rápidas o ':' para emojis"
                                             defaultValue={messageToSend}
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') {
@@ -1502,12 +1503,14 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 },
                                             }}
                                             disabled={isLoading}
-                                        />
-                                        {showAutoSaveIndicator && (
-                                            <div className="absolute -top-5 right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded transition-opacity duration-300">
-                                                <Save className="w-3 h-3" />
-                                            </div>
-                                        )}
+                                         />
+                                        {/* Slash commands menu for quick answers (opens when typing "/") */}
+                                        <SlashCommandMenu textareaRef={textArea} items={quicklyAnswer || []} />
+                                         {showAutoSaveIndicator && (
+                                             <div className="absolute -top-5 right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded transition-opacity duration-300">
+                                                 <Save className="w-3 h-3" />
+                                             </div>
+                                         )}
                                         {hasTextContent && (
                                             <HeroButton
                                                 isIconOnly
@@ -1714,6 +1717,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             rows={1}
                                             style={{ display: 'block', width: '100%' }}
                                         />
+                                        {/* Slash commands menu for quick answers (opens when typing "/") */}
+                                        <SlashCommandMenu textareaRef={textArea} items={quicklyAnswer || []} />
                                         {hasTextContent && (
                                             <HeroButton
                                                 isIconOnly

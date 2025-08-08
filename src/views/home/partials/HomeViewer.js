@@ -481,30 +481,31 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                         {activeFolioData ? (
                             <div className="flex flex-grow h-full">
                                 <div className="flex-grow h-full">
-                                    <Comments
+                                     <Comments
               hasTextContent={hasTextContent}
               setHasTextContent={setHasTextContent}
-                                        userInfo={userInfo}
-                                        person={activeFolioData.folio.person}
-                                        messages={activeFolioData.folio.message}
-                                        folio={activeFolioData.folio}
-                                        fullFolio={activeFolioData}
-                                        setMessageToSend={setMessageToSend}
-                                        messageToSend={messageToSend}
-                                        onCall={onCall}
-                                        setOnCall={setOnCall}
-                                        refresh={refresh}
-                                        setRefresh={setRefresh}
-                                        sidCall={sidCall}
-                                        setSidCall={setSidCall}
-                                        boxMessage={boxMessage}
-                                        vFolio={vFolio}
-                                        countunReadMsg={countunReadMsg}
-                                        dispatchCount={dispatchCount}
-                                        availableCh={availableCh}
-                                        assignmentTime={folioAssignmentTimes[activeFolioData.folio._id]}
-                                        removeFolioAssignmentTime={removeFolioAssignmentTime}
-                                    />
+                                         userInfo={userInfo}
+                                         person={activeFolioData.folio.person}
+                                         messages={activeFolioData.folio.message}
+                                         folio={activeFolioData.folio}
+                                         fullFolio={activeFolioData}
+                                         setMessageToSend={setMessageToSend}
+                                         messageToSend={messageToSend}
+                                         onCall={onCall}
+                                         setOnCall={setOnCall}
+                                         refresh={refresh}
+                                         setRefresh={setRefresh}
+                                         sidCall={sidCall}
+                                         setSidCall={setSidCall}
+                                         boxMessage={boxMessage}
+                                         vFolio={vFolio}
+                                         countunReadMsg={countunReadMsg}
+                                         dispatchCount={dispatchCount}
+                                         availableCh={availableCh}
+                                         quicklyAnswer={activeFolioData.QuicklyAnswer}
+                                         assignmentTime={folioAssignmentTimes[activeFolioData.folio._id]}
+                                         removeFolioAssignmentTime={removeFolioAssignmentTime}
+                                     />
                                 </div>
                                 {toolsOpen && (
                                     <div className="w-96 border-l border-gray-200 bg-white h-full overflow-y-auto">
