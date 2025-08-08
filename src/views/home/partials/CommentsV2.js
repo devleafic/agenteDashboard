@@ -465,9 +465,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
             }, 0);
             setShowResponseTo(null);
             setMessageToResponse(null);
-            if (listFolios.currentBox) {
-                listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
-            }
+            setTimeout(() => {
+                if (listFolios.currentBox) {
+                    listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
+                }
+            }, 0);
             console.log('Message sent successfully, clearing draft for folio:', folio._id);
             if (folio && folio._id) {
                 clearDraftForFolio(folio._id);

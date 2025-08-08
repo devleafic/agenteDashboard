@@ -8,11 +8,17 @@
         "Respuestas rápidas con comando '/' en el textarea",
         "Soporte para emojis con comando ':' y lista permitida",
         "Menú de comandos más ancho y alto, muestra más texto y mantiene foco al insertar",
-        "Buscador dentro del menú con filtrado en vivo",
+        "Buscador dentro del menú de respuestas rapidas con filtrado en vivo",
         "Navegación con teclado más robusta (↑/↓ y Ctrl/Alt/Meta + J/K)",
-        "Accesibilidad y pistas de uso en el footer del menú"
+        "Accesibilidad y pistas de uso en el footer del menú",
+        "Corrección del scroll automático al enviar mensajes grandes"
       ],
       "changes": [
+        {
+          "type": "fixed",
+          "title": "Scroll en conversaciones",
+          "details": "El scroll ahora baja completamente al final después de enviar mensajes grandes, asegurando que el último mensaje sea visible."
+        },
         {
           "type": "added",
           "title": "Comando '/' para respuestas rápidas",
