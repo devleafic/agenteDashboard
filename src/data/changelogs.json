@@ -1,0 +1,110 @@
+{
+  "currentVersion": "2.0.6",
+  "releases": [
+    {
+      "version": "2.0.6",
+      "date": "07/08/2025",
+      "highlights": [
+        "Respuestas rápidas con comando '/' en el textarea",
+        "Soporte para emojis con comando ':' y lista permitida",
+        "Menú de comandos más ancho y alto, muestra más texto y mantiene foco al insertar",
+        "Buscador dentro del menú con filtrado en vivo",
+        "Navegación con teclado más robusta (↑/↓ y Ctrl/Alt/Meta + J/K)",
+        "Accesibilidad y pistas de uso en el footer del menú"
+      ],
+      "changes": [
+        {
+          "type": "added",
+          "title": "Comando '/' para respuestas rápidas",
+          "details": "Sugerencias filtradas e inserción directa en el cursor sin romper la funcionalidad existente."
+        },
+        {
+          "type": "added",
+          "title": "Comando ':' para emojis",
+          "details": "Soporta búsqueda por nombre y selección; incluye lista de emojis permitidos."
+        },
+        {
+          "type": "improved",
+          "title": "UI del menú de comandos",
+          "details": "Mayor ancho/alto, muestra texto completo por opción y mantiene el foco en el textarea tras insertar."
+        },
+        {
+          "type": "improved",
+          "title": "Búsqueda integrada",
+          "details": "Campo de búsqueda con auto-focus y filtrado en vivo dentro del menú."
+        },
+        {
+          "type": "improved",
+          "title": "Navegación por teclado",
+          "details": "Captura a nivel documento y atajos alternativos (Ctrl/Alt/Meta + J/K)."
+        }
+      ]
+    },
+    {
+      "version": "2.0.5",
+      "date": "20/07/2025",
+      "highlights": [
+        "Mejoras de rendimiento generales en la vista de conversaciones"
+      ],
+      "changes": [
+        { "type": "improved", "title": "Orden de conversaciones", "details": "Estabilización de orden y filtrado para evitar saltos visuales." }
+      ]
+    },
+    {
+      "version": "2.0.4",
+      "date": "06/08/2025",
+      "highlights": [
+        "Correcciones menores y refinamientos visuales para los chats, cambio de color a verde (tipo Whatsapp) para los textos enviados por el agente"
+      ],
+      "changes": [
+        { "type": "fixed", "title": "Conversaciones", "details": "Mensajes y estados más claros en la pantalla y menor impacto visual." }
+      ]
+    },
+    {
+      "version": "2.0.3",
+      "date": "05/08/2025",
+      "highlights": [
+        "Mejoras para la visualizacion en cambios de zoom de 80% a 125% para mostrar mejor respuestas rapidas y archivos a enviar"
+      ],
+      "changes": [
+        { "type": "improved", "title": "Espacio de trabajo", "details": "Mejoras para la visualizacion en cambios de zoom de 80% a 125% para mostrar mejor respuestas rapidas y archivos a enviar." }
+      ]
+    },
+    {
+      "version": "2.0.2",
+      "date": "04/08/2025",
+      "highlights": [
+        "Arreglos generales y correcciones menores"
+      ],
+      "changes": [
+        { "type": "improved", "title": "Espacio de trabajo", "details": "Arreglos generales y correcciones menores." }
+      ]
+    },
+    {
+      "version": "2.0.1",
+      "date": "02/08/2025",
+      "highlights": [
+        "Mejoras de rendimiento generales y correcciones menores."
+      ],
+      "changes": [
+        { "type": "improved", "title": "Conversaciones", "details": "Estabilización de orden y filtrado para evitar saltos visuales." }
+      ]
+    },
+    {
+      "version": "2.0.0",
+      "date": "01/08/2025",
+      "highlights": [
+        "Lanzamiento de la version 2.0.0 con mejoras en la experiencia del usuario, nuevas funcionalidades y correcciones menores."
+      ],
+      "changes": [
+        { "type": "improved", "title": "General", "details": "Nueva funcionalidad para mejorar la experiencia del usuario." },
+        { "type": "improved", "title": "Espacio de trabajo", "details": "Modernizacion de la interface de usuario." },
+        { "type": "improved", "title": "Validaciones", "details": "Validaciones y candados para mejor operacion." },
+        { "type": "improved", "title": "Filtros", "details": "Filtros para la lista de conversaciones." },
+        { "type": "improved", "title": "Barra de tiempos", "details": "Nuevo maneja para los tiempos de actividad del agente." },
+        { "type": "improved", "title": "Buscador", "details": "Buscador de texto dentro de la conversacion activa." },
+        { "type": "improved", "title": "Notificaciones", "details": "Nuevo elemento de notificacion mas elegantes." }
+      ]
+    }
+  ]
+}

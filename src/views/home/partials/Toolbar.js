@@ -6,6 +6,9 @@ import ListFoliosContext from '../../../controladores/FoliosContext';
 import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
 import { FiClock } from "react-icons/fi";
 import ConnectionStatus from '../../../components/ConnectionStatus';
+import ChangelogModal from './ChangelogModal';
+import { Sparkles } from 'lucide-react';
+
 import {
     Navbar,
     NavbarBrand,
@@ -78,6 +81,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
   const [dataToBlank, setDataToBlank] = useState(initialBlankFolioState);
   const [onCreateBlank, setOnCreateBlank] = useState(false);
   const [placement, setPlacement] = useState('top-right'); // heroui toast
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   
   // Timer functions
   const loadTimerData = useCallback((activityId) => {
@@ -368,6 +372,17 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                 </NavbarBrand>
 
                 <NavbarContent className="hidden sm:flex gap-4" justify="start">
+                    <NavbarItem>
+                        <HeroButton 
+                                        size="sm"
+                                        variant="flat"
+                                        className="mt-1 bg-white border border-gray-200 hover:border-indigo-300 hover:bg-gray-50"
+                                        startContent={<Sparkles className="w-4 h-4 text-indigo-500" />}
+                                        onPress={() => setIsChangelogOpen(true)}
+                                    >
+                                        Novedades
+                                        </HeroButton>
+                    </NavbarItem>
                     {currentActivity && (
                         <NavbarItem className="flex items-center">
                             <Chip color="primary" startContent={<FiClock className="text-white" />} variant="flat" className="flex items-center gap-2">
@@ -483,6 +498,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     )}
                 </ModalContent>
             </Modal>
+            <ChangelogModal open={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
         </>
     );
 }
