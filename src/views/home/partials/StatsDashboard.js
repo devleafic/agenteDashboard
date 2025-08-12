@@ -23,7 +23,6 @@ function fmtDateYMD(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-const temporaryDisabled = true;
 function formatDate(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -59,9 +58,10 @@ const StatsDashboard = ({ userInfo }) => {
   });
 
   const agentId = userInfo?._id;
+  const allowStats = userInfo?.allowViewStats;
 
   const fetchStats = async (d) => {
-    if (!agentId) return;
+    if (!agentId || !allowStats) return;
     setLoading(true);
     setError(null);
     try {
@@ -72,8 +72,8 @@ const StatsDashboard = ({ userInfo }) => {
         setError('No está configurado el endpoint de la Centralita');
         return;
       }
-      const url = `${base}/stats/agents/${agentId}`;
-      const res = await axios.get(url, { params: { date: d } });
+      const url = `${base}/stats/agents`;
+      const res = await axios.get(url, { params: {agentId: agentId, date: d } });
       if (res?.data?.success) {
         setStats(res.data.data || null);
       } else {
@@ -115,7 +115,7 @@ const StatsDashboard = ({ userInfo }) => {
     }
 
     // Periodic polling as safety net
-    const id = setInterval(() => fetchStats(date), 15000);
+    const id = setInterval(() => fetchStats(date), 30000);
 
     return () => {
       window.removeEventListener('folio:stats:invalidate', onInvalidate);
@@ -285,13 +285,13 @@ const StatsDashboard = ({ userInfo }) => {
   const midAvgMinLabel = fmtMinTick(yMidMin);
 
   return (
-    temporaryDisabled ? (
+    !userInfo?.allowViewStats ? (
       <div className="p-4 md:p-6 h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-3">
         <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
                                         Mis Estadísticas (Beta)
                                     </h2>
-          <Chip color="danger" variant="flat">Temporalmente no disponible, pronto podras visualizar tus estadísticas de folios y tmo en tiempo real.</Chip>
+          <Chip color="danger" variant="flat">Solicita a tu administrador que te habilite el acceso a tus estadísticas de conversaciones y tmo en tiempo real.</Chip>
         </div>
       </div>
     ) : (

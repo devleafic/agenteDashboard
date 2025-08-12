@@ -35,7 +35,6 @@ import {
     ToastProvider,
 } from "@heroui/react";
 
-const temporaryDisabled = true;
 
 // --- Utils for daily stats ---
 const fmtDateYMD = (d = new Date()) => {
@@ -109,15 +108,15 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
 
   const fetchAgentDailyStats = useCallback(async () => {
     try {
-      if (!userInfo?._id) return;
+      if (!userInfo?._id || !userInfo?.allowViewStats) return;
       const base = process.env.REACT_APP_CENTRALITA;
       if (!base) {
         console.warn('REACT_APP_CENTRALITA no está definido; omitiendo fetchAgentDailyStats');
         setAvgTmoMs(0);
         return;
       }
-      const url = `${base}/stats/agents/${userInfo._id}`;
-      const res = await axios.get(url, { params: { date: todayKey } });
+      const url = `${base}/stats/agents`;
+      const res = await axios.get(url, { params: { agentId: userInfo._id, date: todayKey } });
       if (res?.data?.success) {
         const data = res.data.data || {};
         // Prefer server avg if provided
@@ -509,7 +508,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             size="sm"
                             variant="flat"
                             className="bg-white/10 hover:bg-white/20 text-white"
-                            disabled={temporaryDisabled}
+                            disabled={!userInfo?.allowViewStats}
                             onPress={() => setShowTmoToolbar(true)}
                           >
                             <FiClock className="w-4 h-4" />
