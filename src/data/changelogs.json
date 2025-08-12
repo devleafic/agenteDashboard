@@ -5,7 +5,7 @@
       "version": "2.0.7",
       "date": "11/08/2025",
       "highlights": [
-        "Mejoras de estadísticas del agente: TMO diario en toolbar con toggle y auto-actualización, robustez en frontend y backend"
+        "Estadísticas del agente: TMO diario en toolbar con toggle y auto-actualización, conteo de folios por estado y calculo de TMO promedio"
       ],
       "changes": [
         {

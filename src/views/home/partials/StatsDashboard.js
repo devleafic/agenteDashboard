@@ -23,7 +23,7 @@ function fmtDateYMD(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
+const temporaryDisabled = true;
 function formatDate(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -285,6 +285,17 @@ const StatsDashboard = ({ userInfo }) => {
   const midAvgMinLabel = fmtMinTick(yMidMin);
 
   return (
+    temporaryDisabled ? (
+      <div className="p-4 md:p-6 h-[70vh] flex items-center justify-center">
+        <div className="text-center space-y-3">
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                                        Mis Estadísticas (Beta)
+                                    </h2>
+          <Chip color="danger" variant="flat">Temporalmente no disponible, pronto podras visualizar tus estadísticas de folios y tmo en tiempo real.</Chip>
+        </div>
+      </div>
+    ) : (
+
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">Mis Estadísticas</h2>
@@ -416,7 +427,7 @@ const StatsDashboard = ({ userInfo }) => {
                         <TableCell>
                           <Chip
                             size="sm"
-                            color={f.finalizedAt ? "success" : f.savedAt ? "warning" : "default"}
+                            color={f.finalizedAt ? "danger" : f.savedAt ? "success" : "default"}
                             variant="flat"
                           >
                             {f.finalizedAt ? "Finalizado" : f.savedAt ? "Guardado" : "En progreso"}
@@ -435,8 +446,10 @@ const StatsDashboard = ({ userInfo }) => {
           )}
         </CardBody>
       </Card>
-    </div>
-  );
-};
+    </div>)
+    )}
+
+  
+
 
 export default StatsDashboard;

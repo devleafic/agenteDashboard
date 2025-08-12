@@ -139,7 +139,7 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
         { 
             name: 'stats', 
             icon: <StatsIcon />, 
-            tooltip: 'Mis Estadísticas Operativas',
+            tooltip: 'Mis Estadísticas Operativas (Beta)',
             badge: false
         },
         { 

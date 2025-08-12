@@ -35,6 +35,8 @@ import {
     ToastProvider,
 } from "@heroui/react";
 
+const temporaryDisabled = false;
+
 // --- Utils for daily stats ---
 const fmtDateYMD = (d = new Date()) => {
   const year = d.getFullYear();
@@ -507,6 +509,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             size="sm"
                             variant="flat"
                             className="bg-white/10 hover:bg-white/20 text-white"
+                            disabled={temporaryDisabled}
                             onPress={() => setShowTmoToolbar(true)}
                           >
                             <FiClock className="w-4 h-4" />
