@@ -20,6 +20,7 @@ import Contacts from './partials/ContactsV2';
 import Calendar from './partials/Calendar';
 import InternalChat from './internalChat/InternalChat';
 import Help from './partials/Help';
+import StatsDashboard from './partials/StatsDashboard';
 
 // --- SVG Icon Components ---
 const AlertTriangleIcon = (props) => (
@@ -68,6 +69,7 @@ const Home = () => {
         follow : false,
         contacts :  false,
         calendar :  false,
+        stats : false,
         InternalChat : false
     };
 
@@ -735,6 +737,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
               {component.calendar && <Calendar  vFolio={vFolio} setVFolio={setVFolio} show={component.contacts} lsetRefresh={setRefresh} onCall={onCall} selectedComponent={selectedComponent} setUnReadMessages={setUnReadMessages}/>}
               {component.InternalChat && <InternalChat  show={component.InternalChat} selectedComponent={selectedComponent} userInfo={userInfo}/>}
               {component.help && <Help show={component.help} selectedComponent={selectedComponent} userInfo={userInfo}/>}
+              {component.stats && <StatsDashboard userInfo={userInfo} />}
             </main>
           </div>
         </div>

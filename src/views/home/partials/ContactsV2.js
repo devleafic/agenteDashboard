@@ -508,6 +508,24 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           color: 'success'
         }
       );
+      // Emit stats event for resuming a folio
+      try {
+        const nowISO = new Date().toISOString();
+        Socket.connection.emit('stats:event', {
+          token: window.localStorage.getItem('sdToken'),
+          type: 'folio:start',
+          agentId: userInfo?._id,
+          folioId: (folio && folio._id) ? folio._id : folio,
+          serviceId: (folio && folio.service && (folio.service._id || folio.service.id)) || userInfo?.service?.id || userInfo?.service?._id,
+          channelId: channel,
+          queueId: queue,
+          resumed: true,
+          resumedAt: nowISO,
+          eventAt: nowISO
+        });
+      } catch (e) {
+        console.warn('stats:event emit failed (openSavedFolio):', e);
+      }
       selectedComponent('home');
       console.timeEnd('openSavedFolio');
 
@@ -565,6 +583,21 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             description: `Folio #${data.folio} creado con éxito`,
             color: 'success'
         });
+        // Emit stats event for starting a new folio
+        try {
+          Socket.connection.emit('stats:event', {
+            token: window.localStorage.getItem('sdToken'),
+            type: 'folio:start',
+            agentId: userInfo?._id,
+            folioId: data.folio,
+            serviceId: (typeof service === 'string' ? service : service?._id) || userInfo?.service?.id || userInfo?.service?._id,
+            channelId: channel,
+            queueId: queue,
+            eventAt: new Date().toISOString()
+          });
+        } catch (e) {
+          console.warn('stats:event emit failed (createNewFolio):', e);
+        }
         
         selectedComponent('home');
         return true;

@@ -1,6 +1,40 @@
 {
-  "currentVersion": "2.0.6",
+  "currentVersion": "2.0.7",
   "releases": [
+    {
+      "version": "2.0.7",
+      "date": "11/08/2025",
+      "highlights": [
+        "BETA: Estadísticas del agente: TMO diario en toolbar con toggle y auto-actualización, conteo de folios por estado y calculo de TMO promedio, estapa experimental"
+      ],
+      "changes": [
+        {
+          "type": "added",
+          "title": "TMO diario en toolbar (HeroUI Chip)",
+          "details": "El TMO promedio del día se muestra en la barra superior como un Chip de HeroUI con mayor contraste. Al hacer clic, alterna entre mostrar el valor y un ícono de reloj para restaurarlo. Preferencia persistida en localStorage (showTmoInToolbar). Por defecto está oculto."
+        },
+        {
+          "type": "improved",
+          "title": "Auto-actualización del TMO",
+          "details": "El valor se refresca automáticamente al guardar o finalizar folios usando BroadcastChannel y un evento global de respaldo ('folio:stats:invalidate'), además de un polling de seguridad cada 15s."
+        },
+        {
+          "type": "removed",
+          "title": "Widget flotante duplicado en StatsDashboard",
+          "details": "Se eliminó el widget flotante de TMO en la vista de estadísticas para evitar duplicidad y errores de JSX; ahora el toolbar es la única fuente de verdad."
+        },
+        {
+          "type": "fixed",
+          "title": "Robustez de llamadas a la API en Frontend",
+          "details": "Se agregaron validaciones de entorno para REACT_APP_CENTRALITA en Toolbar y StatsDashboard, evitando peticiones inválidas y mostrando errores amigables cuando la URL base no está configurada."
+        },
+        {
+          "type": "fixed",
+          "title": "Robustez de estadísticas en Backend",
+          "details": "Normalización numérica de tiempos (assignedMs/finalTmoMs) y uso de $inc con valores saneados para prevenir NaN/errores en Mongo. Resolución de nombres de canal envuelta en try/catch con fallback al ID para evitar que una falla rompa la respuesta."
+        }
+      ]
+    },
     {
       "version": "2.0.6",
       "date": "07/08/2025",

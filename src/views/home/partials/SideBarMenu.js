@@ -29,6 +29,12 @@ const FilterIcon = (props) => (
   </svg>
 );
 
+const StatsIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M7 13v5m5-9v9m5-13v13" />
+  </svg>
+);
+
 const ContactsIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -117,6 +123,7 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
             tooltip: 'Seguimientos',
             badge: false
         },
+
         { 
             name: 'contacts', 
             icon: <ContactsIcon />, 
@@ -128,6 +135,12 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
             icon: <TeamChatIcon />, 
             tooltip: 'Chat de Equipo', 
             badge: hasUnread > 0 
+        },
+        { 
+            name: 'stats', 
+            icon: <StatsIcon />, 
+            tooltip: 'Mis Estadísticas Operativas (Beta)',
+            badge: false
         },
         { 
             name: 'help', 
