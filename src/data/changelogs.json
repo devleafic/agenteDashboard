@@ -5,7 +5,7 @@
       "version": "2.0.7",
       "date": "11/08/2025",
       "highlights": [
-        "Estadísticas del agente: TMO diario en toolbar con toggle y auto-actualización, conteo de folios por estado y calculo de TMO promedio"
+        "BETA: Estadísticas del agente: TMO diario en toolbar con toggle y auto-actualización, conteo de folios por estado y calculo de TMO promedio, estapa experimental"
       ],
       "changes": [
         {

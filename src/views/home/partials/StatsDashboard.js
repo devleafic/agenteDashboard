@@ -23,7 +23,7 @@ function fmtDateYMD(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-const temporaryDisabled = false;
+const temporaryDisabled = true;
 function formatDate(d = new Date()) {
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -298,8 +298,10 @@ const StatsDashboard = ({ userInfo }) => {
 
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Mis Estadísticas</h2>
-        <div className="flex items-center gap-2">
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+            Mis Estadísticas (Beta)
+        </h2>       
+      <div className="flex items-center gap-2">
           <Input
             type="date"
             value={date}

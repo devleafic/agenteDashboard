@@ -35,7 +35,7 @@ import {
     ToastProvider,
 } from "@heroui/react";
 
-const temporaryDisabled = false;
+const temporaryDisabled = true;
 
 // --- Utils for daily stats ---
 const fmtDateYMD = (d = new Date()) => {
