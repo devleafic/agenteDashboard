@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
@@ -34,6 +34,25 @@ import {
     addToast,
     ToastProvider,
 } from "@heroui/react";
+
+// --- Utils for daily stats ---
+const fmtDateYMD = (d = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatMs = (ms = 0) => {
+  if (!ms || ms <= 0) return '0m';
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (h) return `${h}h ${m}m`;
+  if (m) return `${m}m ${s}s`;
+  return `${s}s`;
+};
 
 // Helper function to format time
 const formatTime = (seconds) => {
@@ -73,6 +92,82 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
   const [inAtention, setInAtention] = useState(null);
   const { notifications, clear, markAllAsRead, markAsRead, unreadCount } = useNotificationCenter();
   const [analytics, setAnalytics] = useState({ foliosOnHoldAll: '°°°', foliosOnBotAt: '°°°' });
+
+  // Daily TMO widget state (toolbar)
+  const [avgTmoMs, setAvgTmoMs] = useState(0);
+  const [showTmoToolbar, setShowTmoToolbar] = useState(() => {
+    try {
+      const v = localStorage.getItem('showTmoInToolbar');
+      return v === 'true'; // default hidden when null/undefined
+    } catch (_) {
+      return false; // default hidden on storage errors
+    }
+  });
+  const todayKey = useMemo(() => fmtDateYMD(), []);
+
+  const fetchAgentDailyStats = useCallback(async () => {
+    try {
+      if (!userInfo?._id) return;
+      const base = process.env.REACT_APP_CENTRALITA;
+      if (!base) {
+        console.warn('REACT_APP_CENTRALITA no está definido; omitiendo fetchAgentDailyStats');
+        setAvgTmoMs(0);
+        return;
+      }
+      const url = `${base}/stats/agents/${userInfo._id}`;
+      const res = await axios.get(url, { params: { date: todayKey } });
+      if (res?.data?.success) {
+        const data = res.data.data || {};
+        // Prefer server avg if provided
+        let avg = typeof data?.averages?.tmoMs === 'number' ? data.averages.tmoMs : 0;
+        // Fallback: compute from folios and sessions if needed
+        if (!avg) {
+          const list = Array.isArray(data?.folios) ? data.folios : [];
+          let sum = 0, count = 0;
+          for (const f of list) {
+            if (f?.finalizedAt) {
+              const t = Number(f?.tmoMs || 0);
+              if (t > 0) { sum += t; count += 1; }
+            } else if (Array.isArray(f?.saveSessions) && f.saveSessions.length) {
+              for (const s of f.saveSessions) {
+                const t = Number(s?.tmoMs || 0);
+                if (t > 0) { sum += t; count += 1; }
+              }
+            }
+          }
+          avg = count ? Math.round(sum / count) : 0;
+        }
+        setAvgTmoMs(avg || 0);
+      }
+    } catch (_) {
+      // ignore
+    }
+  }, [todayKey, userInfo]);
+
+  useEffect(() => {
+    try { localStorage.setItem('showTmoInToolbar', String(showTmoToolbar)); } catch (_) {}
+  }, [showTmoToolbar]);
+
+  // Initial fetch + auto refresh on events and polling
+  useEffect(() => {
+    fetchAgentDailyStats();
+    let bc = null;
+    const onInvalidate = () => fetchAgentDailyStats();
+    window.addEventListener('folio:stats:invalidate', onInvalidate);
+    try {
+      bc = new BroadcastChannel('folio-events');
+      bc.onmessage = (ev) => {
+        const t = ev?.data?.type;
+        if (t === 'folio:save' || t === 'folio:finalize') fetchAgentDailyStats();
+      };
+    } catch (_) {}
+    const id = setInterval(fetchAgentDailyStats, 15000);
+    return () => {
+      window.removeEventListener('folio:stats:invalidate', onInvalidate);
+      if (bc) try { bc.close(); } catch (_) {}
+      clearInterval(id);
+    };
+  }, [fetchAgentDailyStats]);
 
   // State for Blank Folio Modal
   const [showBlankFolio, setShowBlankFolio] = useState(false);
@@ -394,6 +489,32 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         <ConnectionStatus />
                     </NavbarItem>
                     <NavbarItem>
+                      {showTmoToolbar ? (
+                        <Tooltip content="Ocultar TMO promedio del día" placement="bottom">
+                        <Chip
+                          onClick={() => setShowTmoToolbar(false)}
+                          className="cursor-pointer select-none bg-sky-600 text-white shadow-md hover:brightness-110"
+                          variant="shadow"
+                          color="primary"
+                        >
+                          TMO prom. día: {formatMs(avgTmoMs)}
+                        </Chip>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip content="Mostrar TMO promedio del día" placement="bottom">
+                          <HeroButton
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            className="bg-white/10 hover:bg-white/20 text-white"
+                            onPress={() => setShowTmoToolbar(true)}
+                          >
+                            <FiClock className="w-4 h-4" />
+                          </HeroButton>
+                        </Tooltip>
+                      )}
+                    </NavbarItem>
+                    <NavbarItem>
                         <Dropdown>
                             <DropdownTrigger>
                                 <Chip color={isConnected === 1 ? "success" : isConnected === 2 ? "warning" : "default"} variant="shadow" className="cursor-pointer hover:scale-105 transition-transform">
@@ -406,35 +527,36 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         </Dropdown>
                     </NavbarItem>
                     <NavbarItem>
-                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">Pendientes de Asignación</span></Badge>
+                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">Por asignar</span></Badge>
                     </NavbarItem>
                     <NavbarItem>
-                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot Atendiendo</span></Badge>
+                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot atendiendo</span></Badge>
                     </NavbarItem>
-                </NavbarContent>
+                    </NavbarContent>
 
-                <NavbarContent justify="end">
+<NavbarContent justify="end">
 
                     {!isInbound && (
-                        <NavbarItem>
-                            <Dropdown>
-                                <DropdownTrigger>
-                                    <Chip color="primary" variant="bordered" className="cursor-pointer">Campañas</Chip>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Outbound Campaigns" items={listFilesOubounds} onAction={(key) => requestItemList(null, { value: key })}>
-                                    {(item) => (<DropdownItem key={item.key}>{item.text}</DropdownItem>)}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </NavbarItem>
+                      <NavbarItem>
+                        <Dropdown>
+                          <DropdownTrigger>
+                            <Chip color="primary" variant="bordered" className="cursor-pointer">Campañas</Chip>
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label="Outbound Campaigns" items={listFilesOubounds} onAction={(key) => requestItemList(null, { value: key })}>
+                            {(item) => (<DropdownItem key={item.key}>{item.text}</DropdownItem>)}
+                          </DropdownMenu>
+                        </Dropdown>
+                      </NavbarItem>
                     )}
                     <NavbarItem>
-
                         <Chip color="primary" classNames={{
                             base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
                             content: "drop-shadow shadow-black text-white",
                         }} variant="shadow">Inbox Central v.{process.env.REACT_APP_SYSTEM_VERSION}</Chip>
                     </NavbarItem>
                 </NavbarContent>
+
+                {/* Removed separate toggle button; chip now toggles itself */}
             </Navbar>
 
             <Modal isOpen={showBlankFolio} onOpenChange={setShowBlankFolio} size="2xl" scrollBehavior="inside">

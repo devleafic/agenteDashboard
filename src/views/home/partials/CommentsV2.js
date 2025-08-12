@@ -724,6 +724,30 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 return false;
             }
 
+            // Emit stats event for save/finalize after successful close
+            try {
+                const eventType = actionClose === 'end' ? 'folio:finalize' : 'folio:save';
+                const nowISO = new Date().toISOString();
+
+                const payload = {
+                    token: window.localStorage.getItem('sdToken'),
+                    type: eventType,
+                    agentId: userInfo?._id,
+                    folioId: folio?._id,
+                    serviceId: userInfo?.service?.id,
+                    eventAt: nowISO
+                };
+                if (eventType === 'folio:finalize') {
+                    payload.finalizedAt = nowISO;
+                } else {
+                    payload.savedAt = nowISO;
+                }
+
+                socket.connection.emit('stats:event', payload);
+            } catch (e) {
+                console.warn('stats:event emit failed (closeFolio):', e);
+            }
+
             // Remove the assignment time before updating the list
             if (removeFolioAssignmentTime) {
                 removeFolioAssignmentTime(folio._id);
