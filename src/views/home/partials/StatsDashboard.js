@@ -14,7 +14,9 @@ import {
   TableColumn,
   TableBody,
   TableRow,
-  TableCell
+  TableCell,
+  Tooltip,
+  Pagination
 } from '@heroui/react';
 
 function fmtDateYMD(d = new Date()) {
@@ -49,6 +51,9 @@ const StatsDashboard = ({ userInfo }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showTmoWidget, setShowTmoWidget] = useState(() => {
     try {
       return localStorage.getItem('showTmoWidget') !== 'false';
@@ -177,11 +182,38 @@ const StatsDashboard = ({ userInfo }) => {
 
   const recentFolios = useMemo(() => {
     const list = Array.isArray(stats?.folios) ? stats.folios : [];
-    return list
-      .map(f => ({ ...f, tmoMs: computeDerivedTmoMs(f) }))
-      .slice(-10)
-      .reverse();
+    return list.map(f => ({ ...f, tmoMs: computeDerivedTmoMs(f) }));
   }, [stats]);
+
+  const filteredFolios = useMemo(() => {
+    if (!recentFolios.length) return [];
+    const q = (searchText || '').trim().toLowerCase();
+    let arr = recentFolios;
+    if (q) {
+      arr = arr.filter(f => {
+        const parts = [
+          f?.folioId != null ? String(f.folioId) : '',
+          f?.channelName || '',
+          f?.channelId != null ? String(f.channelId) : '',
+          f?.startedAt || '',
+          f?.finalizedAt || f?.savedAt || '',
+        ];
+        return parts.some(p => p && p.toString().toLowerCase().includes(q));
+      });
+    }
+    // Sort descending by startedAt then saved/finalized
+    arr = [...arr].sort((a, b) => {
+      const aTs = a?.startedAt ? new Date(a.startedAt).getTime() : 0;
+      const bTs = b?.startedAt ? new Date(b.startedAt).getTime() : 0;
+      return bTs - aTs;
+    });
+    return arr;
+  }, [recentFolios, searchText]);
+
+  const pagedFolios = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    return filteredFolios.slice(start, start + rowsPerPage);
+  }, [filteredFolios, page, rowsPerPage]);
 
   const avgTmoMs = useMemo(() => {
     const serverAvg = stats?.averages?.tmoMs;
@@ -388,11 +420,15 @@ const StatsDashboard = ({ userInfo }) => {
                           const opacity = b.count > 0 ? 1 : 0.3;
                           return (
                             <div key={i} className="flex-1 flex flex-col items-center">
-                              <div
-                                className="w-full bg-primary rounded-t-md"
-                                style={{ height: `${h}px`, opacity }}
-                                title={`${b.label}\nTMO ${formatMs(avg)}\n${b.count} folios`}
-                              />
+                                  <Tooltip
+                                content={`${b.label} • TMO ${formatMs(avg)} • ${b.count} folios`}
+                                placement="top"
+                              >
+                                <div
+                                  className="w-full bg-primary rounded-t-md"
+                                  style={{ height: `${h}px`, opacity }}
+                                />
+                              </Tooltip>
                             </div>
                           );
                         })}
@@ -408,8 +444,28 @@ const StatsDashboard = ({ userInfo }) => {
               </div>
 
               <div className="space-y-2">
-                <div className="text-sm font-medium">Folios recientes</div>
-                <Table aria-label="Folios recientes">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="text-sm font-medium">Conversaciones del día</div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Buscar folio/canal/fecha..."
+                      value={searchText}
+                      onChange={(e) => { setSearchText(e.target.value); setPage(1); }}
+                      className="w-[220px]"
+                      size="sm"
+                    />
+                    <select
+                      value={rowsPerPage}
+                      onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(1); }}
+                      className="px-3 py-1 border border-default-200 rounded-md text-sm"
+                    >
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+                <Table aria-label="Folios del día">
                   <TableHeader>
                     <TableColumn>FOLIO</TableColumn>
                     <TableColumn>CANAL</TableColumn>
@@ -419,7 +475,7 @@ const StatsDashboard = ({ userInfo }) => {
                     <TableColumn>ESTADO</TableColumn>
                   </TableHeader>
                   <TableBody emptyContent="Sin folios">
-                    {recentFolios.map((f) => (
+                    {pagedFolios.map((f) => (
                       <TableRow key={`${f.folioId}-${f.finalizedAt || f.savedAt || f.startedAt}`}>
                         <TableCell>#{f.folioId}</TableCell>
                         <TableCell>{channelNameMap[String(f.channelId)] || (f?.channelId ? String(f.channelId) : (f?.channel ? String(f.channel) : '—'))}</TableCell>
@@ -439,6 +495,14 @@ const StatsDashboard = ({ userInfo }) => {
                     ))}
                   </TableBody>
                 </Table>
+                <div className="flex items-center justify-end mt-2">
+                  <Pagination
+                    page={page}
+                    total={Math.max(1, Math.ceil(filteredFolios.length / rowsPerPage))}
+                    onChange={setPage}
+                    size="sm"
+                  />
+                </div>
               </div>
             </div>
           ) : (
