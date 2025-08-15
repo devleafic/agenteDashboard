@@ -71,7 +71,7 @@ const getTodayKey = (activityId) => {
 };
 
 
-const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected }) => {
+const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected, onViewReminderFolio }) => {
   // Timer related state
   const [activityTimer, setActivityTimer] = useState(0);
   const [currentActivityId, setCurrentActivityId] = useState(null);
@@ -656,6 +656,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     }
                 }}
                 onCountChange={(n)=> setUnreadReminders(n)} 
+                onViewFolio={onViewReminderFolio}
             />
         </>
     );
