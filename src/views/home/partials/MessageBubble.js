@@ -108,6 +108,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
     const { textSizeValue } = useTextSize();
 
     const isOutgoing = message.direction === 'out';
+    // Control de colapso para listas de opciones
+    const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
     const getNameAuthor = (element) => {
         if (!element) return 'Agente';
@@ -189,15 +191,40 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         );
     };
 
-    const generateButtons = (botones) => {
-        
-        if (botones && botones.length > 0) {
+    const generateButtons = (botones, classMsg) => {
+        if (classMsg === 'optionList') {
+            return (
+                <div className="w-full">
+                    <button
+                        type="button"
+                        onClick={() => setIsOptionsOpen((v) => !v)}
+                        className="flex items-center gap-2 text-rose-600 hover:underline font-medium select-none"
+                    >
+                        {/* Icono de lista estilo WhatsApp */}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                            <path d="M4 6.75A.75.75 0 014.75 6h14.5a.75.75 0 010 1.5H4.75A.75.75 0 014 6.75zM4 12a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H4.75A.75.75 0 014 12zm0 5.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75z" />
+                        </svg>
+                        <span>Opciones</span>
+                    </button>
+                    {isOptionsOpen && (
+                        <div className='botones-container mt-2'>
+                            {botones.map((boton) => (
+                                <Button color="primary" variant="ghost" key={boton.title}>
+                                    {boton.title} {boton.description ? `(${boton.description.length > 20 ? boton.description.slice(0, 20) + '...' : boton.description})` : ''}
+                                </Button>
 
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        else if (classMsg === 'buttonreply') {
             return (
                 <div className='botones-container'>
                 
                         {botones.map((boton) => (
-                            <Button  color='gray' key={boton.reply.id}>{boton.reply.title}</Button>
+                            <Button  color="primary" variant="ghost" key={boton.reply.id}>{boton.reply.title} </Button>
                         ))}
                     
                 </div>
@@ -311,104 +338,6 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             </div>
         );
     };
-
-    // const getResponseFrom = (id) => {
-    //     if (!allMsg) {
-    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se pudo recuperar.</Snippet>;
-    //     }
-
-    //     const originaMsg = allMsg.find((x) => x.externalId === id);
-
-    //     if (!originaMsg) {
-    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se encuentra en este folio.</Snippet>;
-    //     }
-
-    //     switch (originaMsg.class) {
-    //         case 'text':
-    //         case 'buttonreply':
-    //             return <p className="text-sm italic">{originaMsg.content}</p>;
-            
-    //         case 'image':
-    //             return <Image src={originaMsg.content} width={80} height={80} alt="Imagen respondida" className="rounded-md object-cover" />;
-            
-    //         case 'audio':
-    //             return <AudioPlayer src={originaMsg.content} minimal />;
-
-    //         case 'video':
-    //             return <video controls src={originaMsg.content} className="w-full max-w-xs rounded-md" />;
-
-    //         case 'document':
-    //             return (
-    //                 <a href={originaMsg.content} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline">
-    //                     <PaperclipIcon className="w-4 h-4" />
-    //                     <span>{originaMsg.caption || 'Ver Archivo Adjunto'}</span>
-    //                 </a>
-    //             );
-
-    //         case 'location':
-    //             const isValidCoordinate = (coord) => {
-    //                 if (typeof coord !== 'string') return false;
-    //                 const [lat, lng] = coord.split(',').map(Number);
-    //                 return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
-    //             };
-
-    //             if (!isValidCoordinate(originaMsg.content)) {
-    //                 return (
-    //                     <Snippet color="danger" size="sm" className="w-full">
-    //                         Ubicación no válida
-    //                     </Snippet>
-    //                 );
-    //             }
-
-    //             const [lat, lng] = originaMsg.content.split(',');
-    //             return <MapPreview lat={lat} lng={lng} />;
-
-    //         default:
-    //             return <Snippet size="sm">[Tipo de mensaje no soportado: {originaMsg.class}]</Snippet>;
-    //     }
-    // };
-
-    // const getResponseTo = (id) => {
-    //     if (!allMsg) {
-    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se pudo recuperar.</Snippet>;
-    //     }
-
-    //     const originaMsg = allMsg.find((x) => x.externalId === id);
-
-    //     if (!originaMsg) {
-    //         return <Snippet color="warning" size="sm">El mensaje referenciado no se encuentra en este folio.</Snippet>;
-    //     }
-
-    //     switch (originaMsg.class) {
-    //         case 'text':
-    //             return <p className="text-sm italic">{originaMsg.content}</p>;
-
-    //         case 'image':
-    //             return <Image src={originaMsg.content} width={80} height={80} alt="Imagen respondida" className="rounded-md object-cover" />;
-
-    //         case 'audio':
-    //             return <AudioPlayer src={originaMsg.content} minimal />;
-
-    //         case 'video':
-    //             return <video controls src={originaMsg.content} className="w-full max-w-xs rounded-md" />;
-
-    //         case 'document':
-    //             return (
-    //                 <a href={originaMsg.content} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline">
-    //                     <PaperclipIcon className="w-4 h-4" />
-    //                     <span>{originaMsg.caption || 'Ver Archivo Adjunto'}</span>
-    //                 </a>
-    //             );
-
-    //         case 'location':
-    //             const [lat, lng] = originaMsg.content.split(',');
-    //             return <MapPreview lat={lat} lng={lng} />;
-
-    //         default:
-    //             return <Snippet size="sm">[Tipo de mensaje no soportado: {originaMsg.class}]</Snippet>;
-    //     }
-    // };
-
     const renderContent = (msg) => {
         const repliedToId = msg.direction === 'out' ? msg.responseTo : msg.responseFromId;
         const repliedMessage = getRepliedMessage(repliedToId, allMsg, contact);
@@ -427,13 +356,14 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'interactive':
                 case 'buttonreply':
                 case 'button':
+                case 'optionList':
                     return (
                         <div className="flex flex-col gap-2">
                             <div className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
                                 {highlight ? highlightText(msg.content, highlight) : msg.content}
                             </div>
-                            {msg.class === 'buttonreply' && msg.interaction && generateButtons(msg.interaction)}
-                            {msg.class === 'button' && responseButton(msg.externalId, msg.content)}
+                            {msg.class === 'buttonreply' || msg.class === 'optionList' && msg.interaction && generateButtons(msg.interaction, msg.class)}
+                            {msg.class === 'button'  && responseButton(msg.externalId, msg.content)}
                             {msg.class === 'interactive' && <Button  color='primary' key={msg._id}>{msg.content}</Button>}
                         </div>
                     );

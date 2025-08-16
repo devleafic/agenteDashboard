@@ -645,6 +645,67 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
         });
     };
 
+    const prepareList = async (msg) => {
+        let _msg = '';
+        if (msg && typeof msg === 'string') { _msg = msg; }
+
+        if (_msg.trim() === '') {
+            if (messageToSend.trim() === '') {
+                addToast({
+                    title: 'Error',
+                    description: 'No se puede enviar un mensaje vacio',
+                    color: 'danger'
+                });
+                return false;
+            } else {
+                _msg = messageToSend;
+            }
+        }
+
+        setIsLoading(true);
+
+        socket.connection.emit('sendMessage', {
+            token: window.localStorage.getItem('sdToken'),
+            folio: folio._id,
+            message: _msg,
+            responseTo: showResponseTo,
+            class: 'optionList',
+            header: 'BotDynamics',
+            footer: 'selecciona una de las opciones',
+            interaction: [
+                {
+                    type: "text",
+                    title: "Option 1",
+                    description: "Option 1 description",
+                },
+                {
+                    type: "text",
+                    title: "Option 2",
+                    description: "Option 2 description",
+                },
+            ]
+            
+        }, (result) => {
+            if (!result.body.success) {
+                addToast({
+                    title: 'Error',
+                    description: result.body.message,
+                    color: 'danger'
+                });
+                return false;
+            }
+            let index = listFolios.current.findIndex((x) => x.folio._id === folio._id);
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setIsLoading(false);
+            setMessageToSend('');
+            textArea.current.value = '';
+            textArea.current.focus();
+            setShowResponseTo(null);
+            setMessageToResponse(null);
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
+        });
+    };
+
     const prepareCloseFolio = (tClose) => {
         if (tClose === 'save') {
             setTypeClose('guardar');
@@ -1650,7 +1711,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                         return;
                                                     } else {
                                                         e.preventDefault();
-                                                        prepareMessage(e.target.value);
+                                                        //prepareMessage(e.target.value);
+                                                        prepareList(e.target.value);
                                                     }
                                                 }
                                             }}
