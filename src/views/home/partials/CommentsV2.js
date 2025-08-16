@@ -2076,17 +2076,17 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 <div className="flex items-center justify-between">
                                                     <div className="text-sm font-medium">Recordatorio</div>
                                                     <HeroCheckbox
-                                                        isSelected={reminderEnabled && isFolioAttachedAgent}
-                                                        isDisabled={!isFolioAttachedAgent}
-                                                        onValueChange={(v)=> isFolioAttachedAgent && setReminderEnabled(v)}
+                                                        isSelected={reminderEnabled}
+                                                        isDisabled={!assignPrivateAlways && !isFolioAttachedAgent}
+                                                        onValueChange={(v)=> (assignPrivateAlways || isFolioAttachedAgent) && setReminderEnabled(v)}
                                                     >
                                                         Activar
                                                     </HeroCheckbox>
                                                 </div>
-                                                {!isFolioAttachedAgent && (
+                                                {!assignPrivateAlways && !isFolioAttachedAgent && (
                                                     <div className="text-xs text-amber-600">Debes asignarte el folio (Inbox privado) para poder programar un recordatorio.</div>
                                                 )}
-                                                {reminderEnabled && isFolioAttachedAgent && (
+                                                {reminderEnabled && (assignPrivateAlways || isFolioAttachedAgent)  && (
                                                     <>
                                                         <div className="flex flex-wrap gap-2">
                                                             <HeroButton size="sm" variant={reminderPreset==='1m'?'solid':'flat'} onPress={()=>setReminderPreset('1m')}>1 min</HeroButton>

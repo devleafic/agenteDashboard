@@ -454,7 +454,7 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div className="flex gap-2">
               <HeroButton size="sm" color="danger" variant={filter==='fired'?'solid':'flat'} onPress={()=>setFilter('fired')}>Recordatorios</HeroButton>
-              <HeroButton size="sm" color="warning" variant={filter==='pending'?'solid':'flat'} onPress={()=>setFilter('pending')}>Recordatorios por llegar</HeroButton>
+              <HeroButton size="sm" color="warning" variant={filter==='pending'?'solid':'flat'} onPress={()=>setFilter('pending')}>Listado de Recordatorios</HeroButton>
             </div>
             <div className="flex items-center gap-2">
               <Input size="sm" placeholder="Buscar por folio o persona" value={query} onChange={(e)=>setQuery(e.target.value)} className="w-60"/>
