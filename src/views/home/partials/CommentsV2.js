@@ -1711,8 +1711,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                         return;
                                                     } else {
                                                         e.preventDefault();
-                                                        //prepareMessage(e.target.value);
-                                                        prepareList(e.target.value);
+                                                        prepareMessage(e.target.value);
+                                                        //prepareList(e.target.value);
                                                     }
                                                 }
                                             }}
