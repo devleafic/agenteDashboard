@@ -242,7 +242,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
 
             return (
             <div className='botones-container'>
-                <Button  color='green' key={id}>{text}</Button>
+                <Button  color="primary" variant="ghost" key={id}>{text}</Button>
             </div>
             );
         }
@@ -362,8 +362,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             <div className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
                                 {highlight ? highlightText(msg.content, highlight) : msg.content}
                             </div>
-                            {msg.class === 'buttonreply' || msg.class === 'optionList' && msg.interaction && generateButtons(msg.interaction, msg.class)}
-                            {msg.class === 'button'  && responseButton(msg.externalId, msg.content)}
+                            {msg.class === 'buttonreply' || msg.class === 'optionList' && msg.interaction && generateButtons(msg.interaction, msg.class)}  {/**button enviado por bot o agente */}
+                            {msg.class === 'button'  && responseButton(msg.externalId, msg.content)} {/**button recibido, enviado por el usuario*/}
                             {msg.class === 'interactive' && <Button  color='primary' key={msg._id}>{msg.content}</Button>}
                         </div>
                     );
