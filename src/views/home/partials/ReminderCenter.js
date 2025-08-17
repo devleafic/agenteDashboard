@@ -9,10 +9,29 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
-  const [filter, setFilter] = useState('pending'); // 'pending' | 'fired'
+  const [filter, setFilter] = useState('fired'); // 'pending' | 'fired'
   const [poolingInterval, setPoolingInterval] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [query, setQuery] = useState('');
+  const [firedCount, setFiredCount] = useState(0);
+
+  // Reset all local modal state
+  const resetState = useCallback(() => {
+    try {
+      setFilter('fired');
+      setQuery('');
+      setItems([]);
+      setLoading(false);
+      setPendingCount(0);
+      setFiredCount(0);
+    } catch (_) {}
+  }, []);
+
+  // Centralized close handler to always cleanup
+  const handleClose = useCallback(() => {
+    resetState();
+    if (typeof onClose === 'function') onClose(false);
+  }, [onClose, resetState]);
 
   const base = process.env.REACT_APP_CENTRALITA;
 
@@ -38,7 +57,9 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
           
         setItems(list);
         setPendingCount(pending);
-        if (typeof onCountChange === 'function') onCountChange(pending);
+        setFiredCount(all.filter(r => r.status === 'fired').length);
+        const fired = all.filter(r => r.status === 'fired').length;
+        if (typeof onCountChange === 'function') onCountChange(fired);
       }
     } catch (error) {
       console.error('Error al cargar recordatorios:', error);
@@ -203,7 +224,8 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
             
             // Actualizar el contador de pendientes
             const nextCount = next.filter(item => 
-              item.status === 'pending' || item.status === 'fired'
+              //item.status === 'pending' || item.status === 'fired'
+              item.status === 'fired'
             ).length;
             
             setPendingCount(nextCount);
@@ -348,6 +370,13 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
     };
   }, [open, load]);
 
+  // When opening the modal, always default to 'Recordatorios'
+  useEffect(() => {
+    if (open) {
+      setFilter('fired');
+    }
+  }, [open]);
+
   useEffect(() => {
     // reload when filter changes if modal is open
     if (open) load();
@@ -364,8 +393,9 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
       setItems(prev => {
         const next = prev.filter(x => x._id !== id);
         const nextPendingCount = next.filter(item => item.status === 'pending' || item.status === 'fired').length;
+        const nextFiredCount = next.filter(item => item.status === 'fired').length;
         setPendingCount(nextPendingCount);
-        if (typeof onCountChange === 'function') onCountChange(nextPendingCount);
+        if (typeof onCountChange === 'function') onCountChange(nextFiredCount);
         return next;
       });
       
@@ -397,8 +427,9 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
       setItems(prev => {
         const next = prev.filter(x => x._id !== id);
         const nextPending = next.filter(r=>r.status==='pending').length;
+        const nextFired = next.filter(r=>r.status==='fired').length;
         setPendingCount(nextPending);
-        if (typeof onCountChange === 'function') onCountChange(nextPending);
+        if (typeof onCountChange === 'function') onCountChange(nextFired);
         return next;
       });
       addToast({ title: 'Recordatorio eliminado', color: 'default' });
@@ -431,12 +462,13 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
   useEffect(() => {
     if (typeof onCountChange === 'function') {
       const count = items.filter(item => item.status === 'pending' || item.status === 'fired').length;
-      onCountChange(count);
+      const firedCount = items.filter(item => item.status === 'fired').length;
+      onCountChange(firedCount);
     }
   }, [items, onCountChange]);
 
   return (
-    <Modal isOpen={open} onClose={() => onClose()} size="lg">
+    <Modal isOpen={open} onClose={handleClose} size="lg">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -485,13 +517,32 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
                   <div className="grid grid-cols-[48px_1fr] gap-4 items-start">
                     {/* Left action column */}
                     <div className="flex flex-col gap-2 items-center pt-1">
-                      <Tooltip content="Ver" placement="left">
+                      <Tooltip content="Abrir y marcar como leído" placement="left">
                         <HeroButton
                           isIconOnly
                           size="sm"
                           color="primary"
                           variant="flat"
-                          onPress={() => {
+                          onPress={async () => {
+                            try {
+                              // Marcar como leído antes de abrir el folio
+                              await ack(item._id);
+                            } catch (e) {
+                              // ack ya gestiona sus propios mensajes de error
+                              console.error('Fallo al marcar leído antes de abrir folio', e);
+                            }
+                            // Si ya estamos dentro de Inbox Privados, no navegar. Solo informar.
+                            try {
+                              const inInbox = typeof window !== 'undefined' && window.localStorage.getItem('isInInboxPrivado') === '1';
+                              if (inInbox) {
+                                addToast({
+                                  title: 'Recordatorio leído',
+                                  description: 'Ya estás en Inbox Privado. Puedes abrir el folio directamente desde la lista, tambien puedes buscarlo por nombre o folio.',
+                                  color: 'warning'
+                                });
+                                return;
+                              }
+                            } catch(_) {}
                             try {
                               if (typeof onViewFolio === 'function' && item?.folioId) {
                                 onViewFolio(item.folioId);
@@ -548,7 +599,7 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
         </ModalBody>
         <ModalFooter className="flex flex-col gap-2">
           <div className="flex justify-between w-full">
-            <HeroButton color="primary" variant="light" onPress={() => onClose()}>
+            <HeroButton color="primary" variant="light" onPress={handleClose}>
               Cerrar
             </HeroButton>
             <HeroButton color="primary" onPress={() => load()}>

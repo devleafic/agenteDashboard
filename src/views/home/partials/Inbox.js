@@ -124,6 +124,12 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         };
     }, [socketC]);
 
+    // Mark when user is inside Inbox Privado (for cross-component checks)
+    useEffect(() => {
+        try { window.localStorage.setItem('isInInboxPrivado', '1'); } catch (_) {}
+        return () => { try { window.localStorage.removeItem('isInInboxPrivado'); } catch (_) {} };
+    }, []);
+
     // Auto-open folio when coming from ReminderCenter "Ver"
     useEffect(() => {
         try {
