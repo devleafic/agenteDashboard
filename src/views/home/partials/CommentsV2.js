@@ -859,9 +859,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     }
 
                     let due = new Date();
-                    if (reminderPreset === '1m') due = new Date(Date.now() + 1*60*1000);
-                    else if (reminderPreset === '5m') due = new Date(Date.now() + 5*60*1000);
-                    else if (reminderPreset === '20m') due = new Date(Date.now() + 20*60*1000);
+                    if (reminderPreset === '2m') due = new Date(Date.now() + 2*60*1000);
+                    else if (reminderPreset === '10m') due = new Date(Date.now() + 10*60*1000);
+                    else if (reminderPreset === '30m') due = new Date(Date.now() + 30*60*1000);
                     else if (reminderPreset === '1h') due = new Date(Date.now() + 60*60*1000);
                     else if (reminderPreset === 'custom') {
                         if (!reminderCustomDateTime) {
@@ -2089,9 +2089,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 {reminderEnabled && (assignPrivateAlways || isFolioAttachedAgent)  && (
                                                     <>
                                                         <div className="flex flex-wrap gap-2">
-                                                            <HeroButton size="sm" variant={reminderPreset==='1m'?'solid':'flat'} onPress={()=>setReminderPreset('1m')}>1 min</HeroButton>
-                                                            <HeroButton size="sm" variant={reminderPreset==='5m'?'solid':'flat'} onPress={()=>setReminderPreset('5m')}>5 min</HeroButton>
-                                                            <HeroButton size="sm" variant={reminderPreset==='20m'?'solid':'flat'} onPress={()=>setReminderPreset('20m')}>20 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='2m'?'solid':'flat'} onPress={()=>setReminderPreset('2m')}>2 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='10m'?'solid':'flat'} onPress={()=>setReminderPreset('10m')}>10 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='30m'?'solid':'flat'} onPress={()=>setReminderPreset('30m')}>20 min</HeroButton>
                                                             <HeroButton size="sm" variant={reminderPreset==='1h'?'solid':'flat'} onPress={()=>setReminderPreset('1h')}>1 hora</HeroButton>
                                                             <HeroButton size="sm" variant={reminderPreset==='tomorrow'?'solid':'flat'} onPress={()=>setReminderPreset('tomorrow')}>Mañana</HeroButton>
                                                             <HeroButton

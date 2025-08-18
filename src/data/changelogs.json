@@ -1,6 +1,21 @@
 {
-  "currentVersion": "2.0.7",
+  "currentVersion": "2.0.8",
   "releases": [
+    {
+      "version": "2.0.8",
+      "date": "18/08/2025",
+      "highlights": [
+        "Centro de Recordatorios: Crea recordatorios para tus conversaciones."
+      ],
+      "changes": [
+        { "type": "added", "title": "Crear recordatorios", "details": "Genera recordatorios asociados a tus conversaciones y recíbelos cuando llegue la hora." },
+        { "type": "added", "title": "Abrir conversación desde el recordatorio", "details": "Desde el Centro de Recordatorios puedes abrir la conversación asociada con un clic." },
+        { "type": "added", "title": "Sección inicial 'Recordatorios'", "details": "Al abrir el Centro de Recordatorios se muestra por defecto la vista de recordatorios activos." },
+        { "type": "added", "title": "Limpieza automática al cerrar", "details": "El modal restablece filtros, búsqueda y contadores al cerrarse para una experiencia consistente." },
+        { "type": "added", "title": "Consumo eficiente", "details": "Actualización automática solo con el modal abierto y control de eventos agrupados para una experiencia fluida." },
+        { "type": "added", "title": "Apertura contextual", "details": "Si estás en Inbox Privado, al ver un recordatorio se mantiene en la vista y se marca como leído con un aviso informativo." }
+      ]
+    },
     {
       "version": "2.0.7",
       "date": "11/08/2025",

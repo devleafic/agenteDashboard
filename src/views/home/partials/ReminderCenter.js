@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from 'react';
+import React, { useEffect, useState, useContext, useCallback, useRef } from 'react';
 import axios from 'axios';
 import SocketContext from '../../../controladores/SocketContext';
 import { Bell, CheckCircle2, XCircle, Clock, AlertCircle, Eye, User } from 'lucide-react';
@@ -14,6 +14,9 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [query, setQuery] = useState('');
   const [firedCount, setFiredCount] = useState(0);
+
+  // Debounce ref for socket-triggered loads
+  const debounceLoadRef = useRef(null);
 
   // Reset all local modal state
   const resetState = useCallback(() => {
@@ -77,6 +80,20 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
       setLoading(false);
     }
   }, [base, filter]);
+
+  // Debounced load to coalesce rapid socket events
+  const debouncedLoad = useCallback(() => {
+    try {
+      if (debounceLoadRef.current) {
+        clearTimeout(debounceLoadRef.current);
+      }
+      debounceLoadRef.current = setTimeout(() => {
+        load().catch(console.error);
+      }, 800); // 800ms debounce window
+    } catch (e) {
+      console.error('debouncedLoad error', e);
+    }
+  }, [load]);
 
   // Helper to get an event emitter from context (supports multiple shapes)
   const getEmitter = () => {
@@ -190,8 +207,8 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
       // Mostrar notificación al usuario
       showReminderNotification(payload);
       
-      // Actualizar la lista de recordatorios
-      load().catch(console.error);
+      // Actualizar la lista de recordatorios (debounced para evitar ráfagas)
+      debouncedLoad();
       
       // Cambiar al filtro de "disparados" si el modal está abierto
       try { 
@@ -341,14 +358,19 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
     };
   }, [socketCtx, load, debugSocketConnection, onClose]);
 
-  // Efecto para el sistema de pooling
+  // Efecto para el sistema de pooling (solo cuando el modal está abierto)
   useEffect(() => {
     // Limpiar intervalo existente si hay uno
     if (poolingInterval) {
       clearInterval(poolingInterval);
+      setPoolingInterval(null);
     }
 
-    // Configurar nuevo intervalo si el componente está montado
+    if (!open) {
+      return () => {};
+    }
+
+    // Configurar nuevo intervalo solo si el modal está abierto
     const interval = setInterval(() => {
       load().then(() => {
         setLastUpdate(Date.now());
@@ -357,16 +379,10 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
 
     setPoolingInterval(interval);
 
-    // Cargar datos inmediatamente cuando el componente se monta o se abre
-    if (open) {
-      load();
-    }
-
-    // Limpiar al desmontar
+    // Limpieza al cerrar el modal o desmontar
     return () => {
-      if (poolingInterval) {
-        clearInterval(poolingInterval);
-      }
+      clearInterval(interval);
+      setPoolingInterval(null);
     };
   }, [open, load]);
 
