@@ -7,7 +7,7 @@ import { useNotificationCenter } from "react-toastify/addons/use-notification-ce
 import { FiClock } from "react-icons/fi";
 import ConnectionStatus from '../../../components/ConnectionStatus';
 import ChangelogModal from './ChangelogModal';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Bell } from 'lucide-react';
 
 import {
     Navbar,
@@ -34,6 +34,7 @@ import {
     addToast,
     ToastProvider,
 } from "@heroui/react";
+import ReminderCenter from './ReminderCenter.js';
 
 
 // --- Utils for daily stats ---
@@ -70,12 +71,13 @@ const getTodayKey = (activityId) => {
 };
 
 
-const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected }) => {
+const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIsConnected, isConnected, onViewReminderFolio }) => {
   // Timer related state
   const [activityTimer, setActivityTimer] = useState(0);
   const [currentActivityId, setCurrentActivityId] = useState(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const intervalRef = React.useRef(null);
+  const [unreadReminders, setUnreadReminders] = useState(0);
 
   // Component state
   const [listFilesOubounds, setListFilesOubounds] = useState([]);
@@ -178,6 +180,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
   const [onCreateBlank, setOnCreateBlank] = useState(false);
   const [placement, setPlacement] = useState('top-right'); // heroui toast
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
   
   // Timer functions
   const loadTimerData = useCallback((activityId) => {
@@ -490,6 +493,24 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         <ConnectionStatus />
                     </NavbarItem>
                     <NavbarItem>
+                      <Tooltip content={`Recordatorios${unreadReminders>0?` (${unreadReminders} sin leer)`:''}`} placement="bottom">
+                        <div className="relative">
+                          <HeroButton
+                            isIconOnly
+                            size="sm"
+                            variant="flat"
+                            className="bg-white/10 hover:bg-white/20 text-white"
+                            onPress={() => setIsReminderOpen(true)}
+                          >
+                            <Bell className="w-4 h-4" />
+                          </HeroButton>
+                          {unreadReminders > 0 && (
+                            <span className="absolute -top-1 -right-1 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-gray-800" />
+                          )}
+                        </div>
+                      </Tooltip>
+                    </NavbarItem>
+                    <NavbarItem>
                       {showTmoToolbar ? (
                         <Tooltip content="Ocultar TMO promedio del día" placement="bottom">
                         <Chip
@@ -623,6 +644,20 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                 </ModalContent>
             </Modal>
             <ChangelogModal open={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
+            <ReminderCenter 
+                open={isReminderOpen} 
+                onClose={(shouldOpen) => {
+                    if (shouldOpen === true) {
+                        // Force open the reminder center when a reminder is due
+                        console.log('Toolbar: Opening ReminderCenter modal due to reminder:due event');
+                        setIsReminderOpen(true);
+                    } else {
+                        setIsReminderOpen(false);
+                    }
+                }}
+                onCountChange={(n)=> setUnreadReminders(n)} 
+                onViewFolio={onViewReminderFolio}
+            />
         </>
     );
 }

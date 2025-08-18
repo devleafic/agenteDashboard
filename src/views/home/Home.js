@@ -692,6 +692,18 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
         setPage(option);
     }
 
+    // When a reminder's "Ver" is clicked: go to Inbox and let Inbox auto-open the folio
+    const onViewReminderFolio = (folioId) => {
+        try {
+            if (!folioId) return;
+            // Queue folio id for Inbox to pick up
+            window.localStorage.setItem('openFolioFromReminder', String(folioId));
+            // Navigate to inbox
+            selectedComponent('inbox');
+            addToast({ title: 'Abriendo folio', description: `Folio #${folioId}`, color: 'info' });
+        } catch (_) {}
+    }
+
     return (
     <>
     <div className="fixed z-[100]">
@@ -726,6 +738,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
               setIsReady={setIsReady} 
               setIsConnected={setIsConnected} 
               isConnected={isConnected}
+              onViewReminderFolio={onViewReminderFolio}
             />
             
             {/* Main view area - This will grow and scroll */}

@@ -124,6 +124,33 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         };
     }, [socketC]);
 
+    // Mark when user is inside Inbox Privado (for cross-component checks)
+    useEffect(() => {
+        try { window.localStorage.setItem('isInInboxPrivado', '1'); } catch (_) {}
+        return () => { try { window.localStorage.removeItem('isInInboxPrivado'); } catch (_) {} };
+    }, []);
+
+    // Auto-open folio when coming from ReminderCenter "Ver"
+    useEffect(() => {
+        try {
+            const target = window.localStorage.getItem('openFolioFromReminder');
+            if (!target) return;
+            if (!Array.isArray(inboxes) || inboxes.length === 0) return;
+
+            const match = inboxes.find(x => String(x?.folio?._id) === String(target));
+            if (match?.folio?._id) {
+                openItemInbox(match.folio, match);
+                setUnReadMessages(false);
+                setIsLoadInboxFolio(prev => ({ ...prev, [match.folio._id]: true }));
+            } else {
+                addToast({ title: 'Folio no encontrado en Inbox', color: 'warning' });
+            }
+            window.localStorage.removeItem('openFolioFromReminder');
+        } catch (_) {
+            // ignore
+        }
+    }, [inboxes]);
+
     const openItemInbox = (folio, item) => {
         if (!socketC?.connection) {
             addToast({

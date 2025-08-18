@@ -1,4 +1,5 @@
 import React, { useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
 import { Comment, Select, Segment, Dimmer, Loader, Image } from 'semantic-ui-react';
 import { Snippet, Textarea as textarea, Button as HeroButton, Chip, Modal as HeroModal, ModalContent, ModalHeader, ModalBody, ModalFooter, Select as HeroSelect, SelectItem, Checkbox as HeroCheckbox, Divider as HeroDivider, Input, ButtonGroup, addToast, ToastProvider, Tooltip } from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, PhoneCallIcon, MailOpen, Sparkles, MessageSquareText, Search, Calendar, Clock } from 'lucide-react';
@@ -68,6 +69,20 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isSearchVisible, setIsSearchVisible] = useState(false); // New state for toggle
 
+    // Reminder state (only when saving)
+    const [reminderEnabled, setReminderEnabled] = useState(false);
+    const [reminderPreset, setReminderPreset] = useState(''); // '1m' | '5m' | '20m' | '1h' | 'tomorrow' | 'custom'
+    const [reminderTime, setReminderTime] = useState('09:00'); // legacy for tomorrow option
+    const [reminderTimeHour, setReminderTimeHour] = useState('09'); // 24h, 05-22
+    const [reminderTimeMinute, setReminderTimeMinute] = useState('00'); // 00,15,30,45
+    const [reminderCustomDateTime, setReminderCustomDateTime] = useState(''); // legacy fallback
+    const [reminderCustomDate, setReminderCustomDate] = useState(''); // YYYY-MM-DD
+    const [reminderCustomHour, setReminderCustomHour] = useState('09');
+    const [reminderCustomMinute, setReminderCustomMinute] = useState('00');
+    const [reminderNote, setReminderNote] = useState('');
+    // Local timezone label for user clarity
+    const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     const [messageDrafts, setMessageDrafts] = useState(() => {
         try {
             const savedDrafts = localStorage.getItem('messageDrafts');
@@ -87,6 +102,20 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
 
     const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
     const matchesRef = useRef([]);
+
+    // Helper to get local now in input[type=datetime-local] format (YYYY-MM-DDThh:mm)
+    const getNowLocalInput = useCallback(() => {
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const y = d.getFullYear();
+        const m = pad(d.getMonth() + 1);
+        const day = pad(d.getDate());
+        const hh = pad(d.getHours());
+        const mm = pad(d.getMinutes());
+        return `${y}-${m}-${day}T${hh}:${mm}`;
+    }, []);
+    const TOMORROW_MIN = '05:00';
+    const TOMORROW_MAX = '22:00';
 
     const { messagesWithMatches, matchCount } = useMemo(() => {
         console.log('Processing messages...', {
@@ -616,6 +645,67 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
         });
     };
 
+    const prepareList = async (msg) => {
+        let _msg = '';
+        if (msg && typeof msg === 'string') { _msg = msg; }
+
+        if (_msg.trim() === '') {
+            if (messageToSend.trim() === '') {
+                addToast({
+                    title: 'Error',
+                    description: 'No se puede enviar un mensaje vacio',
+                    color: 'danger'
+                });
+                return false;
+            } else {
+                _msg = messageToSend;
+            }
+        }
+
+        setIsLoading(true);
+
+        socket.connection.emit('sendMessage', {
+            token: window.localStorage.getItem('sdToken'),
+            folio: folio._id,
+            message: _msg,
+            responseTo: showResponseTo,
+            class: 'optionList',
+            header: 'BotDynamics',
+            footer: 'selecciona una de las opciones',
+            interaction: [
+                {
+                    type: "text",
+                    title: "Option 1",
+                    description: "Option 1 description",
+                },
+                {
+                    type: "text",
+                    title: "Option 2",
+                    description: "Option 2 description",
+                },
+            ]
+            
+        }, (result) => {
+            if (!result.body.success) {
+                addToast({
+                    title: 'Error',
+                    description: result.body.message,
+                    color: 'danger'
+                });
+                return false;
+            }
+            let index = listFolios.current.findIndex((x) => x.folio._id === folio._id);
+            listFolios.current[index].folio.message.push(result.body.lastMessage);
+            setIsLoading(false);
+            setMessageToSend('');
+            textArea.current.value = '';
+            textArea.current.focus();
+            setShowResponseTo(null);
+            setMessageToResponse(null);
+            listFolios.currentBox.scrollTop = listFolios.currentBox.scrollHeight;
+        });
+    };
+
     const prepareCloseFolio = (tClose) => {
         if (tClose === 'save') {
             setTypeClose('guardar');
@@ -744,8 +834,139 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 }
 
                 socket.connection.emit('stats:event', payload);
+
+                // If finalizing, cancel any reminder tied to this folio
+                if (actionClose === 'end' && process.env.REACT_APP_CENTRALITA) {
+                    axios.put(`${process.env.REACT_APP_CENTRALITA}/reminders/cancelByFolio`, {
+                        folioId: folio?._id,
+                    }, { headers: { Authorization: `Bearer ${window.localStorage.getItem('sdToken')}` } })
+                    .catch((e)=>{
+                        console.warn('cancelByFolio failed:', e?.message);
+                    });
+                }
             } catch (e) {
                 console.warn('stats:event emit failed (closeFolio):', e);
+            }
+
+            // If saving and reminder is enabled, create the reminder via centralita REST
+            try {
+                if (actionClose === 'save' && reminderEnabled && isFolioAttachedAgent && process.env.REACT_APP_CENTRALITA) {
+                    // Validation: preset required
+                    if (!reminderPreset) {
+                        addToast({ title: 'Selecciona un tiempo', description: 'Debes seleccionar un tiempo para el recordatorio', color: 'warning' });
+                        // Skip creating reminder if no preset
+                        throw new Error('Reminder preset not selected');
+                    }
+
+                    let due = new Date();
+                    if (reminderPreset === '2m') due = new Date(Date.now() + 2*60*1000);
+                    else if (reminderPreset === '10m') due = new Date(Date.now() + 10*60*1000);
+                    else if (reminderPreset === '30m') due = new Date(Date.now() + 30*60*1000);
+                    else if (reminderPreset === '1h') due = new Date(Date.now() + 60*60*1000);
+                    else if (reminderPreset === 'custom') {
+                        if (!reminderCustomDateTime) {
+                            // Build from separate date/hour/min if provided
+                            if (!reminderCustomDate) {
+                                addToast({ title: 'Selecciona fecha', description: 'Debes elegir una fecha futura', color: 'warning' });
+                                throw new Error('Reminder custom date not selected');
+                            }
+                            const hh = parseInt(reminderCustomHour, 10);
+                            const mm = parseInt(reminderCustomMinute, 10);
+                            if (Number.isNaN(hh) || Number.isNaN(mm)) {
+                                addToast({ title: 'Selecciona hora', description: 'Debes elegir hora y minutos (15 en 15)', color: 'warning' });
+                                throw new Error('Reminder custom time not selected');
+                            }
+                            // Enforce minimum 15 minutes from now
+                            try {
+                                const [yy, mo, dd] = reminderCustomDate.split('-').map(x => parseInt(x, 10));
+                                const candidate = new Date(yy, (mo - 1), dd, hh, mm, 0, 0);
+                                const now = new Date();
+                                const min = new Date(now.getTime() + 2 * 60 * 1000);
+                                if (candidate < min) {
+                                    addToast({ title: 'Hora inválida', description: 'Debe ser al menos 2 minutos después de la hora actual', color: 'warning' });
+                                    throw new Error('Custom time must be >= now + 2m');
+                                }
+                            } catch (_) { /* ignore parse issues; other checks will handle */ }
+                            const iso = `${reminderCustomDate}T${String(isNaN(hh)?9:hh).padStart(2,'0')}:${String(isNaN(mm)?0:mm).padStart(2,'0')}`;
+                            setReminderCustomDateTime(iso);
+                        }
+                        let dueCandidate = new Date(reminderCustomDateTime || `${reminderCustomDate}T${reminderCustomHour}:${reminderCustomMinute}`);
+                        if (isNaN(dueCandidate.getTime())) {
+                            addToast({ title: 'Fecha/hora inválida', description: 'Verifica el formato de fecha y hora', color: 'danger' });
+                            throw new Error('Invalid custom datetime');
+                        }
+                        // Enforce allowed window 05:00–22:00 for any day
+                        const h = dueCandidate.getHours();
+                        if (h < 5 || h > 22) {
+                            addToast({ title: 'Hora no permitida', description: 'Selecciona una hora entre 05:00 y 22:00', color: 'danger' });
+                            throw new Error('Custom datetime out of allowed window');
+                        }
+                        if (dueCandidate <= new Date()) {
+                            addToast({ title: 'Fecha pasada', description: 'La fecha y hora deben ser posteriores a ahora', color: 'danger' });
+                            throw new Error('Custom datetime must be in the future');
+                        }
+                        due = dueCandidate;
+                    } else if (reminderPreset === 'tomorrow') {
+                        const hh = parseInt(reminderTimeHour, 10);
+                        const mm = parseInt(reminderTimeMinute, 10);
+                        if (Number.isNaN(hh) || Number.isNaN(mm)) {
+                            addToast({ title: 'Selecciona hora', description: 'Debes elegir hora y minutos (15 en 15) para mañana', color: 'warning' });
+                            throw new Error('Tomorrow time not selected');
+                        }
+                        const now = new Date();
+                        const tmr = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, (hh||9), (mm||0), 0, 0);
+                        // Enforce allowed window 05:00–22:00
+                        if ((hh ?? 0) < 5 || (hh ?? 0) > 22) {
+                            addToast({ title: 'Hora no permitida', description: 'Para mañana selecciona una hora entre 05:00 y 22:00', color: 'danger' });
+                            throw new Error('Tomorrow time out of allowed window');
+                        }
+                        if (tmr <= now) {
+                            addToast({ title: 'Hora inválida', description: 'Selecciona una hora válida para mañana', color: 'danger' });
+                            throw new Error('Tomorrow time not in future');
+                        }
+                        due = tmr;
+                    }
+
+                    const token = window.localStorage.getItem('sdToken');
+                    // Log the folio ID for debugging
+                    console.log('Creating reminder with folioId:', folio?._id, 'type:', typeof folio?._id);
+                    
+                    // Get personId from folio if available
+                    const personId = folio?.personId || folio?.person?._id || null;
+                    console.log('Creating reminder with personId:', personId, 'type:', typeof personId);
+                    
+                    axios.post(`${process.env.REACT_APP_CENTRALITA}/reminders`, {
+                        folioId: folio?._id?.toString(), // Ensure it's a string for proper ObjectId conversion
+                        serviceId: userInfo?.service?.id?.toString(),
+                        agentId: userInfo?.id?.toString(), // Ensure agentId is included
+                        personId: personId?.toString(), // Include personId if available
+                        dueAt: due.toISOString(),
+                        note: reminderNote || undefined,
+                    }, {
+                        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+                    })
+                    .then(response => {
+                        console.log('Reminder upserted successfully:', response.data);
+                        const updated = response?.data?.updated;
+                        const alias = response?.data?.reminder?.aliasPerson || '';
+                        if (updated) {
+                            addToast({ title: 'Recordatorio actualizado', description: alias ? `Para: ${alias}` : undefined, color: 'success' });
+                        } else {
+                            addToast({ title: 'Recordatorio creado', description: alias ? `Para: ${alias}` : undefined, color: 'success' });
+                        }
+                    })
+                    .catch(error => {
+                        const data = error.response?.data;
+                        if (data?.code === 409) {
+                            // Fallback in case server still returns 409 in some scenarios
+                            addToast({ title: 'Ya existe un recordatorio', description: 'Se actualizará automáticamente al volver a intentar.', color: 'warning' });
+                        } else {
+                            addToast({ title: 'No se pudo crear el recordatorio', description: data?.message || error.message, color: 'danger' });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('Failed to create reminder:', e);
             }
 
             // Remove the assignment time before updating the list
@@ -1491,6 +1712,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                     } else {
                                                         e.preventDefault();
                                                         prepareMessage(e.target.value);
+                                                        //prepareList(e.target.value);
                                                     }
                                                 }
                                             }}
@@ -1847,6 +2069,143 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                         <span className="text-xs text-gray-500">{assignPrivateAlways ? 'Se enviará a Inbox Privado' : 'Selecciona para asignar'}</span>
                                                     </div>
                                                 </HeroCheckbox>
+                                            </div>
+                                        )}
+                                        {typeClose === 'guardar' && (
+                                            <div className="flex flex-col gap-2 p-3 rounded-md border border-default-200 bg-default-50">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-sm font-medium">Recordatorio</div>
+                                                    <HeroCheckbox
+                                                        isSelected={reminderEnabled}
+                                                        isDisabled={!assignPrivateAlways && !isFolioAttachedAgent}
+                                                        onValueChange={(v)=> (assignPrivateAlways || isFolioAttachedAgent) && setReminderEnabled(v)}
+                                                    >
+                                                        Activar
+                                                    </HeroCheckbox>
+                                                </div>
+                                                {!assignPrivateAlways && !isFolioAttachedAgent && (
+                                                    <div className="text-xs text-amber-600">Debes asignarte el folio (Inbox privado) para poder programar un recordatorio.</div>
+                                                )}
+                                                {reminderEnabled && (assignPrivateAlways || isFolioAttachedAgent)  && (
+                                                    <>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <HeroButton size="sm" variant={reminderPreset==='2m'?'solid':'flat'} onPress={()=>setReminderPreset('2m')}>2 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='10m'?'solid':'flat'} onPress={()=>setReminderPreset('10m')}>10 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='30m'?'solid':'flat'} onPress={()=>setReminderPreset('30m')}>20 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='1h'?'solid':'flat'} onPress={()=>setReminderPreset('1h')}>1 hora</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='tomorrow'?'solid':'flat'} onPress={()=>setReminderPreset('tomorrow')}>Mañana</HeroButton>
+                                                            <HeroButton
+                                                                size="sm"
+                                                                variant={reminderPreset==='custom'?'solid':'flat'}
+                                                                onPress={()=>{
+                                                                    setReminderPreset('custom');
+                                                                    // Default date to today to save clicks
+                                                                    if (!reminderCustomDate) setReminderCustomDate(getNowLocalInput().slice(0,10));
+                                                                    // Clear legacy combined value to rely on separate fields
+                                                                    setReminderCustomDateTime('');
+                                                                }}
+                                                            >
+                                                                Custom
+                                                            </HeroButton>
+                                                        </div>
+                                                        {reminderPreset==='tomorrow' && (
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex flex-col items-start gap-2">
+                                                                    <span className="text-xs text-gray-500">Hora</span>
+                                                                    <HeroSelect
+                                                                        size="sm"
+                                                                        classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
+                                                                        selectedKeys={[reminderTimeHour]}
+                                                                        onSelectionChange={(keys)=>{ const v = Array.from(keys)[0]; setReminderTimeHour(String(v)); }}
+                                                                    >
+                                                                        {Array.from({length: 18}, (_,i)=> (5+i)).map(h => (
+                                                                            <SelectItem key={String(h).padStart(2,'0')}>{String(h).padStart(2,'0')}</SelectItem>
+                                                                        ))}
+                                                                    </HeroSelect>
+                                                                    <HeroSelect
+                                                                        size="sm"
+                                                                        classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
+                                                                        selectedKeys={[reminderTimeMinute]}
+                                                                        onSelectionChange={(keys)=>{ const v = Array.from(keys)[0]; setReminderTimeMinute(String(v)); }}
+                                                                    >
+                                                                        {['00','15','30','45'].map(m => (
+                                                                            <SelectItem key={m}>{m}</SelectItem>
+                                                                        ))}
+                                                                    </HeroSelect>
+                                                                </div>
+                                                                <div className="text-xs text-gray-500">
+                                                                    Se programará para: {(() => {
+                                                                        const now = new Date();
+                                                                        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, parseInt(reminderTimeHour||'9',10), parseInt(reminderTimeMinute||'0',10));
+                                                                        const dd = String(d.getDate()).padStart(2,'0');
+                                                                        const mo = String(d.getMonth()+1).padStart(2,'0');
+                                                                        const yyyy = d.getFullYear();
+                                                                        const hhs = String(d.getHours()).padStart(2,'0');
+                                                                        const mms = String(d.getMinutes()).padStart(2,'0');
+                                                                        return `${dd}/${mo}/${yyyy} ${hhs}:${mms}`;
+                                                                    })()}
+                                                                </div>
+                                                                <div className="text-[11px] text-gray-400">Zona horaria local: {localTimeZone}</div>
+                                                            </div>
+                                                        )}
+                                                        {reminderPreset==='custom' && (
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex flex-col items-start gap-2">
+                                                                    <span className="text-xs text-gray-500">Fecha</span>
+                                                                    <Input
+                                                                        type="date"
+                                                                        size="sm"
+                                                                        min={getNowLocalInput().slice(0,10)}
+                                                                        value={reminderCustomDate}
+                                                                        onChange={(e)=> setReminderCustomDate(e.target.value)}
+                                                                    />
+                                                                    <span className="text-xs text-gray-500">Hora</span>
+                                                                    <HeroSelect
+                                                                        size="sm"
+                                                                        classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
+                                                                        selectedKeys={[reminderCustomHour]}
+                                                                        onSelectionChange={(keys)=>{ const v = Array.from(keys)[0]; setReminderCustomHour(String(v)); setReminderCustomDateTime(''); }}
+                                                                    >
+                                                                        {Array.from({length: 18}, (_,i)=> (5+i)).map(h => (
+                                                                            <SelectItem key={String(h).padStart(2,'0')}>{String(h).padStart(2,'0')}</SelectItem>
+                                                                        ))}
+                                                                    </HeroSelect>
+                                                                    <HeroSelect
+                                                                        size="sm"
+                                                                        classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
+                                                                        selectedKeys={[reminderCustomMinute]}
+                                                                        onSelectionChange={(keys)=>{ const v = Array.from(keys)[0]; setReminderCustomMinute(String(v)); setReminderCustomDateTime(''); }}
+                                                                    >
+                                                                        {['00','15','30','45'].map(m => (
+                                                                            <SelectItem key={m}>{m}</SelectItem>
+                                                                        ))}
+                                                                    </HeroSelect>
+                                                                </div>
+                                                                <div className="text-[11px] text-gray-400">Rango permitido: 05:00–22:00</div>
+                                                                {(reminderCustomDate || reminderCustomDateTime) && (
+                                                                    <div className="text-xs text-gray-500">
+                                                                        Se programará para: {(() => {
+                                                                            const d = reminderCustomDateTime
+                                                                                ? new Date(reminderCustomDateTime)
+                                                                                : (reminderCustomDate ? new Date(`${reminderCustomDate}T${reminderCustomHour}:${reminderCustomMinute}`) : null);
+                                                                            if (!d || isNaN(d.getTime())) return '—';
+                                                                            const dd = String(d.getDate()).padStart(2,'0');
+                                                                            const mo = String(d.getMonth()+1).padStart(2,'0');
+                                                                            const yyyy = d.getFullYear();
+                                                                            const hhs = String(d.getHours()).padStart(2,'0');
+                                                                            const mms = String(d.getMinutes()).padStart(2,'0');
+                                                                            return `${dd}/${mo}/${yyyy} ${hhs}:${mms}`;
+                                                                        })()}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {!reminderPreset && (
+                                                            <div className="text-xs text-danger-500">Selecciona un tiempo para crear el recordatorio</div>
+                                                        )}
+                                                        <Input size="sm" labelPlacement="outside" label="Nota (opcional)" placeholder="Añade una nota" value={reminderNote} onChange={(e)=>setReminderNote(e.target.value)} />
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                         {!isFolioAttachedAgent && infoPipeline && typeClose === 'guardar' && (
