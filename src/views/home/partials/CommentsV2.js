@@ -2089,9 +2089,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 {reminderEnabled && (assignPrivateAlways || isFolioAttachedAgent)  && (
                                                     <>
                                                         <div className="flex flex-wrap gap-2">
-                                                            <HeroButton size="sm" variant={reminderPreset==='2m'?'solid':'flat'} onPress={()=>setReminderPreset('2m')}>2 min</HeroButton>
+                                                            {/* <HeroButton size="sm" variant={reminderPreset==='2m'?'solid':'flat'} onPress={()=>setReminderPreset('2m')}>2 min</HeroButton> */}
                                                             <HeroButton size="sm" variant={reminderPreset==='10m'?'solid':'flat'} onPress={()=>setReminderPreset('10m')}>10 min</HeroButton>
-                                                            <HeroButton size="sm" variant={reminderPreset==='30m'?'solid':'flat'} onPress={()=>setReminderPreset('30m')}>20 min</HeroButton>
+                                                            <HeroButton size="sm" variant={reminderPreset==='30m'?'solid':'flat'} onPress={()=>setReminderPreset('30m')}>30 min</HeroButton>
                                                             <HeroButton size="sm" variant={reminderPreset==='1h'?'solid':'flat'} onPress={()=>setReminderPreset('1h')}>1 hora</HeroButton>
                                                             <HeroButton size="sm" variant={reminderPreset==='tomorrow'?'solid':'flat'} onPress={()=>setReminderPreset('tomorrow')}>Mañana</HeroButton>
                                                             <HeroButton
@@ -2145,7 +2145,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                                         return `${dd}/${mo}/${yyyy} ${hhs}:${mms}`;
                                                                     })()}
                                                                 </div>
-                                                                <div className="text-[11px] text-gray-400">Zona horaria local: {localTimeZone}</div>
+                                                                <div className="text-[11px] text-gray-400">Zona horaria local: {localTimeZone}</div>´´´´´
                                                             </div>
                                                         )}
                                                         {reminderPreset==='custom' && (
