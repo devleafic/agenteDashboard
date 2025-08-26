@@ -1,6 +1,19 @@
 {
-  "currentVersion": "2.0.8",
+  "currentVersion": "2.0.9",
   "releases": [
+    {
+      "version": "2.0.9",
+      "date": "25/08/2025",
+      "highlights": [
+        "Nuevo: En sección de Contactos se agrega  'Atendidos por mí', historial de conversacines y acciones contextuales."
+      ],
+      "changes": [
+        { "type": "added", "title": "Pestañas de navegación", "details": "Nuevas vistas: 'Buscar contactos' y 'Atendidos por mí (últimos 5 días)'." },
+        { "type": "added", "title": "Filtros y ordenamiento", "details": "En 'Atendidos por mí' se puede filtrar por ID/Nombre y por Folio; además, ordenar por fecha de creación del folio (asc/desc)." },
+        { "type": "added", "title": "Historial de conversación", "details": "Modal con mensajes usando MessageBubble, estados informativos y acciones rápidas para reanudar folio guardado o crear uno nuevo si está finalizado." },
+        { "type": "added", "title": "Otros folios del contacto", "details": "Listado de folios asociados al contacto." }
+      ]
+    },
     {
       "version": "2.0.8",
       "date": "18/08/2025",
