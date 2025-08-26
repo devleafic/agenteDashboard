@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 //import { toast } from 'react-toastify';
 import {
@@ -57,6 +57,11 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   const [byAgentFolioFilter, setByAgentFolioFilter] = useState('');
   const [filteredResult, setFilteredResult] = useState(null);
   const [sortCreatedAtFolio, setSortCreatedAtFolio] = useState(null); // 'asc' | 'desc' | null
+
+  // Control de concurrencia para evitar parpadeos por respuestas tardías
+  const requestSeq = useRef(0);
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
 
   const initialStateForm = {
     service: userInfo.service.id,
@@ -253,6 +258,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
 
   // Función para cargar los contactos
   const onContactJSON = async () => {
+    const seq = ++requestSeq.current;
     setReport(null);
     setOnLoad(true);
     setShowRows([]);
@@ -270,6 +276,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       });
 
       console.log('Respuesta de la API:', result.data);
+
+      // Si cambió la pestaña o hay una solicitud más reciente, no actualizar estado
+      if (activeTabRef.current !== 'search' || seq !== requestSeq.current) return;
 
       if (result.data?.report) {
         const { report } = result.data;
@@ -323,7 +332,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           color: 'danger'
         }
       );    } finally {
-      setOnLoad(false);
+      if (activeTabRef.current === 'search' && seq === requestSeq.current) {
+        setOnLoad(false);
+      }
     }
   };
 
@@ -965,6 +976,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       }
     };
 
+    // Limpiar la tabla de forma inmediata al cambiar de vista para evitar flicker
+    setReport(null);
+    setShowRows([]);
+    setFilteredResult(null);
+    setOnLoad(true);
+    setCurrentPag(1);
+
     if (userInfo?.service?.id) {
       getInfoService();
       if (activeTab === 'search') {
@@ -975,8 +993,27 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     }
   }, [userInfo?.service?.id, activeTab]);
 
+  // Cambiar de pestaña limpiando la tabla antes para evitar mostrar datos previos
+  const handleSwitchTab = (tab) => {
+    setReport(null);
+    setShowRows([]);
+    setFilteredResult(null);
+    setOnLoad(true);
+    setCurrentPag(1);
+    setSortCreatedAtFolio(null);
+    setByAgentClientIdFilter('');
+    setByAgentFolioFilter('');
+    // Limpiar loaders por fila y modal
+    setLoadingHistoryRowId(null);
+    setLoadingOtherFoliosRowId(null);
+    setLoadingChatRowId(null);
+    setLoadingActionModal(false);
+    setActiveTab(tab);
+  };
+
   // Función para cargar los contactos atendidos por el agente (últimos 5 días)
   const onContactByAgentJSON = async () => {
+    const seq = ++requestSeq.current;
     setReport(null);
     setOnLoad(true);
     setShowRows([]);
@@ -1633,7 +1670,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 size="sm"
                 color="primary"
                 variant={activeTab === 'search' ? 'solid' : 'flat'}
-                onPress={() => setActiveTab('search')}
+                onPress={() => handleSwitchTab('search')}
               >
                 Buscar contactos
               </Button>
@@ -1641,9 +1678,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 size="sm"
                 color="secondary"
                 variant={activeTab === 'byAgent' ? 'solid' : 'flat'}
-                onPress={() => setActiveTab('byAgent')}
+                onPress={() => handleSwitchTab('byAgent')}
               >
-                Atendidos por mí (últimos 5 días)
+                Atendidos por mí (Hoy)
               </Button>
             </div>
             {activeTab === 'byAgent' && (
