@@ -1,6 +1,18 @@
 {
-  "currentVersion": "2.0.9",
+  "currentVersion": "2.0.10",
   "releases": [
+    {
+      "version": "2.0.10",
+      "date": "27/08/2025",
+      "highlights": [
+        "Mejora: Optimización de rendimiento en la navegación de Contactos y Atendidos por mí"
+      ],
+      "changes": [
+        { "type": "fixed", "title": "Carga de datos", "details": "Corregido problema de carga infinita al hacer clic en la pestaña activa de Contactos." },
+        { "type": "improved", "title": "Experiencia de usuario", "details": "Mejorado el manejo de estados durante la navegación entre pestañas para una transición más fluida." },
+        { "type": "improved", "title": "Manejo de concurrencia", "details": "Implementado sistema de control de solicitudes para evitar sobrecarga al cambiar rápidamente entre pestañas." }
+      ]
+    },
     {
       "version": "2.0.9",
       "date": "25/08/2025",
