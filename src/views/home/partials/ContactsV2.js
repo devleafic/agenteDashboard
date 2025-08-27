@@ -117,10 +117,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
   // Realizar búsqueda cuando cambia el query
   useEffect(() => {
     const searchTimer = setTimeout(() => {
+      // Solo ejecutar búsqueda cuando estamos en la pestaña de búsqueda
       if (activeTab === 'search') {
         onContactJSON();
-      } else if (activeTab === 'byAgent') {
-        onContactByAgentJSON();
       }
     }, 500); // Debounce de 500ms
 
@@ -995,6 +994,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
 
   // Cambiar de pestaña limpiando la tabla antes para evitar mostrar datos previos
   const handleSwitchTab = (tab) => {
+    const isSameTab = activeTabRef.current === tab;
+
+    // Limpiar tabla y estado de loaders
     setReport(null);
     setShowRows([]);
     setFilteredResult(null);
@@ -1003,12 +1005,23 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     setSortCreatedAtFolio(null);
     setByAgentClientIdFilter('');
     setByAgentFolioFilter('');
-    // Limpiar loaders por fila y modal
     setLoadingHistoryRowId(null);
     setLoadingOtherFoliosRowId(null);
     setLoadingChatRowId(null);
     setLoadingActionModal(false);
-    setActiveTab(tab);
+
+    // Si es una pestaña diferente, actualizar activeTab y el efecto hará la carga
+    if (!isSameTab) {
+      setActiveTab(tab);
+      return;
+    }
+
+    // Si es la misma pestaña, disparar la carga explícitamente para no quedarse en loading
+    if (tab === 'search') {
+      onContactJSON();
+    } else if (tab === 'byAgent') {
+      onContactByAgentJSON();
+    }
   };
 
   // Función para cargar los contactos atendidos por el agente (últimos 5 días)
@@ -1067,15 +1080,19 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       if (error.response) {
         console.error('Detalles del error:', error.response.data);
       }
-      addToast(
-        {
-          title: 'Error al cargar los contactos por agente',
-          description: 'Error al cargar los contactos por agente',
-          color: 'danger'
-        }
-      );
+      if (activeTabRef.current === 'byAgent' && seq === requestSeq.current) {
+        addToast(
+          {
+            title: 'Error al cargar los contactos por agente',
+            description: 'Error al cargar los contactos por agente',
+            color: 'danger'
+          }
+        );
+      }
     } finally {
-      setOnLoad(false);
+      if (activeTabRef.current === 'byAgent' && seq === requestSeq.current) {
+        setOnLoad(false);
+      }
     }
   };
 
