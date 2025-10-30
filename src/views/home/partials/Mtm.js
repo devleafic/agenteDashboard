@@ -224,7 +224,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                             onClick={() => getMtm(item._id)}
                             title={item.previewtxt}
                         >
-                            {item.name}
+                            {item.label ? item.label : item.name}
                         </li>
                     ))}
                 </ul>
