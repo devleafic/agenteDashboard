@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import axios from 'axios';
 import { Button, Modal, Select, Input, Card, CardHeader, CardBody, Divider, Chip, Image, Loader, Icon, Message, Dimmer } from '@heroui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiMail, FiClock, FiFolder, FiSearch, FiX, FiMessageSquare, FiFileText, FiImage, FiFile, FiArrowRight, FiPaperclip, FiSend, FiChevronRight, FiChevronDown, FiGlobe, FiGrid, FiMessageCircle, FiEye } from 'react-icons/fi';
@@ -19,16 +20,19 @@ import Mtm from './Mtm';
 import Zohocrm from './plugins/zohocrm/Zohocrm';
 import MailingTemplate from './plugins/mailingTemplate/MailingTemplate';
 
-const AccordionItem = ({ title, isOpen, onClick, children }) => {
+const AccordionItem = ({ title, isOpen, onClick, children, badge }) => {
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow mb-2 overflow-hidden" style={{ marginBottom: '0.5rem' }}>
-      <CardHeader className="bg-gray-50 px-4 py-3 border-b cursor-pointer select-none" onClick={onClick} style={{ padding: '0.75rem 1rem' }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            {title.icon && <title.icon className="mr-2 text-blue-500" style={{ fontSize: '1.25rem' }} />}
-            <span className="font-medium" style={{ fontSize: '1rem' }}>{title.text}</span>
+    <Card className="ibc-accordion shadow-none mb-2 overflow-hidden" style={{ marginBottom: '6px' }}>
+      <CardHeader className="ibc-accordion-header border-b cursor-pointer select-none" onClick={onClick} style={{ padding: '10px 14px' }}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
+            {title.icon && <title.icon className="text-gray-400" style={{ fontSize: '1rem' }} />}
+            <span className="ibc-accordion-title">{title.text}</span>
           </div>
-          {isOpen ? <FiChevronDown className="text-gray-500" style={{ fontSize: '1.25rem' }} /> : <FiChevronRight className="text-gray-500" style={{ fontSize: '1.25rem' }} />}
+          <div className="flex items-center gap-2">
+            {badge}
+            {isOpen ? <FiChevronDown className="text-gray-400" style={{ fontSize: '1rem' }} /> : <FiChevronRight className="text-gray-400" style={{ fontSize: '1rem' }} />}
+          </div>
         </div>
       </CardHeader>
       <AnimatePresence>
@@ -40,11 +44,49 @@ const AccordionItem = ({ title, isOpen, onClick, children }) => {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <CardBody className="p-4" style={{ padding: '1rem' }}>{children}</CardBody>
+            <CardBody style={{ padding: '12px 14px' }}>{children}</CardBody>
           </motion.div>
         )}
       </AnimatePresence>
     </Card>
+  );
+};
+
+const SENTIMENT_CONFIG = {
+  urgente:  { label: 'Urgente',  color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', dot: '#ef4444' },
+  negativo: { label: 'Negativo', color: '#ea580c', bg: '#fff7ed', border: '#fdba74', dot: '#f97316' },
+  positivo: { label: 'Positivo', color: '#16a34a', bg: '#f0fdf4', border: '#86efac', dot: '#22c55e' },
+  neutro:   { label: 'Neutro',   color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb', dot: '#9ca3af' },
+};
+
+const URGENT_WORDS   = ['urgente','emergencia','reclamo','supervisor','fraude','denuncia','abogado','cancelar contrato','queja formal'];
+const NEGATIVE_WORDS = ['malo','mala','horrible','problema','falla','error','insatisfecho','demora','tardanza','no sirve','no funciona','pésimo','pesimo','molesto','molesta','enojado','frustrado','decepcionado'];
+const POSITIVE_WORDS = ['gracias','perfecto','excelente','muy bien','genial','satisfecho','satisfecha','funcionó','resuelto','entendido','de acuerdo'];
+
+function computeFolioSentiment(messages) {
+  if (!messages?.length) return SENTIMENT_CONFIG.neutro;
+  const clientText = messages
+    .filter(m => m.direction !== 'out')
+    .slice(-12)
+    .map(m => (m.contentTxt || m.content || m.caption || '').toLowerCase())
+    .join(' ');
+  if (!clientText.trim()) return null;
+  const urgentHits   = URGENT_WORDS.filter(w => clientText.includes(w)).length;
+  const negativeHits = NEGATIVE_WORDS.filter(w => clientText.includes(w)).length;
+  const positiveHits = POSITIVE_WORDS.filter(w => clientText.includes(w)).length;
+  if (urgentHits >= 1)                      return SENTIMENT_CONFIG.urgente;
+  if (negativeHits >= 2)                    return SENTIMENT_CONFIG.negativo;
+  if (positiveHits >= 1 && negativeHits === 0) return SENTIMENT_CONFIG.positivo;
+  return SENTIMENT_CONFIG.neutro;
+}
+
+const SentimentBadge = ({ sentiment }) => {
+  if (!sentiment) return null;
+  return (
+    <span className={`ibc-sentiment ibc-sentiment-${sentiment.label.toLowerCase()}`}>
+      <span className="ibc-sentiment-dot" style={{ background: sentiment.dot }} />
+      {sentiment.label}
+    </span>
   );
 };
 
@@ -73,6 +115,119 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
 
   const toggleAccordion = (id) => setOpenAccordion(openAccordion === id ? null : id);
 
+  const [copilotLoading, setCopilotLoading] = useState(false);
+  const [copilotResult, setCopilotResult] = useState(null);
+  const [copilotAlternatives, setCopilotAlternatives] = useState([]);
+  const [copilotLimitations, setCopilotLimitations] = useState([]);
+  const [copilotAction, setCopilotAction] = useState(null);
+  const [copilotQuestion, setCopilotQuestion] = useState('');
+  const [folioSentiment, setFolioSentiment] = useState(null);
+
+  const clearCopilot = () => { setCopilotResult(null); setCopilotAlternatives([]); setCopilotLimitations([]); setCopilotAction(null); setCopilotQuestion(''); };
+
+  const callCopilot = (action, question) => {
+    const fId = folio?.folio?._id;
+    const sId = folio?.folio?.service?._id || folio?.folio?.service;
+    if (!fId || !sId) return;
+    setCopilotAction(action);
+    setCopilotResult(null);
+    setCopilotAlternatives([]);
+    setCopilotLimitations([]);
+    setCopilotLoading(true);
+    axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, { folioId: String(fId), serviceId: String(sId), action, question: question || null })
+      .then(({ data }) => { const b = data?.body || data; setCopilotResult(b?.suggestion || null); setCopilotAlternatives(Array.isArray(b?.alternatives) ? b.alternatives : []); setCopilotLimitations(b?.limitations || []); })
+      .catch(() => { setCopilotResult(null); setCopilotAlternatives([]); setCopilotLimitations([]); })
+      .finally(() => setCopilotLoading(false));
+  };
+
+  const renderCopilotSection = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+        <button
+          onClick={() => callCopilot('classify')}
+          disabled={copilotLoading}
+          style={{ padding: '7px 10px', fontSize: '12px', fontWeight: 500, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}
+        >
+          🏷 Clasificar
+        </button>
+        <button
+          onClick={() => { clearCopilot(); setCopilotAction('ask'); }}
+          disabled={copilotLoading}
+          style={{ padding: '7px 10px', fontSize: '12px', fontWeight: 500, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}
+        >
+          ❓ Preguntar
+        </button>
+      </div>
+      {copilotAction === 'ask' && !copilotResult && (
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <input
+            value={copilotQuestion}
+            onChange={(e) => setCopilotQuestion(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && copilotQuestion.trim() && callCopilot('ask', copilotQuestion)}
+            placeholder="Escribe tu pregunta sobre el folio…"
+            style={{ flex: 1, padding: '6px 10px', fontSize: '12px', border: '1px solid #ebebeb', borderRadius: '8px', outline: 'none' }}
+          />
+          <button
+            onClick={() => copilotQuestion.trim() && callCopilot('ask', copilotQuestion)}
+            disabled={copilotLoading || !copilotQuestion.trim()}
+            style={{ padding: '6px 12px', fontSize: '12px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: copilotQuestion.trim() ? 1 : 0.5 }}
+          >
+            →
+          </button>
+        </div>
+      )}
+      {copilotLoading && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', fontSize: '12px', color: '#7c3aed' }}>
+          <div style={{ width: '14px', height: '14px', border: '2px solid #e9d5ff', borderTop: '2px solid #7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          Analizando conversación…
+        </div>
+      )}
+      {!copilotLoading && !copilotResult && copilotAction && copilotLimitations.length > 0 && (
+        <div style={{ fontSize: '11px', color: '#9ca3af', padding: '6px 10px', background: '#fafafa', borderRadius: '6px', border: '1px solid #ebebeb' }}>
+          {copilotLimitations[0]}
+        </div>
+      )}
+      {copilotResult && !copilotLoading && copilotAction === 'classify' && (
+        <div style={{ background: '#faf5ff', borderRadius: '8px', padding: '10px 12px', border: '1px solid #ede9fe' }}>
+          <p style={{ fontSize: '10px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Clasificaciones sugeridas</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {[copilotResult, ...copilotAlternatives].filter(Boolean).map((cat, i) => (
+              <button
+                key={i}
+                onClick={() => navigator.clipboard?.writeText(cat)}
+                title="Clic para copiar"
+                style={{ padding: '4px 12px', fontSize: '11px', fontWeight: i === 0 ? 600 : 400, background: i === 0 ? '#7c3aed' : '#ffffff', color: i === 0 ? '#fff' : '#7c3aed', border: '1px solid #ede9fe', borderRadius: '20px', cursor: 'pointer' }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '6px' }}>Clic en una clasificación para copiarla</p>
+          <button onClick={clearCopilot} style={{ marginTop: '6px', padding: '3px 10px', fontSize: '11px', background: 'transparent', color: '#9ca3af', border: '1px solid #ebebeb', borderRadius: '6px', cursor: 'pointer' }}>Limpiar</button>
+        </div>
+      )}
+      {copilotResult && !copilotLoading && copilotAction !== 'classify' && (
+        <div style={{ borderLeft: '3px solid #a78bfa', background: '#faf5ff', borderRadius: '0 8px 8px 0', padding: '10px 12px', fontSize: '12px', color: '#374151', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+          {copilotResult}
+          <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+            <button
+              onClick={() => { navigator.clipboard?.writeText(copilotResult); }}
+              style={{ padding: '4px 10px', fontSize: '11px', background: 'transparent', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '6px', cursor: 'pointer' }}
+            >
+              Copiar
+            </button>
+            <button
+              onClick={clearCopilot}
+              style={{ padding: '4px 10px', fontSize: '11px', background: 'transparent', color: '#9ca3af', border: '1px solid #ebebeb', borderRadius: '6px', cursor: 'pointer' }}
+            >
+              Limpiar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   useEffect(() => {
     if (folio?.clasifications) {
       const tmpClass = folio.clasifications.map(item => ({ key: item._id, value: item._id, text: item.name }));
@@ -87,6 +242,20 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    clearCopilot();
+    const msgs = folio?.folio?.message;
+    setFolioSentiment(msgs?.length ? computeFolioSentiment(msgs) : null);
+    const fId = folio?.folio?._id;
+    const sId = folio?.folio?.service?._id || folio?.folio?.service;
+    if (fId && sId) {
+      axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, {
+        folioId: String(fId), serviceId: String(sId), action: 'sentiment',
+      }).catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folio?.folio?._id]);
 
   const getZoomAdjustedStyles = () => ({
     fontSize: windowState.zoom < 1 ? '1.1rem' : windowState.zoom > 1.3 ? '0.9rem' : '1rem',
@@ -297,6 +466,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   };
 
   const sections = [
+    { id: 'copilot', title: 'Copilot IA', icon: FiMessageCircle, content: renderCopilotSection, badge: <SentimentBadge sentiment={folioSentiment} /> },
     { id: 'crm', title: 'CRM', icon: FiUser, content: renderCrmSection },
     { id: 'plugins', title: 'Plugins', icon: FiGrid, content: renderPluginsSection },
     { id: 'templates', title: 'Plantillas de mensajes', icon: FiMessageSquare, content: renderTemplatesSection, condition: folio.folio.channel !== 'call' },
@@ -316,6 +486,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
             title={{ text: section.title, icon: section.icon }}
             isOpen={openAccordion === section.id}
             onClick={() => handleAccordionClick(section.id)}
+            badge={section.badge}
           >
             {section.content()}
           </AccordionItem>

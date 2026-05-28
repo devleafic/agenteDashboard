@@ -98,6 +98,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const [indicatorColor, setIndicatorColor] = useState('green');
     const [showAIModal, setShowAIModal] = useState(false);
     const [aiModalContent, setAiModalContent] = useState('');
+    const [aiLimitations, setAiLimitations] = useState([]);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiAction, setAiAction] = useState(null);
     const debounceTimerRef = useRef(null);
 
     const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
@@ -1806,8 +1809,18 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             startContent={<Sparkles className="w-4 h-4 text-purple-600" />}
                                             className="bg-white text-purple-700 hover:bg-purple-50 border border-purple-100 transition-colors"
                                             onPress={() => {
-                                                setAiModalContent('Para activar la función de Resumir con IA, por favor consulta con tu supervisor.');
+                                                const fId = folio?._id;
+                                                const sId = folio?.service?._id || folio?.service;
+                                                if (!fId || !sId) return;
+                                                setAiAction('summary');
+                                                setAiModalContent(null);
+                                                setAiLimitations([]);
                                                 setShowAIModal(true);
+                                                setAiLoading(true);
+                                                axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, { folioId: String(fId), serviceId: String(sId), action: 'summary' })
+                                                    .then(({ data }) => { const b = data?.body || data; setAiModalContent(b?.suggestion || null); setAiLimitations(b?.limitations || []); })
+                                                    .catch(() => setAiModalContent(null))
+                                                    .finally(() => setAiLoading(false));
                                             }}
                                         >
                                             Resumir con IA
@@ -1818,8 +1831,18 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             startContent={<MessageSquareText className="w-4 h-4 text-blue-600" />}
                                             className="bg-white text-blue-700 hover:bg-blue-50 border border-blue-100 transition-colors"
                                             onPress={() => {
-                                                setAiModalContent('Para activar la función de Contestar con IA, por favor consulta con tu supervisor.');
+                                                const fId = folio?._id;
+                                                const sId = folio?.service?._id || folio?.service;
+                                                if (!fId || !sId) return;
+                                                setAiAction('reply');
+                                                setAiModalContent(null);
+                                                setAiLimitations([]);
                                                 setShowAIModal(true);
+                                                setAiLoading(true);
+                                                axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, { folioId: String(fId), serviceId: String(sId), action: 'reply' })
+                                                    .then(({ data }) => { const b = data?.body || data; setAiModalContent(b?.suggestion || null); setAiLimitations(b?.limitations || []); })
+                                                    .catch(() => setAiModalContent(null))
+                                                    .finally(() => setAiLoading(false));
                                             }}
                                         >
                                             Contestar con IA
@@ -2031,16 +2054,51 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 </div>
             </div>
 
-            {/* AI Feature Modal */}
-            <HeroModal isOpen={showAIModal} onOpenChange={setShowAIModal} backdrop="blur">
+            {/* AI Copilot Modal */}
+            <HeroModal isOpen={showAIModal} onOpenChange={(open) => { if (!open) { setShowAIModal(false); setAiModalContent(null); setAiLimitations([]); setAiAction(null); setAiLoading(false); } }} backdrop="blur" size="lg">
                 <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">Función no disponible</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-purple-600" />
+                            <span>{aiAction === 'reply' ? 'Contestar con IA' : aiAction === 'summary' ? 'Resumen del folio' : 'Copilot IA'}</span>
+                        </div>
+                    </ModalHeader>
                     <ModalBody>
-                        <p>{aiModalContent}</p>
+                        {aiLoading ? (
+                            <div className="flex flex-col items-center gap-3 py-6">
+                                <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                                <p className="text-sm text-gray-500">Analizando conversación…</p>
+                            </div>
+                        ) : aiModalContent ? (
+                            <div className="border-l-4 border-purple-300 bg-purple-50 rounded-r-lg p-4 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                {aiModalContent}
+                            </div>
+                        ) : (
+                            <div className="py-4 text-center">
+                                <p className="text-sm text-gray-500">No se pudo generar una sugerencia.</p>
+                                {aiLimitations.length > 0 && (
+                                    <p className="text-xs text-gray-400 mt-1">{aiLimitations[0]}</p>
+                                )}
+                            </div>
+                        )}
                     </ModalBody>
                     <ModalFooter>
-                        <HeroButton color="primary" onPress={() => setShowAIModal(false)}>
-                            Entendido
+                        {aiAction === 'reply' && aiModalContent && !aiLoading && (
+                            <HeroButton
+                                color="secondary"
+                                size="sm"
+                                onPress={() => {
+                                    if (setMessageToSend) setMessageToSend(aiModalContent);
+                                    setShowAIModal(false);
+                                    setAiModalContent(null);
+                                    setAiAction(null);
+                                }}
+                            >
+                                Insertar en chat
+                            </HeroButton>
+                        )}
+                        <HeroButton variant="flat" size="sm" onPress={() => { setShowAIModal(false); setAiModalContent(null); setAiLimitations([]); setAiAction(null); }}>
+                            {aiAction === 'reply' && aiModalContent ? 'Cancelar' : 'Cerrar'}
                         </HeroButton>
                     </ModalFooter>
                 </ModalContent>
