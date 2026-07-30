@@ -164,14 +164,19 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
       })
       .catch((err) => {
         const status = err?.response?.status;
-        const detail = err?.response?.data?.message || err?.response?.data?.error;
+        const data = err?.response?.data;
+        /* Aunque centralita responda 4xx/5xx, el cuerpo sigue trayendo el
+           motivo real de aiServices. THROTTLE_EXCEEDED, por ejemplo, no esta
+           en el switch de statusFromAIResponse y sale como 502: sin leer esto
+           el agente veria "no respondió" cuando en realidad fue rechazado. */
+        const reason = data?.limitations?.[0] || data?.message || data?.error;
         setCopilotResult(null);
         setCopilotAlternatives([]);
         setCopilotLimitations([]);
         setCopilotError(
-          status === 503 ? 'Los servicios de IA están desactivados por configuración.'
+          reason ? reason
+          : status === 503 ? 'Los servicios de IA están desactivados por configuración.'
           : status === 502 ? 'El servicio de IA no respondió. Intenta de nuevo en unos segundos.'
-          : detail ? `No se pudo consultar al copiloto: ${detail}`
           : 'No se pudo consultar al copiloto. Revisa tu conexión e intenta de nuevo.'
         );
       })
@@ -306,14 +311,15 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   useEffect(() => {
     clearCopilot();
     const msgs = folio?.folio?.message;
+    /* El sentimiento que se pinta sale de esta heuristica local, no del
+       servidor. Aqui habia ademas un POST /ai/copilot/suggest con
+       action:'sentiment' cuya respuesta se descartaba (.catch vacio, sin
+       .then). Consumia una de las 20 llamadas por folio del throttle de
+       AgentCopilot —que no caduca— y arrastraba dos consultas a dataStorage,
+       una de ellas (/ai/service/config) que ese action ni siquiera usa.
+       Se elimina: si algun dia se quiere el sentimiento del servidor, hay
+       que leer la respuesta y sustituir computeFolioSentiment. */
     setFolioSentiment(msgs?.length ? computeFolioSentiment(msgs) : null);
-    const fId = folio?.folio?._id;
-    const sId = folio?.folio?.service?._id || folio?.folio?.service;
-    if (fId && sId) {
-      axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, {
-        folioId: String(fId), serviceId: String(sId), action: 'sentiment',
-      }).catch(() => {});
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folio?.folio?._id]);
 
