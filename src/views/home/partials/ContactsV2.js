@@ -444,19 +444,19 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           );
         } else if (status === 2 && fromInbox) {
           statusInfo = (
-            <div className="bg-green-100 text-green-800 p-3 rounded-md mb-4 text-center">
+            <div className="bd-folio-state--held border p-3 mb-4 text-center">
               Inbox Privado de Agente: {agentName}
             </div>
           );
         } else if (status === 1 && agentName) {
           statusInfo = (
-            <div className="bg-blue-100 text-blue-800 p-3 rounded-md mb-4 text-center">
+            <div className="bd-folio-state--live border p-3 mb-4 text-center">
               En Atención por: {agentName}
             </div>
           );
         } else if (status === 10) {
           statusInfo = (
-            <div className="bg-yellow-100 text-yellow-800 p-3 rounded-md mb-4 text-center">
+            <div className="bd-folio-state--wait border p-3 mb-4 text-center">
               Se encuentra en bandeja de espera: {queue}
             </div>
           );
@@ -483,14 +483,14 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
               </div>
             )}
             {statusInfo}
-            <div className="space-y-2 max-h-96 overflow-y-auto p-4 bg-gray-50 rounded-lg">
+            <div className="space-y-2 max-h-96 overflow-y-auto p-4 bg-cream-100 rounded-lg">
               {messages.length > 0 ? messages : 'No hay mensajes en este folio.'}
             </div>
           </div>
         );
       } else {
         setHistoryContent(
-          <div className="text-red-500 text-center p-4">
+          <div className="text-critical text-center p-4">
             Error al cargar el historial del folio: {data.message}
           </div>
         );
@@ -498,7 +498,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     } catch (error) {
       console.error('Error al obtener el historial del folio:', error);
       setHistoryContent(
-        <div className="text-red-500 text-center p-4">
+        <div className="text-critical text-center p-4">
           Error al cargar el historial del folio. Por favor, intente nuevamente.
         </div>
       );
@@ -558,12 +558,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           })
         : foliosToShow;
 
+      /* Ver .bd-folio-state en styles/brand.css. */
       const renderStatusBadge = (status) => {
-        if (status === 3) return (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Finalizado</span>);
-        if (status === 2) return (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Guardado</span>);
-        if (status === 1) return (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">En atención</span>);
-        if (status === 10) return (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">En espera</span>);
-        if (status === 11) return (<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Fuera de horario</span>);
+        if (status === 3)  return (<span className="bd-folio-state bd-folio-state--closed">Finalizado</span>);
+        if (status === 2)  return (<span className="bd-folio-state bd-folio-state--held">Guardado</span>);
+        if (status === 1)  return (<span className="bd-folio-state bd-folio-state--live">En atención</span>);
+        if (status === 10) return (<span className="bd-folio-state bd-folio-state--wait">En espera</span>);
+        if (status === 11) return (<span className="bd-folio-state bd-folio-state--closed">Fuera de horario</span>);
         return null;
       };
 
@@ -577,13 +578,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
               <button
                 key={folioId}
                 onClick={() => getFolioMessages(folioId, anchorPerson, aliasIdPerson, channel, queue, sortedFolios)}
-                className="w-full text-left p-3 rounded-lg bg-white/60 hover:bg-gray-200/60 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-left p-3 rounded-lg bg-cream-50/60 hover:bg-cream-300/60 transition-colors duration-200 focus:outline-none focus:border-flame-ember"
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold text-gray-800">Conversación #{folioId}</p>
+                    <p className="font-semibold text-ink">Conversación #{folioId}</p>
                     {createdAt && (
-                      <p className="text-sm text-gray-500">{createdAt}</p>
+                      <p className="text-sm text-ink-500">{createdAt}</p>
                     )}
                   </div>
                   {renderStatusBadge(status)}
@@ -596,7 +597,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     } catch (error) {
       console.error('Error al listar folios:', error);
       setHistoryContent(
-        <div className="text-red-500 text-center p-4">
+        <div className="text-critical text-center p-4">
           Error al cargar la lista de folios. Por favor, intente nuevamente.
         </div>
       );
@@ -1101,9 +1102,9 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
     if (!userInfo.allowFindFolios) {
       return (
         <div className="flex items-center justify-center h-64">
-          <div className="text-center p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700">No cuentas con acceso</h2>
-            <p className="mt-2 text-gray-500">
+          <div className="text-center p-6 max-w-sm mx-auto bg-cream-50 rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold text-ink-600">No cuentas con acceso</h2>
+            <p className="mt-2 text-ink-500">
               No tienes acceso a este apartado. Para hacer búsquedas, consulta a tu supervisor.
             </p>
           </div>
@@ -1122,13 +1123,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
 
     if (report && report.result.length === 0) {
       return (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <div className="bd-status-critical border border-l-4 border-critical p-4 mb-6">
           <div className="flex">
             <div className="flex-shrink-0">
-              <X className="h-5 w-5 text-red-400" />
+              <X className="h-5 w-5 text-critical" />
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">
+              <p className="text-sm text-critical">
                 No se encontraron contactos con los criterios de búsqueda.
               </p>
             </div>
@@ -1187,7 +1188,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                           }}
                         />
                       ) : (
-                        <UserCircle className="h-8 w-8 text-gray-400" />
+                        <UserCircle className="h-8 w-8 text-ink-400" />
                       )}
                       <span>{row.aliasId || 'Sin nombre'}</span>
                     </div>
@@ -1199,7 +1200,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                   </TableCell>
                   <TableCell>
                     <div 
-                      className="flex items-center text-blue-600 hover:text-blue-800 cursor-pointer"
+                      className="flex items-center text-ink underline underline-offset-2 cursor-pointer"
                       onClick={() => getFolioMessages(row.lastFolio, row.anchor, row.aliasId, row.channel, row.queue)}
                     >
                       <FolderOpen className="h-4 w-4 mr-1" />
@@ -1216,16 +1217,16 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                   <TableCell>
                     <span className={`px-2 py-1 text-xs font-medium rounded-md whitespace-nowrap ${
                       row.statusFolio === 'Atención' || row.statusFolio === 'Atención Agente' 
-                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 
+                        ? 'bd-folio-state bd-folio-state--live' : 
                       row.statusFolio === 'Guardado' 
-                        ? 'bg-green-100 text-green-800 border border-green-200' : 
+                        ? 'bd-folio-state bd-folio-state--held' : 
                       row.statusFolio === 'Finalizado' 
-                        ? 'bg-red-100 text-red-800 border border-red-200' :
+                        ? 'bd-folio-state bd-folio-state--closed' :
                       row.statusFolio === 'Bot' 
-                        ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                        ? 'bd-folio-state bd-folio-state--bot' :
                       row.statusFolio === 'Fuera de horario' 
-                        ? 'bg-gray-100 text-gray-600 border border-gray-200' :
-                      'bg-gray-100 text-gray-800 border border-gray-200'
+                        ? 'bd-folio-state bd-folio-state--closed' :
+                      'bd-folio-state bd-folio-state--closed'
                     }`}>
                       {row.statusFolio === 'Atención Agente' ? 'Atención' : row.statusFolio || 'N/A'}
                     </span>
@@ -1241,7 +1242,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                             return folioStr ? (
                               <Tooltip key={idx} content={`Ver folio ${folioStr}`}>
                                 <span 
-                                  className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-md whitespace-nowrap hover:bg-blue-100 cursor-pointer"
+                                  className="px-2 py-1 text-xs bg-cream-200 text-ink border border-hair whitespace-nowrap hover:border-flame-ember cursor-pointer"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     getFolioMessages(folioStr, row.anchor, row.aliasId, row.channel, row.queue);
@@ -1253,7 +1254,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                             ) : null;
                           })}
                           {row.originalData.otherFolios.length > 3 && (
-                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded-md">
+                            <span className="px-2 py-1 text-xs bg-cream-200 text-ink-500 rounded-md">
                               +{row.originalData.otherFolios.length - 3} más
                             </span>
                           )}
@@ -1348,7 +1349,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           {report.result.length > 0 && (
             <div className="flex justify-between items-center mt-4 px-2">
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Filas por página:</span>
+                <span className="text-sm text-ink-500">Filas por página:</span>
                 <Select 
                   size="sm" 
                   className="w-20"
@@ -1387,11 +1388,11 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
 
     return (
       <div className="text-center py-12">
-        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <User className="h-12 w-12 text-gray-400" />
+        <div className="mx-auto w-24 h-24 bg-cream-200 rounded-full flex items-center justify-center mb-4">
+          <User className="h-12 w-12 text-ink-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900">No hay contactos</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="text-lg font-medium text-ink">No hay contactos</h3>
+        <p className="mt-1 text-sm text-ink-500">
           Comienza buscando contactos o crea uno nuevo.
         </p>
       </div>
@@ -1465,13 +1466,13 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           </ModalHeader>
           <ModalBody>
             {dontAllowOpenChat ? (
-              <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bd-status-critical hair">
                 <div className="flex-shrink-0">
-                  <XCircle className="h-6 w-6 text-red-600" />
+                  <XCircle className="h-6 w-6 text-critical" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-red-800">No se puede iniciar una conversación</h3>
-                  <p className="text-sm text-red-700 mt-1">
+                  <h3 className="text-sm font-medium text-critical">No se puede iniciar una conversación</h3>
+                  <p className="text-sm text-critical mt-1">
                     No es posible iniciar una conversación con un contacto de inbox privado  o en atención agente.
                   </p>
                 </div>
@@ -1483,7 +1484,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                     ? `¿Deseas continuar la conversación con ${aliasId}?`
                     : `¿Deseas iniciar una nueva conversación con ${aliasId}?`}
                 </p>
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-ink-500">
                   <p><strong>Teléfono:</strong> {anchor}</p>
                   <p><strong>Canal:</strong> {channel}</p>
                   <p><strong>Estado actual:</strong> {statusFolio}</p>
@@ -1560,7 +1561,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             <ModalBody>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="alias" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="alias" className="block text-sm font-medium text-ink-600 mb-1">
                     Nombre del contacto
                   </label>
                   <Input
@@ -1573,7 +1574,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 </div>
                 
                 <div>
-                  <label htmlFor="anchorUser" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="anchorUser" className="block text-sm font-medium text-ink-600 mb-1">
                     Télefono / Obligatorio código de país y área (50255170000)
                   </label>
                   <Input
@@ -1588,14 +1589,14 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 </div>
                 
                 <div>
-                  <label htmlFor="idChannel" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="idChannel" className="block text-sm font-medium text-ink-600 mb-1">
                     Selecciona un canal
                   </label>
                   <select
                     id="idChannel"
                     value={formToContact.idChannel}
                     onChange={handleSelectChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-hair bg-cream-50 focus:outline-none focus:border-flame-ember"
                   >
                     <option value="">Selecciona un canal</option>
                     {Array.isArray(infoService?.channels) && infoService.channels
@@ -1612,7 +1613,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                 </div>
                 
                 {showErrorMsg && (
-                  <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+                  <div className="p-3 bd-status-critical hair text-sm">
                     <div className="flex items-center">
                       <XCircle className="h-5 w-5 mr-2" />
                       <span>{messageError}</span>
@@ -1647,14 +1648,14 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
       </Modal>
       
       <Card className="shadow-sm">
-        <CardHeader className="border-b border-gray-200 px-6 py-4">
+        <CardHeader className="border-b border-hair px-6 py-4">
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="bd-page-title">
                   Contactos
                 </h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-ink-500">
                   Selecciona un contacto para crear o continuar una conversación
                 </p>
               </div>
@@ -1663,7 +1664,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
                   <Input
                     isClearable
                     placeholder="Buscar por nombre, teléfono..."
-                    startContent={<SearchIcon className="h-4 w-4 text-gray-400" />}
+                    startContent={<SearchIcon className="h-4 w-4 text-ink-400" />}
                     value={query}
                     onValueChange={setQuery}
                     onClear={() => setQuery("")}
@@ -1701,7 +1702,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
               </Button>
             </div>
             {activeTab === 'byAgent' && (
-              <p className="text-md text-gray-600">Mostrando contactos atendidos por ti en los últimos 5 días.</p>
+              <p className="text-md text-ink-500">Mostrando contactos atendidos por ti en los últimos 5 días.</p>
             )}
 
             {activeTab === 'byAgent' && (
@@ -1728,25 +1729,25 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
             )}
 
             {userInfo.allowFindFolios && (
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <div className="flex items-center space-x-4 text-sm text-ink-500">
                 <div className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-yellow-100 border border-yellow-300 mr-2"></span>
+                  <span className="bd-folio-dot bd-folio-state--live mr-2"></span>
                   <span>Atención</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-green-100 border border-green-300 mr-2"></span>
+                  <span className="bd-folio-dot bd-folio-state--held mr-2"></span>
                   <span>Guardado</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-red-100 border border-red-300 mr-2"></span>
+                  <span className="bd-folio-dot bd-folio-state--closed mr-2"></span>
                   <span>Finalizado</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-blue-100 border border-blue-300 mr-2"></span>
+                  <span className="bd-folio-dot bd-folio-state--bot mr-2"></span>
                   <span>Bot</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-gray-200 border border-gray-300 mr-2"></span>
+                  <span className="inline-block w-3 h-3 rounded-full bg-cream-300 border border-hair mr-2"></span>
                   <span>Fuera de horario</span>
                 </div>
               </div>

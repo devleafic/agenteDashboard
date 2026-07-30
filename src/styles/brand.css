@@ -509,6 +509,43 @@ h1, h2, h3, h4, .font-display {
     color: var(--text);
 }
 
+/* ---------- Estados del ciclo de vida del folio ----------
+   No son severidad: "Finalizado" no es un error ni "Guardado" un exito, asi
+   que el set semantico solo entra donde de verdad significa algo. Se mapean
+   por funcion: el folio vivo lleva el acento de marca, el cerrado es neutro
+   y el del bot usa el paso frio de la categorica, el mismo que identifica a
+   la otra parte en las burbujas.
+
+   Una sola definicion para la pastilla y para el punto de la leyenda, que
+   antes se pintaban por separado y no coincidian ("Atencion" salia amarillo
+   en la leyenda y azul en la pastilla). */
+.bd-folio-state {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .1875rem .625rem;
+    border-radius: var(--r-pill);
+    border: 1px solid;
+    font-size: .6875rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Punto de leyenda: mismo relleno y borde, sin texto. */
+.bd-folio-dot {
+    display: inline-block;
+    width: .75rem;
+    height: .75rem;
+    border-radius: 50%;
+    border: 1px solid;
+}
+
+.bd-folio-state--live   { background: rgba(250, 80, 15, .12);  border-color: rgba(250, 80, 15, .45);  color: var(--serious); }
+.bd-folio-state--held   { background: var(--good-bg);          border-color: var(--good);            color: var(--good); }
+.bd-folio-state--wait   { background: var(--warn-bg);          border-color: var(--warn);            color: var(--warn); }
+.bd-folio-state--closed { background: var(--cream-200);        border-color: var(--hair);            color: var(--text-muted); }
+.bd-folio-state--bot    { background: rgba(27, 79, 168, .10);  border-color: rgba(27, 79, 168, .45); color: var(--chart-2); }
+
 /* ---------- Panel de copiloto (Kortex) ----------
    Antes era violeta (#a78bfa / #faf5ff). El copiloto es una funcion
    de marca, asi que su acento es flame; el texto sigue en tinta

@@ -83,27 +83,27 @@ const Help = ({ show, selectedComponent }) => {
         <h1 className="bd-page-title mb-2">
           Centro de Ayuda
         </h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-ink-500 dark:text-gray-300">
           Aprende a aprovechar al máximo todas las funcionalidades de la plataforma
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {features.map((feature, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow duration-300 h-full">
+          <Card key={index} className="bd-card h-full">
             <CardHeader className="flex flex-row items-center gap-3">
               <div className="p-3 bg-cream-200 hair">
                 <span className="text-2xl">{feature.icon}</span>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{feature.title}</h3>
+                <h3 className="text-lg font-semibold text-ink dark:text-white">{feature.title}</h3>
               </div>
             </CardHeader>
             <CardBody>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{feature.description}</p>
+              <p className="text-ink-500 dark:text-gray-300 mb-4">{feature.description}</p>
               <Divider className="my-3" />
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Consejos útiles:</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <h4 className="text-sm font-medium text-ink-600 dark:text-gray-200 mb-2">Consejos útiles:</h4>
+              <ul className="space-y-2 text-sm text-ink-500 dark:text-gray-400">
                 {feature.tips.map((tip, tipIndex) => (
                   <li key={tipIndex} className="flex items-start">
                     <span className="text-flame-ember mr-2">•</span>
@@ -118,23 +118,23 @@ const Help = ({ show, selectedComponent }) => {
 
       <Card className="mb-8">
         <CardHeader>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Preguntas Frecuentes</h2>
+          <h2 className="text-2xl font-bold text-ink dark:text-white">Preguntas Frecuentes</h2>
         </CardHeader>
         <CardBody>
           <Accordion variant="splitted">
             <AccordionItem key="1" aria-label="¿Cómo cambio mi contraseña?" title="¿Cómo cambio mi contraseña?" className="py-2">
-              <div className="px-4 py-2 text-gray-600 dark:text-gray-300">
+              <div className="px-4 py-2 text-ink-500 dark:text-gray-300">
                 Para cambiar tu contraseña, debes contactar a tu supervisor.
               </div>
             </AccordionItem>
             <AccordionItem key="2" aria-label="¿Cómo comparto archivos?" title="¿Cómo compartir archivos?" className="py-2">
-              <div className="px-4 py-2 text-gray-600 dark:text-gray-300">
+              <div className="px-4 py-2 text-ink-500 dark:text-gray-300">
                 Puedes arrastrar y soltar archivos directamente en el área de chat o usar el botón de adjuntar archivo.
                 Los formatos soportados incluyen PDF, DOCX, XLSX, JPG, PNG.
               </div>
             </AccordionItem>
             <AccordionItem key="3" aria-label="¿Cómo crear un nuevo canal?" title="¿Cómo contactar a mis colegas dentro de la plataforma?" className="py-2">
-              <div className="px-4 py-2 text-gray-600 dark:text-gray-300">
+              <div className="px-4 py-2 text-ink-500 dark:text-gray-300">
                 Para contactar a tus colegas dentro de la plataforma, debes usar el chat interno.
                 Puedes buscar en la barra de búsqueda a tus colegas y seleccionarlos para iniciar una conversación.
                 Puedes mencionar a tus colegas con @ para notificaciones directas.
@@ -145,8 +145,8 @@ const Help = ({ show, selectedComponent }) => {
       </Card>
 
       <div className="bd-card bd-card-accent p-6 text-center">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">¿Necesitas más ayuda?</h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
+        <h3 className="text-xl font-semibold text-ink dark:text-white mb-2">¿Necesitas más ayuda?</h3>
+        <p className="text-ink-500 dark:text-gray-300 mb-4">
           Nuestro equipo de soporte está disponible para ayudarte con cualquier pregunta o problema que puedas tener.
         </p>
         <a 

@@ -24,7 +24,7 @@ import MessageBubble from './MessageBubble';
 
 // Estilo para el área de arrastre
 const getListStyle = isDraggingOver => ({
-  background: isDraggingOver ? '#f0f5ff' : '#f8f9fa',
+  background: isDraggingOver ? 'var(--cream-300)' : 'var(--cream-100)',
   padding: 8,
   minHeight: '70vh',
   borderRadius: 6,
@@ -80,7 +80,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
     const [contentMessage, setContentMessage] = useState(
         <div className="flex flex-col items-center justify-center p-8">
             <Spinner size="lg" />
-            <p className="mt-4 text-gray-600">Cargando mensajes...</p>
+            <p className="mt-4 text-ink-500">Cargando mensajes...</p>
         </div>
     );
     const [isLoadTransfer, setIsLoadInboxFolio] = useState(false);
@@ -91,7 +91,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
         setContentMessage(
             <div className="flex flex-col items-center justify-center p-8">
                 <Spinner size="lg" />
-                <p className="mt-4 text-gray-600">Cargando mensajes...</p>
+                <p className="mt-4 text-ink-500">Cargando mensajes...</p>
             </div>
         );
     }, []);
@@ -298,32 +298,32 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                             snapshot.isDragging,
                             provided.draggableProps.style
                         )}
-                        className="bg-white rounded-md p-3 mb-2 hover:shadow-md transition-shadow"
+                        className="bg-cream-50 rounded-md p-3 mb-2 hover:shadow-md transition-shadow"
                     >
                         <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="font-medium text-sm text-gray-900 truncate">
+                                    <h4 className="font-medium text-sm text-ink truncate">
                                         {item.aliasUser || 'Sin alias'}
                                     </h4>
-                                    <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                                    <span className="text-xs text-ink-500 ml-2 whitespace-nowrap">
                                         {item.folio.updatedAt ? moment(item.folio.updatedAt).fromNow() : 'Recién'}
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-600 mt-1">
+                                <p className="text-xs text-ink-500 mt-1">
                                     <span className="font-medium">Folio:</span> {item.folio._id || 'N/A'}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-ink-500">
                                     <span className="font-medium">Tipo:</span> {item.folio.typeFolio || 'No especificado'}
                                 </p>
                                 {item.channel && (
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-ink-500">
                                         <span className="font-medium">Canal:</span> {item.channel}
                                     </p>
                                 )}
                             </div>
                         </div>
-                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100">
+                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-hair-soft">
                             <div className="flex space-x-1">
                                 <Tooltip content="Abrir conversación">
                                     <Button
@@ -334,7 +334,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                                             openItemInbox(item.folio, item, '');
                                             setUnReadMessages(false);
                                         }}
-                                        className="text-blue-600 hover:bg-blue-50"
+                                        className="text-ink-500 hover:bg-cream-200"
                                     >
                                         <FolderOpen className="w-3.5 h-3.5" />
                                     </Button>
@@ -345,7 +345,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                                         size="sm"
                                         variant="light"
                                         onPress={() => getFolioMessages(item.folio._id)}
-                                        className="text-gray-600 hover:bg-gray-100"
+                                        className="text-ink-500 hover:bg-cream-200"
                                     >
                                         <Eye className="w-3.5 h-3.5" />
                                     </Button>
@@ -382,15 +382,15 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
         const itemCount = items.length;
 
         return (
-            <div key={pipe._id} style={{ ...columnStyle, borderTop: `4px solid ${pipe.color || '#3b82f6'}` }}>
+            <div key={pipe._id} style={{ ...columnStyle, borderTop: `4px solid ${pipe.color || 'var(--f4)'}` }}>
                 <div style={columnHeaderStyle}>
                     <div className="flex items-center">
-                        <span className="font-medium text-sm text-gray-800">{pipe.name}</span>
-                        <span className="ml-2 bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                        <span className="font-medium text-sm text-ink">{pipe.name}</span>
+                        <span className="ml-2 bg-cream-300 text-ink-600 text-xs font-medium px-2 py-0.5 rounded-full">
                             {itemCount}
                         </span>
                     </div>
-                    <Button isIconOnly size="sm" variant="light" className="text-gray-500">
+                    <Button isIconOnly size="sm" variant="light" className="text-ink-500">
                         <MoreVertical className="w-4 h-4" />
                     </Button>
                 </div>
@@ -407,7 +407,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                                     <RenderFolioCard item={item} index={index} key={item._id} />
                                 ))
                             ) : (
-                                <div className="text-center p-4 text-sm text-gray-500">
+                                <div className="text-center p-4 text-sm text-ink-500">
                                     No hay elementos en esta etapa
                                 </div>
                             )}
@@ -542,7 +542,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
         setContentMessage(
             <div className="flex flex-col items-center justify-center p-8">
                 <Spinner size="lg" />
-                <p className="mt-4 text-gray-600">Cargando mensajes...</p>
+                <p className="mt-4 text-ink-500">Cargando mensajes...</p>
             </div>
         );
 
@@ -550,7 +550,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
             socketC.connection.emit('getMessageHist', { folio: folioId }, (res) => {
                 if (!res) {
                     setContentMessage(
-                        <div className="p-4 text-center text-red-600">
+                        <div className="p-4 text-center text-critical">
                             No se recibió respuesta del servidor
                         </div>
                     );
@@ -559,7 +559,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
 
                 if (!res.success) {
                     setContentMessage(
-                        <div className="p-4 text-center text-red-600">
+                        <div className="p-4 text-center text-critical">
                             {res.message || 'Error al cargar los mensajes'}
                         </div>
                     );
@@ -568,7 +568,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
 
                 if (!res.folio?.message || !Array.isArray(res.folio.message)) {
                     setContentMessage(
-                        <div className="p-4 text-center text-gray-600">
+                        <div className="p-4 text-center text-ink-500">
                             No hay mensajes para mostrar
                         </div>
                     );
@@ -589,7 +589,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
         } catch (error) {
             console.error('Error en getFolioMessages:', error);
             setContentMessage(
-                <div className="p-4 text-center text-red-600">
+                <div className="p-4 text-center text-critical">
                     Error al cargar los mensajes
                 </div>
             );
@@ -597,11 +597,11 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
     };
 
     return (
-        <div className="p-4 bg-gray-100 min-h-screen">
-            <div className="mb-6 bg-white p-4 rounded-lg shadow">
+        <div className="p-4 bg-cream-200 min-h-screen">
+            <div className="mb-6 bg-cream-50 p-4 rounded-lg shadow">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                        <Filter className="w-5 h-5 text-blue-600 mr-2" />
+                        <Filter className="w-5 h-5 text-ink-500 mr-2" />
                         <h2 className="bd-page-title">
                             Tablero de Seguimiento
                          </h2>
@@ -618,15 +618,15 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                         </Button>
                     </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-ink-500 mt-1">
                     Arrastra y suelta los contactos entre etapas para gestionar tu flujo de trabajo.
                 </p>
             </div>
 
             {isLoadInbox && Object.keys(inboxes).length === 0 ? (
-                <div className="flex items-center justify-center p-12 bg-white rounded-lg shadow">
+                <div className="flex items-center justify-center p-12 bg-cream-50 rounded-lg shadow">
                     <Spinner size="lg" />
-                    <span className="ml-3 text-gray-600">Cargando tu tablero...</span>
+                    <span className="ml-3 text-ink-500">Cargando tu tablero...</span>
                 </div>
             ) : (
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -663,7 +663,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                     <ModalBody>
                         {folioToTransfer && (
                             <div className="space-y-4">
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-ink-500">
                                     Selecciona la etapa a la cual será transferido el folio 
                                     <span className="font-semibold"> #{folioToTransfer.folio?._id || ''}</span> del usuario 
                                     <span className="font-semibold"> {folioToTransfer.aliasUser || 'Usuario'}</span>
