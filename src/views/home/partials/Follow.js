@@ -36,7 +36,7 @@ const getListStyle = isDraggingOver => ({
 const getItemStyle = (isDragging, draggableStyle) => ({
   userSelect: 'none',
   margin: '0 0 8px 0',
-  background: '#fff',
+  background: 'var(--surface)',
   borderRadius: 8,
   borderLeft: isDragging ? '4px solid #4f46e5' : '1px solid #e2e8f0',
   boxShadow: isDragging ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
@@ -45,7 +45,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 // Estilo para las columnas
 const columnStyle = {
-  backgroundColor: '#f8f9fa',
+  backgroundColor: 'var(--cream-100)',
   borderRadius: 8,
   width: 300,
   margin: '0 8px',
@@ -62,7 +62,7 @@ const columnHeaderStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  backgroundColor: '#f8f9fa',
+  backgroundColor: 'var(--cream-100)',
   borderTopLeftRadius: 8,
   borderTopRightRadius: 8
 };

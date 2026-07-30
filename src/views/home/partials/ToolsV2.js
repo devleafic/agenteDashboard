@@ -26,12 +26,12 @@ const AccordionItem = ({ title, isOpen, onClick, children, badge }) => {
       <CardHeader className="ibc-accordion-header border-b cursor-pointer select-none" onClick={onClick} style={{ padding: '10px 14px' }}>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            {title.icon && <title.icon className="text-gray-400" style={{ fontSize: '1rem' }} />}
+            {title.icon && <title.icon className="text-ink-400" style={{ fontSize: '1rem' }} />}
             <span className="ibc-accordion-title">{title.text}</span>
           </div>
           <div className="flex items-center gap-2">
             {badge}
-            {isOpen ? <FiChevronDown className="text-gray-400" style={{ fontSize: '1rem' }} /> : <FiChevronRight className="text-gray-400" style={{ fontSize: '1rem' }} />}
+            {isOpen ? <FiChevronDown className="text-ink-400" style={{ fontSize: '1rem' }} /> : <FiChevronRight className="text-ink-400" style={{ fontSize: '1rem' }} />}
           </div>
         </div>
       </CardHeader>
@@ -52,11 +52,15 @@ const AccordionItem = ({ title, isOpen, onClick, children, badge }) => {
   );
 };
 
+/* El relleno, el texto y el borde los pinta .ibc-sentiment-* en index.css.
+   Aqui solo queda el punto, que va inline, y apunta al token en vez de a un
+   hex propio: antes eran los rojos/naranjas de Tailwind y quedaban fuera de
+   la escala aunque la pastilla ya estuviera migrada. */
 const SENTIMENT_CONFIG = {
-  urgente:  { label: 'Urgente',  color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', dot: '#ef4444' },
-  negativo: { label: 'Negativo', color: '#ea580c', bg: '#fff7ed', border: '#fdba74', dot: '#f97316' },
-  positivo: { label: 'Positivo', color: '#16a34a', bg: '#f0fdf4', border: '#86efac', dot: '#22c55e' },
-  neutro:   { label: 'Neutro',   color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb', dot: '#9ca3af' },
+  urgente:  { label: 'Urgente',  dot: 'var(--critical)' },
+  negativo: { label: 'Negativo', dot: 'var(--serious)' },
+  positivo: { label: 'Positivo', dot: 'var(--good)' },
+  neutro:   { label: 'Neutro',   dot: 'var(--text-muted)' },
 };
 
 const URGENT_WORDS   = ['urgente','emergencia','reclamo','supervisor','fraude','denuncia','abogado','cancelar contrato','queja formal'];
@@ -91,9 +95,9 @@ const SentimentBadge = ({ sentiment }) => {
 };
 
 const getFileIcon = (mimeType) => {
-  if (mimeType.includes('pdf')) return <FiFileText className="mr-2 text-red-500 flex-shrink-0" />;
-  else if (mimeType.includes('image')) return <FiImage className="mr-2 text-chart-4 flex-shrink-0" />;
-  return <FiFile className="mr-2 text-gray-500 flex-shrink-0" />;
+  if (mimeType.includes('pdf')) return <FiFileText className="mr-2 text-ink-500 flex-shrink-0" />;
+  else if (mimeType.includes('image')) return <FiImage className="mr-2 text-ink-500 flex-shrink-0" />;
+  return <FiFile className="mr-2 text-ink-500 flex-shrink-0" />;
 };
 
 const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service: infoService, setInsertHtml, setHasTextContent }) => {
@@ -122,103 +126,159 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   const [copilotAction, setCopilotAction] = useState(null);
   const [copilotQuestion, setCopilotQuestion] = useState('');
   const [folioSentiment, setFolioSentiment] = useState(null);
+  const [copilotError, setCopilotError] = useState(null);
 
-  const clearCopilot = () => { setCopilotResult(null); setCopilotAlternatives([]); setCopilotLimitations([]); setCopilotAction(null); setCopilotQuestion(''); };
+  const clearCopilot = () => { setCopilotResult(null); setCopilotAlternatives([]); setCopilotLimitations([]); setCopilotAction(null); setCopilotQuestion(''); setCopilotError(null); };
 
+  /* El backend siempre responde 200 con success:true y explica los fallos en
+     limitations[]. Pero si el bus de IA no contesta, response.body llega vacio
+     y statusFromAIResponse cae al 502 por defecto: axios lanza y antes aqui el
+     .catch dejaba todo en null sin pintar nada. De ahi el "hago la consulta y
+     no veo respuesta": no era que se perdiera, es que no habia estado de error. */
   const callCopilot = (action, question) => {
     const fId = folio?.folio?._id;
     const sId = folio?.folio?.service?._id || folio?.folio?.service;
-    if (!fId || !sId) return;
+    if (!fId || !sId) {
+      setCopilotAction(action);
+      setCopilotError('No se pudo identificar el folio o el servicio. Reabre la conversación e intenta de nuevo.');
+      return;
+    }
     setCopilotAction(action);
     setCopilotResult(null);
     setCopilotAlternatives([]);
     setCopilotLimitations([]);
+    setCopilotError(null);
     setCopilotLoading(true);
     axios.post(`${process.env.REACT_APP_CENTRALITA}/ai/copilot/suggest`, { folioId: String(fId), serviceId: String(sId), action, question: question || null })
-      .then(({ data }) => { const b = data?.body || data; setCopilotResult(b?.suggestion || null); setCopilotAlternatives(Array.isArray(b?.alternatives) ? b.alternatives : []); setCopilotLimitations(b?.limitations || []); })
-      .catch(() => { setCopilotResult(null); setCopilotAlternatives([]); setCopilotLimitations([]); })
+      .then(({ data }) => {
+        const b = data?.body || data;
+        const suggestion = b?.suggestion || null;
+        const limitations = b?.limitations || [];
+        setCopilotResult(suggestion);
+        setCopilotAlternatives(Array.isArray(b?.alternatives) ? b.alternatives : []);
+        setCopilotLimitations(limitations);
+        // 200 sin sugerencia y sin explicacion tampoco puede quedar en silencio.
+        if (!suggestion && limitations.length === 0) {
+          setCopilotError('El copiloto no devolvió una respuesta para esta consulta.');
+        }
+      })
+      .catch((err) => {
+        const status = err?.response?.status;
+        const detail = err?.response?.data?.message || err?.response?.data?.error;
+        setCopilotResult(null);
+        setCopilotAlternatives([]);
+        setCopilotLimitations([]);
+        setCopilotError(
+          status === 503 ? 'Los servicios de IA están desactivados por configuración.'
+          : status === 502 ? 'El servicio de IA no respondió. Intenta de nuevo en unos segundos.'
+          : detail ? `No se pudo consultar al copiloto: ${detail}`
+          : 'No se pudo consultar al copiloto. Revisa tu conexión e intenta de nuevo.'
+        );
+      })
       .finally(() => setCopilotLoading(false));
   };
 
+  /* Este bloque estaba escrito con style inline y la paleta violeta del diseño
+     anterior (#7c3aed, #faf5ff, #a78bfa…), por eso no lo veia el barrido de
+     clases de Tailwind. Ahora usa las primitivas de brand.css. */
   const renderCopilotSection = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-        <button
-          onClick={() => callCopilot('classify')}
-          disabled={copilotLoading}
-          style={{ padding: '7px 10px', fontSize: '12px', fontWeight: 500, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}
-        >
+    <div className="flex flex-col gap-2.5">
+      <div className="grid grid-cols-2 gap-1.5">
+        <button onClick={() => callCopilot('classify')} disabled={copilotLoading} className="bd-copilot-btn">
           🏷 Clasificar
         </button>
-        <button
-          onClick={() => { clearCopilot(); setCopilotAction('ask'); }}
-          disabled={copilotLoading}
-          style={{ padding: '7px 10px', fontSize: '12px', fontWeight: 500, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}
-        >
+        <button onClick={() => { clearCopilot(); setCopilotAction('ask'); }} disabled={copilotLoading} className="bd-copilot-btn">
           ❓ Preguntar
         </button>
       </div>
+
       {copilotAction === 'ask' && !copilotResult && (
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div className="flex gap-1.5">
           <input
             value={copilotQuestion}
             onChange={(e) => setCopilotQuestion(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && copilotQuestion.trim() && callCopilot('ask', copilotQuestion)}
             placeholder="Escribe tu pregunta sobre el folio…"
-            style={{ flex: 1, padding: '6px 10px', fontSize: '12px', border: '1px solid #ebebeb', borderRadius: '8px', outline: 'none' }}
+            className="flex-1 px-2.5 py-1.5 text-xs bg-cream-50 border border-hair focus:outline-none focus:border-flame-ember"
           />
           <button
             onClick={() => copilotQuestion.trim() && callCopilot('ask', copilotQuestion)}
             disabled={copilotLoading || !copilotQuestion.trim()}
-            style={{ padding: '6px 12px', fontSize: '12px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', opacity: copilotQuestion.trim() ? 1 : 0.5 }}
+            className="px-3 py-1.5 text-xs bg-ink text-cream hover:bg-ink-800 transition-colors disabled:opacity-50"
           >
             →
           </button>
         </div>
       )}
+
       {copilotLoading && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', fontSize: '12px', color: '#7c3aed' }}>
-          <div style={{ width: '14px', height: '14px', border: '2px solid #e9d5ff', borderTop: '2px solid #7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div className="flex items-center gap-2 p-2 text-xs text-ink-500">
+          <div className="w-3.5 h-3.5 border-2 border-hair border-t-flame-ember rounded-full animate-spin" />
           Analizando conversación…
         </div>
       )}
-      {!copilotLoading && !copilotResult && copilotAction && copilotLimitations.length > 0 && (
-        <div style={{ fontSize: '11px', color: '#9ca3af', padding: '6px 10px', background: '#fafafa', borderRadius: '6px', border: '1px solid #ebebeb' }}>
+
+      {/* Fallo de transporte o respuesta vacia. Antes esto no existia y el
+          copiloto se quedaba mudo. */}
+      {copilotError && !copilotLoading && (
+        <div className="bd-status-critical hair p-2 text-xs flex items-start gap-2">
+          <span aria-hidden="true">⚠</span>
+          <div className="flex-1">
+            {copilotError}
+            <button onClick={clearCopilot} className="block mt-1.5 text-ink-500 hover:text-ink underline">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* El backend explica sus propios fallos aqui (LLM sin configurar,
+          timeout, folio sin contexto). */}
+      {!copilotLoading && !copilotResult && !copilotError && copilotAction && copilotLimitations.length > 0 && (
+        <div className="bg-cream-100 hair p-2 text-xs text-ink-500">
           {copilotLimitations[0]}
         </div>
       )}
+
       {copilotResult && !copilotLoading && copilotAction === 'classify' && (
-        <div style={{ background: '#faf5ff', borderRadius: '8px', padding: '10px 12px', border: '1px solid #ede9fe' }}>
-          <p style={{ fontSize: '10px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Clasificaciones sugeridas</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        <div className="bg-cream-100 hair p-3">
+          <p className="ibc-section-label">Clasificaciones sugeridas</p>
+          <div className="flex flex-wrap gap-1.5">
             {[copilotResult, ...copilotAlternatives].filter(Boolean).map((cat, i) => (
               <button
                 key={i}
                 onClick={() => navigator.clipboard?.writeText(cat)}
                 title="Clic para copiar"
-                style={{ padding: '4px 12px', fontSize: '11px', fontWeight: i === 0 ? 600 : 400, background: i === 0 ? '#7c3aed' : '#ffffff', color: i === 0 ? '#fff' : '#7c3aed', border: '1px solid #ede9fe', borderRadius: '20px', cursor: 'pointer' }}
+                className={`px-3 py-1 text-[11px] rounded-full border transition-colors ${
+                  i === 0
+                    ? 'bg-ink text-cream border-ink font-semibold'
+                    : 'bg-cream-50 text-ink border-hair hover:border-flame-ember'
+                }`}
               >
                 {cat}
               </button>
             ))}
           </div>
-          <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '6px' }}>Clic en una clasificación para copiarla</p>
-          <button onClick={clearCopilot} style={{ marginTop: '6px', padding: '3px 10px', fontSize: '11px', background: 'transparent', color: '#9ca3af', border: '1px solid #ebebeb', borderRadius: '6px', cursor: 'pointer' }}>Limpiar</button>
+          <p className="text-[10px] text-ink-400 mt-1.5">Clic en una clasificación para copiarla</p>
+          <button onClick={clearCopilot} className="mt-1.5 px-2.5 py-0.5 text-[11px] text-ink-500 border border-hair hover:border-ink-400 transition-colors">
+            Limpiar
+          </button>
         </div>
       )}
+
       {copilotResult && !copilotLoading && copilotAction !== 'classify' && (
-        <div style={{ borderLeft: '3px solid #a78bfa', background: '#faf5ff', borderRadius: '0 8px 8px 0', padding: '10px 12px', fontSize: '12px', color: '#374151', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+        <div className="bd-copilot-panel">
           {copilotResult}
-          <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+          <div className="mt-2 flex gap-1.5">
             <button
               onClick={() => { navigator.clipboard?.writeText(copilotResult); }}
-              style={{ padding: '4px 10px', fontSize: '11px', background: 'transparent', color: '#7c3aed', border: '1px solid #ede9fe', borderRadius: '6px', cursor: 'pointer' }}
+              className="px-2.5 py-1 text-[11px] text-ink border border-hair hover:border-flame-ember transition-colors"
             >
               Copiar
             </button>
             <button
               onClick={clearCopilot}
-              style={{ padding: '4px 10px', fontSize: '11px', background: 'transparent', color: '#9ca3af', border: '1px solid #ebebeb', borderRadius: '6px', cursor: 'pointer' }}
+              className="px-2.5 py-1 text-[11px] text-ink-500 border border-hair hover:border-ink-400 transition-colors"
             >
               Limpiar
             </button>
@@ -336,7 +396,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
         onChange={(e) => findQA(e.target.value)}
         className="w-full mb-4"
         style={{ fontSize: '1rem', ...getZoomAdjustedStyles() }}
-        endContent={<FiX onClick={() => findQA('')} className="cursor-pointer text-gray-400 hover:text-gray-600" />}
+        endContent={<FiX onClick={() => findQA('')} className="cursor-pointer text-ink-400 hover:text-ink-500" />}
       />
       <div className="flex flex-col overflow-hidden mb-4" style={{ height: 'calc(100vh - 20rem)', minHeight: '15rem', maxHeight: '40rem' }}>
         <div className="overflow-y-auto pr-2 flex-grow" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
@@ -344,18 +404,18 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
             allQA.map((item, index) => (
               <div
                 key={item._id}
-                className="p-2.5 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors mb-2"
+                className="p-2.5 hover:bg-cream-200 cursor-pointer transition-colors mb-2"
                 onClick={() => {
                   setMessageToSend(item.text);
                   setHasTextContent(true);
                 }}
                 style={{ marginBottom: index === allQA.length - 1 ? '2rem' : '0.5rem', fontSize: '1rem' }}
               >
-                <p className="text-lg font-medium text-gray-800 break-words">{item.text}</p>
+                <p className="text-lg font-medium text-ink break-words">{item.text}</p>
               </div>
             ))
           ) : (
-            <p className="text-base text-gray-500 text-center py-4">No hay respuestas rápidas disponibles</p>
+            <p className="text-base text-ink-500 text-center py-4">No hay respuestas rápidas disponibles</p>
           )}
         </div>
       </div>
@@ -403,7 +463,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
         {tickets?.map((ticket) => (
           <Card key={ticket._id} isPressable onPress={() => handleOpenViewTicket(ticket)} className="p-3">
             <p className="font-semibold text-sm">{ticket.subject}</p>
-            <p className="text-xs text-gray-500">#{ticket.ticketNumber}</p>
+            <p className="text-xs text-ink-500">#{ticket.ticketNumber}</p>
           </Card>
         ))}
       </div>
@@ -424,11 +484,11 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
       <div className="space-y-2 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 20rem)', minHeight: '10rem', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
         {files.length > 0 ? (
           files.map((file) => (
-            <Card key={file._id} className="p-2.5 shadow-sm">
+            <Card key={file._id} shadow="none" className="p-2.5 bd-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center min-w-0">
                   {getFileIcon(file.mimeType)}
-                  <span className="text-md text-gray-700 truncate" title={file.name} style={{ fontSize: '0.875rem' }}>{file.name}</span>
+                  <span className="text-md text-ink-600 truncate" title={file.name} style={{ fontSize: '0.875rem' }}>{file.name}</span>
                 </div>
                 <div className="flex items-center flex-shrink-0 ml-2">
                   <Button isIconOnly auto size="sm" variant="light" as="a" href={file.url} target="_blank">
@@ -444,14 +504,14 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
                       if (window.confirm(`¿Deseas enviar el archivo "${file.name}" a ${recipientName}?`)) sendFile(file);
                     }}
                   >
-                    <FiSend className="text-lg text-blue-500" />
+                    <FiSend className="text-lg text-ink" />
                   </Button>
                 </div>
               </div>
             </Card>
           ))
         ) : (
-          <p className="text-sm text-gray-500 text-center py-4">No hay archivos disponibles</p>
+          <p className="text-sm text-ink-500 text-center py-4">No hay archivos disponibles</p>
         )}
       </div>
     );
@@ -526,7 +586,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
             />
           </div>
         </Modal.Body>
-        <Modal.Footer className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 rounded-b-lg" style={{ padding: '1rem 1.5rem' }}>
+        <Modal.Footer className="bg-cream-100 hair-t px-6 py-4 flex justify-end space-x-3" style={{ padding: '1rem 1.5rem' }}>
           <Button variant="light" onClick={() => setOpenModal(false)}>Cancelar</Button>
           <Button color={typeClose === 'guardar' ? 'primary' : 'success'} onClick={closeFolio} loading={isEndingFolio} disabled={classification === -1}>
             {typeClose === 'guardar' ? 'Guardar' : 'Finalizar'}

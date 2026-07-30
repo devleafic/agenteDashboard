@@ -95,7 +95,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const [previousFolioId, setPreviousFolioId] = useState(null);
     const [showAutoSaveIndicator, setShowAutoSaveIndicator] = useState(false);
     const [indicatorMessage, setIndicatorMessage] = useState('');
-    const [indicatorColor, setIndicatorColor] = useState('green');
+    const [indicatorColor, setIndicatorColor] = useState('var(--good)');
     const [showAIModal, setShowAIModal] = useState(false);
     const [aiModalContent, setAiModalContent] = useState('');
     const [aiLimitations, setAiLimitations] = useState([]);
@@ -205,12 +205,12 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     });
 
                     document.querySelectorAll('.search-match-highlight').forEach(el => {
-                        el.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative');
+                        el.classList.remove('search-match-highlight', 'ring-2', 'ring-flame-ember', 'ring-offset-2', 'z-10', 'relative');
                     });
-                    messageElement.classList.add('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative', 'rounded-lg');
+                    messageElement.classList.add('search-match-highlight', 'ring-2', 'ring-flame-ember', 'ring-offset-2', 'z-10', 'relative', 'rounded-lg');
 
                     setTimeout(() => {
-                        messageElement.classList.remove('search-match-highlight', 'ring-4', 'ring-blue-500', 'ring-offset-2', 'z-10', 'relative', 'rounded-lg');
+                        messageElement.classList.remove('search-match-highlight', 'ring-2', 'ring-flame-ember', 'ring-offset-2', 'z-10', 'relative', 'rounded-lg');
                     }, 3000);
                 } catch (error) {
                     console.error('Error scrolling to message:', error);
@@ -289,7 +289,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
 
     const showIndicator = (message, isRestoration = false) => {
         setIndicatorMessage(message);
-        setIndicatorColor(isRestoration ? "rgba(0, 100, 200, 0.8)" : "rgba(0, 128, 0, 0.7)");
+        setIndicatorColor(isRestoration ? 'var(--chart-2)' : 'var(--good)');
         setShowAutoSaveIndicator(true);
     };
 
@@ -1125,11 +1125,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 case 'select':
                     return (
                         <div key={x._id} className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-ink-600 mb-1">
                                 {label}
                             </label>
                             <select
-                                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-2 border border-hair bg-cream-50 focus:outline-none focus:border-flame-ember"
                                 value={formClassification[x._id] || -1}
                                 onChange={(e) => {
                                     const copy = { ...formClassification, [x._id]: e.target.value };
@@ -1374,7 +1374,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const getChannelIcon = (channelName) => {
         try {
             if (!channelName || typeof channelName !== 'string') {
-                return <MessageCircle className="w-5 h-5 text-gray-400" />;
+                return <MessageCircle className="w-5 h-5 text-ink-400" />;
             }
 
             const ch = Array.isArray(availableCh)
@@ -1394,7 +1394,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
             }
 
             const iconProps = {
-                className: 'w-5 h-5 text-gray-400'
+                className: 'w-5 h-5 text-ink-400'
             };
 
             switch (channelName.toLowerCase()) {
@@ -1408,7 +1408,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
             }
         } catch (error) {
             console.error('Error in getChannelIcon:', error);
-            return <MessageCircle className="w-5 h-5 text-gray-400" />;
+            return <MessageCircle className="w-5 h-5 text-ink-400" />;
         }
     };
 
@@ -1573,7 +1573,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                         )}
                     </div>
                     {typeFolio === '_EMAIL_' && (
-                        <div className="mt-2 text-sm text-gray-600">
+                        <div className="mt-2 text-sm text-ink-500">
                             <div className="font-semibold">{fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}</div>
                             <div>{fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}</div>
                             <div className="mt-1">
@@ -1748,17 +1748,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 lineHeight: '1.25rem',
                                                 overflowY: 'auto',
                                                 scrollbarWidth: 'thin',
-                                                scrollbarColor: '#cbd5e0 #f7fafc',
-                                                '&::-webkit-scrollbar': {
-                                                    width: '6px',
-                                                },
-                                                '&::-webkit-scrollbar-track': {
-                                                    background: '#f7fafc',
-                                                },
-                                                '&::-webkit-scrollbar-thumb': {
-                                                    backgroundColor: '#cbd5e0',
-                                                    borderRadius: '3px',
-                                                },
+                                                scrollbarColor: 'var(--cream-300) transparent',
+                                                /* Aqui habia tres bloques '&::-webkit-scrollbar*' con grises
+                                                   frios. React no aplica selectores anidados en style, asi que
+                                                   nunca hicieron nada; el scrollbar real lo pinta la regla
+                                                   ::-webkit-scrollbar de index.css. */
                                             }}
                                             disabled={isLoading}
                                          />
@@ -1933,7 +1927,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                 <div className="flex items-center gap-2">
                                     <UploadMultipleFiles readyFiles={readyFiles} setReadyFiles={setReadyFiles} folio={folio._id} channel={channel} setRefresh={setRefresh} onChange={(files) => setAttachments(files)}>
                                         <HeroButton variant="light" aria-label="Adjuntar archivos">
-                                            <Paperclip className="w-5 h-5 text-gray-500 mr-2" />
+                                            <Paperclip className="w-5 h-5 text-ink-500 mr-2" />
                                             Adjuntar
                                         </HeroButton>
                                     </UploadMultipleFiles>
@@ -1951,11 +1945,11 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             </div>
                             <div className="flex justify-end items-center mt-2 gap-2">
                                 <HeroButton variant='ghost' onClick={() => prepareCloseFolio('save')} isLoading={isEndingFolio} disabled={isEndingFolio} aria-label="Guardar">
-                                    <Save className="w-5 h-5 text-yellow-500 mr-2" />
+                                    <Save className="w-5 h-5 text-ink-500 mr-2" />
                                     Guardar
                                 </HeroButton>
                                 <HeroButton variant='ghost' onClick={() => prepareCloseFolio('end')} isLoading={isEndingFolio} disabled={isEndingFolio} aria-label="Finalizar">
-                                    <LogOut className="w-5 h-5 text-green-500 mr-2" />
+                                    <LogOut className="w-5 h-5 text-critical mr-2" />
                                     Finalizar
                                 </HeroButton>
                             </div>
@@ -2024,7 +2018,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         </HeroButton>
                                     </div>
                                 </div>
-                                <div className="flex justify-between items-center pt-1 text-xs text-gray-500">
+                                <div className="flex justify-between items-center pt-1 text-xs text-ink-500">
                                     <div>
                                         {showAutoSaveIndicator && <span className="transition-opacity duration-300" style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                     </div>
@@ -2074,7 +2068,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                         {aiLoading ? (
                             <div className="flex flex-col items-center gap-3 py-6">
                                 <div className="w-8 h-8 border-2 border-hair border-t-flame-ember rounded-full animate-spin" />
-                                <p className="text-sm text-gray-500">Analizando conversación…</p>
+                                <p className="text-sm text-ink-500">Analizando conversación…</p>
                             </div>
                         ) : aiModalContent ? (
                             <div className="bd-copilot-panel p-4 text-sm">
@@ -2082,9 +2076,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             </div>
                         ) : (
                             <div className="py-4 text-center">
-                                <p className="text-sm text-gray-500">No se pudo generar una sugerencia.</p>
+                                <p className="text-sm text-ink-500">No se pudo generar una sugerencia.</p>
                                 {aiLimitations.length > 0 && (
-                                    <p className="text-xs text-gray-400 mt-1">{aiLimitations[0]}</p>
+                                    <p className="text-xs text-ink-400 mt-1">{aiLimitations[0]}</p>
                                 )}
                             </div>
                         )}
@@ -2131,7 +2125,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 >
                                                     <div className="flex flex-col">
                                                         <span className="text-sm">Enviar a inbox privado</span>
-                                                        <span className="text-xs text-gray-500">{assignPrivateAlways ? 'Se enviará a Inbox Privado' : 'Selecciona para asignar'}</span>
+                                                        <span className="text-xs text-ink-500">{assignPrivateAlways ? 'Se enviará a Inbox Privado' : 'Selecciona para asignar'}</span>
                                                     </div>
                                                 </HeroCheckbox>
                                             </div>
@@ -2149,7 +2143,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                     </HeroCheckbox>
                                                 </div>
                                                 {!assignPrivateAlways && !isFolioAttachedAgent && (
-                                                    <div className="text-xs text-amber-600">Debes asignarte el folio (Inbox privado) para poder programar un recordatorio.</div>
+                                                    <div className="text-xs text-warn">Debes asignarte el folio (Inbox privado) para poder programar un recordatorio.</div>
                                                 )}
                                                 {reminderEnabled && (assignPrivateAlways || isFolioAttachedAgent)  && (
                                                     <>
@@ -2176,7 +2170,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                         {reminderPreset==='tomorrow' && (
                                                             <div className="flex flex-col gap-1">
                                                                 <div className="flex flex-col items-start gap-2">
-                                                                    <span className="text-xs text-gray-500">Hora</span>
+                                                                    <span className="text-xs text-ink-500">Hora</span>
                                                                     <HeroSelect
                                                                         size="sm"
                                                                         classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
@@ -2198,7 +2192,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                                         ))}
                                                                     </HeroSelect>
                                                                 </div>
-                                                                <div className="text-xs text-gray-500">
+                                                                <div className="text-xs text-ink-500">
                                                                     Se programará para: {(() => {
                                                                         const now = new Date();
                                                                         const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, parseInt(reminderTimeHour||'9',10), parseInt(reminderTimeMinute||'0',10));
@@ -2210,13 +2204,13 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                                         return `${dd}/${mo}/${yyyy} ${hhs}:${mms}`;
                                                                     })()}
                                                                 </div>
-                                                                <div className="text-[11px] text-gray-400">Zona horaria local: {localTimeZone}</div>´´´´´
+                                                                <div className="text-[11px] text-ink-400">Zona horaria local: {localTimeZone}</div>´´´´´
                                                             </div>
                                                         )}
                                                         {reminderPreset==='custom' && (
                                                             <div className="flex flex-col gap-1">
                                                                 <div className="flex flex-col items-start gap-2">
-                                                                    <span className="text-xs text-gray-500">Fecha</span>
+                                                                    <span className="text-xs text-ink-500">Fecha</span>
                                                                     <Input
                                                                         type="date"
                                                                         size="sm"
@@ -2224,7 +2218,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                                         value={reminderCustomDate}
                                                                         onChange={(e)=> setReminderCustomDate(e.target.value)}
                                                                     />
-                                                                    <span className="text-xs text-gray-500">Hora</span>
+                                                                    <span className="text-xs text-ink-500">Hora</span>
                                                                     <HeroSelect
                                                                         size="sm"
                                                                         classNames={{ trigger: 'min-w-[68px]', listbox: 'min-w-[68px]' }}
@@ -2246,9 +2240,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                                         ))}
                                                                     </HeroSelect>
                                                                 </div>
-                                                                <div className="text-[11px] text-gray-400">Rango permitido: 05:00–22:00</div>
+                                                                <div className="text-[11px] text-ink-400">Rango permitido: 05:00–22:00</div>
                                                                 {(reminderCustomDate || reminderCustomDateTime) && (
-                                                                    <div className="text-xs text-gray-500">
+                                                                    <div className="text-xs text-ink-500">
                                                                         Se programará para: {(() => {
                                                                             const d = reminderCustomDateTime
                                                                                 ? new Date(reminderCustomDateTime)
@@ -2302,7 +2296,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         >
                                             {(classification) => <SelectItem key={classification._id} value={classification._id}>{classification.text}</SelectItem>}
                                         </HeroSelect>
-                                        <div className="text-xs text-gray-400 text-right mt-1 pr-2">
+                                        <div className="text-xs text-ink-400 text-right mt-1 pr-2">
                                             Presiona Shift+Enter para un salto de línea
                                         </div>
                                         {infoForm && renderForm(infoForm)}
@@ -2324,8 +2318,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     {(onClose) => (
                         <>
                             <ModalHeader className="flex items-center gap-2">
-                                <AlertTriangle className="w-6 h-6 text-red-500" />
-                                <span className="text-red-500">Error</span>
+                                <AlertTriangle className="w-6 h-6 text-critical" />
+                                <span className="text-critical">Error</span>
                             </ModalHeader>
                             <ModalBody><p>{messageError}</p></ModalBody>
                             <ModalFooter>
@@ -2340,12 +2334,12 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     {(onClose) => (
                         <>
                             <ModalHeader className="flex items-center gap-2">
-                                <Mail className="w-6 h-6 text-gray-500" />
+                                <Mail className="w-6 h-6 text-ink-500" />
                                 <span>Vista Previa del Correo</span>
                             </ModalHeader>
                             <ModalBody>
                                 {folio.lastEmailProcessed && (
-                                    <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                    <div className="mb-4 p-4 bg-cream-100 hair">
                                         {toSendRecipients(folio.lastEmailProcessed.toRecipients, 'Para: ')}
                                         {fillRecipients(folio.lastEmailProcessed.ccRecipients, 'CC: ')}
                                         <div className="text-sm font-semibold"><span className="font-semibold">Asunto: </span>{folio.lastEmailProcessed.subject}</div>
@@ -2363,7 +2357,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             ))}
                                         </ul>
                                     ) : (
-                                        <p className="text-sm text-gray-500">No hay archivos adjuntos.</p>
+                                        <p className="text-sm text-ink-500">No hay archivos adjuntos.</p>
                                     )}
                                 </div>
                             </ModalBody>

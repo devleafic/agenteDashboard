@@ -78,7 +78,7 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
                                 padding: 10,
                                 border: '1px solid black',
                                 marginRight: 2,
-                                backgroundColor: '#f5f5f5',
+                                backgroundColor: 'var(--cream-100)',
                                 }}>
                                 <a href={file.url} target='_blank'>
                                     <div className='cardFile' style={{
@@ -90,7 +90,7 @@ const UploadMultipleFiles = ({folio, channel, onChange, readyFiles, setReadyFile
                                     {file.file.originalFilename}
                                     </div>
                                 </a>
-                                <div style={{ marginLeft: 'auto', backgroundColor: '#f9f9f9' }}>
+                                <div style={{ marginLeft: 'auto', backgroundColor: 'var(--cream-50)' }}>
                                     <Button size='tiny' style={{ height: 22, padding: 5 }} onClick={() => {
                                     if(window.confirm(`¿Estás seguro de eliminar el archivo "${file.file.originalFilename}"? `)){
                                         const newFiles = readyFiles.filter((f, i) => i !== index);

@@ -169,17 +169,17 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
         switch (isConnected) {
             case -1:
                 header = userInfo.onlyteamchat ? 'Solo tienes acceso a TeamChat.' : 'Aun no estas conectado, selecciona una actividad.';
-                colorClass = 'bg-yellow-100 border-yellow-500 text-yellow-700';
+                colorClass = 'bd-status-warn border-warn';
                 icon = '⚠️';
                 break;
             case 1:
                 header = 'Listo para recibir nuevos mensajes o llamadas.';
-                colorClass = 'bg-green-100 border-green-500 text-green-700';
+                colorClass = 'bd-status-good border-good';
                 icon = '✅';
                 break;
             case 2:
                 header = 'Continuas conectado, pero no recibiras nuevos mensajes o llamadas.';
-                colorClass = 'bg-yellow-100 border-yellow-500 text-yellow-700';
+                colorClass = 'bd-status-warn border-warn';
                 icon = '⏸️';
                 break;
             default:
@@ -187,7 +187,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
         }
         return (
             <div className="flex items-center justify-center h-full p-6">
-                <div className={`w-full max-w-2xl border-l-4 p-6 rounded-2xl shadow-md transition-all duration-300 transform hover:scale-[1.01] ${colorClass}`} role="alert">
+                <div className={`w-full max-w-2xl border border-l-4 p-6 transition-colors duration-300 ${colorClass}`} role="alert">
                     <div className="flex items-center space-x-4">
                         <span className="text-2xl">{icon}</span>
                         <p className="text-lg font-semibold">{header}</p>
@@ -391,7 +391,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
                                    
                                     if (folio.fromInbox){
-                                        inboxIcon = <InboxIcon className="w-5 h-5 text-red-500" />;
+                                        inboxIcon = <InboxIcon className="w-5 h-5 text-serious" />;
                                     }
 
                                     const secondaryText = folio.channel?.name === 'email' ? (folio.lastEmailProcessed?.subject || 'Sin asunto') : folio.person?.anchor;

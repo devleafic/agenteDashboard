@@ -43,7 +43,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     const [contentMessage, setContentMessage] = useState(
         <div className="flex flex-col items-center justify-center p-8">
             <Spinner size="lg" />
-            <p className="mt-4 text-gray-600">Cargando...</p>
+            <p className="mt-4 text-ink-500">Cargando...</p>
         </div>
     );
 
@@ -52,7 +52,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         setContentMessage(
             <div className="flex flex-col items-center justify-center p-8">
                 <Spinner size="lg" />
-                <p className="mt-4 text-gray-600">Cargando...</p>
+                <p className="mt-4 text-ink-500">Cargando...</p>
             </div>
         );
     }
@@ -266,7 +266,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         setContentMessage(
             <div className="flex flex-col items-center justify-center p-8">
                 <Spinner size="lg" />
-                <p className="mt-4 text-gray-600">Cargando mensajes...</p>
+                <p className="mt-4 text-ink-500">Cargando mensajes...</p>
             </div>
         );
 
@@ -298,9 +298,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
         } catch (error) {
             console.error('Error loading messages:', error);
             setContentMessage(
-                <div className="p-4 text-center text-red-600">
+                <div className="p-4 text-center text-critical">
                     <p>Error al cargar los mensajes</p>
-                    <p className="text-sm text-gray-500">{error.message}</p>
+                    <p className="text-sm text-ink-500">{error.message}</p>
                 </div>
             );
         }
@@ -478,9 +478,9 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         
                         {!isLoadInbox && filteredInboxes.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={9} className="text-center py-4 text-gray-500">
+                                <TableCell colSpan={9} className="text-center py-4 text-ink-500">
                                     <div className="flex flex-col items-center">
-                                        <Mail className="w-8 h-8 mb-2 text-gray-400" />
+                                        <Mail className="w-8 h-8 mb-2 text-ink-400" />
                                         <span>No hay mensajes guardados</span>
                                     </div>
                                 </TableCell>
@@ -490,11 +490,11 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         {filteredInboxes
                             .filter(x => !(x.status === 3 || x.folio?.status === 3 || x.folio?.fromPipeline === true))
                             .map((x) => (
-                                <TableRow key={x._id} className="hover:bg-gray-50">
+                                <TableRow key={x._id} className="hover:bg-cream-100">
                                     <TableCell>
                                         <div className="flex items-center">
                                             {x.status === 1 && (
-                                                <Circle className="w-3 h-3 mr-2 text-red-500 fill-current" />
+                                                <Circle className="w-3 h-3 mr-2 text-serious fill-current" />
                                             )}
                                             <span className="font-medium">{x.folio?._id}</span>
                                         </div>
@@ -512,12 +512,12 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                             ? `${x.userFromName} - ${x.transferDate}` 
                                             : "N/A"}
                                     </TableCell>
-                                    <TableCell className="text-sm text-gray-500">
+                                    <TableCell className="text-sm text-ink-500">
                                         {moment(x.folio.updatedAt).fromNow()}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {x.folio?.status === 3 ? (
-                                            <span className="text-sm text-gray-500">Finalizado</span>
+                                            <span className="text-sm text-ink-500">Finalizado</span>
                                         ) : (
                                             <Button
                                                 isIconOnly
@@ -544,7 +544,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                             isIconOnly
                                             variant="light"
                                             onPress={() => getFolioMessages(x.folio._id)}
-                                            className="text-gray-600 hover:bg-gray-100"
+                                            className="text-ink-500 hover:bg-cream-200"
                                         >
                                             <Eye className="w-5 h-5" />
                                         </Button>
