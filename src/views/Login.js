@@ -16,26 +16,26 @@ import axios from 'axios';
 import './Login.css';
 
 const UserIcon = () => (
-  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
   </svg>
 );
 
 const LockIcon = () => (
-  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
   </svg>
 );
 
 const EyeIcon = () => (
-  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
   </svg>
 );
 
 const EyeSlashIcon = () => (
-  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
   </svg>
 );
@@ -81,20 +81,20 @@ const Login = () => {
     <div className="login-root">
 
       {/* ── Left brand panel ── */}
-      <div className="login-brand-panel">
-        <div className="blob blob-1" />
-        <div className="blob blob-2" />
-        <div className="blob blob-3" />
-        <div className="blob blob-4" />
+      <div className="login-brand-panel grain">
+        {/* Malla flame + rejilla: el fondo de marca, en lugar de los
+            cuatro blobs sky/violet/emerald anteriores. */}
+        <div className="flame-mesh flame-mesh--faint" />
+        <div className="grid-lines grid-lines--dark" />
 
         <div className="login-brand-content">
           <div className="login-brand-logo-wrap">
             <img src={LogoImage} alt="Inbox Central" className="login-brand-logo" />
           </div>
 
-          <h1 className="login-brand-title">Tu bandeja<br />inteligente</h1>
+          <h1 className="login-brand-title">Tu bandeja<br /><em>inteligente</em></h1>
           <p className="login-brand-tagline">
-            Responde, gestiona y resuelve<br />con el soporte de IA en tiempo real
+            Responde, gestiona y resuelve con el soporte de IA en tiempo real
           </p>
 
           <div className="login-channel-cards">
@@ -165,10 +165,10 @@ const Login = () => {
                     onChange={(e) => { setUser(e.target.value.replace(/\s/g, '')); setMsgError(''); }}
                     startContent={<div className="pointer-events-none flex items-center"><UserIcon /></div>}
                     classNames={{
-                      input: ["text-base", "text-slate-800", "placeholder:text-slate-400"],
-                      inputWrapper: ["bg-white", "border-slate-200", "hover:border-sky-400", "group-data-[focus=true]:!border-sky-500"],
+                      input: ["text-base", "text-ink", "placeholder:text-ink-400"],
+                      inputWrapper: ["bg-cream-50", "border-hair", "hover:border-ink-400", "group-data-[focus=true]:!border-flame-ember"],
                     }}
-                    radius="lg"
+                    radius="none"
                   />
                 </div>
 
@@ -199,10 +199,10 @@ const Login = () => {
                       </button>
                     }
                     classNames={{
-                      input: ["text-base", "text-slate-800", "placeholder:text-slate-400"],
-                      inputWrapper: ["bg-white", "border-slate-200", "hover:border-sky-400", "group-data-[focus=true]:!border-sky-500"],
+                      input: ["text-base", "text-ink", "placeholder:text-ink-400"],
+                      inputWrapper: ["bg-cream-50", "border-hair", "hover:border-ink-400", "group-data-[focus=true]:!border-flame-ember"],
                     }}
-                    radius="lg"
+                    radius="none"
                   />
                 </div>
 
@@ -227,7 +227,7 @@ const Login = () => {
                     </svg>
                   }
                   className="w-full login-submit-btn"
-                  radius="lg"
+                  radius="none"
                 >
                   {onLoading ? 'Iniciando sesión...' : 'Ingresar al espacio de trabajo'}
                 </Button>

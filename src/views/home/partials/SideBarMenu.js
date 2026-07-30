@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Button, Tooltip, Avatar, Badge, Spacer } from "@heroui/react";
 import { useSocket } from '../../../controladores/InternalChatContext';
+import { railBtn, railUtilityBtn, RAIL_AVATAR } from '../../../styles/railClasses';
 import avatar from './../../../img/ico.png';
 
-// --- SVG Icon Components ---
-const IconWrapper = ({ children }) => (
-  <div className="text-gray-400 group-hover:text-white transition-colors">
-    {children}
-  </div>
-);
+/* Los iconos traen stroke="white" inline; .bd-rail-btn svg lo gana con
+   currentColor, asi que el wrapper ya no necesita pintar nada. */
+const IconWrapper = ({ children }) => <>{children}</>;
 
 const ChatIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="w-6 h-6">
@@ -151,12 +149,12 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
     ].filter(Boolean); // Remove any null/undefined items
 
     return (
-        <div className="h-full w-16 bg-gray-800 flex flex-col items-center justify-between py-4 shadow-md border-r border-gray-700">
-            
+        <div className="bd-rail h-full w-16 flex flex-col items-center justify-between py-4">
+
             {/* Top section: Logo and main navigation */}
             <div className="flex flex-col items-center gap-4">
                 <Tooltip content={`Inbox Central v${process.env.REACT_APP_SYSTEM_VERSION}`} placement="right">
-                    <Avatar src={userInfo?.profile?.picture} className="w-10 h-10 text-large" />
+                    <Avatar src={userInfo?.profile?.picture} radius="none" className={`${RAIL_AVATAR} text-large`} />
                 </Tooltip>
                 <Spacer y={2}/>
                 <div className="flex flex-col gap-3">
@@ -166,30 +164,29 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
                         
                         return (
               
-                            <Badge content="" color="danger" isInvisible={!item.badge} shape="circle">
-                                <Tooltip 
+                            <Badge content="" color="secondary" isInvisible={!item.badge} shape="circle">
+                                <Tooltip
                                     key={item.name}
-                                    content={item.tooltip} 
-                                    placement="right" 
-                                    
+                                    content={item.tooltip}
+                                    placement="right"
+
                                     showArrow={true}
                                     offset={10}
-                                    className="z-50 bg-gradient-to-br from-indigo-500 to-pink-500 text-white scale-110"
+                                    className="z-50 bg-ink text-cream"
                             >
                                     <Button
                                             isIconOnly
-                                            variant="flat"
-                                            color={page === item.name ? "primary" : "default"}
+                                            disableAnimation
+                                            variant="light"
+                                            radius="none"
                                             aria-label={item.tooltip}
                                             onPress={() => selectedComponent(item.name)}
                                             isDisabled={isDisabled}
-                                            className={`transition-all duration-200 ${page === item.name 
-                                                ? 'bg-gradient-to-br from-indigo-500 to-pink-500 text-white scale-110' 
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white hover:scale-105'}`}
+                                            className={railBtn({ active: page === item.name })}
                                         >
-                                            <IconWrapper className="text-white">{item.icon}</IconWrapper>
+                                            <IconWrapper>{item.icon}</IconWrapper>
                                     </Button>
-                                </Tooltip>       
+                                </Tooltip>
                             </Badge>
                            
                         );
@@ -202,10 +199,12 @@ const SideBarMenu = ({ page, selectedComponent, isConnected, unReadMessages, use
                 <Tooltip content="Cerrar Sesión" placement="right" color="danger">
                     <Button
                         isIconOnly
+                        disableAnimation
                         variant="light"
+                        radius="none"
                         aria-label="Cerrar Sesión"
                         onPress={closeSession}
-                        className="group"
+                        className={railUtilityBtn()}
                     >
                         <IconWrapper><LogoutIcon /></IconWrapper>
                     </Button>

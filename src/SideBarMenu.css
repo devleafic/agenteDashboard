@@ -1,12 +1,16 @@
+/* Hoja legacy del rail: hoy nadie la importa (el rail vivo se estiliza
+   con .bd-rail-* en src/styles/brand.css + src/styles/railClasses.js).
+   Se migra igual para que, si alguien la vuelve a enlazar, no reintroduzca
+   el violeta #b249f8 ni los botones redondos con sombra. */
 .sidebar-container {
     height: 100%;
     width: 80px;
-    background-color: #f3f4f6;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    background-color: var(--ink);
+    border-right: 1px solid var(--hair-dark);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Centra los elementos verticalmente */
+    justify-content: center;
     padding-top: 20px;
     position: relative;
 }
@@ -29,24 +33,25 @@
 .sidebar-item .ui.button {
     width: 40px;
     height: 40px;
-    border-radius: 30px; /* Hace que los botones sean casi redondos */
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: var(--r-sharp);
+    background-color: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
 }
 
 .sidebar-item .ui.button:hover {
-    background-color: #e0e1e2;
+    background-color: rgba(255, 250, 235, .05);
 }
 
 .sidebar-item.logout {
     margin-top: auto;
     margin-bottom: 20px;
 }
-/* SideBarMenu.css */
+
 .sidebar-button .icon {
-    color: grey; /* Color por defecto */
+    color: rgba(255, 250, 235, .62);
 }
 
 .sidebar-button.selected .icon {
-    color: #b249f8 /* Color cuando está seleccionado */
+    color: var(--cream);
 }

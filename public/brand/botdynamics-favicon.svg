@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="BotDynamics">
+  <style>
+    .bg { fill: #FFFAEB; }
+    .body { fill: #0A0A0A; }
+    .eyes { fill: #FFFAEB; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0A0A0A; }
+      .body { fill: #FFFAEB; }
+      .eyes { fill: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="128" height="128"/>
+  <g transform="translate(18 24)">
+    <g class="body">
+      <path d="M0 12H48V28H64V76H0Z"/>
+      <rect x="8" y="80" width="22" height="16"/>
+      <rect x="34" y="80" width="22" height="16"/>
+    </g>
+    <g class="eyes">
+      <rect x="12" y="38" width="11" height="16"/>
+      <rect x="41" y="38" width="11" height="16"/>
+    </g>
+    <rect x="76" y="0" width="16" height="16" fill="#FF8205"/>
+    <g fill="none" stroke="#FF8205" stroke-width="4" stroke-linecap="square">
+      <path d="m64 14 8-8"/>
+      <path d="m67 24 10-10"/>
+    </g>
+  </g>
+</svg>

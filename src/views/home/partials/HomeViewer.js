@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { Chip, Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
+import { Avatar, Badge, Button as HeroButton, Input, Switch, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
 import { Paperclip, Send, XCircle, Save, LogOut, AlertTriangle, Mail, Globe, Box, Inbox, MessageCircle, MessageCircleOff, PhoneCall, MailOpen, Sparkles, MessageSquare, Search, Calendar, Clock } from 'lucide-react';
 import Comments from './CommentsV2';
 import Tools from './ToolsV2';
@@ -193,7 +193,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                         <p className="text-lg font-semibold">{header}</p>
                     </div>
                     {isConnected === 1 && (
-                        <p className="mt-3 text-base text-gray-700">
+                        <p className="mt-3 text-base text-ink-600">
                             Estamos listos para atender tus mensajes y llamadas. Te notificaremos cuando tengas una nueva conversación.
                         </p>
                     )}
@@ -255,18 +255,18 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
     }, [foliosCount, filterText, showUnreadOnly, sortBy, unReadFolios]);
 
     return (
-        <div style={{ display: show ? 'flex' : 'none' }} className="flex h-[calc(100vh-80px)] bg-gray-50 w-full overflow-hidden relative">
-            {/* Collapse/Expand Button */}
+        <div style={{ display: show ? 'flex' : 'none' }} className="bd-workspace h-[calc(100vh-80px)] w-full overflow-hidden relative">
+            {/* Tirador de colapso: vive sobre la canaleta, no encima del plano. */}
             <Tooltip content={isSidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}>
-            <button 
+            <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 rounded-r-lg p-2 shadow-md hover:bg-gray-50 transition-colors"
+                className="bd-gutter-toggle absolute left-0 top-1/2 -translate-y-1/2 z-20"
                 aria-label={isSidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
             >
                 {isSidebarCollapsed ? (
-                    <ChevronRightIcon className="w-4 h-4 text-white" />
+                    <ChevronRightIcon className="w-3 h-3" />
                 ) : (
-                    <ChevronLeftIcon className="w-4 h-4 text-white" />
+                    <ChevronLeftIcon className="w-3 h-3" />
                 )}
             </button>
             </Tooltip>
@@ -276,24 +276,17 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                 <>
                     {/* Left Column: Chat List */}
                     <div 
-                        className={`${isSidebarCollapsed ? 'w-20' : 'w-80'} border-r border-gray-200 bg-white flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}
+                        className={`bd-plane ${isSidebarCollapsed ? 'w-20' : 'w-80'} flex-shrink-0 flex flex-col transition-all duration-300 ease-in-out`}
                     >
-                        <div className={`p-4 sticky top-0 z-10 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 shadow-sm ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
+                        <div className={`bd-plane-header p-4 sticky top-0 z-10 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
                             {!isSidebarCollapsed && (
                                 <div className="flex flex-col items-start gap-2 mb-1 w-full">
-                                    <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                                    <h2 className="bd-page-title">
                                         Conversaciones
                                     </h2>
-                                    <Chip 
-                                        color="primary" 
-                                        variant="flat"
-                                        classNames={{
-                                            base: "bg-gradient-to-br from-indigo-100 to-pink-50 border-small border-indigo-200/50",
-                                            content: "text-indigo-800 font-medium text-sm"
-                                        }}
-                                    >
+                                    <span className="bd-pill">
                                         {processedFolios.length} {processedFolios.length === 1 ? 'conversación' : 'conversaciones'}
-                                    </Chip>
+                                    </span>
                                 </div>
                             )}
                             
@@ -303,42 +296,42 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         isClearable
                                         variant="bordered"
                                         placeholder="Buscar conversaciones..."
-                                        startContent={<SearchIcon className="text-gray-400" />}
+                                        startContent={<SearchIcon className="text-ink-400" />}
                                         value={filterText}
                                         onValueChange={setFilterText}
                                         onClear={() => setFilterText('')}
                                         classNames={{
                                             input: "text-base",
-                                            inputWrapper: "bg-white border-gray-200 hover:border-indigo-300 focus-within:!border-indigo-500",
+                                            inputWrapper: "bg-cream-50 border-hair hover:border-ink-400 focus-within:!border-flame-ember",
                                         }}
-                                        className="w-full shadow-sm"
+                                        className="w-full shadow-none"
                                     />
-                                    
-                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-indigo-50/50 rounded-lg mt-1">
+
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 bg-cream-100 hair mt-1">
                                         <div className="flex items-center">
                                             <Switch
                                                 isSelected={showUnreadOnly}
                                                 onValueChange={setShowUnreadOnly}
                                                 size="sm"
                                                 classNames={{
-                                                    wrapper: "group-data-[selected=true]:bg-gradient-to-r from-indigo-500 to-pink-500 mt-0.5",
+                                                    wrapper: "group-data-[selected=true]:bg-ink mt-0.5",
                                                 }}
                                             >
-                                                <span className="text-sm font-medium text-gray-700">Solo no leídos</span>
+                                                <span className="text-sm font-medium text-ink-600">Solo no leídos</span>
                                             </Switch>
                                         </div>
                                         
                                         <div className="flex-shrink-0 flex flex-col items-end">
-                                            <span className="text-xs font-medium text-gray-500 mb-1">Ordenar por</span>
+                                            <span className="text-xs font-medium text-ink-500 mb-1">Ordenar por</span>
                                             <Dropdown>
                                                 <DropdownTrigger>
                                                     <HeroButton 
                                                         variant="flat" 
                                                         size="sm" 
-                                                        className="w-[10px] justify-between bg-white border border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transition-colors h-8 px-2"
-                                                        endContent={<ChevronDownIcon className="w-3 h-3 text-gray-500 ml-1" />}
+                                                        className="w-[112px] justify-between bg-cream-50 border border-hair hover:border-ink-400 hover:bg-cream-100 transition-colors h-8 px-2"
+                                                        endContent={<ChevronDownIcon className="w-3 h-3 text-ink-500 ml-1" />}
                                                     >
-                                                        <span className="text-xs font-medium text-gray-700 text-left flex-1 truncate">
+                                                        <span className="text-xs font-medium text-ink-600 text-left flex-1 truncate">
                                                             {sortBy === 'unread' ? 'No leídos' : 'Recientes'}
                                                         </span>
                                                     </HeroButton>
@@ -351,13 +344,13 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                     selectedKeys={new Set([sortBy])}
                                                     onSelectionChange={(keys) => setSortBy(Array.from(keys)[0])}
                                                     classNames={{
-                                                        base: "border border-gray-100 shadow-lg rounded-lg overflow-hidden w-[120px] min-w-[120px] -ml-1"
+                                                        base: "border border-hair-soft shadow-lg rounded-lg overflow-hidden w-[120px] min-w-[120px] -ml-1"
                                                     }}
                                                 >
-                                                    <DropdownItem key="default" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
+                                                    <DropdownItem key="default" className="px-2 py-1.5 text-xs hover:bg-cream-200">
                                                         Recientes
                                                     </DropdownItem>
-                                                    <DropdownItem key="unread" className="px-2 py-1.5 text-xs hover:bg-indigo-50">
+                                                    <DropdownItem key="unread" className="px-2 py-1.5 text-xs hover:bg-cream-200">
                                                         No leídos
                                                     </DropdownItem>
                                                 </DropdownMenu>
@@ -385,13 +378,13 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         switch (folio.channel?.name) {
                                             case 'voice':
                                             case 'call':
-                                                channelIcon = <PhoneIcon className="w-5 h-5 text-gray-400" />;
+                                                channelIcon = <PhoneIcon className="w-5 h-5 text-ink-400" />;
                                                 break;
                                             case 'email':
-                                                channelIcon = <EnvelopeIcon className="w-5 h-5 text-gray-400" />;
+                                                channelIcon = <EnvelopeIcon className="w-5 h-5 text-ink-400" />;
                                                 break;
                                             default:
-                                                channelIcon = <ChatBubbleIcon className="w-5 h-5 text-gray-400" />;
+                                                channelIcon = <ChatBubbleIcon className="w-5 h-5 text-ink-400" />;
                                                 break;
                                         }
                                     }
@@ -406,7 +399,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     return (
                                         <div
                                             key={folio._id}
-                                            className={`flex items-start p-3 cursor-pointer border-l-4 transition-all duration-200 min-w-0 ${isActive ? 'border-purple-500 bg-purple-100/100 shadow-md scale-[1.02] ring-1 ring-purple-200/60 backdrop-blur-sm' : 'border-transparent hover:bg-gray-100'}`}
+                                            className={`bd-folio-item relative flex items-start p-3 cursor-pointer min-w-0 ${isActive ? 'bd-folio-item--active' : ''}`}
                                             onClick={() => {
                                                 setVFolio(folio._id);
                                                 setMessageToSend('');
@@ -437,7 +430,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                             {!isSidebarCollapsed && (
                                                 <div className="min-w-0 flex-1 ml-3 overflow-hidden">
                                                     <div className="flex items-center justify-between w-full">
-                                                        <p className="font-bold text-sm text-gray-800 truncate pr-2">
+                                                        <p className="bd-folio-name truncate pr-2">
                                                             {folio.person?.aliasId || folio.person?.anchor}
                                                         </p>
                                                         <div className="flex-shrink-0">
@@ -445,7 +438,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                                         </div>
                                                     </div>
                                                     <div className="flex justify-between items-center w-full">
-                                                        <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                        <p className="text-xs font-medium text-ink-500 truncate flex-1 pr-2">
                                                             {secondaryText}
                                                         </p>
                                                         {inboxIcon}
@@ -453,7 +446,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
 
                                                     </div>
                                                     <div className="flex justify-between items-center w-full">
-                                                        <p className="text-xs font-medium text-gray-600 truncate flex-1 pr-2">
+                                                        <p className="text-xs font-medium text-ink-500 truncate flex-1 pr-2">
                                                             {channelname}
                                                         </p>
                                                         <ElapsedTime assignmentTime={folioAssignmentTimes[folio._id]} />
@@ -466,9 +459,9 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                     );
                                 })
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                                <div className="flex flex-col items-center justify-center h-64 text-ink-400">
                                     <MessageCircleOff className="w-12 h-12 mb-2" />
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-ink-500">
                                         {isSidebarCollapsed ? 'Sin chats' : 'No hay conversaciones para mostrar'}
                                     </p>
                                 </div>
@@ -477,10 +470,10 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                     </div>
 
                     {/* Right Column: Chat Panel */}
-                    <div className="flex-grow flex flex-col relative">
+                    <div className="flex-grow flex flex-col relative min-w-0">
                         {activeFolioData ? (
-                            <div className="flex flex-grow h-full">
-                                <div className="flex-grow h-full">
+                            <div className="flex flex-grow h-full gap-2 min-w-0">
+                                <div className="bd-plane bd-plane--focus flex-grow h-full min-w-0">
                                      <Comments
               hasTextContent={hasTextContent}
               setHasTextContent={setHasTextContent}
@@ -508,7 +501,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                      />
                                 </div>
                                 {toolsOpen && (
-                                    <div className="w-96 border-l border-gray-200 bg-white h-full overflow-y-auto">
+                                    <div className="bd-plane w-96 flex-shrink-0 h-full overflow-y-auto">
                                         <Tools
               setHasTextContent={setHasTextContent}
                                             setMessageToSend={setMessageToSend}
@@ -527,17 +520,16 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                                         />
                                     </div>
                                 )}
-                                <HeroButton
-                                    isIconOnly
-                                    size="sm"
-                                    color="primary"
-                                    variant="shadow"
-                                    className="absolute top-1/2 -translate-y-1/2 z-10 transition-all rounded-full"
-                                    onPress={hideTools}
-                                    style={{ right: toolsOpen ? 'calc(24rem - 1rem)' : '0.5rem' }}
+                                {/* Mismo tirador que el de la izquierda: centrado sobre la
+                                    canaleta de 8px que separa conversacion de herramientas. */}
+                                <button
+                                    onClick={hideTools}
+                                    aria-label={toolsOpen ? 'Ocultar herramientas' : 'Mostrar herramientas'}
+                                    className="bd-gutter-toggle absolute top-1/2 -translate-y-1/2 z-10"
+                                    style={{ right: toolsOpen ? 'calc(24rem - 5px)' : '4px' }}
                                 >
-                                    {toolsOpen ? <ChevronRightIcon className="w-5 h-5" /> : <ChevronLeftIcon className="w-5 h-5" />}
-                                </HeroButton>
+                                    {toolsOpen ? <ChevronRightIcon className="w-3 h-3" /> : <ChevronLeftIcon className="w-3 h-3" />}
+                                </button>
                             </div>
                         ) : (
                             getMessageEmpty()

@@ -60,7 +60,7 @@ const TextSizeControl = () => {
         size="sm"
         aria-label="Cambiar tamaño de texto"
         onPress={cycleTextSize}
-        className="bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 text-white hover:opacity-90 transition-opacity"
+        className="bg-ink text-cream border border-ink hover:bg-ink-800 transition-colors"
       >
         {getIcon()}
       </Button>

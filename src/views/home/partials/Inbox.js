@@ -382,15 +382,15 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow-md">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 mb-6 bg-blue-50 rounded-t-lg border-b border-blue-100">
+        <div className="p-6 bg-cream-50 hair">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between p-4 mb-6 bg-cream-100 hair-b">
                 <div className="flex items-center mb-4 md:mb-0">
-                    <Mail className="w-6 h-6 mr-3 text-blue-600" />
+                    <Mail className="w-6 h-6 mr-3 text-ink-500" />
                     <div>
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                    <h2 className="bd-page-title">
                             Inbox Privado
                     </h2>
-                        <p className="text-sm text-gray-600">Selecciona un contacto para continuar con la conversación.</p>
+                        <p className="text-sm text-ink-500">Selecciona un contacto para continuar con la conversación.</p>
                     </div>
                 </div>
                 
@@ -403,10 +403,10 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                             placeholder="Buscar..."
                             value={filters.search}
                             onChange={handleFilterChange}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 border border-hair bg-cream-50 focus:outline-none focus:border-flame-ember"
                         />
                         <svg 
-                            className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" 
+                            className="absolute left-3 top-2.5 h-5 w-5 text-ink-400" 
                             fill="none" 
                             viewBox="0 0 24 24" 
                             stroke="currentColor"
@@ -419,7 +419,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         name="channel"
                         value={filters.channel}
                         onChange={handleFilterChange}
-                        className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-hair bg-cream-50 px-3 py-2 focus:outline-none focus:border-flame-ember"
                     >
                         <option value="all">Todos los canales</option>
                         {uniqueChannels.map(channel => (
@@ -433,7 +433,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                         name="status"
                         value={filters.status}
                         onChange={handleFilterChange}
-                        className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-hair bg-cream-50 px-3 py-2 focus:outline-none focus:border-flame-ember"
                     >
                         <option value="all">Todos los estados</option>
                         <option value="unread">No leídos</option>
@@ -443,7 +443,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                     {(filters.search || filters.channel !== 'all' || filters.status !== 'all') && (
                         <button
                             onClick={clearFilters}
-                            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800"
+                            className="px-4 py-2 text-sm font-medium text-ink-500 hover:text-ink"
                         >
                             Limpiar filtros
                         </button>
@@ -533,7 +533,7 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                                                 }}
                                                 isLoading={isLoadInboxFolio[x.folio._id]}
                                                 isDisabled={isLoadInboxFolio[x.folio._id]}
-                                                className="text-blue-600 hover:bg-blue-50"
+                                                className="text-ink-500 hover:bg-cream-200"
                                             >
                                                 <FolderOpen className="w-5 h-5" />
                                             </Button>

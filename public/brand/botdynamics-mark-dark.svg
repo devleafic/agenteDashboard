@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -28 108 124" role="img" aria-labelledby="title desc">
+  <title id="title">BotDynamics</title>
+  <desc id="desc">Agente digital construido con módulos, en versión para fondos oscuros.</desc>
+  <g fill="#FFFAEB">
+    <path d="M0 0H48V16H64V64H0Z"/>
+    <rect x="8" y="68" width="22" height="16"/>
+    <rect x="34" y="68" width="22" height="16"/>
+  </g>
+  <g fill="#0A0A0A">
+    <rect x="12" y="26" width="11" height="16"/>
+    <rect x="41" y="26" width="11" height="16"/>
+  </g>
+  <rect x="76" y="-18" width="16" height="16" fill="#FF8205"/>
+  <g fill="none" stroke="#FF8205" stroke-width="4" stroke-linecap="square">
+    <path d="M64-4 72-12"/>
+    <path d="m67 6 10-10"/>
+  </g>
+</svg>

@@ -1,0 +1,146 @@
+/* ============================================================
+   BotDynamics — tokens de identidad
+   Portado de https://botdynamics.app/assets/css/mistral.css
+
+   Este archivo se importa PRIMERO en src/index.js. Es la unica
+   fuente de verdad de color, tipografia y geometria.
+   No agregar hex literales fuera de este archivo.
+
+   Los @font-face NO estan aqui: viven en public/styles/fonts.css
+   y se enlazan desde index.html, porque css-loader de CRA intenta
+   resolver url('/fonts/...') como modulo y rompe el build.
+   ============================================================ */
+
+:root {
+    /* ---------- Crema ---------- */
+    --cream:     #FFFAEB;
+    --cream-50:  #FFFDF7;
+    --cream-100: #FFF8E7;
+    --cream-200: #F7F0DC;
+    --cream-300: #EDE3C9;
+
+    /* ---------- Tinta ---------- */
+    --ink:     #0A0A0A;
+    --ink-900: #141414;
+    --ink-800: #1F1F1F;
+    --ink-700: #242424;
+    --ink-600: #333333;
+    --ink-500: #4F4F4F;
+    --ink-400: #656565;
+
+    /* ---------- Rampa flame ----------
+       SOLO para rellenos, gradientes y marcas grandes.
+       --f3 da 2.38:1 sobre crema: NUNCA usarla como texto.
+       El unico paso legible como texto es --f5 (4.77:1). */
+    --f1: #FFD800;  /* yellow */
+    --f2: #FFAF00;  /* amber  */
+    --f3: #FF8205;  /* orange */
+    --f4: #FA500F;  /* ember  */
+    --f5: #E10500;  /* red    */
+
+    /* ---------- Hairlines (separacion por borde, no por sombra) ---------- */
+    --hair:      rgba(10, 10, 10, .14);
+    --hair-soft: rgba(10, 10, 10, .08);
+    --hair-dark: rgba(255, 250, 235, .18);
+
+    /* ---------- Superficies del dashboard ----------
+       Adaptacion propia: la web de marketing es plana, un dashboard
+       denso necesita separar canvas de tarjeta para que tablas y
+       graficas tengan un sustrato limpio. */
+    --canvas:    var(--cream);
+    --surface:   var(--cream-50);
+    --surface-2: var(--cream-100);
+    --surface-ink: var(--ink);
+
+    /* ---------- Texto ---------- */
+    --text:        var(--ink);
+    --text-muted:  var(--ink-500);
+    --text-subtle: var(--ink-400);
+    --text-on-ink: var(--cream);
+
+    /* ---------- Semanticos ----------
+       Set solido propio, separado de la rampa flame por funcion:
+       flame = marca, estos = estado. Todos >= 5.6:1 sobre crema. */
+    --good:     #0B6B41;
+    --warn:     #8A5A00;
+    --serious:  #B23A00;
+    --critical: #C10400;
+
+    --good-bg:     rgba(11, 107, 65, .10);
+    --warn-bg:     rgba(138, 90, 0, .10);
+    --serious-bg:  rgba(178, 58, 0, .10);
+    --critical-bg: rgba(193, 4, 0, .10);
+
+    /* ---------- Graficas ----------
+       Paleta categorica validada con scripts/validate_palette.js
+       (light, superficie #FFFAEB): los 5 checks en PASS.
+       Asignar SIEMPRE en este orden fijo, nunca ciclar. */
+    --chart-1: #FA500F;
+    --chart-2: #1B4FA8;
+    --chart-3: #118256;
+    --chart-4: #7A5AD8;
+    --chart-5: #C4157F;
+    --chart-6: #0596B0;
+
+    /* ---------- Rampa fria ----------
+       Contrapartida de la rampa flame, solo para identificar al cliente en
+       el filo de su burbuja. NO es color de marca: la identidad solo tiene
+       flame. Los pasos se derivan de --chart-6 y --chart-2, ya validados
+       sobre crema, mas un paso claro para abrir la rampa por arriba.
+
+       Misma arquitectura que flame a proposito (claro y saturado arriba,
+       profundo abajo, quiebre al 45%): un color plano al lado de un
+       degradado se lee como barra impresa, no como acento del mismo
+       sistema. La distincion entre las partes es de temperatura, no de
+       tratamiento. */
+    --c1: #3FD0E0;  /* cian claro  */
+    --c2: #0596B0;  /* teal        = --chart-6 */
+    --c3: #1B4FA8;  /* azul hondo  = --chart-2 */
+
+    /* ---------- Partes de la conversacion ----------
+       Quien habla se identifica por temperatura del filo:
+       flame = nosotros (marca), frio = el cliente. */
+    --party-agent:  linear-gradient(to bottom, var(--f2), var(--f3) 45%, var(--f5));
+    --party-client: linear-gradient(to bottom, var(--c1), var(--c2) 45%, var(--c3));
+
+    /* Rampa secuencial (magnitud): la propia flame, luminosidad decreciente */
+    --seq-1: var(--f1);
+    --seq-2: var(--f2);
+    --seq-3: var(--f3);
+    --seq-4: var(--f4);
+    --seq-5: var(--f5);
+
+    /* ---------- Tipografia ---------- */
+    --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Instrument Sans', 'Inter', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    /* ---------- Geometria ----------
+       Filo total: 2px. Las pills siguen siendo pills. */
+    --r-sharp: 2px;
+    --r-pill:  9999px;
+
+    /* ---------- Movimiento ---------- */
+    --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- Tema oscuro ----------
+   Definido pero NO enviado: el app sigue anclado a .light.
+   Los pasos categoricos de --chart-* todavia no estan validados
+   contra superficie oscura; derivarlos y correr el validador antes
+   de activar el toggle. */
+.dark {
+    --canvas:    var(--ink);
+    --surface:   var(--ink-900);
+    --surface-2: var(--ink-800);
+    --surface-ink: var(--ink);
+
+    --text:        var(--cream);
+    --text-muted:  rgba(255, 250, 235, .68);
+    --text-subtle: rgba(255, 250, 235, .52);
+    --text-on-ink: var(--cream);
+
+    --hair:      rgba(255, 250, 235, .18);
+    --hair-soft: rgba(255, 250, 235, .10);
+    --hair-dark: rgba(255, 250, 235, .18);
+}

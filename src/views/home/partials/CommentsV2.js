@@ -1414,7 +1414,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
 
     return (
         <>
-            <div className="flex flex-col h-full bg-gray-50">
+            <div className="flex flex-col h-full bg-transparent">
                 {/* Toggle Button for Search Bar */}
                 <div className="absolute top-4 left-[60%] transform -translate-x-1/2 z-20">
                     <div className="flex items-center gap-2">
@@ -1426,9 +1426,9 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                 size="sm"
                                 onPress={() => toggleSearchBar()}
                                 aria-label={isSearchVisible ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}
-                                className={`bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30 ${isSearchVisible ? 'ring-2 ring-offset-2 ring-blue-400' : ''}`}
+                                className={`bg-ink text-cream border border-ink hover:bg-ink-800 ${isSearchVisible ? "ring-2 ring-offset-2 ring-flame-ember" : ""}`}
                             >
-                                <Search className="w-6 h-6 text-white" />
+                                <Search className="w-6 h-6 text-cream" />
                             </HeroButton>
                         </Tooltip>
                         {/* Text Size Control */}
@@ -1552,9 +1552,12 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 </div>
 
                 {/* Header */}
-                <div className="p-2 border-b bg-white shadow-sm shrink-0">
+                {/* Cabecera: mismo zocalo que el pie, para que los mensajes queden
+                    como la pagina clara entre dos planos. Antes era bg-white con
+                    shadow-sm, las dos cosas que la identidad no usa. */}
+                <div className="hair-b bg-cream-100 shrink-0 p-2">
                     <div className="flex items-baseline gap-4">
-                        <h2 className="text-xl font-bold text-gray-800">
+                        <h2 className="text-xl font-display text-ink">
                             {typeFolio === '_CALL_'
                                 ? 'Llamada'
                                 : typeFolio === '_EMAIL_'
@@ -1667,7 +1670,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                     id={`message-${index}`}
                                     message={msgWithMatch}
                                     highlight={isMatch ? searchTerm : ''}
-                                    className={`${isCurrentMatch ? 'bg-blue-50 dark:bg-blue-900/30 transition-colors duration-300' : ''} message-container`}
+                                    className={`${isCurrentMatch ? 'bg-cream-200 ring-1 ring-flame-ember transition-colors duration-300' : ''} message-container`}
                                 />
                             ) : (
                                 <MessageBubble
@@ -1680,7 +1683,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                     typeFolio={typeFolio}
                                     contact={folio.person}
                                     highlight={isMatch ? searchTerm : ''}
-                                    className={`${isCurrentMatch ? 'bg-blue-50 dark:bg-blue-900/30 transition-colors duration-300' : ''} message-container`}
+                                    className={`${isCurrentMatch ? 'bg-cream-200 ring-1 ring-flame-ember transition-colors duration-300' : ''} message-container`}
                                 />
                             );
                             return messageElement;
@@ -1688,8 +1691,12 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     ) : null}
                 </div>
 
-                {/* Footer / Input Area */}
-                <div className="border-t bg-white shrink-0 p-2">
+                {/* Footer / Input Area
+                    Zocalo: un solo plano un paso por debajo de la conversacion,
+                    separado por un hairline. Antes eran tres superficies anidadas
+                    (plano crema -> banda BLANCA -> caja crema) y el aro blanco
+                    intermedio era lo que rompia la armonia. */}
+                <div className="hair-t bg-cream-100 shrink-0 p-3">
                     {typeFolio === '_MESSAGES_' && fullFolio ? (
                         <div>   
                             <div className="flex justify-center mb-1 h-7">
@@ -1701,7 +1708,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                 )}
                             </div>
                             <div className="flex flex-col">
-                                <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
+                                <div className="flex-grow relative flex items-start">
                                     <div className="flex-grow relative">
                                         <textarea
                                             key={folio?._id || 'no-folio'}
@@ -1758,7 +1765,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         {/* Slash commands menu for quick answers (opens when typing "/") */}
                                         <SlashCommandMenu textareaRef={textArea} items={quicklyAnswer || []} />
                                          {showAutoSaveIndicator && (
-                                             <div className="absolute -top-5 right-2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded transition-opacity duration-300">
+                                             <div className="absolute -top-5 right-2 bg-good text-white text-[10px] px-1.5 py-0.5 transition-opacity duration-300">
                                                  <Save className="w-3 h-3" />
                                              </div>
                                          )}
@@ -1774,7 +1781,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                                 <XCircle className="w-4 h-4" />
                                             </HeroButton>
                                         )}
-                                        <div className="text-xs text-gray-500 text-right mt-1 pr-10">
+                                        <div className="text-xs text-ink-400 text-right mt-1 pr-10">
                                             Enter para enviar mensaje / Shift+Enter para un salto de línea
                                         </div>
                                     </div>
@@ -1797,7 +1804,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
+                            <div className="hair-t mt-3 pt-3 flex justify-between items-center text-xs text-ink-500">
                                 <div>
                                     {showAutoSaveIndicator && <span style={{ color: indicatorColor }}>{indicatorMessage}</span>}
                                 </div>
@@ -1806,8 +1813,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         <HeroButton
                                             size="sm"
                                             variant="flat"
-                                            startContent={<Sparkles className="w-4 h-4 text-purple-600" />}
-                                            className="bg-white text-purple-700 hover:bg-purple-50 border border-purple-100 transition-colors"
+                                            startContent={<Sparkles className="w-4 h-4 text-flame-ember" />}
+                                            className="bd-copilot-btn"
                                             onPress={() => {
                                                 const fId = folio?._id;
                                                 const sId = folio?.service?._id || folio?.service;
@@ -1828,8 +1835,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         <HeroButton
                                             size="sm"
                                             variant="flat"
-                                            startContent={<MessageSquareText className="w-4 h-4 text-blue-600" />}
-                                            className="bg-white text-blue-700 hover:bg-blue-50 border border-blue-100 transition-colors"
+                                            startContent={<MessageSquareText className="w-4 h-4 text-flame-ember" />}
+                                            className="bd-copilot-btn"
                                             onPress={() => {
                                                 const fId = folio?._id;
                                                 const sId = folio?.service?._id || folio?.service;
@@ -1857,7 +1864,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             onPress={() => prepareCloseFolio('save')}
                                             isLoading={isEndingFolio}
                                             disabled={isEndingFolio}
-                                            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90 transition-opacity"
+                                            className="bg-ink text-cream hover:bg-ink-800 transition-colors"
                                         >
                                             Continuar más tarde
                                         </HeroButton>
@@ -1869,7 +1876,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             onPress={() => prepareCloseFolio('end')}
                                             isLoading={isEndingFolio}
                                             disabled={isEndingFolio}
-                                            className="bg-gradient-to-r from-red-500 to-pink-600 text-white hover:opacity-90 transition-opacity"
+                                            className="bg-critical text-white hover:opacity-90 transition-opacity"
                                         >
                                             Finalizar
                                         </HeroButton>
@@ -1964,7 +1971,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                 )}
                             </div>
                             <div className="flex flex-col">
-                                <div className="flex-grow relative bg-gray-100 dark:bg-zinc-800 rounded-lg p-2 flex items-start">
+                                <div className="flex-grow relative flex items-start">
                                     <UploadFile folio={folio._id} channel={channel} setRefresh={setRefresh} />
                                     <div className="flex-grow relative">
                                         <textarea
@@ -2030,7 +2037,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             onClick={() => prepareCloseFolio('save')}
                                             isLoading={isEndingFolio}
                                             disabled={isEndingFolio}
-                                            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:opacity-90 transition-opacity"
+                                            className="bg-ink text-cream hover:bg-ink-800 transition-colors"
                                         >
                                             Guardar y Cerrar
                                         </HeroButton>
@@ -2059,18 +2066,18 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-purple-600" />
+                            <Sparkles className="w-4 h-4 text-flame-ember" />
                             <span>{aiAction === 'reply' ? 'Contestar con IA' : aiAction === 'summary' ? 'Resumen del folio' : 'Copilot IA'}</span>
                         </div>
                     </ModalHeader>
                     <ModalBody>
                         {aiLoading ? (
                             <div className="flex flex-col items-center gap-3 py-6">
-                                <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                                <div className="w-8 h-8 border-2 border-hair border-t-flame-ember rounded-full animate-spin" />
                                 <p className="text-sm text-gray-500">Analizando conversación…</p>
                             </div>
                         ) : aiModalContent ? (
-                            <div className="border-l-4 border-purple-300 bg-purple-50 rounded-r-lg p-4 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                            <div className="bd-copilot-panel p-4 text-sm">
                                 {aiModalContent}
                             </div>
                         ) : (

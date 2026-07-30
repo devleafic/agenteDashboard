@@ -18,7 +18,7 @@ export default function ChangelogModal({ open, onClose }) {
     <Modal isOpen={open} onOpenChange={(isOpen) => { if (!isOpen) onClose?.(); }} size="xl" backdrop="blur" placement="center">
       <ModalContent>
         <ModalHeader className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-500" />
+          <Sparkles className="w-5 h-5 text-flame-ember" />
           <div className="flex items-center gap-2">
             <span>Changelog</span>
             {currentVersion ? (

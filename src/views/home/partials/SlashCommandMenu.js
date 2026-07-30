@@ -315,8 +315,8 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
               key={it._id || idx}
               className={`group px-4 py-3 text-[15px] cursor-pointer select-none whitespace-pre-wrap break-words leading-relaxed rounded-md border transition-colors duration-150 shadow-sm ${
                 idx === highlight
-                  ? 'bg-indigo-50/80 text-indigo-800 border-indigo-300 ring-1 ring-indigo-300 border-l-4 border-l-indigo-500'
-                  : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 border-l-4 border-l-gray-200'
+                  ? 'bg-cream-100 text-ink border-hair border-l-4 border-l-flame-ember'
+                  : 'bg-cream-50 text-ink border-hair hover:bg-cream-100 border-l-4 border-l-transparent'
               }`}
               role="option"
               aria-selected={idx === highlight}

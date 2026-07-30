@@ -1651,7 +1651,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                <h2 className="bd-page-title">
                   Contactos
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">

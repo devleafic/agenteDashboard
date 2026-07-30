@@ -6,18 +6,15 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif; 
-  /* font-family: 'Oleo Script Swash Caps', cursive; */
+  font-family: var(--font-sans);
+  background: var(--canvas);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--font-mono);
 }
 
 .toolbar {
@@ -66,9 +63,9 @@ code {
 
 .tagPlugin{
   text-align :center;
-  background-color: #FFF;
-  border: 1px solid #e0e1e2 ;
-  border-radius: 10px;
+  background-color: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sharp);
   padding: 15px;
 }
 
@@ -225,20 +222,18 @@ p[class^="from-"].emoji::before {
 }
 
 h1 {
-  font-weight: normal;
   margin-bottom: 0.5rem;
 }
 
 h2 {
-  border-bottom: 1px solid #e5e5ea;
-  color: #666;
-  font-weight: normal;
+  border-bottom: 1px solid var(--hair);
+  color: var(--text);
   margin-top: 0;
   padding-bottom: 1.5rem;
 }
 
 .comment {
-  color: #222;
+  color: var(--text);
   font-size: 1.25rem;
   line-height: 1.5;
   margin-bottom: 1.25rem;
@@ -282,64 +277,65 @@ h2 {
 }
 
 .ui.toggle.checkbox input:checked~.box:before,.ui.toggle.checkbox input:checked~label:before {
-  background-color: #00b5ad !important
+  background-color: var(--good) !important
 }
 
 
+/* Barra de estado de conexion. Usa el set semantico (no la rampa flame):
+   es estado, no marca. Los nombres de clase se conservan porque
+   Home.js los devuelve desde getColorStatusBar(). */
 .statusBar {
-  background: #FF1744;
-  height: 10px; /* Aumenta la altura */
+  background: var(--critical);
+  height: 10px;
   transition: background 0.3s ease;
 }
 
 .statusBarblue {
-  background: #3EBD61;
-  height: 10px; /* Aumenta la altura */
-
+  background: var(--good);
+  height: 10px;
   transition: background 0.3s ease;
 }
 
 .statusBarOff {
-  background: #EF9400;
-  height: 10px; /* Aumenta la altura */
-
+  background: var(--warn);
+  height: 10px;
   transition: background 0.3s ease;
 }
 
 .selectActivity {
-  background: #fff;
-  border: 1px solid rgba(34, 36, 38, 0.15);
-  border-radius: 0.28571429rem;
-  box-shadow: 0 0 0 0 transparent inset;
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sharp);
+  box-shadow: none;
   padding: 0.50em 1em;
-  color: rgba(0, 0, 0, 0.87);
+  color: var(--text);
   margin-left: 15px;
   margin-right: 15px;
   font-size: 16px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray"><path d="M4 6l4 4 4-4z"/></svg>'), linear-gradient(to bottom, #ffffff 0%, #f1f1f1 100%);
-  background-repeat: no-repeat, repeat;
-  background-position: right 10px center, 0 0;
-  background-size: 12px, 100%;
-  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray"><path d="M4 6l4 4 4-4z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
 }
 
 .selectActivity:hover {
-  border-color: rgba(34, 36, 38, 0.35);
+  border-color: var(--ink-400);
 }
 
 .selectActivity:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-  outline: none;
-  background-color: #e6f7ff;
+  border-color: var(--f4);
+  outline: 2px solid var(--f4);
+  outline-offset: 1px;
+  background-color: var(--cream-100);
 }
 
 .selectActivity option:checked {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--ink);
+  color: var(--cream);
 }
 .removeMargin > .menu{
   margin-bottom: 0px;
@@ -364,73 +360,76 @@ h2 {
   width: 87.5% !important;
 }
 .ui.attached.segment{
-  border-radius: 15px;
+  border-radius: var(--r-sharp);
 }
 
 .dnd-uploadmultiplefiles{
   min-width: 190px;
   align-items: center;
   padding: 10px;
-  border-width: 2px;
-  border-radius: 2px;
+  border-width: 1px;
+  border-radius: var(--r-sharp);
   border-style: dashed;
-  background-color: #fafafa;
-  border-color: #6b6b6b;
-  color: #6b6b6b;
+  background-color: var(--cream-100);
+  border-color: var(--ink-400);
+  color: var(--text-muted);
   outline: none;
-  transition: border .24s ease-in-out;
+  transition: border .24s var(--ease);
   cursor:default;
 }
 
 .dnd{
-  flex: 1;  
+  flex: 1;
   flex-direction: column;
   display: flex;
   width: 190px;
   align-items: center;
   padding: 10px;
-  border-width: 2px;
-  border-radius: 8px;
+  border-width: 1px;
+  border-radius: var(--r-sharp);
   border-style: dashed;
-  background-color: #fafafa;
-  border-color: #6b6b6b;
-  color: #6b6b6b;
+  background-color: var(--cream-100);
+  border-color: var(--ink-400);
+  color: var(--text-muted);
   outline: none;
-  transition: border .24s ease-in-out;
+  transition: border .24s var(--ease);
   float: left;
   cursor:default;
 }
 .dndInternalChat{
-  flex: 1;  
+  flex: 1;
   flex-direction: column;
   display: flex;
   width: 50px;
   height: 100%;
   align-items: center;
   padding: 10px;
-  border-width: 2px;
-  border-radius: 8px;
+  border-width: 1px;
+  border-radius: var(--r-sharp);
   border-style: dashed;
-  background-color: #fafafa;
-  border-color: #6b6b6b;
-  color: #6b6b6b;
+  background-color: var(--cream-100);
+  border-color: var(--ink-400);
+  color: var(--text-muted);
   outline: none;
-  transition: border .24s ease-in-out;
+  transition: border .24s var(--ease);
   float: left;
   cursor:default;
 }
 
+/* Distintivos de bandeja: la rampa flame no es legible como texto sobre
+   crema, asi que estos dos se resuelven con pasos de la categorica. */
 .inboxcolor_rose {
-  color: #C45FAC
+  color: var(--chart-5)
 }
 
 .inboxcolor_blue {
-  color : #4d55a5
+  color : var(--chart-2)
 }
 
 .ui.colorblue.button {
-  background-color:  #4d55a5;
-  color: #fff;
+  background-color: var(--ink);
+  color: var(--cream);
+  border-radius: var(--r-sharp);
 }
 
 
@@ -438,10 +437,10 @@ h2 {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 50%;
+  border-radius: var(--r-sharp);
   width: 120px;
   height: 120px;
-  border: 2px solid #fff;
+  border: 1px solid var(--hair);
 }
 
 .label-t {
@@ -558,14 +557,14 @@ h2 {
 
 /* CSS */
 .button-1 {
-  background-color: #EA4C89;
-  border-radius: 5px;
+  background-color: var(--ink);
+  border-radius: var(--r-sharp);
   border-style: none;
   box-sizing: border-box;
-  color: #FFFFFF;
+  color: var(--cream);
   cursor: pointer;
   display: inline-block;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   height: 40px;
@@ -585,14 +584,14 @@ h2 {
 }
 
 .button-off {
-  background-color: #c1c1c1;
-  border-radius: 5px;
+  background-color: var(--cream-300);
+  border-radius: var(--r-sharp);
   border-style: none;
   box-sizing: border-box;
-  color: #FFFFFF;
+  color: var(--text-muted);
   cursor: pointer;
   display: inline-block;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   height: 40px;
@@ -613,7 +612,8 @@ h2 {
 
 .button-1:hover,
 .button-1:focus {
-  background-color: #F082AC;
+  background: linear-gradient(100deg, var(--f1), var(--f3) 45%, var(--f5));
+  color: #fff;
 }
 
 .overflow-ellipsis {
@@ -621,7 +621,6 @@ h2 {
   white-space: nowrap;
   text-overflow: hidden;
   display: none !important;
-  background: #00b5ad;
 }
 
 #elemento {
@@ -710,8 +709,8 @@ h2 {
 }
 
 .spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #3498db; /* Puedes cambiar el color según tus preferencias */
+  border: 4px solid var(--hair-soft);
+  border-top: 4px solid var(--f4);
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -732,14 +731,14 @@ h2 {
 .internal-chat-container {
   display: flex;
   height: 100vh;
-  background-color: #f0f0f0;
+  background-color: var(--canvas);
 }
 
 .internal-chat-list {
   flex: 1;
-  background-color: #f0f0f0;
+  background-color: var(--canvas);
   padding: 20px;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--hair);
   overflow-y: auto;
 }
 /* 
@@ -751,41 +750,45 @@ h2 {
 
 .internal-chat-item {
   padding: 10px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--hair-soft);
   cursor: pointer;
 }
 
 .internal-chat-item:hover {
-  background-color: #d1c4d1;
+  background-color: var(--cream-200);
 }
 
 .internal-chat-message {
   max-width: 40%;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: var(--r-sharp);
   margin-bottom: 10px;
   word-wrap: break-word;
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
 }
 
 
 .internal-chat-message {
   display: inline-block;
   padding: 8px 12px;
-  background-color: #F0F0F0;
-  border-radius: 15px;
+  background-color: var(--cream-100);
+  border: 1px solid var(--hair-soft);
+  border-radius: var(--r-sharp);
   max-width: 70%;
 }
 
 .internal-chat-sent .internal-chat-message {
   margin-right: 10px;
-  background-color: #DCF8C6;
+  background-color: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
 }
 
 .internal-chat-received .internal-chat-message {
   margin-left: 10px;
-  background-color: #E5E5EA;
+  background-color: var(--cream-200);
+  color: var(--text);
 }
 
 .internal-chat-messages {
@@ -835,27 +838,29 @@ h2 {
 .internal-chat-message {
     display: inline-block;
     padding: 8px 12px;
-    background-color: #F0F0F0;
-    border-radius: 15px;
+    background-color: var(--cream-100);
+    border-radius: var(--r-sharp);
     max-width: 70%;
 }
 
 .internal-chat-sent .internal-chat-message {
-    background-color: #DCF8C6;
+    background-color: var(--ink);
+    color: var(--cream);
 }
 
 .internal-chat-received .internal-chat-message {
-    background-color: #E5E5EA;
+    background-color: var(--cream-200);
+    color: var(--text);
 }
 
 .modern-select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sharp);
+  background-color: var(--surface);
   font-size: 16px;
-  color: #333;
+  color: var(--text);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -866,69 +871,79 @@ h2 {
 }
 
 .modern-select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: var(--f4);
+  outline: 2px solid var(--f4);
+  outline-offset: 1px;
 }
 
 .modern-select option {
   padding: 10px;
 }
 
-/* ── IBC Notion-style — agenteDashboard ──────────────────────────────────────
-   Preserves existing identity (IBC purple/blue palette, chat bubbles, sidebar).
-   Applies whitespace-first hierarchy to the tools panel and conversation area.
+/* ── Capa de marca BotDynamics — agenteDashboard ─────────────────────────────
+   Sustituye a la capa "Notion-style" (violeta/azul IBC). Las mismas clases
+   .ibc-* se conservan porque las consumen ToolsV2, CommentsV2 y MessageBubble;
+   solo cambia lo que pintan. Los valores salen de styles/tokens.css.
+
+   Regla que aplica a todo este bloque: la rampa flame es relleno y marca,
+   nunca texto sobre crema (--f3 da 2.38:1). El texto va en tinta.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* Main content area — softer neutral instead of dark gray */
+/* Canvas del area principal */
 .contentDashboard {
-  background: #f5f5f5;
+  background: var(--canvas);
+  border-radius: var(--r-sharp);
 }
 
-/* ── Accordion (ToolsV2) ── */
+/* ── Acordeon (ToolsV2) ── */
 .ibc-accordion {
-  border: 1px solid #ebebeb !important;
+  border: 1px solid var(--hair) !important;
   box-shadow: none !important;
-  border-radius: 8px !important;
+  border-radius: var(--r-sharp) !important;
 }
 
 .ibc-accordion-header {
-  background: #ffffff !important;
+  background: var(--surface) !important;
   padding: 10px 14px !important;
-  transition: background 0.12s;
+  transition: background 0.12s var(--ease);
 }
 
 .ibc-accordion-header:hover {
-  background: #fafafa !important;
+  background: var(--cream-100) !important;
 }
 
 .ibc-accordion-title {
+  font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
 }
 
-/* ── Section meta-labels (uppercase small) ── */
+/* ── Meta-etiquetas de seccion ── */
 .ibc-section-label {
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  color: #9ca3af;
-  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  letter-spacing: 0.13em;
   margin-bottom: 8px;
 }
 
-/* ── Sentiment badge ── */
+/* ── Badge de sentimiento ──
+   Set semantico solido, no la rampa flame: es estado, no marca.
+   Siempre lleva punto ademas del color: nunca color solo. */
 .ibc-sentiment {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
-  border-radius: 20px;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1.6;
@@ -942,69 +957,52 @@ h2 {
   display: inline-block;
 }
 
-.ibc-sentiment-urgente  { color: #dc2626; background: #fef2f2; border: 1px solid #fca5a5; }
-.ibc-sentiment-negativo { color: #ea580c; background: #fff7ed; border: 1px solid #fdba74; }
-.ibc-sentiment-positivo { color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; }
-.ibc-sentiment-neutro   { color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; }
+.ibc-sentiment-urgente  { color: var(--critical); background: var(--critical-bg); border: 1px solid var(--critical); }
+.ibc-sentiment-negativo { color: var(--serious);  background: var(--serious-bg);  border: 1px solid var(--serious); }
+.ibc-sentiment-positivo { color: var(--good);     background: var(--good-bg);     border: 1px solid var(--good); }
+.ibc-sentiment-neutro   { color: var(--text-muted); background: var(--cream-100); border: 1px solid var(--hair); }
 
-/* ── Copilot result block ── */
-.ibc-copilot-result {
-  border-left: 3px solid #a78bfa;
-  background: #faf5ff;
-  border-radius: 0 8px 8px 0;
-  padding: 10px 12px;
-  font-size: 12px;
-  color: #374151;
-  white-space: pre-wrap;
-  line-height: 1.65;
-}
+/* El copiloto se estiliza con .bd-copilot-panel / .bd-copilot-btn en
+   styles/brand.css. Aqui vivian .ibc-copilot-result y .ibc-copilot-btn,
+   que quedaron sin uso al migrar CommentsV2 y solo duplicaban las reglas. */
 
-/* ── Copilot action buttons ── */
-.ibc-copilot-btn {
-  padding: 7px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #f5f3ff;
-  color: #7c3aed;
-  border: 1px solid #ede9fe;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  justify-content: center;
-  transition: background 0.12s;
-}
-
-.ibc-copilot-btn:hover:not(:disabled) { background: #ede9fe; }
-.ibc-copilot-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-/* ── Chat bubbles — slight refinement, keeps iMessage style ── */
+/* ── Globos de chat ──
+   El globo del agente es tinta (la marca habla en tinta, no en color) y
+   el del cliente es crema con hairline. Se conserva la cola de iMessage
+   pero con el filo de 2px de la identidad en la esquina de anclaje. */
 .imessage { padding: 0.25rem 1rem; }
 
 p.from-me {
-  background-color: #4d55a5;   /* IBC blue instead of flat #2294fb */
-  border-radius: 1.15rem 1.15rem 0.25rem 1.15rem;
+  background-color: var(--ink);
+  color: var(--cream);
+  border-radius: 1.15rem 1.15rem var(--r-sharp) 1.15rem;
 }
 
-p.from-me::before { border-right-color: #4d55a5; }
+p.from-me::before { border-right-color: var(--ink); }
+p.from-me::after  { background-color: transparent; }
 
 p.from-them {
-  background-color: #f3f4f6;
-  color: #111827;
-  border-radius: 1.15rem 1.15rem 1.15rem 0.25rem;
+  background-color: var(--cream-200);
+  color: var(--text);
+  border-radius: 1.15rem 1.15rem 1.15rem var(--r-sharp);
 }
 
-p.from-them::before { border-left-color: #f3f4f6; }
+p.from-them::before { border-left-color: var(--cream-200); }
+p.from-them::after  { background-color: transparent; }
 
-/* ── Toolbar sidebar ── */
+p.from-me-meta,
+p.from-them-meta { color: var(--text-subtle); }
+p.from-me-meta:hover,
+p.from-them-meta:hover { color: var(--text); }
+
+/* ── Panel lateral de herramientas ── */
 .toolbar {
-  background: #ffffff;
-  border-right: 1px solid #ebebeb;
+  background: var(--surface);
+  border-right: 1px solid var(--hair);
 }
 
-/* ── Scrollbar (webkit) — subtle ── */
+/* ── Scrollbar (webkit) ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+::-webkit-scrollbar-thumb { background: var(--cream-300); border-radius: var(--r-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-400); }

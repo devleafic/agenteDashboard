@@ -164,22 +164,20 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
 
     return (
         <>
-            <div 
-                {...getRootProps()} 
-                className={`p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+            {/* En el composer esto convive con el boton de enviar, asi que ocupa
+                los mismos 40px y lleva un solo hairline punteado en vez del recuadro
+                de 2px que flotaba suelto en la esquina. */}
+            <div
+                {...getRootProps()}
+                className={`w-10 h-10 flex items-center justify-center border border-dashed cursor-pointer transition-colors ${
+                    isDragActive ? 'border-flame-ember bg-cream-200' : 'border-hair hover:border-flame-ember'
                 }`}
             >
                 <input {...getInputProps()} />
                 {children ? (
                     children
                 ) : (
-                    <div className="flex flex-col items-center justify-center space-y-2 text-gray-600">
-                        <FiUpload className="w-6 h-6" />
-                        <p className="text-sm">
-                            {isDragActive ? 'Suelta el archivo aquí' : ''}
-                        </p>
-                    </div>
+                    <FiUpload className="w-4 h-4 text-ink-500" />
                 )}
             </div>
 

@@ -361,7 +361,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                                             size="sm"
                                             variant="light"
                                             onPress={() => transferPipeline(item)}
-                                            className="text-purple-600 hover:bg-purple-50"
+                                            className="text-ink-500 hover:bg-cream-200"
                                         >
                                             <ArrowRightLeftIcon className="w-3.5 h-3.5" />
                                         </Button>
@@ -602,7 +602,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <Filter className="w-5 h-5 text-blue-600 mr-2" />
-                        <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                        <h2 className="bd-page-title">
                             Tablero de Seguimiento
                          </h2>
                     </div>

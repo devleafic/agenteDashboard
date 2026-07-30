@@ -320,7 +320,7 @@ const StatsDashboard = ({ userInfo }) => {
     !userInfo?.allowViewStats ? (
       <div className="p-4 md:p-6 h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-3">
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+        <h2 className="bd-page-title">
                                         Mis Estadísticas (Beta)
                                     </h2>
           <Chip color="danger" variant="flat">Solicita a tu administrador que te habilite el acceso a tus estadísticas de conversaciones y tmo en tiempo real.</Chip>
@@ -330,7 +330,7 @@ const StatsDashboard = ({ userInfo }) => {
 
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+        <h2 className="bd-page-title">
             Mis Estadísticas (Beta)
         </h2>       
       <div className="flex items-center gap-2">

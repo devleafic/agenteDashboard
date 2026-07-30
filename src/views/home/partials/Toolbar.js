@@ -19,7 +19,6 @@ import {
     DropdownMenu,
     DropdownItem,
     Chip,
-    Badge,
     Spacer,
     Modal,
     ModalContent,
@@ -458,13 +457,13 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
         <><div className="fixed z-[100]">
             <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
          </div>
-            <Navbar isBordered maxWidth="full" className="bg-gray-800 text-white h-16 shadow-md">
+            <Navbar isBordered maxWidth="full" className="bd-topbar h-16">
                 <NavbarBrand className="mr-4">
                 <Tooltip color="success" content= {"Asignación automática: " + userDetail.prefetch} placement="bottom">
-                    <Chip color="primary" classNames={{
-                            base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
-                            content: "drop-shadow shadow-black text-white",
-                        }} variant="shadow">{userDetail.name}
+                    <Chip classNames={{
+                            base: "bd-chip-brand",
+                            content: "text-cream",
+                        }} variant="flat">{userDetail.name}
                         </Chip>
                     </Tooltip>
                         <Spacer x={4} />
@@ -472,11 +471,12 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
 
                 <NavbarContent className="hidden sm:flex gap-4" justify="start">
                     <NavbarItem>
-                        <HeroButton 
+                        <HeroButton
                                         size="sm"
                                         variant="flat"
-                                        className="mt-1 bg-white border border-gray-200 hover:border-indigo-300 hover:bg-gray-50"
-                                        startContent={<Sparkles className="w-4 h-4 text-indigo-500" />}
+                                        radius="none"
+                                        className="mt-1 bg-transparent text-cream border border-hair-dark hover:bg-cream/10"
+                                        startContent={<Sparkles className="w-4 h-4 text-flame-orange" />}
                                         onPress={() => setIsChangelogOpen(true)}
                                     >
                                         Novedades
@@ -484,8 +484,8 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     </NavbarItem>
                     {currentActivity && (
                         <NavbarItem className="flex items-center">
-                            <Chip color="primary" startContent={<FiClock className="text-white" />} variant="flat" className="flex items-center gap-2">
-                                <span className="font-mono text-white"> Tiempo en actividad: {formatTime(activityTimer)}</span>
+                            <Chip startContent={<FiClock className="text-cream" />} variant="flat" classNames={{ base: "bd-chip-brand" }} className="flex items-center gap-2">
+                                <span className="font-mono text-cream"> Tiempo en actividad: {formatTime(activityTimer)}</span>
                             </Chip>
                         </NavbarItem>
                     )}
@@ -499,13 +499,13 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             isIconOnly
                             size="sm"
                             variant="flat"
-                            className="bg-white/10 hover:bg-white/20 text-white"
+                            className="bg-cream/10 hover:bg-cream/20 text-cream border border-hair-dark"
                             onPress={() => setIsReminderOpen(true)}
                           >
                             <Bell className="w-4 h-4" />
                           </HeroButton>
                           {unreadReminders > 0 && (
-                            <span className="absolute -top-1 -right-1 inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-gray-800" />
+                            <span className="live-dot absolute -top-1 -right-1 inline-flex h-2.5 w-2.5 rounded-full bg-flame-ember ring-2 ring-ink" />
                           )}
                         </div>
                       </Tooltip>
@@ -515,9 +515,9 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                         <Tooltip content="Ocultar TMO promedio del día" placement="bottom">
                         <Chip
                           onClick={() => setShowTmoToolbar(false)}
-                          className="cursor-pointer select-none bg-sky-600 text-white shadow-md hover:brightness-110"
-                          variant="shadow"
-                          color="primary"
+                          className="cursor-pointer select-none font-mono text-xs"
+                          classNames={{ base: "bd-chip-brand", content: "text-cream" }}
+                          variant="flat"
                         >
                           TMO prom. día: {formatMs(avgTmoMs)}
                         </Chip>
@@ -528,7 +528,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             isIconOnly
                             size="sm"
                             variant="flat"
-                            className="bg-white/10 hover:bg-white/20 text-white"
+                            className="bg-cream/10 hover:bg-cream/20 text-cream border border-hair-dark"
                             disabled={!userInfo?.allowViewStats}
                             onPress={() => setShowTmoToolbar(true)}
                           >
@@ -549,11 +549,20 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             </DropdownMenu>
                         </Dropdown>
                     </NavbarItem>
+                    {/* Antes eran <Badge>: HeroUI posiciona el contador en absoluto
+                        sobre el hijo, y con un <span> desnudo se encabalgaba con el
+                        texto. Aqui el numero va en linea, en mono. */}
                     <NavbarItem>
-                        <Badge color="primary" content={analytics.foliosOnHoldAll} shape="circle"><span className="mr-2">Por asignar</span></Badge>
+                        <span className="bd-chip-brand inline-flex items-center gap-2 px-2.5 py-1 text-xs">
+                            Por asignar
+                            <span className="font-mono text-cream/70">{analytics.foliosOnHoldAll}</span>
+                        </span>
                     </NavbarItem>
                     <NavbarItem>
-                        <Badge color="secondary" content={analytics.foliosOnBotAt} shape="circle"><span className="mr-2">Bot atendiendo</span></Badge>
+                        <span className="bd-chip-brand inline-flex items-center gap-2 px-2.5 py-1 text-xs">
+                            Bot atendiendo
+                            <span className="font-mono text-cream/70">{analytics.foliosOnBotAt}</span>
+                        </span>
                     </NavbarItem>
                     </NavbarContent>
 
@@ -572,10 +581,12 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                       </NavbarItem>
                     )}
                     <NavbarItem>
-                        <Chip color="primary" classNames={{
-                            base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
-                            content: "drop-shadow shadow-black text-white",
-                        }} variant="shadow">Inbox Central v.{process.env.REACT_APP_SYSTEM_VERSION}</Chip>
+                        {/* Unica pieza de la barra con relleno flame: es marca,
+                            no estado, y va sobre tinta. */}
+                        <Chip classNames={{
+                            base: "bd-chip-flame",
+                            content: "text-white font-mono text-xs tracking-wide",
+                        }} variant="flat">Inbox Central v.{process.env.REACT_APP_SYSTEM_VERSION}</Chip>
                     </NavbarItem>
                 </NavbarContent>
 

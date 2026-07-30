@@ -1,0 +1,37 @@
+/* ============================================================
+   Fuentes de marca BotDynamics — autohospedadas.
+
+   Vive en public/ y se enlaza desde index.html a proposito:
+   css-loader de CRA intenta resolver url('/fonts/...') como si
+   fuera un modulo y rompe el build. Ademas asi la ruta que se
+   precarga en index.html es exactamente la que usa el CSS
+   (si se empaquetara por webpack tendria hash y se descargaria
+   dos veces).
+
+   Los tokens de tipografia que las consumen (--font-sans,
+   --font-display, --font-mono) estan en src/styles/tokens.css.
+   ============================================================ */
+
+@font-face {
+    font-family: 'Instrument Sans';
+    src: url('/fonts/instrument-sans-latin.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter-latin.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 300 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400 500;
+    font-display: swap;
+}

@@ -2,9 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/brand/botdynamics-favicon.svg" />
+    <link rel="alternate icon" href="%PUBLIC_URL%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+
+    <!-- Fuentes de marca autohospedadas. Instrument Sans se precarga
+         porque pinta los titulos por encima del pliegue; Inter y
+         JetBrains Mono cargan por CSS con font-display: swap. -->
+    <link rel="preload" href="%PUBLIC_URL%/fonts/instrument-sans-latin.woff2"
+          as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="%PUBLIC_URL%/styles/fonts.css" />
+
+    <meta name="theme-color" content="#FFFAEB" />
     <meta
       name="description"
       content="Hable con sus clientes a través de voz, SMS, WhatsApp, Instagram, Facebook Messenger, Telegram y Chat..."
@@ -34,7 +43,9 @@
       
     <title>Inbox Central - BotDynamics</title>
    </head>
-  <body>
+  <!-- .light aqui (y no solo en el arbol de React) para que los modales,
+       tooltips y dropdowns que HeroUI porta a document.body reciban el tema. -->
+  <body class="light text-foreground bg-background">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--

@@ -383,15 +383,15 @@ export default function InternalChat({ userInfo }) {
             <div className="fixed z-[100]">
       <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
     </div>
-        <div className="relative overflow-hidden p-3 mx-2 mt-2 rounded-2xl shadow-md bg-gradient-to-r from-indigo-50 to-pink-50 dark:from-zinc-800 dark:to-zinc-900 border border-indigo-100 dark:border-indigo-900/30">
+        <div className="relative overflow-hidden p-3 mx-2 mt-2 bd-card bd-card-accent">
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                    <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl shadow-sm mr-4 ring-2 ring-indigo-200 dark:ring-indigo-900/30">
+                    <div className="p-3 bg-cream-50 hair mr-4">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style={{stopColor: '#4F46E5'}} />
-                                    <stop offset="100%" style={{stopColor: '#EC4899'}} />
+                                    <stop offset="0%" style={{stopColor: '#FFAF00'}} />
+                                    <stop offset="100%" style={{stopColor: '#E10500'}} />
                                 </linearGradient>
                             </defs>
                             <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C9.82354 20 7.80233 19.1539 6.255 17.749L3 20L4.395 16.28C3.51196 15.0424 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="url(#icon-gradient)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -399,10 +399,10 @@ export default function InternalChat({ userInfo }) {
                     </div>
                     <div>
                         <div className="flex items-center">
-                            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+                            <h2 className="bd-page-title">
                                 TeamChat
                             </h2>
-                            <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-gradient-to-br from-indigo-100 to-pink-50 dark:from-indigo-900/40 dark:to-pink-900/30 text-indigo-800 dark:text-indigo-300 rounded-full border-small border-indigo-200/50 dark:border-indigo-700/30">
+                            <span className="bd-pill ml-2">
                                 1.0
                             </span>
                         </div>
@@ -416,9 +416,9 @@ export default function InternalChat({ userInfo }) {
 
             
             {/* Elementos decorativos */}
-            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-pink-200/30 dark:bg-pink-900/10 rounded-full blur-2xl"></div>
-            <div className="absolute -top-8 -right-8 w-24 h-24 bg-indigo-200/30 dark:bg-indigo-900/10 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-4 left-1/3 w-20 h-20 bg-indigo-100/20 dark:bg-indigo-800/10 rounded-full blur-lg"></div>
+            
+            
+            
         </div>
       <div className="flex h-[calc(100vh-220px)] gap-2 mt-2">
         <div className="w-1/3 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 flex flex-col">
@@ -597,12 +597,12 @@ export default function InternalChat({ userInfo }) {
                                 if (message.trim()) sendMessage();
                             }
                         }}
-                        className="w-full p-3 pr-14 rounded-2xl border border-gray-300 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all duration-200"
+                        className="w-full p-3 pr-14 border border-hair bg-cream-50 text-ink focus:outline-none focus:border-flame-ember resize-none transition-all duration-200"
                     />
                     <button
                         onClick={sendMessage}
                         disabled={!message.trim()}
-                        className="absolute right-2.5 bottom-2.5 w-10 h-10 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-full text-white hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-zinc-800 transition-all duration-200 disabled:opacity-50 disabled:scale-100 flex items-center justify-center"
+                        className="absolute right-2.5 bottom-2.5 w-10 h-10 bg-ink text-cream hover:bg-ink-800 focus:outline-none transition-colors duration-200 disabled:opacity-50 flex items-center justify-center"
                         aria-label="Enviar mensaje"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

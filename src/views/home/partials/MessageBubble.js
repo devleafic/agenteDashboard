@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTextSize } from '../../../contexts/TextSizeContext';
 import moment from 'moment';
-import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Popover, PopoverTrigger, PopoverContent, Image, Snippet, Tooltip, CardBody, CardFooter } from '@heroui/react';
+import { Avatar, Button, Card, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Popover, PopoverTrigger, PopoverContent, Image, Snippet, Tooltip, CardFooter } from '@heroui/react';
 //import { PaperclipIcon, DownloadIcon, ReplyIcon, SmileIcon, ClockIcon, ExclamationCircleIcon, ExternalLinkIcon } from '@heroui/icons';
 import ContactsRender from './ContactsRender';
 import AudioPlayer from './AudioPlayer';
@@ -117,21 +117,21 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         return element.agent ? (element.agent.profile?.name || element.agent.user) : (element.sys || 'Agente');
     };
 
+    /* Los acuses viven en la linea de meta de la burbuja, junto a la hora.
+       Antes eran pildoras de 24px con sombra colgando bajo el avatar, y el
+       "leido" iba en azul WhatsApp: el unico azul saturado que quedaba en
+       pantalla. Ahora son iconos de 14px en la escala ink, y solo el fallo
+       de entrega usa color (--critical), porque es lo unico accionable. */
+    const ACK_ICON = 'w-3.5 h-3.5 flex-shrink-0';
+
     const getAck = (ack, isNewMessage = false) => {
         // Para mensajes nuevos o sin ack, mostramos un reloj por defecto
         if (!ack || Object.keys(ack).length === 0) {
-            return (
-                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <ClockIcon className="w-6 h-6 text-gray-700" />
-                </div>
-            );
+            return <ClockIcon className={`${ACK_ICON} text-ink-400`} />;
         }
 
-        // Mostrar el estado actual del mensaje en la consola para depuración
-        console.log('Estado del mensaje (ack):', ack);
-
-        const failureObject = ack.failedDelivery ? { type: 'delivery', data: ack.failedDelivery } : 
-                              ack.failedOutofWindows ? { type: 'window', data: ack.failedOutofWindows } : 
+        const failureObject = ack.failedDelivery ? { type: 'delivery', data: ack.failedDelivery } :
+                              ack.failedOutofWindows ? { type: 'window', data: ack.failedOutofWindows } :
                               null;
 
         if (failureObject) {
@@ -144,39 +144,29 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
 
             return (
                 <Tooltip content={`Fallo en la entrega: ${reason}`} placement="top">
-                    <div className="bg-red-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                        <ExclamationCircleIcon className="w-6 h-6 text-red-600" />
-                    </div>
+                    <ExclamationCircleIcon className={`${ACK_ICON} text-critical`} />
                 </Tooltip>
             );
         }
 
         if (ack.readByRecipient) return (
             <Tooltip content="Mensaje leído por el destinatario" placement="top">
-                <div className="bg-blue-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <DoubleCheckIcon className="w-6 h-6 text-blue-600" />
-                </div>
+                <DoubleCheckIcon className={`${ACK_ICON} text-ink`} />
             </Tooltip>
         );
         if (ack.deliveryToRecipient) return (
             <Tooltip content="Mensaje entregado al dispositivo del destinatario" placement="top">
-                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <DoubleCheckIcon className="w-6 h-6 text-gray-700" />
-                </div>
+                <DoubleCheckIcon className={`${ACK_ICON} text-ink-400`} />
             </Tooltip>
         );
         if (ack.deliveryToServers || ack.sent) return (
             <Tooltip content="Mensaje enviado al servidor" placement="top">
-                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <CheckIcon className="w-6 h-6 text-gray-700" />
-                </div>
+                <CheckIcon className={`${ACK_ICON} text-ink-400`} />
             </Tooltip>
         );
         if (ack.enqueued) return (
             <Tooltip content="Mensaje en cola para ser enviado" placement="top">
-                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <ClockIcon className="w-6 h-6 text-gray-700" />
-                </div>
+                <ClockIcon className={`${ACK_ICON} text-ink-400`} />
             </Tooltip>
         );
         
@@ -184,9 +174,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         // Mostramos un reloj como estado predeterminado
         return (
             <Tooltip content="Mensaje no enviado, vuelve a intentar" placement="top">
-                <div className="bg-gray-100 p-1.5 rounded-full shadow-md flex items-center justify-center">
-                    <ClockIcon className="w-6 h-6 text-gray-700" />
-                </div>
+                <ClockIcon className={`${ACK_ICON} text-ink-400`} />
             </Tooltip>
         );
     };
@@ -380,18 +368,20 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'image':
                 case 'sticker':
                     return (
-                        <Card className="border-none w-full h-[300px] group relative overflow-hidden">
-                            <a 
-                                href={msg.content} 
-                                target="_blank" 
+                        /* Ratio natural con tope: el h-[300px] + object-cover
+                           recortaba las fotos verticales por arriba y por abajo. */
+                        <Card shadow="none" className="border-none w-full group relative overflow-hidden bg-transparent">
+                            <a
+                                href={msg.content}
+                                target="_blank"
                                 rel="noopener noreferrer"
-                                className="block w-full h-full"
+                                className="block w-full"
                             >
-                                <Image 
-                                    removeWrapper 
-                                    alt={msg.caption || 'Imagen'} 
-                                    className="z-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                                    src={msg.content} 
+                                <Image
+                                    removeWrapper
+                                    alt={msg.caption || 'Imagen'}
+                                    className="z-0 w-auto max-h-[320px] max-w-full object-contain"
+                                    src={msg.content}
                                 />
                                 <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                     <div className="bg-black/50 text-white rounded-full p-2">
@@ -433,39 +423,34 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             const hasExtension = typeof msg.content === 'string' && /\.[^/.]+$/.test(msg.content);
                             showAlternateUrl = !isOutgoing && msg.content !== alternateUrl && hasExtension;
                         }
+                        /* Sin Card anidada: la burbuja ya es la superficie del
+                           adjunto. Antes eran dos cajas con borde y sombra dentro
+                           de la burbuja, que a su vez estaba dentro del plano. */
                         return (
-                            <div className="space-y-3 w-full">
-                                <Card shadow="sm" className="w-full">
-                                    <CardBody className="flex flex-row items-center gap-3 p-3">
-                                        <PaperclipIcon className="w-8 h-8 text-gray-500" />
-                                        <div className="flex-grow min-w-0">
-                                            <p className="text-sm font-semibold truncate">
-                                                {highlight && msg.caption
-                                                    ? highlightText(msg.caption, highlight)
-                                                    : (msg.caption || 'Archivo adjunto')}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light">
-                                                <DownloadIcon className="w-5 h-5" />
-                                            </Button>
-                                        </div>
-                                    </CardBody>
-                                </Card>
+                            <div className="space-y-2 w-full">
+                                <div className="flex flex-row items-center gap-3 py-1">
+                                    <PaperclipIcon className="w-5 h-5 flex-shrink-0 text-ink-500" />
+                                    <div className="flex-grow min-w-0">
+                                        <p className="text-sm truncate">
+                                            {highlight && msg.caption
+                                                ? highlightText(msg.caption, highlight)
+                                                : (msg.caption || 'Archivo adjunto')}
+                                        </p>
+                                    </div>
+                                    <Button isIconOnly as="a" href={msg.content} target="_blank" download variant="light" size="sm" className="flex-shrink-0">
+                                        <DownloadIcon className="w-4 h-4" />
+                                    </Button>
+                                </div>
 
                                 {showAlternateUrl && (
-                                    <Card shadow="sm" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                        <CardBody className="p-2">
-                                            <div className="flex items-center gap-2">
-                                                <ExternalLinkIcon className="w-4 h-4 text-gray-500" />
-                                                <p className="text-xs text-gray-700 dark:text-gray-300 flex-grow truncate">
-                                                    <a href={alternateUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" title={alternateUrl}>
-                                                        {truncateMiddle(alternateUrl, 40)}
-                                                    </a>
-                                                </p>
-                                            </div>
-                                        </CardBody>
-                                    </Card>
+                                    <div className="hair-t pt-2 flex items-center gap-2">
+                                        <ExternalLinkIcon className="w-3.5 h-3.5 flex-shrink-0 text-ink-400" />
+                                        <p className="text-xs text-ink-500 flex-grow truncate">
+                                            <a href={alternateUrl} target="_blank" rel="noopener noreferrer" className="hover:underline" title={alternateUrl}>
+                                                {truncateMiddle(alternateUrl, 40)}
+                                            </a>
+                                        </p>
+                                    </div>
                                 )}
                             </div>
                         );
@@ -566,17 +551,13 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             className={`flex items-start gap-2.5 my-2 ${isOutgoing ? 'flex-row-reverse' : ''}`}
         >
             {isOutgoing ? (
-                <div className="flex flex-col items-center">
-                    <Avatar
-                        src={message.origin?.agent?.profilePic}
-                        name={authorName ? authorName.charAt(0) : 'A'}
-                        size="sm"
-                        className="mt-1 flex-shrink-0"
-                    />
-                    <div className="mt-2">
-                        {ackStatus}
-                    </div>
-                </div>
+                /* El acuse ya no cuelga aqui debajo: vive en la linea de meta. */
+                <Avatar
+                    src={message.origin?.agent?.profilePic}
+                    name={authorName ? authorName.charAt(0) : 'A'}
+                    size="sm"
+                    className="mt-1 flex-shrink-0"
+                />
             ) : (
                 <Avatar
                     src={contact?.profilePic || message.origin?.profilePic}
@@ -587,8 +568,10 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             )}
             <div className={`flex flex-col w-full max-w-md ${isOutgoing ? 'items-end' : 'items-start'}`}>
                 <div className="group relative flex flex-col gap-1">
-                    <div className={`w-fit rounded-xl px-3 py-2 ${isOutgoing ? 'bg-green-200 text-black rounded-br-none' : 'bg-content2 text-content2-foreground rounded-bl-none'}`}>
-                        <p className={`text-xs font-bold mb-1 ${isOutgoing ? 'text-right text-black/90' : 'text-primary'}`}>{authorName}</p>
+                    {/* Ver .bd-bubble en styles/brand.css: la tinta solida queda
+                        reservada al chrome (rail, barra, boton primario). */}
+                    <div className={`bd-bubble ${isOutgoing ? 'bd-bubble--out' : 'bd-bubble--in'}`}>
+                        <p className={`text-xs font-medium mb-1 text-ink-500 ${isOutgoing ? 'text-right' : ''}`}>{authorName}</p>
                         {renderContent(message)}
                     </div>
                     {reactions && (
@@ -699,8 +682,9 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                         </div>
                     )}
                 </div>
-                                <div className="flex justify-end mt-1 text-xs text-foreground-500">
+                <div className={`flex items-center gap-1.5 mt-1 text-xs text-ink-400 ${isOutgoing ? 'justify-end' : 'justify-start'}`}>
                     <span>{messageTime}</span>
+                    {isOutgoing && ackStatus}
                 </div>
             </div>
         </div>

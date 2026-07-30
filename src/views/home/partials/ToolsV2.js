@@ -92,7 +92,7 @@ const SentimentBadge = ({ sentiment }) => {
 
 const getFileIcon = (mimeType) => {
   if (mimeType.includes('pdf')) return <FiFileText className="mr-2 text-red-500 flex-shrink-0" />;
-  else if (mimeType.includes('image')) return <FiImage className="mr-2 text-purple-500 flex-shrink-0" />;
+  else if (mimeType.includes('image')) return <FiImage className="mr-2 text-chart-4 flex-shrink-0" />;
   return <FiFile className="mr-2 text-gray-500 flex-shrink-0" />;
 };
 
@@ -478,7 +478,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   ];
 
   return (
-    <div className="h-full flex flex-col p-2 bg-white overflow-y-auto" style={{ minHeight: '100vh', padding: '0.5rem' }}>
+    <div className="h-full flex flex-col p-2 bg-transparent overflow-y-auto" style={{ minHeight: '100vh', padding: '0.5rem' }}>
       {sections.map(section => (
         section.condition !== false && (
           <AccordionItem

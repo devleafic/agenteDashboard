@@ -1,0 +1,558 @@
+/* ============================================================
+   BotDynamics — primitivas de marca (agenteDashboard)
+
+   Port de adminDashboard/src/styles/brand.css, que a su vez es
+   port de https://botdynamics.app/assets/css/mistral.css.
+   Lo que aqui se agrega y alla no existe esta al final, bajo
+   "Primitivas del espacio de trabajo del agente": el rail, los
+   chips de la barra y las superficies de conversacion.
+
+   Se importa DESPUES de tokens.css y de semantic.min.css.
+   Depende exclusivamente de las custom properties de tokens.css.
+   ============================================================ */
+
+/* ---------- Tipografia de marca ---------- */
+h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    line-height: 0.98;
+    text-wrap: balance;
+}
+
+.eyebrow {
+    font-family: var(--font-mono);
+    font-size: .75rem;
+    font-weight: 500;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    line-height: 1.4;
+}
+
+.eyebrow-xs {
+    font-family: var(--font-mono);
+    font-size: .6875rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+}
+
+.font-mono-brand { font-family: var(--font-mono); }
+
+::selection { background: var(--f3); color: #fff; }
+
+*:focus-visible { outline: 2px solid var(--f4); outline-offset: 3px; }
+
+/* ---------- Hairlines ---------- */
+.hair   { border: 1px solid var(--hair); }
+.hair-t { border-top: 1px solid var(--hair); }
+.hair-b { border-bottom: 1px solid var(--hair); }
+.hair-r { border-right: 1px solid var(--hair); }
+.hair-d { border: 1px solid var(--hair-dark); }
+
+/* ---------- Botones ----------
+   El relleno entra desde abajo con translateY(101%). El 101 evita
+   la costura de subpixel que deja una linea al ras del borde. */
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    padding: .95rem 1.6rem;
+    font-family: var(--font-sans);
+    font-size: .9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    border-radius: var(--r-sharp);
+    overflow: hidden;
+    isolation: isolate;
+    transition: color .3s ease, border-color .3s ease;
+}
+.btn > * { position: relative; z-index: 2; }
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    transform: translateY(101%);
+    transition: transform .45s cubic-bezier(.65, 0, .35, 1);
+}
+.btn:hover::before { transform: translateY(0); }
+
+.btn-sm { padding: .625rem 1.25rem; font-size: .875rem; }
+.btn-xs { padding: .4rem .8rem; font-size: .8125rem; }
+
+.btn-primary { background: var(--ink); color: var(--cream); }
+.btn-primary::before { background: linear-gradient(100deg, var(--f1), var(--f3) 45%, var(--f5)); }
+.btn-primary:hover { color: #fff; }
+
+.btn-ghost { border: 1px solid var(--hair); color: var(--ink); background: transparent; }
+.btn-ghost::before { background: var(--ink); }
+.btn-ghost:hover { color: var(--cream); border-color: var(--ink); }
+
+.btn-light { background: var(--cream); color: var(--ink); }
+.btn-light::before { background: linear-gradient(100deg, var(--f1), var(--f3) 45%, var(--f5)); }
+
+/* ---------- Texto e hilos con degradado flame ---------- */
+.flame-text,
+.wordmark {
+    background: linear-gradient(100deg,
+                var(--f1) 0%, var(--f2) 22%, var(--f3) 48%, var(--f4) 72%, var(--f5) 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.flame-text { animation: flame-slide 9s ease-in-out infinite alternate; }
+
+@keyframes flame-slide {
+    from { background-position: 0% 50%; }
+    to   { background-position: 100% 50%; }
+}
+
+.wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: .82;
+    white-space: nowrap;
+    animation: flame-slide 14s ease-in-out infinite alternate;
+}
+
+.flame-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--f3), var(--f5), transparent);
+}
+
+/* ---------- Fondos animados ---------- */
+.flame-mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(52rem 40rem at 12% 8%,  rgba(255, 216, 0, .55), transparent 62%),
+        radial-gradient(46rem 36rem at 82% 14%, rgba(255, 130, 5, .50), transparent 60%),
+        radial-gradient(50rem 42rem at 68% 88%, rgba(250, 80, 15, .42), transparent 62%),
+        radial-gradient(40rem 34rem at 22% 82%, rgba(225, 5, 0, .28),   transparent 60%),
+        radial-gradient(60rem 50rem at 50% 50%, rgba(255, 175, 0, .22), transparent 70%);
+    filter: blur(28px) saturate(115%);
+    animation: mesh-drift 26s ease-in-out infinite alternate;
+    will-change: transform;
+}
+.flame-mesh--soft  { opacity: .5; }
+.flame-mesh--faint { opacity: .28; }
+
+@keyframes mesh-drift {
+    0%   { transform: scale(1)    translate3d(0, 0, 0); }
+    33%  { transform: scale(1.08) translate3d(-2.5%, 1.5%, 0); }
+    66%  { transform: scale(1.04) translate3d(2%, -2%, 0); }
+    100% { transform: scale(1.10) translate3d(1%, 2.5%, 0); }
+}
+
+/* isolation + z-index:-1 mantienen el grano por encima del fondo de la
+   seccion pero SIEMPRE por debajo del texto. */
+.grain { isolation: isolate; }
+.grain::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: .12;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-shift 800ms steps(4) infinite;
+}
+@keyframes grain-shift {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-2%, 1%); }
+    50%  { transform: translate(1%, -2%); }
+    75%  { transform: translate(-1%, -1%); }
+    100% { transform: translate(0, 0); }
+}
+
+.grid-lines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(to right, var(--hair-soft) 1px, transparent 1px);
+    background-size: 12.5% 100%;
+}
+.grid-lines--dark {
+    background-image: linear-gradient(to right, rgba(255, 250, 235, .05) 1px, transparent 1px);
+}
+.grid-dots {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(var(--hair) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000, transparent);
+    mask-image: radial-gradient(70% 60% at 50% 40%, #000, transparent);
+}
+
+/* ---------- Primitivas de dashboard ---------- */
+.bd-card {
+    background: var(--surface);
+    border: 1px solid var(--hair);
+    border-radius: var(--r-sharp);
+    box-shadow: none;
+}
+
+.bd-card-pad { padding: 1.25rem; }
+
+/* Rail de acento a la izquierda: marca la tarjeta activa/destacada
+   sin recurrir a color de fondo. */
+.bd-card-accent {
+    position: relative;
+    overflow: hidden;
+}
+.bd-card-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--f2), var(--f3) 45%, var(--f5));
+}
+
+.bd-kpi-value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--text);
+}
+
+.bd-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .1875rem .625rem;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--hair);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: .6875rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Estados. Siempre acompanados de icono o etiqueta: nunca color solo. */
+.bd-status-good     { color: var(--good);     background: var(--good-bg); }
+.bd-status-warn     { color: var(--warn);     background: var(--warn-bg); }
+.bd-status-serious  { color: var(--serious);  background: var(--serious-bg); }
+.bd-status-critical { color: var(--critical); background: var(--critical-bg); }
+
+/* ---------- Micro-animaciones ---------- */
+.live-dot { position: relative; }
+.live-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: live-ping 1.8s cubic-bezier(0, 0, .2, 1) infinite;
+}
+@keyframes live-ping {
+    0%        { transform: scale(1);   opacity: .7; }
+    80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+.caret::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    background: currentColor;
+    vertical-align: -0.15em;
+    animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============================================================
+   Primitivas del espacio de trabajo del agente
+   No existen en adminDashboard: son las piezas que solo tiene
+   esta app (rail de 64px, barra de actividad, lista de folios,
+   panel de copiloto) traducidas al mismo idioma.
+   ============================================================ */
+
+/* ---------- Area de trabajo mateada ----------
+   La jerarquia entre lista / conversacion / herramientas se resuelve con
+   canaleta + hairline + tono, NO con sombra: la identidad reserva la sombra
+   para elevacion real (popovers, modales). El efecto "flotante" lo da la
+   crema del canvas asomando entre los planos.
+
+   Escala de tono, de fondo a foco:
+     canvas       --cream      #FFFAEB   la canaleta
+     plano        --cream-100  #FFF8E7   lista y herramientas
+     plano foco   --cream-50   #FFFDF7   la conversacion */
+.bd-workspace {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: var(--canvas);
+}
+
+.bd-plane {
+    background: var(--surface-2);
+    border: 1px solid var(--hair);
+    border-radius: var(--r-sharp);
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* El plano de foco: el mas claro de los tres. Es donde vive la conversacion. */
+.bd-plane--focus {
+    background: var(--surface);
+}
+
+/* Cabecera pegada dentro de un plano: mismo tono, separada por hairline. */
+.bd-plane-header {
+    background: inherit;
+    border-bottom: 1px solid var(--hair);
+}
+
+/* Tirador de colapso. Vive sobre la canaleta, entre dos planos, asi que es
+   un cuadrado de tinta con hairline y no un boton redondo con sombra. */
+.bd-gutter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 42px;
+    padding: 0;
+    min-width: 0;
+    background: var(--ink);
+    color: var(--cream);
+    border: 1px solid var(--ink);
+    border-radius: var(--r-sharp);
+    box-shadow: none;
+    transition: background .25s var(--ease);
+}
+.bd-gutter-toggle:hover { background: var(--ink-700); }
+
+/* ---------- Burbujas de conversacion ----------
+   Sobre el plano de foco (#FFFDF7) hay dos cosas que NO funcionan y ya se
+   probaron: el relleno de tinta convierte el hilo en un muro negro, y el
+   borde de tinta sobre relleno claro se lee como campo de formulario vacio.
+   Las dos burbujas llevan relleno real y hairline suave; la direccion la
+   marcan la alineacion y el filo flame del lado anclado. */
+.bd-bubble {
+    position: relative;
+    width: fit-content;
+    padding: .5rem .75rem;
+    border: 1px solid var(--hair);
+    border-radius: var(--r-sharp);
+    color: var(--text);
+}
+
+/* Quien habla se reconoce por TRES pistas redundantes: alineacion, tono de
+   relleno y color del filo. Solo el color fallaria de reojo y para daltonicos,
+   que es justo el caso de uso: el asesor barriendo un hilo largo. */
+
+/* Los dos filos comparten geometria y solo cambian de temperatura, para que
+   se lean como piezas del mismo sistema. Las rampas viven en tokens.css. */
+.bd-bubble--in::after,
+.bd-bubble--out::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    width: 3px;
+}
+
+/* Cliente: es lo que hay que atender, asi que tiene mas cuerpo. Filo frio. */
+.bd-bubble--in {
+    background: var(--cream-200);
+    padding-left: calc(.75rem + 4px);
+}
+.bd-bubble--in::after {
+    left: -1px;
+    background: var(--party-client);
+}
+
+/* Agente: mismo idioma, menos masa. Filo flame, que es la firma de marca y
+   sustituye a la esquina anclada, imperceptible con radio de 2px. */
+.bd-bubble--out {
+    background: var(--cream-100);
+    padding-right: calc(.75rem + 4px);
+}
+.bd-bubble--out::after {
+    right: -1px;
+    background: var(--party-agent);
+}
+
+/* ---------- Rail de navegacion ----------
+   El estado activo se marca con la barra flame vertical de la marca,
+   no con el gradiente indigo->pink. Las clases las arma
+   src/styles/railClasses.js. */
+.bd-rail {
+    background: var(--ink);
+    border-right: 1px solid var(--hair-dark);
+}
+
+.bd-rail-btn {
+    position: relative;
+    border-radius: var(--r-sharp);
+}
+
+/* Gana a los stroke="white" que traen los iconos en el JSX. */
+.bd-rail-btn svg {
+    color: rgba(255, 250, 235, .62);
+    stroke: currentColor;
+    transition: color .25s var(--ease);
+}
+.bd-rail-btn:hover svg { color: var(--cream); }
+
+.bd-rail-btn--active svg { color: var(--cream); }
+.bd-rail-btn--active::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--f2), var(--f3) 45%, var(--f5));
+}
+
+/* Avatar del rail: hairline sobre tinta, sin anillo de color. */
+.bd-rail-avatar {
+    border-radius: var(--r-sharp);
+    box-shadow: 0 0 0 1px var(--hair-dark);
+}
+
+/* ---------- Barra superior (Toolbar) ---------- */
+.bd-topbar {
+    background: var(--ink);
+    border-bottom: 1px solid var(--hair-dark);
+    color: var(--cream);
+}
+
+/* Chip de marca de la barra: tinta invertida, no gradiente.
+   Reemplaza a "bg-gradient-to-br from-indigo-500 to-pink-500". */
+.bd-chip-brand {
+    background: rgba(255, 250, 235, .08);
+    border: 1px solid var(--hair-dark);
+    color: var(--cream);
+    border-radius: var(--r-pill);
+    box-shadow: none;
+}
+
+/* La unica pieza de la barra que lleva relleno flame: la version.
+   Es marca, no estado, y va sobre tinta (no sobre crema). */
+.bd-chip-flame {
+    background: linear-gradient(100deg, var(--f2), var(--f3) 45%, var(--f4));
+    border: 1px solid rgba(255, 250, 235, .28);
+    color: #fff;
+    border-radius: var(--r-pill);
+    box-shadow: none;
+}
+
+/* ---------- Titulo de pantalla ----------
+   Reemplaza al patron repetido en 7 vistas:
+   "text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500
+    bg-clip-text text-transparent". */
+.bd-page-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    margin: 0;
+}
+
+/* ---------- Lista de folios ----------
+   OJO con la escala: el plano de la lista ya es --surface-2 (--cream-100),
+   asi que pintar el activo de --cream-100 es un no-op y el estado se queda
+   solo con la barra. Los estados tienen que bajar DESDE ahi.
+
+   El folio abierto gana por tres vias a la vez: relleno mas hondo, filo
+   flame y el unico nombre a plena tinta. */
+.bd-folio-item {
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid var(--hair-soft);
+    background: transparent;
+    transition: background .2s var(--ease);
+}
+.bd-folio-item:hover { background: var(--cream-200); }
+
+.bd-folio-item--active {
+    background: var(--cream-300);
+}
+/* El borde izquierdo transparente reserva los 3px para que el contenido no
+   salte entre estados; aqui solo se rellenan. */
+.bd-folio-item--active::after {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--party-agent);
+}
+
+/* Nombre del contacto: apagado en reposo, plena tinta en el abierto. */
+.bd-folio-name {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.bd-folio-item--active .bd-folio-name {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ---------- Panel de copiloto (Kortex) ----------
+   Antes era violeta (#a78bfa / #faf5ff). El copiloto es una funcion
+   de marca, asi que su acento es flame; el texto sigue en tinta
+   porque flame no es legible como texto sobre crema. */
+.bd-copilot-panel {
+    border-left: 3px solid var(--f4);
+    background: var(--cream-100);
+    border-radius: 0 var(--r-sharp) var(--r-sharp) 0;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text);
+    white-space: pre-wrap;
+    line-height: 1.65;
+}
+
+.bd-copilot-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--hair);
+    border-radius: var(--r-sharp);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    transition: background .18s var(--ease), border-color .18s var(--ease);
+}
+.bd-copilot-btn:hover:not(:disabled) {
+    background: var(--cream-200);
+    border-color: rgba(250, 80, 15, .45);
+}
+.bd-copilot-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- Accesibilidad ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .flame-mesh,
+    .flame-text,
+    .wordmark,
+    .grain::after,
+    .live-dot::after,
+    .caret::after {
+        animation: none !important;
+    }
+}

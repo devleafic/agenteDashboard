@@ -134,7 +134,7 @@ const InternalUploadFile = ({sendFile}) => {
                         <button
                             type="button"
                             onClick={open}
-                            className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                            className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-flame-ember transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
                             aria-label="Adjuntar archivo"
                         >
                             <Paperclip className="w-5 h-5" />

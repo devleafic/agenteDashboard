@@ -709,7 +709,7 @@ const onBlur = () => {window.localStorage.setItem('tabIsActive', false);/*consol
     <div className="fixed z-[100]">
             <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
     </div>
-      <div className="flex flex-col h-screen bg-gray-50 dark:bg-neutral-900">
+      <div className="flex flex-col h-screen bg-background">
         {/* Status Bar */}
         <div className={`w-full h-1 ${getColorStatusBar()}`}></div>
 
