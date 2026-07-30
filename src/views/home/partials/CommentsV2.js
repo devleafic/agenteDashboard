@@ -1284,7 +1284,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
     const fillRecipients = (ccRecipients, txt) => {
         if (ccRecipients && ccRecipients.length > 0) {
             const emails = ccRecipients.map(recipient => recipient.email);
-            const emailsText = emails.join(', ');
+            const emailsText = emails.join(',');
             return (
                 <div className="flex items-center gap-2 mb-2">
                     <Chip color="primary" variant="flat">{txt}</Chip>
@@ -1301,7 +1301,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
         let emailsText;
         if (toFilteredEmails && toFilteredEmails.length > 0) {
             const emails = toFilteredEmails.map(recipient => recipient.email);
-            emailsText = folio.person.anchor + ', ' + emails.join(', ');
+            emailsText = folio.person.anchor +', ' + emails.join(',');
         } else {
             emailsText = folio.person.anchor;
         }
@@ -1553,7 +1553,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
 
                 {/* Header */}
                 {/* Cabecera: mismo zocalo que el pie, para que los mensajes queden
-                    como la pagina clara entre dos planos. Antes era bg-white con
+                    como la pagina clara entre dos planos. Antes era blanco puro con
                     shadow-sm, las dos cosas que la identidad no usa. */}
                 <div className="hair-b bg-cream-100 shrink-0 p-2">
                     <div className="flex items-baseline gap-4">
@@ -1574,8 +1574,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                     </div>
                     {typeFolio === '_EMAIL_' && (
                         <div className="mt-2 text-sm text-ink-500">
-                            <div className="font-semibold">{fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para: ')}</div>
-                            <div>{fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC: ')}</div>
+                            <div className="font-semibold">{fillRecipients(folio?.lastEmailProcessed?.toRecipients, 'Para:')}</div>
+                            <div>{fillRecipients(folio?.lastEmailProcessed?.ccRecipients, 'CC:')}</div>
                             <div className="mt-1">
                                 <span className="font-semibold">Asunto:</span> {folio?.lastEmailProcessed?.subject}
                             </div>
@@ -1759,7 +1759,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                         {/* Slash commands menu for quick answers (opens when typing "/") */}
                                         <SlashCommandMenu textareaRef={textArea} items={quicklyAnswer || []} />
                                          {showAutoSaveIndicator && (
-                                             <div className="absolute -top-5 right-2 bg-good text-white text-[10px] px-1.5 py-0.5 transition-opacity duration-300">
+                                             <div className="absolute -top-5 right-2 bg-good text-cream text-[10px] px-1.5 py-0.5 transition-opacity duration-300">
                                                  <Save className="w-3 h-3" />
                                              </div>
                                          )}
@@ -1870,7 +1870,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             onPress={() => prepareCloseFolio('end')}
                                             isLoading={isEndingFolio}
                                             disabled={isEndingFolio}
-                                            className="bg-critical text-white hover:opacity-90 transition-opacity"
+                                            className="bg-critical text-cream hover:opacity-90 transition-opacity"
                                         >
                                             Finalizar
                                         </HeroButton>
@@ -2043,7 +2043,7 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                                             onClick={() => prepareCloseFolio('end')}
                                             isLoading={isEndingFolio}
                                             disabled={isEndingFolio}
-                                            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-opacity"
+                                            className="bg-gradient-to-r from-good to-good text-cream hover:opacity-90 transition-opacity"
                                         >
                                             Finaliza
                                         </HeroButton>
@@ -2340,8 +2340,8 @@ const CommentsV2 = ({ folio, fullFolio, onCall, setOnCall, setRefresh, sidCall, 
                             <ModalBody>
                                 {folio.lastEmailProcessed && (
                                     <div className="mb-4 p-4 bg-cream-100 hair">
-                                        {toSendRecipients(folio.lastEmailProcessed.toRecipients, 'Para: ')}
-                                        {fillRecipients(folio.lastEmailProcessed.ccRecipients, 'CC: ')}
+                                        {toSendRecipients(folio.lastEmailProcessed.toRecipients, 'Para:')}
+                                        {fillRecipients(folio.lastEmailProcessed.ccRecipients, 'CC:')}
                                         <div className="text-sm font-semibold"><span className="font-semibold">Asunto: </span>{folio.lastEmailProcessed.subject}</div>
                                     </div>
                                 )}

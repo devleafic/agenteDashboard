@@ -81,7 +81,7 @@ const Contacts = ({ contacts = [] }) => {
   return (
     <div className="space-y-2 w-full max-w-md">
       {contacts.map((contact, index) => (
-        <Card key={index} className="w-full border border-hair dark:border-gray-700">
+        <Card key={index} className="w-full border border-hair">
           <CardBody className="p-4">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
@@ -92,12 +92,12 @@ const Contacts = ({ contacts = [] }) => {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-ink dark:text-white truncate">
+                <h4 className="font-semibold text-ink truncate">
                   {contact.name || 'Contacto sin nombre'}
                 </h4>
                 
                 {contact.org && (
-                  <p className="text-sm text-ink-500 dark:text-gray-300 truncate">
+                  <p className="text-sm text-ink-500 truncate">
                     {contact.org}
                   </p>
                 )}
@@ -106,7 +106,7 @@ const Contacts = ({ contacts = [] }) => {
                   <div className="mt-2">
                     {contact.tel.map((phone, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm">
-                        <span className="text-ink-500 dark:text-gray-400">
+                        <span className="text-ink-500">
                           {phone.type || 'Tel'}:
                         </span>
                         <Link 
@@ -124,7 +124,7 @@ const Contacts = ({ contacts = [] }) => {
                   <div className="mt-1">
                     {contact.email.map((email, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm">
-                        <span className="text-ink-500 dark:text-gray-400">
+                        <span className="text-ink-500">
                           {email.type || 'Email'}:
                         </span>
                         <Link 
@@ -142,7 +142,7 @@ const Contacts = ({ contacts = [] }) => {
                   <div className="mt-1">
                     {contact.url.map((url, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm">
-                        <span className="text-ink-500 dark:text-gray-400">
+                        <span className="text-ink-500">
                           {url.type || 'Web'}:
                         </span>
                         <Link 
@@ -161,7 +161,7 @@ const Contacts = ({ contacts = [] }) => {
                 {contact.address && contact.address.length > 0 && (
                   <div className="mt-1">
                     {contact.address.map((addr, i) => (
-                      <div key={i} className="text-sm text-ink-500 dark:text-gray-300">
+                      <div key={i} className="text-sm text-ink-500">
                         {addr.street && <div>{addr.street}</div>}
                         {addr.city && addr.region && (
                           <div>{`${addr.city}, ${addr.region} ${addr.postalCode || ''}`}</div>
@@ -174,7 +174,7 @@ const Contacts = ({ contacts = [] }) => {
               </div>
             </div>
           </CardBody>
-          <CardFooter className="bg-cream-100 dark:bg-gray-800 p-3 flex justify-between items-center">
+          <CardFooter className="bg-cream-100 p-3 flex justify-between items-center">
             <Button
               key={`copy-btn-${contact.id || 'contact'}-${index}`}
               size="sm"

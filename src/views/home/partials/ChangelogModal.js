@@ -32,11 +32,11 @@ export default function ChangelogModal({ open, onClose }) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Chip color={rel.version === currentVersion ? 'primary' : 'default'} variant="flat">v{rel.version}</Chip>
-                  <span className="text-sm text-gray-500">{rel.date}</span>
+                  <span className="text-sm text-ink-500">{rel.date}</span>
                 </div>
               </div>
               {Array.isArray(rel.highlights) && rel.highlights.length > 0 && (
-                <ul className="list-disc pl-5 mt-3 space-y-1 text-sm text-gray-700">
+                <ul className="list-disc pl-5 mt-3 space-y-1 text-sm text-ink-600">
                   {rel.highlights.map((h, i) => (
                     <li key={i}>{h}</li>
                   ))}
@@ -45,7 +45,7 @@ export default function ChangelogModal({ open, onClose }) {
               {Array.isArray(rel.changes) && rel.changes.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {rel.changes.map((c, i) => (
-                    <div key={i} className="p-3 rounded-lg border border-gray-100 bg-white shadow-sm">
+                    <div key={i} className="p-3 rounded-lg border border-hair bg-cream-50 shadow-sm">
                       <div className="flex items-center gap-2">
                         <Chip size="sm" color={typeColor[c.type] || 'default'} variant="flat" className="capitalize">
                           {c.type}
@@ -53,7 +53,7 @@ export default function ChangelogModal({ open, onClose }) {
                         <span className="font-medium text-sm">{c.title}</span>
                       </div>
                       {c.details && (
-                        <p className="text-xs text-gray-600 mt-1">{c.details}</p>
+                        <p className="text-xs text-ink-600 mt-1">{c.details}</p>
                       )}
                     </div>
                   ))}

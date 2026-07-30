@@ -94,7 +94,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
          <div className={`flex ${direction === 'left' ? 'justify-end' : 'justify-start'}`}> 
          <Tooltip content={`Lectura confirmada a ${moment(reader.createdAt).format('DD/MM/YYYY HH:mm:ss')}`}>
             <div className="flex justify-end">
-                <CheckCheck className="h-6 w-6 text-blue-500" />
+                <CheckCheck className="h-6 w-6 text-info" />
             </div>
             </Tooltip>
         </div>
@@ -117,7 +117,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
 
         const readersLogHtml = readerslog.map((reader, index) => (
             <div key={`reader-${index}`} className="flex items-center gap-1">
-                <Check className="h-3 w-3 text-blue-500" />
+                <Check className="h-3 w-3 text-info" />
                 {reader}
             </div>
         ));
@@ -136,7 +136,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                         <div className="p-2">{content}</div>
                     </PopoverContent>
                 </Popover>
-                <em className="text-xs text-gray-500">Lectores #{readers.length}</em>
+                <em className="text-xs text-ink-500">Lectores #{readers.length}</em>
             </div>
         );
     }
@@ -191,7 +191,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                         href={content} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                        className="flex items-center gap-2 text-info hover:text-info transition-colors"
                     >
                         Documento - <FolderOpen className="h-4 w-4" />
                     </a>
@@ -267,9 +267,9 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                     </Chip>
                 );          
             case 'errors':
-                return (<span className="text-red-500">[{type}] - {content}</span>);      
+                return (<span className="text-critical">[{type}] - {content}</span>);      
             default:
-                return (<span className="text-amber-500">[La clase {type} no esta soportada] - {content}</span>);
+                return (<span className="text-warn">[La clase {type} no esta soportada] - {content}</span>);
         }
     }
 
@@ -277,14 +277,14 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
         const author = members.find((x) => {return x.user._id === id;});
         if (author && author.user && author.user.profile) {
             return (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
+                <div className="text-xs text-ink-500 flex items-center gap-1">
                     <User className="h-3 w-3" />
                     {author.user.profile.name}
                 </div>
             );
         } else {
             return (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
+                <div className="text-xs text-ink-500 flex items-center gap-1">
                     <User className="h-3 w-3" />
                     Unknown
                 </div>
@@ -313,7 +313,7 @@ export default function BubbleIternalChat({infoChat, msg, userInfo, readMessage}
                     <Button 
                         size="sm" 
                         variant="light" 
-                        className="text-xs text-gray-500 p-1 min-w-0 h-auto"
+                        className="text-xs text-ink-500 p-1 min-w-0 h-auto"
                     >
                         {moment(msg.createdAt).format('lll')} 💬
                     </Button>

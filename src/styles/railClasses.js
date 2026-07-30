@@ -4,8 +4,8 @@
    Equivalente de adminDashboard/src/styles/navClasses.js: una sola
    definicion para que el rail se vea igual en las dos apps.
 
-   El idioma activo ya no es "bg-gradient-to-br from-indigo-500
-   to-pink-500 scale-110": es la barra flame vertical de la marca
+   El idioma activo ya no es el gradiente violeta-rosa con escala:
+   es la barra flame vertical de la marca
    (.bd-rail-btn--active::before, definida en styles/brand.css).
    ============================================================ */
 

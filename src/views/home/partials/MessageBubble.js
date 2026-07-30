@@ -186,7 +186,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                     <button
                         type="button"
                         onClick={() => setIsOptionsOpen((v) => !v)}
-                        className="flex items-center gap-2 text-rose-600 hover:underline font-medium select-none"
+                        className="flex items-center gap-2 text-critical hover:underline font-medium select-none"
                     >
                         {/* Icono de lista estilo WhatsApp */}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -320,7 +320,7 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
         };
 
         return (
-            <div className="bg-black/10 p-2 rounded-lg mb-2 border-l-2 border-primary cursor-pointer">
+            <div className="bg-ink/10 p-2 rounded-lg mb-2 border-l-2 border-primary cursor-pointer">
                 <p className="text-xs font-bold">{originalMsg.direction === 'out' ? getNameAuthor(originalMsg.origin) : (contact?.aliasId || contact?.name || contact?.alias || 'Desconocido')}</p>
                 {renderPreview()}
             </div>
@@ -383,8 +383,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                                     className="z-0 w-auto max-h-[320px] max-w-full object-contain"
                                     src={msg.content}
                                 />
-                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <div className="bg-black/50 text-white rounded-full p-2">
+                                <div className="absolute inset-0 bg-ink/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <div className="bg-ink/50 text-cream rounded-full p-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
@@ -392,8 +392,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                                 </div>
                             </a>
                             {msg.caption && (
-                                <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 w-full">
-                                    <p className="text-tiny text-white/80">
+                                <CardFooter className="absolute bg-ink/40 bottom-0 z-10 border-t-1 border-default-600 w-full">
+                                    <p className="text-tiny text-cream/80">
                                         {highlight && msg.caption 
                                             ? highlightText(msg.caption, highlight) 
                                             : msg.caption

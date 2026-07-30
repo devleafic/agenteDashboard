@@ -59,15 +59,15 @@ export default function ModalFiles({ open, setOpen, chatId }) {
                             src={item.message}
                         />
                     ) : (
-                        <div className="h-[140px] w-full bg-zinc-100 dark:bg-zinc-800 flex flex-col items-center justify-center rounded-lg">
-                            <FileText className="w-12 h-12 text-zinc-500" />
-                            <p className="text-xs text-center p-2 text-zinc-600 dark:text-zinc-300 break-all">{item.name || 'Documento'}</p>
+                        <div className="h-[140px] w-full bg-cream-100 flex flex-col items-center justify-center rounded-lg">
+                            <FileText className="w-12 h-12 text-ink-500" />
+                            <p className="text-xs text-center p-2 text-ink-600 break-all">{item.name || 'Documento'}</p>
                         </div>
                     )}
                 </CardBody>
                 <div className="p-2 flex flex-col items-start">
                     <Snippet symbol="" size="sm" variant="bordered" className="w-full overflow-hidden">{item.message}</Snippet>
-                    <time className="text-xs text-zinc-500 mt-1">{moment(item.createdAt).format('DD/MM/YYYY HH:mm')}</time>
+                    <time className="text-xs text-ink-500 mt-1">{moment(item.createdAt).format('DD/MM/YYYY HH:mm')}</time>
                 </div>
             </Card>
         );

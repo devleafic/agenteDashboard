@@ -289,11 +289,11 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
   return (
     <div
       ref={containerRef}
-      className="absolute left-2 bottom-14 z-50 w-[36rem] max-w-[calc(100%-1rem)] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+      className="absolute left-2 bottom-14 z-50 w-[36rem] max-w-[calc(100%-1rem)] bg-cream-50 border border-hair rounded-xl shadow-xl overflow-hidden"
       role="listbox"
       aria-label="Comandos rápidos"
     >
-      <div className="px-3 py-2 border-b bg-white/90 backdrop-blur sticky top-0 z-10">
+      <div className="px-3 py-2 border-b bg-cream-50/90 backdrop-blur sticky top-0 z-10">
         <Input
           ref={searchRef}
           size="lg"
@@ -308,7 +308,7 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
       </div>
       <ul ref={listRef} className="max-h-[28rem] overflow-auto p-2 space-y-2">
         {filtered.length === 0 ? (
-          <li className="px-3 py-2 text-[15px] text-gray-400">Sin resultados</li>
+          <li className="px-3 py-2 text-[15px] text-ink-400">Sin resultados</li>
         ) : (
           filtered.map((it, idx) => (
             <li
@@ -329,7 +329,7 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
               {it?.label ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xl leading-none">{it.text}</span>
-                  <span className="text-gray-600">{it.label}</span>
+                  <span className="text-ink-600">{it.label}</span>
                 </div>
               ) : (
                 it?.text || ''
@@ -338,7 +338,7 @@ export default function SlashCommandMenu({ textareaRef, items = [], onOpenChange
           ))
         )}
       </ul>
-      <div className="px-4 py-2 text-[12px] text-gray-600 border-t bg-gray-50 flex items-center justify-between">
+      <div className="px-4 py-2 text-[12px] text-ink-600 border-t bg-cream-100 flex items-center justify-between">
         <Chip color="primary" variant="flat">Usa ↑/↓ o Ctrl/Alt + J/K</Chip>
         <Chip color="primary" variant="flat">Enter o Tab para insertar • ESC cierra</Chip>
         <Chip color="secondary" variant="flat">Beta</Chip>

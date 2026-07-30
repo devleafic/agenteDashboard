@@ -75,7 +75,7 @@ const AudioPlayer = ({ src }) => {
   }, [duration]);
 
   return (
-    <div className="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-md border border-gray-200 w-full">
+    <div className="flex items-center space-x-3 p-3 bg-cream-50 rounded-lg shadow-md border border-hair w-full">
       <Button
         isIconOnly
         variant="solid"
@@ -93,9 +93,9 @@ const AudioPlayer = ({ src }) => {
           step="0.1"
           value={currentTime}
           onChange={handleSeek}
-          className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-500 hover:accent-blue-600"
+          className="w-full h-1 bg-cream-200 rounded-full appearance-none cursor-pointer accent-info"
         />
-        <span className="text-sm text-gray-600 w-16 text-right">
+        <span className="text-sm text-ink-600 w-16 text-right">
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
       </div>
@@ -106,7 +106,7 @@ const AudioPlayer = ({ src }) => {
         className="w-16"
         classNames={{
           trigger: "h-8 min-h-8",
-          value: "text-sm font-medium text-gray-700"
+          value: "text-sm font-medium text-ink-600"
         }}
         selectedKeys={[playbackRate.toString()]}
         onSelectionChange={(keys) => {
@@ -128,7 +128,7 @@ const AudioPlayer = ({ src }) => {
           as="a"
           href={src}
           download
-          className="text-gray-500 hover:text-blue-600"
+          className="text-ink-500 hover:text-info"
         >
           <Download size={18} />
         </Button>

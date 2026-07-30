@@ -83,7 +83,7 @@ const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
     return (
         <div className="space-y-4">
             {queues.length <= 0 && (
-                <div className="p-3 bg-red-100 text-red-700 rounded-lg flex items-center">
+                <div className="p-3 bg-critical/10 text-critical rounded-lg flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
@@ -107,7 +107,7 @@ const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
                     });
                 }}
                 isDisabled={queues.length <= 0}
-                className={errorQueueField ? 'border-red-500' : ''}
+                className={errorQueueField ? 'border-critical' : ''}
             >
                 {queues.map((queue) => (
                     <SelectItem key={queue._id} value={queue._id}>
@@ -131,7 +131,7 @@ const TransferFolioQueueGlobal = ({folio, setRefresh, userInfo}) => {
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
                             Transferir folio

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Mic, MicOff, Phone, PhoneOff, PhoneCall, Save, CheckCircle, Grid as KeypadIcon } from 'react-feather';
+import { Mic, MicOff, Phone, PhoneOff, PhoneCall, Save, CheckCircle, Grid as KeypadIcon } from 'lucide-react';
 import SocketContext from './../../../controladores/SocketContext';
 import CallContext from '../../../controladores/CallContext';
 import './Call.css';
@@ -316,7 +316,7 @@ const Call = React.memo(({
     const initials = useMemo(() => {
         if (!currentFolio?.person?.anchor) return '?';
         return currentFolio.person.anchor
-            .split(' ')
+            .split('')
             .map(n => n[0])
             .join('')
             .toUpperCase()

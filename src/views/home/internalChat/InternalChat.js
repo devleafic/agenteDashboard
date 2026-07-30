@@ -6,6 +6,7 @@ import NotificationSettings from './NotificationSettings';
 import InternalUploadFile from './InternalUploadFile';
 import ModalFiles from '../../../componentes/internalChat/ModalFiles';
 import { addToast, ToastProvider } from '@heroui/toast';
+import PageTitle from '../../../components/PageTitle';
 
 export default function InternalChat({ userInfo }) {
   const { socket, inboxList, unreadMessages, setUnreadMessages, activitiesUsers, setInboxList, archivedChats, archiveChat, unarchiveChat } = useSocket();
@@ -216,7 +217,7 @@ export default function InternalChat({ userInfo }) {
         <img
           src={member.user.profile.picture && member.user.profile.picture.length > 0 ? member.user.profile.picture : avatarUser}
           alt="User Icon"
-          className="w-10 h-10 rounded-full mr-2 border-2 border-hair dark:border-gray-700 object-cover"
+          className="w-10 h-10 rounded-full mr-2 border-2 border-hair object-cover"
         />
       );
     }
@@ -224,7 +225,7 @@ export default function InternalChat({ userInfo }) {
       <img
         src={groupPicture && groupPicture.length > 0 ? groupPicture : groupAvatar}
         alt="Group Icon"
-        className="w-10 h-10 rounded-full mr-2 border-2 border-hair dark:border-gray-700 object-cover"
+        className="w-10 h-10 rounded-full mr-2 border-2 border-hair object-cover"
       />
     );
   };
@@ -329,31 +330,31 @@ export default function InternalChat({ userInfo }) {
         openChat(chat._id);
       }}
       className={`flex items-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-        clickedId === chat._id ? 'bg-cream-300' : 'hover:bg-cream-200 dark:hover:bg-ink-800'
+        clickedId === chat._id ? 'bg-cream-300' : 'hover:bg-cream-200'
       }`}
     >
       <div className="relative">
-        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-hair dark:border-gray-700">
+        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-hair">
           {getPictures(chat.isPrivate, chat.members, chat.picture)}
         </div>
         <div className="absolute bottom-0 right-0 text-sm">{getActivitie(chat.isPrivate, chat.members)}</div>
       </div>
       <div className="flex-1 mx-3 overflow-hidden">
-        <div className="font-semibold text-ink dark:text-gray-200 truncate">
+        <div className="font-semibold text-ink truncate">
           {getNames(chat.isPrivate, chat.members, chat.label)}
         </div>
-        <div className="text-sm text-ink-500 dark:text-gray-400 truncate">
+        <div className="text-sm text-ink-500 truncate">
           {chat.lastMessage ? (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 30) + '...' : chat.lastMessage) : 'No hay mensajes'}
         </div>
       </div>
       <div className="flex items-center">
         <button
           onClick={(e) => (isArchived ? handleUnarchiveChat(chat._id, e) : handleArchiveChat(chat._id, e))}
-          className="p-2 rounded-full hover:bg-cream-300 dark:hover:bg-ink-700 transition-colors duration-200"
+          className="p-2 rounded-full hover:bg-cream-300 transition-colors duration-200"
           title={isArchived ? 'Desarchivar chat' : 'Archivar chat'}
         >
           <svg
-            className="w-5 h-5 text-ink-500 dark:text-gray-400"
+            className="w-5 h-5 text-ink-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -379,7 +380,7 @@ export default function InternalChat({ userInfo }) {
 
   return (
 
-    <div className="p-3 bg-cream-50 dark:bg-gray-900 rounded-2xl shadow-lg m-2 border border-hair dark:border-gray-800">
+    <div className="p-3 bg-cream-50 rounded-2xl shadow-lg m-2 border border-hair">
             <div className="fixed z-[100]">
       <ToastProvider placement={placement} toastProps={{ timeout: 2000 }} />
     </div>
@@ -399,14 +400,12 @@ export default function InternalChat({ userInfo }) {
                     </div>
                     <div>
                         <div className="flex items-center">
-                            <h2 className="bd-page-title">
-                                TeamChat
-                            </h2>
+                            <PageTitle lead="TeamChat" />
                             <span className="bd-pill ml-2">
                                 1.0
                             </span>
                         </div>
-                        <p className="text-sm text-ink-500 dark:text-gray-300">
+                        <p className="text-sm text-ink-500">
                             Comunicación en tiempo real para tu equipo interno.
                         </p>
                     </div>
@@ -421,15 +420,15 @@ export default function InternalChat({ userInfo }) {
             
         </div>
       <div className="flex h-[calc(100vh-220px)] gap-2 mt-2">
-        <div className="w-1/3 bg-cream-100 dark:bg-gray-800 rounded-xl p-4 flex flex-col">
+        <div className="w-1/3 bg-cream-100 rounded-xl p-4 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-ink-600 dark:text-gray-300">Mi estado:</span>
+              <span className="text-sm font-medium text-ink-600">Mi estado:</span>
               <span className="text-lg">{listActivites.find((x) => x.id === myActivitie)?.emoji}</span>
               <select
                 value={myActivitie}
                 onChange={(e) => setActivitie(e.target.value)}
-                className="appearance-none bg-cream-50 dark:bg-gray-700 border border-hair dark:border-gray-600 rounded-lg px-3 py-1 text-sm text-ink dark:text-gray-200 focus:outline-none focus:border-flame-ember"
+                className="appearance-none bg-cream-50 border border-hair rounded-lg px-3 py-1 text-sm text-ink focus:outline-none focus:border-flame-ember"
               >
                 {listActivites.map((activity) => (
                   <option key={activity.id} value={activity.id}>
@@ -440,10 +439,10 @@ export default function InternalChat({ userInfo }) {
             </div>
             <button
               onClick={() => setShowNotificationSettings(true)}
-              className="p-2 rounded-full hover:bg-cream-300 dark:hover:bg-ink-700"
+              className="p-2 rounded-full hover:bg-cream-300"
               title="Configuración de notificaciones"
             >
-              <svg className="w-5 h-5 text-ink-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-5 h-5 text-ink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
@@ -462,11 +461,11 @@ export default function InternalChat({ userInfo }) {
                 setFindUser(e.target.value);
                 getContactList(e.target.value);
               }}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-hair dark:border-gray-600 bg-cream-50 dark:bg-gray-700 text-ink dark:text-gray-200 focus:outline-none focus:border-flame-ember"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-hair bg-cream-50 text-ink focus:outline-none focus:border-flame-ember"
             />
             {contactList.length > 0 && (
-              <div className="absolute w-full mt-2 bg-cream-50 dark:bg-gray-800 shadow-lg rounded-lg max-h-80 overflow-y-auto z-10 border border-hair dark:border-gray-700">
-                <div className="p-3 font-semibold text-ink dark:text-gray-200 border-b border-hair dark:border-gray-700">Usuarios Encontrados</div>
+              <div className="absolute w-full mt-2 bg-cream-50 shadow-lg rounded-lg max-h-80 overflow-y-auto z-10 border border-hair">
+                <div className="p-3 font-semibold text-ink border-b border-hair">Usuarios Encontrados</div>
                 {contactList.map((user) => (
                   <div
                     key={user._id}
@@ -475,32 +474,32 @@ export default function InternalChat({ userInfo }) {
                       setFindUser('');
                       setContactList([]);
                     }}
-                    className="flex items-center p-3 hover:bg-cream-200 dark:hover:bg-ink-700 rounded-lg cursor-pointer transition-all duration-200"
+                    className="flex items-center p-3 hover:bg-cream-200 rounded-lg cursor-pointer transition-all duration-200"
                   >
                     <img
                       src={user.profile.picture && user.profile.picture.length > 0 ? user.profile.picture : avatarUser}
                       alt="User Icon"
-                      className="w-10 h-10 rounded-full border-2 border-hair dark:border-gray-700 object-cover"
+                      className="w-10 h-10 rounded-full border-2 border-hair object-cover"
                     />
                     <div className="ml-3">
-                      <div className="font-semibold text-ink dark:text-gray-200">{user.profile.name}</div>
-                      <div className="text-sm text-ink-500 dark:text-gray-400">{user.user}</div>
+                      <div className="font-semibold text-ink">{user.profile.name}</div>
+                      <div className="text-sm text-ink-500">{user.user}</div>
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-          <div className="mt-4 flex border-b border-hair dark:border-gray-600">
+          <div className="mt-4 flex border-b border-hair">
             <button
               onClick={() => setActiveTab(0)}
-              className={`flex-1 py-2 text-center ${activeTab === 0 ? 'border-b-2 border-flame-ember text-ink font-medium' : 'text-ink-500 dark:text-gray-400'}`}
+              className={`flex-1 py-2 text-center ${activeTab === 0 ? 'border-b-2 border-flame-ember text-ink font-medium' : 'text-ink-500'}`}
             >
               Chats <span className="ml-1">({inboxList.length})</span>
             </button>
             <button
               onClick={() => setActiveTab(1)}
-              className={`flex-1 py-2 text-center ${activeTab === 1 ? 'border-b-2 border-flame-ember text-ink font-medium' : 'text-ink-500 dark:text-gray-400'}`}
+              className={`flex-1 py-2 text-center ${activeTab === 1 ? 'border-b-2 border-flame-ember text-ink font-medium' : 'text-ink-500'}`}
             >
               Archivados <span className="ml-1">({archivedChats.length})</span>
             </button>
@@ -510,41 +509,41 @@ export default function InternalChat({ userInfo }) {
               inboxList.length > 0 ? (
                 inboxList.map((chat) => renderChatItem(chat, false))
               ) : (
-                <div className="p-4 text-center text-ink-500 dark:text-gray-400">No hay chats activos</div>
+                <div className="p-4 text-center text-ink-500">No hay chats activos</div>
               )
             ) : archivedChats.length > 0 ? (
               archivedChats.map((chat) => renderChatItem(chat, true))
             ) : (
-              <div className="p-4 text-center text-ink-500 dark:text-gray-400">No hay chats archivados</div>
+              <div className="p-4 text-center text-ink-500">No hay chats archivados</div>
             )}
           </div>
         </div>
-        <div className="flex-1 bg-cream-50 dark:bg-gray-800 rounded-xl p-4">
+        <div className="flex-1 bg-cream-50 rounded-xl p-4">
           {viewChat ? (
             <div className="h-full flex flex-col">
-              <div className="flex items-center justify-between border-b border-hair dark:border-gray-600 pb-3">
+              <div className="flex items-center justify-between border-b border-hair pb-3">
                 <div className="flex items-center">
                   <img
                     src={!viewChat.isPrivate && viewChat.picture && viewChat.picture.length > 0 ? viewChat.picture : avatarUser}
                     alt="User Icon"
-                    className="w-12 h-12 rounded-full mr-3 border-2 border-hair dark:border-gray-700 object-cover"
+                    className="w-12 h-12 rounded-full mr-3 border-2 border-hair object-cover"
                   />
-                  <div className="font-semibold text-lg text-ink dark:text-gray-200">
+                  <div className="font-semibold text-lg text-ink">
                     {getNames(viewChat.isPrivate, viewChat.members, viewChat.label)}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="relative group">
-                    <button className="flex items-center px-3 py-2 bg-cream-200 dark:bg-gray-700 rounded-lg text-ink dark:text-gray-200 hover:bg-cream-300 dark:hover:bg-gray-600">
+                    <button className="flex items-center px-3 py-2 bg-cream-200 rounded-lg text-ink hover:bg-cream-300">
                       Miembros
                       <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    <div className="absolute right-0 mt-2 w-48 bg-cream-50 dark:bg-gray-800 shadow-lg rounded-lg z-10 border border-hair dark:border-gray-700 hidden group-hover:block">
-                      <div className="p-3 font-semibold text-ink dark:text-gray-200 border-b border-hair dark:border-gray-700">Miembros en el chat</div>
+                    <div className="absolute right-0 mt-2 w-48 bg-cream-50 shadow-lg rounded-lg z-10 border border-hair hidden group-hover:block">
+                      <div className="p-3 font-semibold text-ink border-b border-hair">Miembros en el chat</div>
                       {viewChat.members.map((member) => (
-                        <div key={member.user._id} className="p-3 hover:bg-cream-200 dark:hover:bg-ink-700">
+                        <div key={member.user._id} className="p-3 hover:bg-cream-200">
                           {member.user.profile.name}
                         </div>
                       ))}
@@ -552,7 +551,7 @@ export default function InternalChat({ userInfo }) {
                   </div>
                   <button
                     onClick={() => setOpenFileMedia(!openFileMedia)}
-                    className="px-3 py-2 bg-cream-200 dark:bg-gray-700 rounded-lg text-ink dark:text-gray-200 hover:bg-cream-300 dark:hover:bg-gray-600"
+                    className="px-3 py-2 bg-cream-200 rounded-lg text-ink hover:bg-cream-300"
                   >
                     Contenido Compartido
                   </button>
@@ -565,7 +564,7 @@ export default function InternalChat({ userInfo }) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span className="ml-2 text-ink-500 dark:text-gray-400">Cargando chat...</span>
+                    <span className="ml-2 text-ink-500">Cargando chat...</span>
                   </div>
                 ) : (
                   viewChat.messages.map((msg) => (
@@ -579,7 +578,7 @@ export default function InternalChat({ userInfo }) {
                   ))
                 )}
               </div>
-              <div className="p-4 bg-cream-50 dark:bg-zinc-800/50 border-t border-hair dark:border-zinc-700 flex items-end gap-3">
+              <div className="p-4 bg-cream-50 border-t border-hair flex items-end gap-3">
                 <InternalUploadFile sendFile={sendFile} />
                 <div className="flex-1 relative flex items-stretch">
                     <textarea
@@ -613,7 +612,7 @@ export default function InternalChat({ userInfo }) {
               </div>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-ink-500 dark:text-gray-400">
+            <div className="h-full flex items-center justify-center text-ink-500">
               Selecciona un chat o busca un contacto
             </div>
           )}

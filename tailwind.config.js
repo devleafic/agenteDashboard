@@ -38,6 +38,7 @@ const flame = {
 
 /* Estados. Set solido separado de flame por funcion. >= 5.6:1 sobre crema. */
 const status = {
+  info:     "#1B4FA8",
   good:     "#0B6B41",
   warn:     "#8A5A00",
   serious:  "#B23A00",
@@ -92,12 +93,25 @@ module.exports = {
       },
 
       /* La identidad separa por borde, no por sombra. Las unicas sombras
-         permitidas son de elevacion real (nav pegado, popovers, modales). */
+         permitidas son de elevacion real (nav pegado, popovers, modales).
+         Las llaves sm/md/lg/xl/2xl/inner se anulan A PROPOSITO: `extend`
+         FUSIONA con los defaults de Tailwind en vez de reemplazarlos, asi
+         que sin esto las 25 clases shadow-* heredadas seguian pintando
+         las sombras negras genericas y competian con esta escala. */
       boxShadow: {
-        none:  "none",
-        nav:   "0 1px 24px rgba(10, 10, 10, .06)",
-        fab:   "0 12px 36px -12px rgba(10, 10, 10, .55)",
-        panel: "0 24px 70px -30px rgba(10, 10, 10, .30)",
+        none:    "none",
+        sm:      "none",
+        DEFAULT: "none",
+        md:      "none",
+        lg:      "none",
+        xl:      "none",
+        "2xl":   "none",
+        inner:   "none",
+
+        nav:        "0 1px 24px rgba(10, 10, 10, .06)",
+        fab:        "0 12px 36px -12px rgba(10, 10, 10, .55)",
+        panel:      "0 24px 70px -30px rgba(10, 10, 10, .30)",
+        "panel-lg": "0 28px 80px -40px rgba(10, 10, 10, .40)",
       },
 
       letterSpacing: {

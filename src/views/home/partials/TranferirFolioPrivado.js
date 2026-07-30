@@ -103,16 +103,16 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
         console.log('refrescando componente de transferir');
     }, [folio]);
     return ( 
-        <div className="space-y-4 p-4 bg-white rounded-lg shadow-sm">
+        <div className="space-y-4 p-4 bg-cream-50 rounded-lg shadow-sm">
             {agents.length <= 0 ? (
-                <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-md">
+                <div className="flex items-center gap-2 p-3 bg-critical/10 text-critical rounded-md">
                     <Users className="w-5 h-5" />
                     <span>Sin agentes disponibles</span>
                 </div>
             ) : (
                 <>
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-ink-600">
                             Selecciona el agente a transferir
                         </label>
                         <Select
@@ -144,7 +144,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
                         </Select>
                         
                         {errorAgentField && (
-                            <p className="mt-1 text-sm text-red-500">Selecciona un agente</p>
+                            <p className="mt-1 text-sm text-critical">Selecciona un agente</p>
                         )}
                     </div>
 
@@ -180,7 +180,7 @@ const TransferFolioPrivado = ({folio, setRefresh, userInfo}) => {
                                 </div>
                             </ModalHeader>
                             <ModalBody>
-                                <p className="text-center text-gray-700">
+                                <p className="text-center text-ink-600">
                                     ¿Deseas transferir el folio privado <span className="font-semibold">#{agentToSend.folio}</span> al agente <span className="font-semibold">{agentToSend.name}</span>?
                                 </p>
                             </ModalBody>

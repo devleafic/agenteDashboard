@@ -4,10 +4,9 @@ import SocketContext from '../../../controladores/SocketContext';
 import ERRORS from './../../ErrorList';
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
-import { FiClock } from "react-icons/fi";
 import ConnectionStatus from '../../../components/ConnectionStatus';
 import ChangelogModal from './ChangelogModal';
-import { Sparkles, Bell } from 'lucide-react';
+import { Sparkles, Bell, Clock } from 'lucide-react';
 
 import {
     Navbar,
@@ -484,7 +483,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                     </NavbarItem>
                     {currentActivity && (
                         <NavbarItem className="flex items-center">
-                            <Chip startContent={<FiClock className="text-cream" />} variant="flat" classNames={{ base: "bd-chip-brand" }} className="flex items-center gap-2">
+                            <Chip startContent={<Clock className="text-cream" />} variant="flat" classNames={{ base: "bd-chip-brand" }} className="flex items-center gap-2">
                                 <span className="font-mono text-cream"> Tiempo en actividad: {formatTime(activityTimer)}</span>
                             </Chip>
                         </NavbarItem>
@@ -532,7 +531,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             disabled={!userInfo?.allowViewStats}
                             onPress={() => setShowTmoToolbar(true)}
                           >
-                            <FiClock className="w-4 h-4" />
+                            <Clock className="w-4 h-4" />
                           </HeroButton>
                         </Tooltip>
                       )}
@@ -585,7 +584,7 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
                             no estado, y va sobre tinta. */}
                         <Chip classNames={{
                             base: "bd-chip-flame",
-                            content: "text-white font-mono text-xs tracking-wide",
+                            content: "text-cream font-mono text-xs tracking-wide",
                         }} variant="flat">Inbox Central v.{process.env.REACT_APP_SYSTEM_VERSION}</Chip>
                     </NavbarItem>
                 </NavbarContent>

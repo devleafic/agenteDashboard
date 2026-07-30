@@ -61,11 +61,16 @@
     /* ---------- Semanticos ----------
        Set solido propio, separado de la rampa flame por funcion:
        flame = marca, estos = estado. Todos >= 5.6:1 sobre crema. */
+    /* --info cierra el hueco del set: 70 clases de azul informativo no
+       tenian a donde mapear. Es el mismo #1B4FA8 del slot 2 de la
+       categorica, 7.37:1 sobre crema. */
+    --info:     #1B4FA8;
     --good:     #0B6B41;
     --warn:     #8A5A00;
     --serious:  #B23A00;
     --critical: #C10400;
 
+    --info-bg:     rgba(27, 79, 168, .10);
     --good-bg:     rgba(11, 107, 65, .10);
     --warn-bg:     rgba(138, 90, 0, .10);
     --serious-bg:  rgba(178, 58, 0, .10);

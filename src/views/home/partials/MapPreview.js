@@ -113,13 +113,13 @@ const MapPreview = ({ lat, lng }) => {
     
     if (!apiKey) {
         return (
-            <Card className="w-full overflow-hidden border border-gray-200">
+            <Card className="w-full overflow-hidden border border-hair">
                 <CardBody className="p-4">
                     <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <ExclamationCircleIcon className="w-12 h-12 text-yellow-500 mb-2" />
+                        <ExclamationCircleIcon className="w-12 h-12 text-warn mb-2" />
                         <p className="font-medium">No se puede mostrar el mapa</p>
-                        <p className="text-sm text-gray-600 mt-1">Falta la configuración de la API de Google Maps</p>
-                        <p className="text-xs text-gray-500 mt-2">Agrega REACT_APP_MAPS_APIKEY en tu archivo .env</p>
+                        <p className="text-sm text-ink-600 mt-1">Falta la configuración de la API de Google Maps</p>
+                        <p className="text-xs text-ink-500 mt-2">Agrega REACT_APP_MAPS_APIKEY en tu archivo .env</p>
                         <Button 
                             className="mt-3" 
                             size="sm" 
@@ -162,10 +162,10 @@ const MapPreview = ({ lat, lng }) => {
     };
 
     return (
-        <Card className="w-full overflow-hidden border border-gray-200">
+        <Card className="w-full overflow-hidden border border-hair">
             <CardBody className="p-0">
                 <div 
-                    className="relative w-full h-48 bg-gray-100 hover:opacity-90 transition-opacity cursor-pointer group"
+                    className="relative w-full h-48 bg-cream-100 hover:opacity-90 transition-opacity cursor-pointer group"
                     onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
                     role="button"
                     tabIndex={0}
@@ -182,19 +182,19 @@ const MapPreview = ({ lat, lng }) => {
                                 crossOrigin={cachedImage ? undefined : "anonymous"}
                             />
                             {!imageLoaded && (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"></div>
-                                    <p className="text-xs text-gray-500 mt-2">Cargando mapa...</p>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-cream-100">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-info mb-2"></div>
+                                    <p className="text-xs text-ink-500 mt-2">Cargando mapa...</p>
                                 </div>
                             )}
                         </>
                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
-                            <ExclamationCircleIcon className="w-12 h-12 text-yellow-500 mb-2" />
-                            <p className="font-medium text-gray-700">No se pudo cargar la vista previa</p>
-                            <p className="text-sm text-gray-500 mt-1">La ubicación está disponible pero no se puede mostrar el mapa</p>
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-cream-100 p-4 text-center">
+                            <ExclamationCircleIcon className="w-12 h-12 text-warn mb-2" />
+                            <p className="font-medium text-ink-600">No se pudo cargar la vista previa</p>
+                            <p className="text-sm text-ink-500 mt-1">La ubicación está disponible pero no se puede mostrar el mapa</p>
                             {errorDetails && (
-                                <p className="text-xs text-gray-400 mt-2">{errorDetails}</p>
+                                <p className="text-xs text-ink-400 mt-2">{errorDetails}</p>
                             )}
                             <Button 
                                 className="mt-3" 
@@ -210,7 +210,7 @@ const MapPreview = ({ lat, lng }) => {
                                         e.stopPropagation();
                                         handleRefreshMap();
                                     }}
-                                    className="ml-2 text-xs text-blue-300 hover:text-white transition-colors"
+                                    className="ml-2 text-xs text-cream/70 hover:text-cream transition-colors"
                                     title="Actualizar mapa"
                                 >
                                     ⟳
@@ -219,8 +219,8 @@ const MapPreview = ({ lat, lng }) => {
                         </div>
                     )}
                     
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <div className="flex items-center justify-between text-white">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-3">
+                        <div className="flex items-center justify-between text-cream">
                             <div className="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />

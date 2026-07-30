@@ -29,6 +29,7 @@ import { SearchIcon, CheckIcon, PlusIcon, UserCircle, Phone, Check, Calendar, Us
 import MessageBubble from './MessageBubble';
 import SocketContext from '../../../controladores/SocketContext';
 import moment from 'moment';
+import PageTitle from '../../../components/PageTitle';
 
 const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, userInfo }) => {
   const Socket = useContext(SocketContext);
@@ -1652,9 +1653,7 @@ const ContactsV2 = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio, u
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="bd-page-title">
-                  Contactos
-                </h2>
+                <PageTitle lead="Contactos" />
                 <p className="mt-1 text-sm text-ink-500">
                   Selecciona un contacto para crear o continuar una conversación
                 </p>

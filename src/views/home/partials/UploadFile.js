@@ -1,6 +1,6 @@
 import React, { useRef, useState, useContext, useCallback, useEffect } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Image, Spinner } from '@heroui/react';
-import { FiUpload, FiX, FiCheck, FiFile, FiImage } from 'react-icons/fi';
+import { Upload, X, Check, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 import axios, { post } from 'axios';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -138,9 +138,9 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
                             href={data.data.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-2 p-3 rounded-lg border border-hair hover:bg-cream-100 transition-colors"
                         >
-                            <FiFile className="text-blue-500 flex-shrink-0" />
+                            <FileIcon className="text-info flex-shrink-0" />
                             <span className="truncate">{data.data.file.originalFilename}</span>
                         </a>
                     )
@@ -177,7 +177,7 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
                 {children ? (
                     children
                 ) : (
-                    <FiUpload className="w-4 h-4 text-ink-500" />
+                    <Upload className="w-4 h-4 text-ink-500" />
                 )}
             </div>
 
@@ -190,19 +190,19 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                             {onPushFile ? (
-                                <FiUpload className="text-blue-500" />
+                                <Upload className="text-info" />
                             ) : (
-                                <FiFile className="text-blue-500" />
+                                <FileIcon className="text-info" />
                             )}
                             <span>{onPushFile ? 'Subiendo archivo...' : `Enviar "${nameFileSend}"`}</span>
                         </div>
                     </ModalHeader>
                     <ModalBody>
-                        <div className="relative min-h-[120px] flex items-center justify-center rounded-lg border border-gray-200 p-4">
+                        <div className="relative min-h-[120px] flex items-center justify-center rounded-lg border border-hair p-4">
                             {onPushFile ? (
                                 <div className="flex flex-col items-center justify-center space-y-4">
                                     <Spinner size="lg" />
-                                    <p className="text-sm text-gray-600">Procesando archivo...</p>
+                                    <p className="text-sm text-ink-600">Procesando archivo...</p>
                                 </div>
                             ) : (
                                 <div className="w-full">
@@ -221,7 +221,7 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
                                 setNameFile('Archivo');
                             }}
                             isDisabled={onPushFile}
-                            startContent={<FiX />}
+                            startContent={<X />}
                         >
                             Cancelar
                         </Button>
@@ -255,7 +255,7 @@ const UploadFile = ({folio, channel, setRefresh, children}) => {
                                 });
                             }}
                             isDisabled={onPushFile}
-                            startContent={<FiCheck />}
+                            startContent={<Check />}
                         >
                             Enviar
                         </Button>

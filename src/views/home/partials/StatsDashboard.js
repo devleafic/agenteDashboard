@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import PageTitle from '../../../components/PageTitle';
 import {
   Card,
   CardHeader,
@@ -320,9 +321,7 @@ const StatsDashboard = ({ userInfo }) => {
     !userInfo?.allowViewStats ? (
       <div className="p-4 md:p-6 h-[70vh] flex items-center justify-center">
         <div className="text-center space-y-3">
-        <h2 className="bd-page-title">
-                                        Mis Estadísticas (Beta)
-                                    </h2>
+        <PageTitle lead="Mis" accent="Estadísticas">{' '}<span className="bd-pill">Beta</span></PageTitle>
           <Chip color="danger" variant="flat">Solicita a tu administrador que te habilite el acceso a tus estadísticas de conversaciones y tmo en tiempo real.</Chip>
         </div>
       </div>
@@ -330,9 +329,7 @@ const StatsDashboard = ({ userInfo }) => {
 
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="bd-page-title">
-            Mis Estadísticas (Beta)
-        </h2>       
+        <PageTitle lead="Mis" accent="Estadísticas">{' '}<span className="bd-pill">Beta</span></PageTitle>       
       <div className="flex items-center gap-2">
           <Input
             type="date"

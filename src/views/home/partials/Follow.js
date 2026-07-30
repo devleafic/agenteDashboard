@@ -21,6 +21,7 @@ import SocketContext from '../../../controladores/SocketContext';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import MessageBubble from './MessageBubble';
+import PageTitle from '../../../components/PageTitle';
 
 // Estilo para el área de arrastre
 const getListStyle = isDraggingOver => ({
@@ -602,9 +603,7 @@ const Follow = ({ selectedComponent, setUnReadMessages, vFolio, setVFolio }) => 
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <Filter className="w-5 h-5 text-ink-500 mr-2" />
-                        <h2 className="bd-page-title">
-                            Tablero de Seguimiento
-                         </h2>
+                        <PageTitle lead="Tablero de" accent="Seguimiento" />
                     </div>
                     <div className="flex items-center space-x-2">
                         <Button 

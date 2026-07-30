@@ -8,6 +8,7 @@ import { loadFolioAssignmentTimes, saveFolioAssignmentTimes, clearFolioAssignmen
 import ListFoliosContext from '../../../controladores/FoliosContext';
 import generateAvatarUrl from '../../../utils/avatarUtils';
 import ElapsedTime from './ElapsedTime';
+import PageTitle from '../../../components/PageTitle';
 
 // --- SVG Icon Components ---
 const SearchIcon = (props) => (
@@ -281,9 +282,7 @@ const HomeViewer = ({ isConnected, show, refresh, setRefresh, onCall, setOnCall,
                         <div className={`bd-plane-header p-4 sticky top-0 z-10 ${isSidebarCollapsed ? 'flex justify-center' : ''}`}>
                             {!isSidebarCollapsed && (
                                 <div className="flex flex-col items-start gap-2 mb-1 w-full">
-                                    <h2 className="bd-page-title">
-                                        Conversaciones
-                                    </h2>
+                                    <PageTitle lead="Conversaciones" />
                                     <span className="bd-pill">
                                         {processedFolios.length} {processedFolios.length === 1 ? 'conversación' : 'conversaciones'}
                                     </span>

@@ -112,7 +112,7 @@ const InternalUploadFile = ({sendFile}) => {
                         href={data.data.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                        className="flex items-center gap-2 text-info hover:text-info transition-colors"
                     >
                         <Folder className="w-5 h-5" />
                         {data.data.file.originalFilename}
@@ -134,7 +134,7 @@ const InternalUploadFile = ({sendFile}) => {
                         <button
                             type="button"
                             onClick={open}
-                            className="flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400 hover:text-flame-ember transition-colors duration-200 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-700"
+                            className="flex items-center justify-center w-10 h-10 text-ink-500 hover:text-flame-ember transition-colors duration-200 rounded-full hover:bg-cream-100"
                             aria-label="Adjuntar archivo"
                         >
                             <Paperclip className="w-5 h-5" />
@@ -150,9 +150,9 @@ const InternalUploadFile = ({sendFile}) => {
                             <ModalHeader className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
                                     {onPushFile ? (
-                                        <Upload className="w-5 h-5 text-blue-500" />
+                                        <Upload className="w-5 h-5 text-info" />
                                     ) : (
-                                        <Paperclip className="w-5 h-5 text-blue-500" />
+                                        <Paperclip className="w-5 h-5 text-info" />
                                     )}
                                     {onPushFile ? 'Cargando Archivo...' : `¿Quiere enviar el archivo "${nameFileSend}"?`}
                                 </div>
@@ -160,7 +160,7 @@ const InternalUploadFile = ({sendFile}) => {
                             <ModalBody>
                                 <div className="min-h-[200px] flex items-center justify-center relative">
                                     {onPushFile ? (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-lg">
+                                        <div className="absolute inset-0 flex items-center justify-center bg-ink/5 rounded-lg">
                                             <Spinner size="lg" />
                                             <span className="ml-2">Cargando archivo...</span>
                                         </div>

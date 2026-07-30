@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Select, Input, Card, CardHeader, CardBody, Divider, Chip, Image, Loader, Icon, Message, Dimmer } from '@heroui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiMail, FiClock, FiFolder, FiSearch, FiX, FiMessageSquare, FiFileText, FiImage, FiFile, FiArrowRight, FiPaperclip, FiSend, FiChevronRight, FiChevronDown, FiGlobe, FiGrid, FiMessageCircle, FiEye } from 'react-icons/fi';
+import { User, Clock, Folder, Search, X, MessageSquare, FileText, Image as ImageIcon, File as FileIcon, ArrowRight, Send, ChevronRight, ChevronDown, Grid, MessageCircle, Eye } from 'lucide-react';
 import _ from 'lodash';
 import SocketContext from './../../../controladores/SocketContext';
 import ListFoliosContext from '../../../controladores/FoliosContext';
@@ -31,7 +31,7 @@ const AccordionItem = ({ title, isOpen, onClick, children, badge }) => {
           </div>
           <div className="flex items-center gap-2">
             {badge}
-            {isOpen ? <FiChevronDown className="text-ink-400" style={{ fontSize: '1rem' }} /> : <FiChevronRight className="text-ink-400" style={{ fontSize: '1rem' }} />}
+            {isOpen ? <ChevronDown className="text-ink-400" style={{ fontSize: '1rem' }} /> : <ChevronRight className="text-ink-400" style={{ fontSize: '1rem' }} />}
           </div>
         </div>
       </CardHeader>
@@ -73,7 +73,7 @@ function computeFolioSentiment(messages) {
     .filter(m => m.direction !== 'out')
     .slice(-12)
     .map(m => (m.contentTxt || m.content || m.caption || '').toLowerCase())
-    .join(' ');
+    .join('');
   if (!clientText.trim()) return null;
   const urgentHits   = URGENT_WORDS.filter(w => clientText.includes(w)).length;
   const negativeHits = NEGATIVE_WORDS.filter(w => clientText.includes(w)).length;
@@ -95,9 +95,9 @@ const SentimentBadge = ({ sentiment }) => {
 };
 
 const getFileIcon = (mimeType) => {
-  if (mimeType.includes('pdf')) return <FiFileText className="mr-2 text-ink-500 flex-shrink-0" />;
-  else if (mimeType.includes('image')) return <FiImage className="mr-2 text-ink-500 flex-shrink-0" />;
-  return <FiFile className="mr-2 text-ink-500 flex-shrink-0" />;
+  if (mimeType.includes('pdf')) return <FileText className="mr-2 text-ink-500 flex-shrink-0" />;
+  else if (mimeType.includes('image')) return <ImageIcon className="mr-2 text-ink-500 flex-shrink-0" />;
+  return <FileIcon className="mr-2 text-ink-500 flex-shrink-0" />;
 };
 
 const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets, setMessageToSend, historyFolios, userInfo, mtm, service: infoService, setInsertHtml, setHasTextContent }) => {
@@ -184,7 +184,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   };
 
   /* Este bloque estaba escrito con style inline y la paleta violeta del diseño
-     anterior (#7c3aed, #faf5ff, #a78bfa…), por eso no lo veia el barrido de
+     anterior (los violetas y sus tintes), por eso no lo veia el barrido de
      clases de Tailwind. Ahora usa las primitivas de brand.css. */
   const renderCopilotSection = () => (
     <div className="flex flex-col gap-2.5">
@@ -402,7 +402,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
         onChange={(e) => findQA(e.target.value)}
         className="w-full mb-4"
         style={{ fontSize: '1rem', ...getZoomAdjustedStyles() }}
-        endContent={<FiX onClick={() => findQA('')} className="cursor-pointer text-ink-400 hover:text-ink-500" />}
+        endContent={<X onClick={() => findQA('')} className="cursor-pointer text-ink-400 hover:text-ink-500" />}
       />
       <div className="flex flex-col overflow-hidden mb-4" style={{ height: 'calc(100vh - 20rem)', minHeight: '15rem', maxHeight: '40rem' }}>
         <div className="overflow-y-auto pr-2 flex-grow" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
@@ -458,11 +458,11 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   const renderTicketsSection = () => (
     <div className="space-y-4">
       <Button color="primary" variant="light" onClick={openCreateTicket} className="w-full">
-        <FiFileText className="mr-2" />
+        <FileText className="mr-2" />
         Crear Ticket
       </Button>
       <Button color="primary" variant="bordered" onClick={() => setOpenFindTicket(true)} className="w-full">
-        <FiSearch className="mr-2" />
+        <Search className="mr-2" />
         Buscar Ticket
       </Button>
       <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -498,7 +498,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
                 </div>
                 <div className="flex items-center flex-shrink-0 ml-2">
                   <Button isIconOnly auto size="sm" variant="light" as="a" href={file.url} target="_blank">
-                    <FiEye className="text-lg" />
+                    <Eye className="text-lg" />
                   </Button>
                   <Button
                     isIconOnly
@@ -510,7 +510,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
                       if (window.confirm(`¿Deseas enviar el archivo "${file.name}" a ${recipientName}?`)) sendFile(file);
                     }}
                   >
-                    <FiSend className="text-lg text-ink" />
+                    <Send className="text-lg text-ink" />
                   </Button>
                 </div>
               </div>
@@ -532,15 +532,15 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
   };
 
   const sections = [
-    { id: 'copilot', title: 'Copilot IA', icon: FiMessageCircle, content: renderCopilotSection, badge: <SentimentBadge sentiment={folioSentiment} /> },
-    { id: 'crm', title: 'CRM', icon: FiUser, content: renderCrmSection },
-    { id: 'plugins', title: 'Plugins', icon: FiGrid, content: renderPluginsSection },
-    { id: 'templates', title: 'Plantillas de mensajes', icon: FiMessageSquare, content: renderTemplatesSection, condition: folio.folio.channel !== 'call' },
-    { id: 'history', title: 'Historial de folios', icon: FiClock, content: renderHistorySection },
-    { id: 'tickets', title: 'Tickets', icon: FiFileText, content: renderTicketsSection, condition: folio.folio.channel !== 'call' },
-    { id: 'transfer', title: 'Transferir', icon: FiArrowRight, content: renderTransferSection, condition: folio.folio.channel !== 'call' },
-    { id: 'quickResponses', title: 'Respuestas Rápidas', icon: FiMessageCircle, content: renderQuickResponsesSection, condition: folio.folio.channel !== 'call' },
-    { id: 'files', title: 'Catálogo de archivos', icon: FiFolder, content: renderFilesSection, condition: folio.folio.channel !== 'call' },
+    { id: 'copilot', title: 'Copilot IA', icon: MessageCircle, content: renderCopilotSection, badge: <SentimentBadge sentiment={folioSentiment} /> },
+    { id: 'crm', title: 'CRM', icon: User, content: renderCrmSection },
+    { id: 'plugins', title: 'Plugins', icon: Grid, content: renderPluginsSection },
+    { id: 'templates', title: 'Plantillas de mensajes', icon: MessageSquare, content: renderTemplatesSection, condition: folio.folio.channel !== 'call' },
+    { id: 'history', title: 'Historial de folios', icon: Clock, content: renderHistorySection },
+    { id: 'tickets', title: 'Tickets', icon: FileText, content: renderTicketsSection, condition: folio.folio.channel !== 'call' },
+    { id: 'transfer', title: 'Transferir', icon: ArrowRight, content: renderTransferSection, condition: folio.folio.channel !== 'call' },
+    { id: 'quickResponses', title: 'Respuestas Rápidas', icon: MessageCircle, content: renderQuickResponsesSection, condition: folio.folio.channel !== 'call' },
+    { id: 'files', title: 'Catálogo de archivos', icon: Folder, content: renderFilesSection, condition: folio.folio.channel !== 'call' },
   ];
 
   return (
@@ -560,7 +560,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
       ))}
       {folio && !folio.folio.fromInbox && folio.folio.isGlobalQueue && folio.folio.channel !== 'call' && (
         <AccordionItem
-          title={{ text: 'Transferir a Bandeja de Canal', icon: FiArrowRight }}
+          title={{ text: 'Transferir a Bandeja de Canal', icon: ArrowRight }}
           isOpen={openAccordion === 'transferChannel'}
           onClick={() => handleAccordionClick('transferChannel')}
         >
@@ -569,7 +569,7 @@ const ToolsV2 = ({ quicklyAnswer, crm, person, folio, setRefresh, areas, tickets
       )}
       {folio && !folio.folio.fromInbox && folio.folio.isGlobalQueue && folio.folio.isGlobalDistributor && folio.folio.channel !== 'call' && (
         <AccordionItem
-          title={{ text: 'Transferir a Bandeja Genérica', icon: FiArrowRight }}
+          title={{ text: 'Transferir a Bandeja Genérica', icon: ArrowRight }}
           isOpen={openAccordion === 'transferGeneric'}
           onClick={() => handleAccordionClick('transferGeneric')}
         >

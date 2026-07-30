@@ -89,16 +89,16 @@ const NotificationSettings = ({ open, onClose }) => {
           <span className="text-lg font-semibold">Configuración de Notificaciones</span>
         </ModalHeader>
         <ModalBody className="space-y-4 p-4">
-          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-            <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-200">Sonidos</h4>
+          <div className="rounded-lg border border-hair p-4">
+            <h4 className="mb-4 text-sm font-medium text-ink-600">Sonidos</h4>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Switch 
                   isSelected={tempSettings.soundEnabled}
                   onValueChange={(isSelected) => setTempSettings({...tempSettings, soundEnabled: isSelected})}
-                  className={tempSettings.soundEnabled ? 'bg-primary-500' : 'bg-gray-300'}
+                  className={tempSettings.soundEnabled ? 'bg-primary-500' : 'bg-cream-300'}
                 />
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                <span className="ml-2 text-sm text-ink-600">
                   Activar sonidos de notificación
                 </span>
               </div>
@@ -106,7 +106,7 @@ const NotificationSettings = ({ open, onClose }) => {
               {tempSettings.soundEnabled && (
                 <div className="space-y-3 pl-10">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="text-sm text-ink-600">
                       Volumen: {tempSettings.notificationVolume}%
                     </span>
                     <Button 
@@ -128,7 +128,7 @@ const NotificationSettings = ({ open, onClose }) => {
                     step={5}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
+                  <div className="flex justify-between text-xs text-ink-500 px-1">
                     <span>Bajo</span>
                     <span>Alto</span>
                   </div>
@@ -139,26 +139,26 @@ const NotificationSettings = ({ open, onClose }) => {
           
           <Divider className="my-2" />
           
-          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-            <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-200">Notificaciones del navegador</h4>
+          <div className="rounded-lg border border-hair p-4">
+            <h4 className="mb-4 text-sm font-medium text-ink-600">Notificaciones del navegador</h4>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Switch 
                   isSelected={tempSettings.browserNotificationsEnabled}
                   onValueChange={handleBrowserNotificationPermission}
-                  className={tempSettings.browserNotificationsEnabled ? 'bg-primary-500' : 'bg-gray-300'}
+                  className={tempSettings.browserNotificationsEnabled ? 'bg-primary-500' : 'bg-cream-300'}
                 />
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                <span className="ml-2 text-sm text-ink-600">
                   Mostrar notificaciones cuando la aplicación esté minimizada
                 </span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 pl-10">
+              <p className="text-xs text-ink-500 pl-10">
                 Las notificaciones del navegador te alertarán de nuevos mensajes cuando no estés viendo la aplicación.
               </p>
             </div>
           </div>
         </ModalBody>
-        <ModalFooter className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
+        <ModalFooter className="flex justify-end gap-2 p-4 border-t border-hair">
           <Button variant="light" onPress={onClose} className="px-4">
             Cancelar
           </Button>

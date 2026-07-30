@@ -513,10 +513,10 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
           </div>
           {loading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-info"></div>
             </div>
           ) : items.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-ink-500">
               No hay recordatorios pendientes
             </div>
           ) : (
@@ -529,7 +529,7 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
                   return `${item.folioId}`.toLowerCase().includes(q) || alias.includes(q);
                 })
                 .map((item) => (
-                <div key={item._id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+                <div key={item._id} className="border rounded-lg p-4 hover:bg-cream-100 transition-colors">
                   <div className="grid grid-cols-[48px_1fr] gap-4 items-start">
                     {/* Left action column */}
                     <div className="flex flex-col gap-2 items-center pt-1">
@@ -589,21 +589,21 @@ const ReminderCenter = ({ open, onClose, onCountChange, onViewFolio }) => {
                     <div>
                       {/* Line 1: Conversación */}
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-blue-500" />
+                        <Clock className="h-4 w-4 text-info" />
                         <span className="font-medium">Conversación: {item.folioId}</span>
                       </div>
                       {/* Line 2: Alias y Anchor */}
-                      <div className="mt-1 text-sm text-gray-600 flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-500" />
+                      <div className="mt-1 text-sm text-ink-600 flex items-center gap-2">
+                        <User className="h-4 w-4 text-ink-500" />
                         <span>{(item.aliasPerson || item.personAlias || 'Sin alias')}</span>
-                        {item.anchor && <span className="text-gray-500">• {item.anchor}</span>}
+                        {item.anchor && <span className="text-ink-500">• {item.anchor}</span>}
                       </div>
                       {/* Line 3: Nota */}
                       {item.note && (
-                        <p className="mt-1 text-md text-gray-800">{`Nota: ${item.note}`}</p>
+                        <p className="mt-1 text-md text-ink">{`Nota: ${item.note}`}</p>
                       )}
                       {/* Line 4: Programado */}
-                      <div className="mt-2 text-xs text-gray-800">
+                      <div className="mt-2 text-xs text-ink">
                         Programado para: {moment(item.dueAt).format('DD-MM-YYYY HH:mm')}
                       </div>
                     </div>

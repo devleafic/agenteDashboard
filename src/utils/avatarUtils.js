@@ -43,7 +43,7 @@ const generateAvatarUrl = (name, anchor) => {
     // Get initials from name or anchor, sanitize to ASCII
     const displayName = name || anchor || 'U';
     const initials = displayName
-        .split(' ')
+        .split('')
         .map(word => word.charAt(0))
         .join('')
         .toUpperCase()

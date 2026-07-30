@@ -458,14 +458,36 @@ h1, h2, h3, h4, .font-display {
    Reemplaza al patron repetido en 7 vistas:
    "text-4xl font-bold bg-gradient-to-r from-indigo-600 to-pink-500
     bg-clip-text text-transparent". */
+/* Sin margen propio: cada pantalla ya controla su espaciado y varias
+   montan el titulo dentro de un flex junto a un icono o una pildora. */
+.bd-page-header { margin: 0; }
+
 .bd-page-title {
+    margin: 0;
     font-family: var(--font-display);
-    font-size: 2rem;
+    /* Fluido, igual que adminDashboard: un solo valor en vez del par
+       fijo 2rem que habia aqui y del text-4xl/lg:text-5xl de alla. */
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
     font-weight: 600;
-    line-height: 1;
+    line-height: 0.98;
     letter-spacing: -0.035em;
     color: var(--text);
-    margin: 0;
+    text-wrap: balance;
+}
+
+/* El gradiente se recorta al glifo y algunos navegadores cortan los
+   descendentes sin este respiro. */
+.bd-page-title .flame-text {
+    display: inline-block;
+    padding-bottom: 0.06em;
+}
+
+.bd-page-sub {
+    margin: 8px 0 0;
+    max-width: 62ch;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 /* ---------- Lista de folios ----------

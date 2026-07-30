@@ -42,15 +42,15 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                 
                 // Crear vista de WhatsApp
                 const whatsappPreview = (
-                    <div className="w-full max-w-xs mx-auto bg-gray-100 rounded-2xl overflow-hidden shadow-lg">
+                    <div className="w-full max-w-xs mx-auto bg-cream-100 rounded-2xl overflow-hidden shadow-lg">
                         {/* Encabezado de WhatsApp */}
-                        <div className="bg-emerald-600 p-3 flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+                        <div className="bg-good p-3 flex items-center">
+                            <div className="w-8 h-8 rounded-full bg-cream-50 flex items-center justify-center mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-good" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                                 </svg>
                             </div>
-                            <div className="text-white">
+                            <div className="text-cream">
                                 <div className="font-medium">+502 1234 5678</div>
                                 <div className="text-xs opacity-80">En línea</div>
                             </div>
@@ -66,11 +66,11 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                         }}>
                             {/* Mensaje de la plantilla */}
                             <div className="flex justify-end mb-2">
-                                <div className="bg-green-100 rounded-lg p-2 max-w-[80%] shadow">
-                                    <div className="text-sm text-gray-800">{res.mtm.previewtxt}</div>
+                                <div className="bg-good/10 rounded-lg p-2 max-w-[80%] shadow">
+                                    <div className="text-sm text-ink">{res.mtm.previewtxt}</div>
                                     <div className="text-right">
-                                        <span className="text-xs text-gray-500">Ahora</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 inline-block ml-1 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <span className="text-xs text-ink-500">Ahora</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 inline-block ml-1 text-info" viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
                                     </div>
@@ -78,17 +78,17 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                             </div>
                             
                             {/* Pie de conversación */}
-                            <div className="text-center text-xs text-gray-500 my-2">
+                            <div className="text-center text-xs text-ink-500 my-2">
                                 {new Date().toLocaleTimeString('es-GT', {hour: '2-digit', minute:'2-digit'})}
                             </div>
                         </div>
                         
                         {/* Área de entrada de texto */}
-                        <div className="bg-white p-2 flex items-center">
-                            <div className="flex-1 bg-gray-100 rounded-full px-4 py-2 mx-2 flex items-center">
-                                <span className="text-gray-500 text-sm">Escribe un mensaje aquí</span>
+                        <div className="bg-cream-50 p-2 flex items-center">
+                            <div className="flex-1 bg-cream-100 rounded-full px-4 py-2 mx-2 flex items-center">
+                                <span className="text-ink-500 text-sm">Escribe un mensaje aquí</span>
                             </div>
-                            <button className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                            <button className="w-10 h-10 rounded-full bg-good text-cream flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
                                 </svg>
@@ -100,7 +100,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                 setContentMessage(whatsappPreview);
             } else {
                 setContentMessage(
-                    <div className="mt-4 mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+                    <div className="mt-4 mb-4 p-4 bg-critical/10 text-critical rounded-lg">
                         <div className="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -207,7 +207,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
    return (
         <div className="flex flex-col h-full">
             {mtm.length <= 0 && (
-                <div className="p-4 mb-4 text-red-600 bg-red-100 rounded-lg flex items-center">
+                <div className="p-4 mb-4 text-critical bg-critical/10 rounded-lg flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
@@ -220,7 +220,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                     {mtm.map((item) => (
                         <li 
                             key={'mtm-'+item._id}
-                            className="px-4 py-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors"
+                            className="px-4 py-2 hover:bg-cream-100 rounded-md cursor-pointer transition-colors"
                             onClick={() => getMtm(item._id)}
                             title={item.previewtxt}
                         >
@@ -234,7 +234,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-good" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                             Vista previa de WhatsApp
@@ -243,7 +243,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                     <ModalBody>
                         <div className="space-y-4">
                             <div className="text-center">
-                                <p className="text-sm text-gray-500 mb-2">Así se verá el mensaje para:</p>
+                                <p className="text-sm text-ink-500 mb-2">Así se verá el mensaje para:</p>
                                 <p className="font-medium">{person.aliasId || person.anchor || 'Usuario'}</p>
                             </div>
                             
@@ -251,7 +251,7 @@ const Mtm = ({ mtm, person, setRefresh, folio }) => {
                                 {contentMessage}
                             </div>
                             
-                            <div className="text-center text-sm text-gray-600">
+                            <div className="text-center text-sm text-ink-600">
                                 <p>¿Deseas enviar esta plantilla?</p>
                                 <p className="text-xs mt-1">Plantilla: <span className="font-medium">{mtmToSend.name || 'Sin nombre'}</span></p>
                             </div>

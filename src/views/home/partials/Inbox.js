@@ -23,6 +23,7 @@ import SocketContext from '../../../controladores/SocketContext';
 //import { toast } from 'react-toastify';
 import moment from 'moment';
 import MessageBubble from './MessageBubble';
+import PageTitle from '../../../components/PageTitle';
 
 const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
     const socketC = useContext(SocketContext);
@@ -387,10 +388,8 @@ const Inbox = ({selectedComponent, setUnReadMessages, vFolio, setVFolio}) => {
                 <div className="flex items-center mb-4 md:mb-0">
                     <Mail className="w-6 h-6 mr-3 text-ink-500" />
                     <div>
-                    <h2 className="bd-page-title">
-                            Inbox Privado
-                    </h2>
-                        <p className="text-sm text-ink-500">Selecciona un contacto para continuar con la conversación.</p>
+                    <PageTitle lead="Inbox" accent="Privado"
+                            sub="Selecciona un contacto para continuar con la conversación." />
                     </div>
                 </div>
                 

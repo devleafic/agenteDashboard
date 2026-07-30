@@ -51,7 +51,7 @@ const CRM = ({template, folio, setRefresh}) => {
 
         const commonInputProps = {
             key: `field-${item._id}`,
-            className: 'w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            className: 'w-full p-2 border rounded-md focus:ring-2 focus:ring-info focus:border-transparent',
             value: fieldValue || '',
             placeholder: item.name,
             onChange: (e) => handleFieldChange(e.target.value)
@@ -61,7 +61,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'text':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <input 
                             type="text"
                             {...commonInputProps}
@@ -72,7 +72,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'currency':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <input 
                             type="number" 
                             min={0}
@@ -89,7 +89,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'number':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <input 
                             type="number"
                             {...commonInputProps}
@@ -100,7 +100,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'date':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <input 
                             type="date"
                             {...commonInputProps}
@@ -111,7 +111,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'select':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <Select 
                             selectedKeys={fieldValue ? [fieldValue] : []}
                             onSelectionChange={(keys) => handleFieldChange(Array.from(keys)[0])}
@@ -130,7 +130,7 @@ const CRM = ({template, folio, setRefresh}) => {
             case 'checkbox':
                 return (
                     <div key={`field-${item._id}`} className="mb-2 px-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{item.name}</label>
+                        <label className="block text-sm font-medium text-ink-600 mb-1">{item.name}</label>
                         <Select
                             selectionMode="multiple"
                             selectedKeys={fieldValue || []}
@@ -149,7 +149,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 
             default:
                 return (
-                    <div key={`field-${item._id}`} className="mb-4 px-2 text-red-500">
+                    <div key={`field-${item._id}`} className="mb-4 px-2 text-critical">
                         Campo no soportado: {item.class}
                     </div>
                 );
@@ -162,9 +162,9 @@ const CRM = ({template, folio, setRefresh}) => {
                 <img 
                     src={folio?.folio?.person?.profilePic || generateAvatarUrl(folio?.folio?.person?.aliasId || 'User', folio?.folio?.person?.anchor || 'User')} 
                     alt="profile" 
-                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-hair"
                 />
-                <div className="mt-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                <div className="mt-2 px-3 py-1 bg-info/10 text-info rounded-full text-sm font-medium">
                     {folio.folio.person.aliasId ? 
                         folio.folio.person.aliasId.length > 20 ? 
                             `${folio.folio.person.aliasId.substring(0, 20)}...` : 
@@ -177,7 +177,7 @@ const CRM = ({template, folio, setRefresh}) => {
                 {template.map((item) => renderFields(item))}
             </div>
             
-            <div className="bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
+            <div className="bottom-0 left-0 right-0 bg-cream-50 border-t border-hair z-10">
                 <div className="w-full px-4 py-4">
                     <Button 
                         color="primary" 
