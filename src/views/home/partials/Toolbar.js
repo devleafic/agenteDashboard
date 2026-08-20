@@ -347,22 +347,33 @@ const Toolbar = ({ userInfo, isInbound, setIsUnbound, isReady, setIsReady, setIs
     useEffect(() => {
         const loadActivitiesAndConfig = async () => {
             if (!userInfo) return;
-            const resService = await axios.get(process.env.REACT_APP_CENTRALITA + '/service/' + userInfo.service.id);
-            const serviceData = resService.data.body.service;
-            const acti = serviceData.activities;
-            const availableAc = acti.filter((x) => x.status === true);
-            const toActivities = availableAc.map((x) => ({ key: x._id, value: x._id, text: x.label, description: x.isConnect ? 'Recibe interacciones' : 'No recibe interacciones' }));
-            const checkAutomaticActivity = acti.find((x) => (x.status === true && x.setAutomaticActivity === true));
-            setFullActivities(acti);
-            setActivities(toActivities);
-            setAutomaticActivity(checkAutomaticActivity);
+            try {
+                const resService = await axios.get(process.env.REACT_APP_CENTRALITA + '/service/' + userInfo.service.id);
+                const serviceData = resService?.data?.body?.service || resService?.data?.service;
+                if (!serviceData) throw new Error('SERVICE_CONFIG_UNAVAILABLE');
+                const acti = Array.isArray(serviceData.activities) ? serviceData.activities : [];
+                const availableAc = acti.filter((x) => x.status === true);
+                const toActivities = availableAc.map((x) => ({ key: x._id, value: x._id, text: x.label, description: x.isConnect ? 'Recibe interacciones' : 'No recibe interacciones' }));
+                const checkAutomaticActivity = acti.find((x) => (x.status === true && x.setAutomaticActivity === true));
+                setFullActivities(acti);
+                setActivities(toActivities);
+                setAutomaticActivity(checkAutomaticActivity || null);
 
-            if (serviceData) {
                 const blankFolioConfig = {
                     channels: serviceData.channels?.filter(ch => ch.status && ch.allowCreateBlank) || [],
                     crm: serviceData.crm || []
-                }
+                };
                 setInfoBlankFolio(blankFolioConfig);
+            } catch (error) {
+                console.error('[Toolbar] No se pudo cargar la configuración del servicio', error);
+                setFullActivities([]);
+                setActivities([]);
+                setAutomaticActivity(null);
+                addToast({
+                    title: 'No se pudo cargar la configuración',
+                    description: 'Actualiza la página. Si continúa, vuelve a iniciar sesión.',
+                    color: 'danger',
+                });
             }
         }
 

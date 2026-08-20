@@ -15,6 +15,100 @@ const SmileIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" 
 const ClockIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const ExclamationCircleIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>;
 const ExternalLinkIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>;
+const FormIcon = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5V6.75A3.375 3.375 0 0011.25 3.375h-1.5m1.5 0H5.625c-.621 0-1.125.504-1.125 1.125v15c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-5.25m-8.25-10.875V6.75c0 .828.672 1.5 1.5 1.5h1.875m-6.75 3.75h6.75m-6.75 3h6.75m-6.75 3h3.375" /></svg>;
+
+const FLOW_FIELD_LABELS = {
+    telefono: 'Teléfono',
+    direccion: 'Dirección',
+    nombre: 'Nombre',
+    dpi: 'DPI',
+    tipo_negocio: 'Tipo de negocio',
+    genero: 'Género',
+    correo: 'Correo electrónico',
+    email: 'Correo electrónico',
+};
+
+const humanizeFlowField = (key) => FLOW_FIELD_LABELS[key] || String(key || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const displayFlowValue = (value) => {
+    if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+    if (value && typeof value === 'object') return JSON.stringify(value);
+    return String(value ?? '');
+};
+
+const getFlowResponseFields = (msg) => {
+    const payload = msg?.interactiveReply?.type === 'nfm_reply'
+        ? msg.interactiveReply.payload
+        : null;
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+        return Object.entries(payload)
+            .filter(([key, value]) => key !== 'flow_token' && value !== '' && value != null)
+            .map(([key, value]) => ({ key, label: humanizeFlowField(key), value: displayFlowValue(value) }));
+    }
+
+    // Compatibilidad con respuestas históricas guardadas antes de persistir el
+    // payload estructurado. El formato era: "[Formulario] campo: valor · ...".
+    const legacy = typeof msg?.content === 'string' && msg.content.startsWith('[Formulario]')
+        ? msg.content.slice('[Formulario]'.length).trim()
+        : '';
+    return legacy.split(' · ').map((part, index) => {
+        const separator = part.indexOf(':');
+        if (separator < 1) return null;
+        const key = part.slice(0, separator).trim();
+        return { key: `${key}-${index}`, label: humanizeFlowField(key), value: part.slice(separator + 1).trim() };
+    }).filter(Boolean);
+};
+
+const FlowResponseCard = ({ message }) => {
+    const fields = getFlowResponseFields(message);
+    return (
+        <div className="overflow-hidden rounded-lg border border-ink/15 bg-background/60">
+            <div className="flex items-center gap-2 border-b border-ink/10 px-3 py-2">
+                <FormIcon className="h-5 w-5 flex-shrink-0 text-primary" />
+                <div>
+                    <p className="text-sm font-semibold">Formulario completado</p>
+                    <p className="text-xs text-ink-400">Datos enviados por el cliente</p>
+                </div>
+            </div>
+            {fields.length ? (
+                <dl className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+                    {fields.map((field) => (
+                        <div key={field.key} className="min-w-0 border-b border-ink/10 px-3 py-2 last:border-b-0">
+                            <dt className="text-[11px] font-medium uppercase tracking-wide text-ink-400">{field.label}</dt>
+                            <dd className="mt-0.5 break-words text-sm text-ink">{field.value}</dd>
+                        </div>
+                    ))}
+                </dl>
+            ) : (
+                <p className="px-3 py-2 text-sm text-ink-500">El cliente envió el formulario sin campos visibles.</p>
+            )}
+        </div>
+    );
+};
+
+const FlowSentCard = ({ message }) => {
+    const flow = Array.isArray(message?.interaction) ? message.interaction[0] : message?.interaction;
+    const title = message?.header || message?.content || 'Formulario de WhatsApp';
+    return (
+        <div className="overflow-hidden rounded-lg border border-ink/15 bg-background/60">
+            <div className="flex items-start gap-3 px-3 py-3">
+                <div className="rounded-md bg-primary/10 p-2 text-primary">
+                    <FormIcon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                    <p className="text-sm font-semibold">{title}</p>
+                    {message?.header && message?.content && <p className="mt-1 whitespace-pre-wrap text-sm text-ink-500">{message.content}</p>}
+                    <p className="mt-1 text-xs text-ink-400">Formulario enviado al cliente</p>
+                </div>
+            </div>
+            <div className="border-t border-ink/10 px-3 py-2 text-center text-sm font-medium text-primary">
+                {flow?.cta || 'Abrir formulario'}
+            </div>
+        </div>
+    );
+};
 
 // SVGs precisos que imitan el estilo de WhatsApp
 const CheckIcon = ({ className }) => (
@@ -107,6 +201,7 @@ const EmojiPicker = ({ onSelect }) => (
 const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, contact, highlight = '' }) => {
     const { textSizeValue } = useTextSize();
 
+    const isInternalNote = message.class === 'internal-note';
     const isOutgoing = message.direction === 'out';
     // Control de colapso para listas de opciones
     const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -180,6 +275,35 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
     };
 
     const generateButtons = (botones, classMsg) => {
+        // Los mensajes pueden venir en la forma canónica que persiste Centralita
+        // ({ id, title }) o en la forma nativa de Meta
+        // ({ type: 'reply', reply: { id, title } }). Los históricos también
+        // pueden contener posiciones null; ninguna de esas diferencias debe
+        // derribar la vista completa de la conversación.
+        const rawButtons = Array.isArray(botones) ? botones : [];
+        const flattenedButtons = rawButtons.flatMap((item) => {
+            if (Array.isArray(item?.rows)) return item.rows;
+            return [item];
+        });
+        const normalizedButtons = flattenedButtons
+            .map((item, index) => {
+                const value = item?.reply || item?.button_reply || item;
+                const title = typeof value?.title === 'string'
+                    ? value.title.trim()
+                    : (typeof value?.text === 'string' ? value.text.trim() : '');
+                if (!title) return null;
+                return {
+                    id: value?.id || item?.id || `${classMsg}-${index}`,
+                    title,
+                    description: typeof value?.description === 'string'
+                        ? value.description
+                        : '',
+                };
+            })
+            .filter(Boolean);
+
+        if (!normalizedButtons.length) return null;
+
         if (classMsg === 'optionList') {
             return (
                 <div className="w-full">
@@ -196,8 +320,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                     </button>
                     {isOptionsOpen && (
                         <div className='botones-container mt-2'>
-                            {botones.map((boton) => (
-                                <Button color="primary" variant="ghost" key={boton.title}>
+                            {normalizedButtons.map((boton) => (
+                                <Button color="primary" variant="ghost" key={boton.id}>
                                     {boton.title} {boton.description ? `(${boton.description.length > 20 ? boton.description.slice(0, 20) + '...' : boton.description})` : ''}
                                 </Button>
 
@@ -211,8 +335,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
             return (
                 <div className='botones-container'>
                 
-                        {botones.map((boton) => (
-                            <Button  color="primary" variant="ghost" key={boton.reply.id}>{boton.reply.title} </Button>
+                        {normalizedButtons.map((boton) => (
+                            <Button color="primary" variant="ghost" key={boton.id}>{boton.title}</Button>
                         ))}
                     
                 </div>
@@ -281,6 +405,20 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             {highlight ? highlightText(originalMsg.content, highlight) : originalMsg.content}
                         </p>
                     );
+                case 'flow': {
+                    const flow = Array.isArray(originalMsg.interaction)
+                        ? originalMsg.interaction[0]
+                        : originalMsg.interaction;
+                    return (
+                        <div className="flex items-center gap-2 py-1">
+                            <FormIcon className="h-4 w-4 flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-medium">{originalMsg.header || originalMsg.content || 'Formulario de WhatsApp'}</p>
+                                <p className="text-xs opacity-70">{flow?.cta || 'Abrir formulario'}</p>
+                            </div>
+                        </div>
+                    );
+                }
                 case 'image':
                     return (
                         <a href={originalMsg.content} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline">
@@ -345,6 +483,9 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                 case 'buttonreply':
                 case 'button':
                 case 'optionList':
+                    if (msg.interactiveReply?.type === 'nfm_reply' || (typeof msg.content === 'string' && msg.content.startsWith('[Formulario]'))) {
+                        return <FlowResponseCard message={msg} />;
+                    }
                     return (
                         <div className="flex flex-col gap-2">
                             <div className="whitespace-pre-wrap break-words" style={{ fontSize: textSizeValue }}>
@@ -355,6 +496,8 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
                             {msg.class === 'interactive' && <Button  color='primary' key={msg._id}>{msg.content}</Button>}
                         </div>
                     );
+                case 'flow':
+                    return <FlowSentCard message={msg} />;
     
                 case 'mtm':
                     return (
@@ -543,6 +686,21 @@ const MessageBubble = ({ message, responseToMessage, reactToMessage, allMsg, con
     const messageTime = moment(message.createdAt).format('DD/MM/YY h:mm a');
     const ackStatus = getAck(message.ack);
     const reactions = getReaction(message.reaction);
+
+    if (isInternalNote) {
+        return (
+            <div id={`message-${message._id}`} className="flex justify-center my-3 px-3">
+                <div className="w-full max-w-2xl rounded-xl border border-warning-300 bg-warning-50 p-3 text-ink">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                        <p className="text-sm font-semibold">🤖 Contexto privado del bot</p>
+                        <span className="text-xs text-ink-400">{messageTime}</span>
+                    </div>
+                    <div className="whitespace-pre-wrap break-words text-sm">{message.content}</div>
+                    <p className="mt-2 text-xs text-ink-400">Solo visible para el equipo de atención.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div 
