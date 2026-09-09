@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 import { motion } from 'framer-motion';
 import LogoImage from './../img/logo.png';
-import axios from 'axios';
+import useLoginRequest from '../hooks/useLoginRequest';
 import './Login.css';
 
 const UserIcon = () => (
@@ -47,34 +47,22 @@ const CHANNELS = [
 ];
 
 const Login = () => {
-  const [onLoading, setOnLoading] = useState(false);
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
-  const [msgError, setMsgError] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
+  const { submitLogin, onLoading, retrySeconds, msgError, setMsgError } = useLoginRequest('/agent/login', (body) => {
+    window.localStorage.setItem('sdToken', body.token);
+    window.localStorage.setItem('myName', body.name);
+    window.location.href = '/';
+  });
   const onSubmitForm = async (event) => {
     event.preventDefault();
-    if (user.trim() === '') { setMsgError('El usuario no debe ir vacío.'); return false; }
-    if (password.trim() === '') { setMsgError('La contraseña no debe ir vacía.'); return false; }
-
-    setOnLoading(true);
-
-    try {
-      let resLogin = await axios.post(process.env.REACT_APP_CENTRALITA + '/agent/login', { user, password });
-
-      setOnLoading(false);
-      if (!resLogin.data.body.success) {
-        setMsgError(resLogin.data.body.message);
-        return false;
-      }
-      window.localStorage.setItem('sdToken', resLogin.data.body.token);
-      window.localStorage.setItem('myName', resLogin.data.body.name);
-      return window.location.href = '/';
-    } catch (err) {
-      setMsgError('Ocurrió un error al intentar iniciar sesión, intente más tarde.\n\n' + err.message);
-      setOnLoading(false);
+    if (!user.trim() || !password.length) {
+      setMsgError('Ingresa tu usuario y contraseña.');
+      return;
     }
+    await submitLogin(user, password);
   };
 
   return (
@@ -160,6 +148,7 @@ const Login = () => {
                     size="lg"
                     isRequired
                     autoComplete="username"
+                    maxLength={254}
                     placeholder="Ingresa tu usuario"
                     value={user}
                     onChange={(e) => { setUser(e.target.value.replace(/\s/g, '')); setMsgError(''); }}
@@ -185,6 +174,8 @@ const Login = () => {
                     size="lg"
                     isRequired
                     placeholder="Ingresa tu contraseña"
+                    autoComplete="current-password"
+                    maxLength={1024}
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setMsgError(''); }}
                     startContent={<div className="pointer-events-none flex items-center"><LockIcon /></div>}
@@ -211,6 +202,7 @@ const Login = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     className="login-error"
+                    role="alert"
                   >
                     {msgError}
                   </motion.div>
@@ -220,6 +212,7 @@ const Login = () => {
                   type="submit"
                   size="lg"
                   isLoading={onLoading}
+                  isDisabled={onLoading || retrySeconds > 0}
                   spinner={
                     <svg className="animate-spin h-5 w-5 text-current" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -229,7 +222,7 @@ const Login = () => {
                   className="w-full login-submit-btn"
                   radius="none"
                 >
-                  {onLoading ? 'Iniciando sesión...' : 'Ingresar al espacio de trabajo'}
+                  {retrySeconds > 0 ? `Reintentar en ${retrySeconds} s` : onLoading ? 'Iniciando sesión...' : 'Ingresar al espacio de trabajo'}
                 </Button>
               </form>
             </CardBody>
