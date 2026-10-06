@@ -39,159 +39,216 @@
 .login-brand-panel .flame-mesh { z-index: 0; }
 .login-brand-panel .grid-lines { z-index: 1; }
 
+/* ── Contenido del panel de marca: Kortex al frente ──
+   Mismo bloque que adminDashboard/src/views/Login.css. */
 .login-brand-content {
   position: relative;
   z-index: 2;
+  width: 100%;
   max-width: 460px;
   text-align: left;
 }
 
-.login-brand-logo-wrap {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 1.75rem;
-}
-
-.login-brand-logo {
+.login-kortex-mark {
+  display: grid;
+  place-items: center;
   width: 64px;
-  height: auto;
+  height: 64px;
+  margin-bottom: 1.5rem;
+  border-radius: var(--r-sharp);
+  background: linear-gradient(135deg, var(--f3), var(--f5));
+  color: var(--cream);
 }
 
-/* El titulo es la pieza de marca grande: aqui si va el degradado flame. */
+.login-kortex-mark .kortex-face { width: 34px; height: 40px; }
+
+.login-brand-eyebrow {
+  margin: 0 0 .75rem;
+  color: rgba(255, 250, 235, .6);
+  font-family: var(--font-mono);
+  font-size: .6875rem;
+  font-weight: 500;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+/* Titular en crema; solo la palabra clave lleva el degradado flame
+   (marca grande, nunca texto pequeño sobre crema). */
 .login-brand-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.4rem, 4.4vw, 3.4rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 0.94;
-  margin: 0 0 0.9rem;
+  margin: 0 0 1rem;
   color: var(--cream);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 3.6vw, 3rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
 }
 
 .login-brand-title em {
   font-style: normal;
-  background: linear-gradient(100deg,
-              var(--f1) 0%, var(--f2) 22%, var(--f3) 48%, var(--f4) 72%, var(--f5) 100%);
+  background: linear-gradient(100deg, var(--f1) 0%, var(--f2) 22%, var(--f3) 48%, var(--f4) 72%, var(--f5) 100%);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: flame-slide 12s ease-in-out infinite alternate;
+  animation: flame-slide 9s ease-in-out infinite alternate;
 }
 
 .login-brand-tagline {
-  font-size: 0.95rem;
-  color: rgba(255, 250, 235, 0.66);
-  line-height: 1.65;
-  margin: 0 0 2rem;
-  max-width: 34ch;
+  max-width: 420px;
+  margin: 0 0 1.75rem;
+  color: rgba(255, 250, 235, .72);
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
-/* Tarjetas de canal: hairline sobre tinta, sin relleno ni blur. */
-.login-channel-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  border: 1px solid var(--hair-dark);
+/* Ejemplo de Kortex en acción. Rotulado "Ejemplo" a propósito: en una
+   pantalla pública un número que parece en vivo y no lo es, miente. */
+.login-demo {
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 250, 235, .14);
+  border-left: 3px solid var(--f4);
   border-radius: var(--r-sharp);
-  margin-bottom: 1.5rem;
+  background: rgba(255, 250, 235, .04);
 }
 
-.login-channel-card {
-  border-right: 1px solid var(--hair-dark);
-  padding: 0.9rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  transition: background 0.3s var(--ease);
-  cursor: default;
-}
-.login-channel-card:last-child { border-right: 0; }
-.login-channel-card:hover { background: rgba(255, 250, 235, 0.05); }
-
-.login-channel-icon {
-  font-size: 1.15rem;
-  line-height: 1;
-}
-
-.login-channel-name {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--cream);
-}
-
-.login-channel-count {
+.login-demo-label {
+  margin-bottom: .6rem;
+  color: rgba(255, 250, 235, .5);
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
+  font-size: .625rem;
+  letter-spacing: .13em;
   text-transform: uppercase;
-  color: rgba(255, 250, 235, 0.5);
 }
 
-/* Fila de metricas: mismo idioma de celdas con hairline. */
-.login-metrics-row {
-  display: flex;
-  align-items: stretch;
-  border: 1px solid var(--hair-dark);
-  border-radius: var(--r-sharp);
-  margin-bottom: 1.5rem;
-}
-
-.login-metric {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 0.9rem 1rem;
-}
-
-.login-metric-value {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+.login-demo-question {
+  margin: 0 0 .65rem;
+  color: rgba(255, 250, 235, .9);
+  font-size: .875rem;
   font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 1;
+}
+
+.login-demo-question::before { content: '› '; color: var(--f3); }
+
+.login-demo-answer {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  margin: 0;
+  color: rgba(255, 250, 235, .78);
+  font-size: .875rem;
+  line-height: 1.5;
+  animation: login-demo-in .6s ease-out .5s both;
+}
+
+.login-demo-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: var(--r-sharp);
+  background: linear-gradient(135deg, var(--f3), var(--f5));
   color: var(--cream);
 }
 
-.login-metric-label {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 250, 235, 0.5);
-  white-space: nowrap;
+.login-demo-avatar .kortex-face { width: 12px; height: 14px; }
+
+@keyframes login-demo-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
 }
 
-.login-metric-divider {
-  width: 1px;
-  background: var(--hair-dark);
-  flex-shrink: 0;
+.login-benefits {
+  display: grid;
+  gap: .6rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
 }
 
-/* Badge del copiloto */
-.login-kortex-badge {
+.login-benefits li {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  color: rgba(255, 250, 235, .86);
+  font-size: .9rem;
+}
+
+.login-benefits svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--f3); }
+
+/* Los canales como capacidad, no como "conectados": antes de iniciar
+   sesión no sabemos qué tiene conectado este servicio. Los puntos son
+   colores de marcas ajenas (CHANNEL_PALETTE), no paleta nuestra. */
+.login-channels-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem .9rem;
+  margin: 0;
+  color: rgba(255, 250, 235, .55);
+  font-size: .75rem;
+}
+
+.login-channel { display: inline-flex; align-items: center; gap: .35rem; }
+.login-channel-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; }
+
+/* ── Encabezado y pie de la tarjeta ── */
+.login-card-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 250, 235, 0.72);
-  border: 1px solid var(--hair-dark);
-  border-radius: var(--r-pill);
-  padding: 0.35rem 0.9rem;
+  gap: .5rem;
+  margin: 0 0 .25rem;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-.login-kortex-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--f3);
-  border-radius: 50%;
-  flex-shrink: 0;
+.login-card-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sharp);
+  background: linear-gradient(135deg, var(--f3), var(--f5));
+  color: var(--cream);
+}
+
+.login-card-mark .kortex-face { width: 15px; height: 18px; }
+
+/* El pie de esta tarjeta va alineado a la izquierda (a diferencia del admin). */
+.login-access-help {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: .75rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+/* El mensaje del cliente del ejemplo, con el tono que lee Kortex. */
+.login-demo-customer {
+  margin: 0 0 .65rem;
+  color: rgba(255, 250, 235, .9);
+  font-size: .875rem;
+  line-height: 1.5;
+}
+
+.login-demo-tone {
+  display: inline-block;
+  margin-left: .5rem;
+  padding: 1px 6px;
+  border: 1px solid var(--f4);
+  border-radius: var(--r-sharp);
+  color: var(--f3);
+  font-size: .6875rem;
+  font-weight: 600;
+  vertical-align: 1px;
+  white-space: nowrap;
 }
 
 /* ── Panel de formulario (derecha) ── */
@@ -225,21 +282,6 @@
   gap: 0.75rem;
 }
 
-.login-card-logo-wrap {
-  border: 1px solid var(--hair);
-  border-radius: var(--r-sharp);
-  padding: 0.7rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-card-logo {
-  width: 44px;
-  height: auto;
-  display: block;
-}
-
 .login-card-title {
   font-family: var(--font-display);
   font-size: 1.6rem;
@@ -250,14 +292,11 @@
   line-height: 1;
 }
 
+/* Ahora es una frase ("Inicia sesión para continuar"), no un rótulo. */
 .login-card-subtitle {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  color: var(--text-muted);
   margin: 0;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
 }
 
 .login-card-body {
@@ -277,19 +316,6 @@
   color: var(--text);
   margin-bottom: 0.35rem;
 }
-
-.login-field-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.35rem;
-}
-
-.login-forgot-link {
-  font-size: 0.73rem !important;
-  color: var(--text-muted) !important;
-}
-.login-forgot-link:hover { color: var(--text) !important; }
 
 /* Error: set semantico, no la rampa flame. */
 .login-error {
@@ -338,62 +364,29 @@
   padding: 0.625rem 2rem 1.5rem !important;
 }
 
-.login-ai-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--good);
-  background: var(--good-bg);
-  border: 1px solid var(--good);
-  border-radius: var(--r-pill);
-  padding: 0.22rem 0.7rem;
-}
-
-.login-ai-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--good);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.login-version {
-  font-size: 0.68rem;
-  color: var(--text-subtle);
-}
-
-.login-version-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: var(--cream-100);
-  border: 1px solid var(--hair);
-  border-radius: var(--r-pill);
-  padding: 0.2rem 0.6rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  cursor: help;
-}
-
 .login-copyright {
   font-size: 0.63rem;
   color: var(--text-subtle);
 }
 
-/* ── Movil ── */
+/* ── Móvil: el panel de marca se vuelve una franja con Kortex y el
+   titular sobre el formulario, en lugar de desaparecer. ── */
 @media (max-width: 900px) {
-  .login-brand-panel { display: none; }
-  .login-form-panel { background: var(--canvas); }
+  .login-root { flex-direction: column; }
+  .login-brand-panel { flex: 0 0 auto; padding: 1.75rem 1.25rem 1.5rem; }
+  .login-brand-content { max-width: 520px; }
+  .login-kortex-mark { width: 48px; height: 48px; margin-bottom: 1rem; }
+  .login-kortex-mark .kortex-face { width: 26px; height: 30px; }
+  .login-brand-title { font-size: 2rem; margin-bottom: .6rem; }
+  .login-brand-tagline { margin-bottom: 0; font-size: .9rem; }
+  .login-demo,
+  .login-benefits,
+  .login-channels-line { display: none; }
+  .login-form-panel { align-items: flex-start; padding: 1.5rem 1rem 2rem; }
+  .login-card-brand { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login-brand-title em { animation: none; }
+  .login-brand-title em,
+  .login-demo-answer { animation: none; }
 }

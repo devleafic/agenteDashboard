@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardFooter,
   Divider,
-  Link,
-  Tooltip
 } from "@heroui/react";
+import { MessageCircleQuestion, Smile, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
-import LogoImage from './../img/logo.png';
+import KortexFace from '../components/KortexFace';
+import { CHANNEL_PALETTE } from '../styles/channelPalette';
 import useLoginRequest from '../hooks/useLoginRequest';
 import './Login.css';
 
@@ -40,10 +40,26 @@ const EyeSlashIcon = () => (
   </svg>
 );
 
+/* Login IA-first: la protagonista es Kortex y lo que hace por el agente.
+   Antes este panel mostraba "12 convs. activas", "3 en cola", "45s" y
+   "8 activas" por canal, todos fijos en el codigo, mas un "Copiloto IA
+   activo" que no consultaba nada: en una pantalla publica, numeros que
+   parecen en vivo y no lo son mienten. Cada beneficio de abajo es una
+   accion real del panel Copilot IA (Preguntar, Clasificar, tono). */
+const BENEFITS = [
+  { Icon: MessageCircleQuestion, label: 'Pregúntale a Kortex sobre cada conversación' },
+  { Icon: Tag,                   label: 'Clasifica el motivo en un clic' },
+  { Icon: Smile,                 label: 'El tono del cliente, a la vista' },
+];
+
+// Los puntos son colores de marcas ajenas; la voz es nuestra y va en flame.
 const CHANNELS = [
-  { icon: '💬', name: 'WhatsApp', count: '8 activas' },
-  { icon: '🌐', name: 'Chat Web', count: '3 activas' },
-  { icon: '📞', name: 'Voz', count: '1 activa' },
+  { label: 'WhatsApp',  color: CHANNEL_PALETTE.whatsapp },
+  { label: 'Messenger', color: CHANNEL_PALETTE.messenger },
+  { label: 'Instagram', color: CHANNEL_PALETTE.instagram },
+  { label: 'Telegram',  color: CHANNEL_PALETTE.telegram },
+  { label: 'Web',       color: CHANNEL_PALETTE.webchat },
+  { label: 'Voz',       color: 'var(--f3)' },
 ];
 
 const Login = () => {
@@ -68,54 +84,46 @@ const Login = () => {
   return (
     <div className="login-root">
 
-      {/* ── Left brand panel ── */}
+      {/* ── Panel de marca: Kortex al frente ── */}
       <div className="login-brand-panel grain">
-        {/* Malla flame + rejilla: el fondo de marca, en lugar de los
-            cuatro blobs sky/violet/emerald anteriores. */}
         <div className="flame-mesh flame-mesh--faint" />
         <div className="grid-lines grid-lines--dark" />
 
         <div className="login-brand-content">
-          <div className="login-brand-logo-wrap">
-            <img src={LogoImage} alt="Inbox Central" className="login-brand-logo" />
-          </div>
-
-          <h1 className="login-brand-title">Tu bandeja<br /><em>inteligente</em></h1>
+          <span className="login-kortex-mark" aria-hidden="true"><KortexFace /></span>
+          <p className="login-brand-eyebrow">Inbox Central · Espacio del agente</p>
+          <h1 className="login-brand-title">Atiende con un <em>copiloto</em></h1>
           <p className="login-brand-tagline">
-            Responde, gestiona y resuelve con el soporte de IA en tiempo real
+            Kortex te acompaña en cada conversación: entiende el caso, lee el tono del cliente y te sugiere cómo responder.
           </p>
 
-          <div className="login-channel-cards">
-            {CHANNELS.map(ch => (
-              <div key={ch.name} className="login-channel-card">
-                <span className="login-channel-icon">{ch.icon}</span>
-                <span className="login-channel-name">{ch.name}</span>
-                <span className="login-channel-count">{ch.count}</span>
-              </div>
+          <figure className="login-demo">
+            <figcaption className="login-demo-label">Ejemplo</figcaption>
+            <p className="login-demo-customer">
+              Mi pedido de ayer no ha llegado y ya pagué.
+              <span className="login-demo-tone">Tono negativo</span>
+            </p>
+            <p className="login-demo-answer">
+              <span className="login-demo-avatar" aria-hidden="true"><KortexFace /></span>
+              <span>Discúlpate, confirma el número de pedido y comparte el estado de la entrega antes de cerrar.</span>
+            </p>
+          </figure>
+
+          <ul className="login-benefits">
+            {BENEFITS.map(({ Icon, label }) => (
+              <li key={label}><Icon aria-hidden="true" />{label}</li>
             ))}
-          </div>
+          </ul>
 
-          <div className="login-metrics-row">
-            <div className="login-metric">
-              <span className="login-metric-value">12</span>
-              <span className="login-metric-label">Convs. activas</span>
-            </div>
-            <div className="login-metric-divider" />
-            <div className="login-metric">
-              <span className="login-metric-value">3</span>
-              <span className="login-metric-label">En cola</span>
-            </div>
-            <div className="login-metric-divider" />
-            <div className="login-metric">
-              <span className="login-metric-value">45s</span>
-              <span className="login-metric-label">T. respuesta</span>
-            </div>
-          </div>
-
-          <div className="login-kortex-badge">
-            <span className="login-kortex-dot" />
-            Copiloto Kortex activo · IA asistente
-          </div>
+          <p className="login-channels-line">
+            <span>Funciona en</span>
+            {CHANNELS.map(({ label, color }) => (
+              <span key={label} className="login-channel">
+                <span className="login-channel-dot" style={{ background: color }} aria-hidden="true" />
+                {label}
+              </span>
+            ))}
+          </p>
         </div>
       </div>
 
@@ -129,11 +137,12 @@ const Login = () => {
         >
           <Card className="login-card">
             <CardHeader className="login-card-header">
-              <div className="login-card-logo-wrap">
-                <img src={LogoImage} alt="Inbox Central" className="login-card-logo" />
-              </div>
-              <h1 className="login-card-title">Iniciar sesión</h1>
-              <p className="login-card-subtitle">Espacio de trabajo del agente</p>
+              <p className="login-card-brand">
+                <span className="login-card-mark" aria-hidden="true"><KortexFace /></span>
+                Inbox Central
+              </p>
+              <h2 className="login-card-title">Espacio del agente</h2>
+              <p className="login-card-subtitle">Inicia sesión para continuar</p>
             </CardHeader>
 
             <Divider />
@@ -141,8 +150,9 @@ const Login = () => {
             <CardBody className="login-card-body">
               <form onSubmit={onSubmitForm} className="login-card-form">
                 <div>
-                  <label className="login-field-label">Usuario</label>
+                  <label htmlFor="agent-username" className="login-field-label">Usuario</label>
                   <Input
+                    id="agent-username"
                     type="text"
                     variant="bordered"
                     size="lg"
@@ -162,13 +172,11 @@ const Login = () => {
                 </div>
 
                 <div>
-                  <div className="login-field-header">
-                    <label className="login-field-label">Contraseña</label>
-                    <Link href="#" size="sm" className="login-forgot-link">
-                      ¿Olvidaste tu contraseña?
-                    </Link>
-                  </div>
+                  {/* "¿Olvidaste tu contraseña?" apuntaba a "#": no hay flujo
+                      de recuperacion. La ayuda honesta va en el pie. */}
+                  <label htmlFor="agent-password" className="login-field-label">Contraseña</label>
                   <Input
+                    id="agent-password"
                     type={isVisible ? "text" : "password"}
                     variant="bordered"
                     size="lg"
@@ -228,20 +236,9 @@ const Login = () => {
             </CardBody>
 
             <CardFooter className="login-card-footer">
-              <div className="login-ai-badge">
-                <span className="login-ai-dot" />
-                Copiloto IA activo
-              </div>
-              <div className="login-version">
-                <Tooltip content="Versión actual del sistema" placement="top">
-                  <span className="login-version-chip">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    v{process.env.REACT_APP_SYSTEM_VERSION} · {process.env.REACT_APP_SYSTEM_REACTOR || 'IBC'}
-                  </span>
-                </Tooltip>
-              </div>
+              <p className="login-access-help">
+                ¿Sin acceso? Pide a tu supervisor que restablezca tu contraseña.
+              </p>
               <div className="login-copyright">
                 © {new Date().getFullYear()} IBC. Todos los derechos reservados.
               </div>

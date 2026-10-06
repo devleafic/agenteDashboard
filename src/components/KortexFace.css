@@ -1,0 +1,22 @@
+/* Tamano por defecto con especificidad cero. Con `.kortex-face` a secas
+   este archivo entraba al bundle despues de Tailwind y su `1em` le ganaba a
+   `w-10`/`w-11`: la cara del panel y del encabezado salia de ~14px dentro
+   de cajas de 44px. Ahora cualquier clase o regla de contexto manda. */
+:where(.kortex-face) {
+  display: block;
+  width: 1em;
+  height: 1.16em;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.kortex-eye { animation: kortex-blink 5.4s ease-in-out infinite; }
+
+@keyframes kortex-blink {
+  0%, 91%, 100% { opacity: 1; }
+  95% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kortex-eye { animation: none; }
+}
